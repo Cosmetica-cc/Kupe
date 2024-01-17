@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "examplemod",
+  "version": "${version}",
+  "name": "Kupe",
+  "description": "This is an example description! Tell everyone what your mod is about!",
+  "authors": [
+    "Valoeghese"
+  ],
+  "contact": {
+    "homepage": "https://fabricmc.net/",
+    "sources": "https://github.com/FabricMC/fabric-example-mod"
+  },
+  "license": "Insert License Here",
+  "icon": "assets/examplemod/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "net.examplemod.fabric.ExampleModFabric"
+    ]
+  },
+  "mixins": [
+    "examplemod.mixins.json",
+    "examplemod-common.mixins.json"
+  ],
+  "depends": {
+    "fabric": "*",
+    "minecraft": ">=1.16.5",
+    "architectury": ">=1.32.68"
+  }
+}
