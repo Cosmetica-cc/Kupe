@@ -1,7 +1,6 @@
 package net.examplemod;
 
 import dev.architectury.injectables.annotations.ExpectPlatform;
-import me.shedaniel.architectury.platform.Platform;
 
 import java.nio.file.Path;
 
