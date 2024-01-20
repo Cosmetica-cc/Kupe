@@ -20,7 +20,7 @@
     ]
   },
   "mixins": [
-    "examplemod.mixins.json",
+    "kupe.mixins.json",
     "examplemod-common.mixins.json"
   ],
   "depends": {
