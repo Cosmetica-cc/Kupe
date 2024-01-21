@@ -7,13 +7,6 @@ architectury {
     fabric()
 }
 
-sourceSets {
-    testmod {
-        compileClasspath += main.compileClasspath
-        runtimeClasspath += main.runtimeClasspath
-    }
-}
-
 loom {
     accessWidenerPath = project(":common").loom.accessWidenerPath
 }
