@@ -1,6 +1,6 @@
-package net.examplemod.forge;
+package cc.cosmetica.kupe.forge;
 
-import net.examplemod.ExampleExpectPlatform;
+import cc.cosmetica.kupe.ExampleExpectPlatform;
 import net.minecraftforge.fml.loading.FMLPaths;
 
 import java.nio.file.Path;

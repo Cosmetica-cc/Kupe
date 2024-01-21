@@ -1,6 +1,6 @@
-package net.examplemod.forge;
+package cc.cosmetica.kupe.forge;
 
-import net.examplemod.ExampleMod;
+import cc.cosmetica.kupe.ExampleMod;
 import net.minecraftforge.fml.common.Mod;
 
 @Mod(ExampleMod.MOD_ID)

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "examplemod",
+  "id": "kupe",
   "version": "${version}",
   "name": "Kupe",
   "description": "This is an example description! Tell everyone what your mod is about!",
@@ -16,7 +16,7 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "net.examplemod.fabric.ExampleModFabric"
+      "cc.cosmetica.kupe.fabric.ExampleModFabric"
     ]
   },
   "mixins": [

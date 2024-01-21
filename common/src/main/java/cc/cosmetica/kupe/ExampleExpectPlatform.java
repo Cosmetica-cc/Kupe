@@ -1,4 +1,4 @@
-package net.examplemod;
+package cc.cosmetica.kupe;
 
 import dev.architectury.injectables.annotations.ExpectPlatform;
 

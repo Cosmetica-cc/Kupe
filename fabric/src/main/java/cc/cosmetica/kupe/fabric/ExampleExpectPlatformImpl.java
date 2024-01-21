@@ -1,6 +1,6 @@
-package net.examplemod.fabric;
+package cc.cosmetica.kupe.fabric;
 
-import net.examplemod.ExampleExpectPlatform;
+import cc.cosmetica.kupe.ExampleExpectPlatform;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.nio.file.Path;

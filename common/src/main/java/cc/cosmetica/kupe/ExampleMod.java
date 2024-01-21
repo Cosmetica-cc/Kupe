@@ -1,6 +1,4 @@
-package net.examplemod;
-
-import java.util.function.Supplier;
+package cc.cosmetica.kupe;
 
 public class ExampleMod {
     public static final String MOD_ID = "kupe";

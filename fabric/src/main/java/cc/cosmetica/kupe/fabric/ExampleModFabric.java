@@ -1,6 +1,6 @@
-package net.examplemod.fabric;
+package cc.cosmetica.kupe.fabric;
 
-import net.examplemod.ExampleMod;
+import cc.cosmetica.kupe.ExampleMod;
 import net.fabricmc.api.ModInitializer;
 
 public class ExampleModFabric implements ModInitializer {
