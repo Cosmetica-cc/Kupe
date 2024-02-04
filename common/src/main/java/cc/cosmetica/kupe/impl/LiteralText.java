@@ -2,6 +2,7 @@ package cc.cosmetica.kupe.impl;
 
 import cc.cosmetica.kupe.api.Text;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 
 /**
  * Component for plain text.
@@ -20,11 +21,11 @@ public class LiteralText implements Text {
 
 	@Override
 	public String getDisplayString() {
-		return ;
+		return this.text;
 	}
 
 	@Override
 	public Component toMinecraftComponent() {
-		return null;
+		return new TextComponent(this.text);
 	}
 }

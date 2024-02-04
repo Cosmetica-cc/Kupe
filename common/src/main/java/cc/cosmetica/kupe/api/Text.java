@@ -1,5 +1,8 @@
 package cc.cosmetica.kupe.api;
 
+import cc.cosmetica.kupe.impl.LiteralText;
+import cc.cosmetica.kupe.impl.TranslatableText;
+
 /**
  * Base class for a text component.
  */
@@ -20,4 +23,12 @@ public interface Text {
 	 * @return the minecraft component from this text.
 	 */
 	net.minecraft.network.chat.Component toMinecraftComponent();
+
+	static Text literal(String text) {
+		return new LiteralText(text);
+	}
+
+	static Text translatable(String text, String... format) {
+		return new TranslatableText(text, format);
+	}
 }
