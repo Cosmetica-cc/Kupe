@@ -22,6 +22,7 @@ public interface Text {
 	 * Convert this component to its minecraft version.
 	 * @return the minecraft component from this text.
 	 */
+	@LeavesSandbox
 	net.minecraft.network.chat.Component toMinecraftComponent();
 
 	static Text literal(String text) {

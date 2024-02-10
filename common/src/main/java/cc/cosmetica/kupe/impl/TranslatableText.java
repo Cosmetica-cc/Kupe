@@ -27,7 +27,7 @@ public class TranslatableText implements Text {
 	@Override
 	public String getDisplayString() {
 		return this.display.get(
-				() -> this.toMinecraftComponent().getVisualOrderText().toString() // TODO is this right
+				() -> this.toMinecraftComponent().getString() // TODO is this right
 		);
 	}
 
