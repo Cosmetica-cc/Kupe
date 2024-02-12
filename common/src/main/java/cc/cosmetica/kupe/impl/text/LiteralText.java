@@ -1,4 +1,4 @@
-package cc.cosmetica.kupe.impl;
+package cc.cosmetica.kupe.impl.text;
 
 import cc.cosmetica.kupe.api.Text;
 import net.minecraft.network.chat.Component;

@@ -14,17 +14,23 @@ public interface QuadBuilder {
 
 	QuadBuilder vertex(double x, double y, double z);
 
-	QuadBuilder colour(int r, int g, int b, int a);
+	QuadBuilder colour(float r, float g, float b, float a);
 
+	/**
+	 * The first lot of uv coordinates. Corresponds to the texture coordinates.
+	 * @param u the x position in the texture, between 0 and 1.
+	 * @param v the y position in the texture, between 0 and 1.
+	 * @return this.
+	 */
 	QuadBuilder uv(float u, float v);
 
 	/**
 	 * The second lot of uv coordinates. Corresponds to the lightmap.
 	 * @param u the x position in the lightmap texture.
 	 * @param v the y position in the lightmap texture.
-	 * @return
+	 * @return this.
 	 */
-	QuadBuilder lightmap(float u, float v);
+	QuadBuilder lightmap(int u, int v);
 
 	/**
 	 * Build this quad and dispatch it to be rendered.

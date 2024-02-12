@@ -1,7 +1,7 @@
 package cc.cosmetica.kupe.api;
 
-import cc.cosmetica.kupe.impl.LiteralText;
-import cc.cosmetica.kupe.impl.TranslatableText;
+import cc.cosmetica.kupe.impl.text.LiteralText;
+import cc.cosmetica.kupe.impl.text.TranslatableText;
 
 /**
  * Base class for a text component.
