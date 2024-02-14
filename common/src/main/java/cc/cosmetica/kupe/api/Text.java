@@ -33,5 +33,5 @@ public interface Text {
 	 * @return the minecraft component from this text.
 	 */
 	@LeavesSandbox
-	public abstract Component toMinecraftComponent();
+	Component toMinecraftComponent();
 }

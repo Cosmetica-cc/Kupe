@@ -3,7 +3,6 @@ package cc.cosmetica.kupe.impl;
 import cc.cosmetica.kupe.api.QuadBuilder;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.math.Matrix4f;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
