@@ -1,7 +1,9 @@
 package cc.cosmetica.kupe.api;
 
+import cc.cosmetica.kupe.impl.LeavesSandbox;
 import cc.cosmetica.kupe.impl.text.LiteralText;
 import cc.cosmetica.kupe.impl.text.TranslatableText;
+import net.minecraft.network.chat.Component;
 
 /**
  * Base class for a text component.
@@ -18,13 +20,6 @@ public interface Text {
 	 */
 	String getDisplayString();
 
-	/**
-	 * Convert this component to its minecraft version.
-	 * @return the minecraft component from this text.
-	 */
-	@LeavesSandbox
-	net.minecraft.network.chat.Component toMinecraftComponent();
-
 	static Text literal(String text) {
 		return new LiteralText(text);
 	}
@@ -32,4 +27,11 @@ public interface Text {
 	static Text translatable(String text, String... format) {
 		return new TranslatableText(text, format);
 	}
+
+	/**
+	 * Convert this component to its minecraft version.
+	 * @return the minecraft component from this text.
+	 */
+	@LeavesSandbox
+	public abstract Component toMinecraftComponent();
 }

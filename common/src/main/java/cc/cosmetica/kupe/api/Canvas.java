@@ -7,6 +7,17 @@ import net.minecraft.resources.ResourceLocation;
  */
 public interface Canvas {
 	/**
+	 * Disable transparent textures being drawn.
+	 */
+	void disableTransparency();
+
+	/**
+	 * Enable transparent textures being drawn, and use the given transparency.
+	 * @param transparency the transparency to use, between 0 and 1.
+	 */
+	void setTransparency(float transparency);
+
+	/**
 	 * Draw the text with the given colour at the given location on the screen.
 	 * @param text the text to draw.
 	 * @param x the x position at which to draw.
@@ -16,14 +27,25 @@ public interface Canvas {
 	void drawText(Text text, int x, int y, int colour);
 
 	/**
+	 * Draw the text with the given colour centered at the given location on the screen.
+	 * @param text the text to draw.
+	 * @param x the x position at which to draw.
+	 * @param y the y position at which to draw.
+	 * @param colour the colour to use, as an RGB int.
+	 */
+	void drawCenteredText(Text text, int x, int y, int colour);
+
+	/**
 	 * Draw a rectangle filled with the given colour.
 	 * @param x0 the x coordinate of the top left corner.
 	 * @param y0 the y coordinate of the top left corner
 	 * @param x1 the x coordinate of the bottom right corner
 	 * @param y1 the y coordinate of the bottom right corner
-	 * @param colour the colour to use, as an RGB int.
+	 * @param r the red value to use for the colour.
+	 * @param g the green value to use for the colour.
+	 * @param b the blue value to use for the colour.
 	 */
-	void drawRect(int x0, int y0, int x1, int y1, int colour);
+	void drawRect(int x0, int y0, int x1, int y1, float r, float g, float b);
 
 	/**
 	 * Draw a rectangle filled with the given texture.
@@ -31,9 +53,10 @@ public interface Canvas {
 	 * @param y0 the y coordinate of the top left corner
 	 * @param x1 the x coordinate of the bottom right corner
 	 * @param y1 the y coordinate of the bottom right corner
+	 * @param z the z coordinate to draw the texture at. Write 0 if you do not need to use this parameter.
 	 * @param texture the location at which the texture can be found.
 	 */
-	void drawTexture(int x0, int y0, int x1, int y1, ResourceLocation texture);
+	void drawTexture(int x0, int y0, int x1, int y1, float z, ResourceLocation texture);
 
 	/**
 	 * Start drawing quads.

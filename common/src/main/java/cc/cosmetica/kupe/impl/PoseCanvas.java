@@ -1,0 +1,94 @@
+package cc.cosmetica.kupe.impl;
+
+import cc.cosmetica.kupe.api.Canvas;
+import cc.cosmetica.kupe.api.QuadBuilder;
+import cc.cosmetica.kupe.api.Text;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.*;
+import com.mojang.math.Matrix4f;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.resources.ResourceLocation;
+import org.lwjgl.opengl.GL11;
+
+/**
+ * Implementation of Canvas.
+ */
+public class PoseCanvas implements Canvas {
+	public PoseCanvas(PoseStack stack, Minecraft minecraft) {
+		this.stack = stack;
+		this.minecraft = minecraft;
+	}
+
+	private final PoseStack stack;
+	private final Minecraft minecraft;
+
+	@Override
+	public void disableTransparency() {
+		RenderSystem.disableBlend();
+	}
+
+	@Override
+	public void setTransparency(float transparency) {
+		RenderSystem.enableBlend();
+		RenderSystem.color4f(1.0f, 1.0f, 1.0f, transparency);
+	}
+
+	@Override
+	public void drawCenteredText(Text text, int x, int y, int colour) {
+		GuiComponent.drawCenteredString(this.stack, this.minecraft.font, text.toMinecraftComponent(), x, y, colour);
+	}
+
+	@Override
+	public void drawText(Text text, int x, int y, int colour) {
+		GuiComponent.drawString(this.stack, this.minecraft.font, text.toMinecraftComponent(), x, y, colour);
+	}
+
+	@Override
+	public void drawRect(int x0, int y0, int x1, int y1, float r, float g, float b) {
+		RenderSystem.disableTexture();
+		BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
+
+		bufferBuilder.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_COLOR);
+		bufferBuilder.vertex(x0, y1, 0.0D).color(r, g, b, 1.0F).endVertex();
+		bufferBuilder.vertex(x1, y1, 0.0D).color(r, g, b, 1.0F).endVertex();
+		bufferBuilder.vertex(x1, y0, 0.0D).color(r, g, b, 1.0F).endVertex();
+		bufferBuilder.vertex(x0, y0, 0.0D).color(r, g, b, 1.0F).endVertex();
+
+		bufferBuilder.end();
+		BufferUploader.end(bufferBuilder);
+	}
+
+	@Override
+	public void drawTexture(int x0, int y0, int x1, int y1, float z, ResourceLocation texture) {
+		RenderSystem.enableTexture();
+		Minecraft.getInstance().getTextureManager().bind(texture);
+		BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
+		Matrix4f matrix4f = this.stack.last().pose();
+
+		bufferBuilder.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_TEX);
+		bufferBuilder.vertex(matrix4f, (float)x0, (float)y1, z).uv(0, 1).endVertex();
+		bufferBuilder.vertex(matrix4f, (float)x1, (float)y1, z).uv(1, 1).endVertex();
+		bufferBuilder.vertex(matrix4f, (float)x1, (float)y0, z).uv(1, 0).endVertex();
+		bufferBuilder.vertex(matrix4f, (float)x0, (float)y0, z).uv(0, 0).endVertex();
+
+		bufferBuilder.end();
+		BufferUploader.end(bufferBuilder);
+	}
+
+	@Override
+	public QuadBuilder drawQuads(QuadBuilder.Mode mode) {
+		return new BufferQuadBuilder(Tesselator.getInstance().getBuilder(), mode, this.stack.last().pose());
+	}
+
+	/// Impl Only
+
+	/**
+	 * Get the minecraft pose stack.
+	 * @return the pose stack.
+	 */
+	@LeavesSandbox
+	public PoseStack getPoseStack() {
+		return this.stack;
+	}
+}

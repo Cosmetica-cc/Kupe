@@ -1,8 +1,9 @@
 package cc.cosmetica.kupe.api;
 
+import cc.cosmetica.kupe.impl.LeavesSandbox;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import org.lwjgl.system.CallbackI;
 
 /**
  * It builds the quads.
@@ -41,19 +42,21 @@ public interface QuadBuilder {
 	 * The modes this QuadBuilder can run in.
 	 */
 	enum Mode {
-		POSITION(DefaultVertexFormat.POSITION, 1),
-		POSITION_COLOUR(DefaultVertexFormat.POSITION_COLOR, 2),
-		POSITION_TEXTURE(DefaultVertexFormat.POSITION_TEX, 2),
-		POSITION_COLOUR_TEXTURE(DefaultVertexFormat.POSITION_COLOR_TEX, 3),
-		POSITION_COLOUR_LIGHTMAP(DefaultVertexFormat.POSITION_COLOR_LIGHTMAP, 3),
-		POSITION_COLOUR_TEXTURE_LIGHTMAP(DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP, 4);
+		POSITION(DefaultVertexFormat.POSITION, false, 1),
+		POSITION_COLOUR(DefaultVertexFormat.POSITION_COLOR, false, 2),
+		POSITION_TEXTURE(DefaultVertexFormat.POSITION_TEX, true, 2),
+		POSITION_COLOUR_TEXTURE(DefaultVertexFormat.POSITION_COLOR_TEX, false, 3),
+		POSITION_COLOUR_LIGHTMAP(DefaultVertexFormat.POSITION_COLOR_LIGHTMAP, false, 3),
+		POSITION_COLOUR_TEXTURE_LIGHTMAP(DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP, true, 4);
 
-		Mode(VertexFormat format, int size) {
+		Mode(VertexFormat format, boolean texture, int size) {
 			this.format = format;
+			this.texture = texture;
 			this.size = size;
 		}
 
 		private final VertexFormat format;
+		private final boolean texture;
 		private final int size;
 
 		/**
@@ -63,6 +66,18 @@ public interface QuadBuilder {
 		@LeavesSandbox
 		public VertexFormat getFormat() {
 			return this.format;
+		}
+
+		/**
+		 * Apply the shader this Mode is associated with.
+		 */
+		public void applyShader() {
+			// Does not directly apply to 1.16.5. Set texture instead.
+			if (this.texture) {
+				RenderSystem.enableTexture();
+			} else {
+				RenderSystem.disableTexture();
+			}
 		}
 
 		/**
