@@ -38,4 +38,20 @@ public class Dimensions {
 	public int getHeight() {
 		return height;
 	}
+
+	public static final Dimensions NONE = new Dimensions(0, 0, 0, 0);
+
+	public static Dimensions withMargins(Dimensions dimensions, Margins margins) {
+		// i am speed
+		if (margins == Margins.NONE) {
+			return dimensions;
+		}
+
+		return new Dimensions(
+				dimensions.x - margins.left,
+				dimensions.y - margins.top,
+				dimensions.width + margins.left + margins.right,
+				dimensions.height + margins.top + margins.bottom
+		);
+	}
 }
