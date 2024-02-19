@@ -26,22 +26,26 @@ public class Stylesheet {
 	}
 
 	/**
+	 * Get the maximum size of this component. This does not include padding or margins.
+	 * @return the maximum size of this component.
+	 */
+	public Dimensions maximumSize() {
+		return Dimensions.NONE;
+	}
+
+	/**
 	 * Get the preferred size of this component. This does not include padding or margins.
-	 * This should be in line with how the resize method works.
-	 * @param children the list of children of this component.
 	 * @return the preferred size of this component.
 	 */
-	public Dimensions preferredSize(List<Component> children) {
+	public Dimensions preferredSize() {
 		return Dimensions.NONE;
 	}
 
 	/**
 	 * Get the minimum size of this component. This does not include padding or margins.
-	 * This should be in line with how the resize method works.
-	 * @param children the list of children of this component.
-	 * @return the preferred size of this component.
+	 * @return the minimum size of this component.
 	 */
-	public Dimensions minimumSize(List<Component> children) {
+	public Dimensions minimumSize() {
 		return Dimensions.NONE;
 	}
 
