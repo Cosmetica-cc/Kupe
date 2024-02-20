@@ -54,4 +54,28 @@ public class Dimensions {
 				dimensions.height + margins.top + margins.bottom
 		);
 	}
+
+	public static Dimensions subtractPadding(Dimensions dimensions, Margins padding) {
+		// i am speed
+		if (padding == Margins.NONE) {
+			return dimensions;
+		}
+
+		int x = dimensions.x + padding.left;
+		int y = dimensions.y + padding.top;
+		int width = dimensions.width + padding.left + padding.right;
+		int height = dimensions.height + padding.top + padding.bottom;
+
+		if (width < 0) {
+			x -= width/2;
+			width = 0;
+		}
+
+		if (height < 0) {
+			y -= height/2;
+			height = 0;
+		}
+
+		return new Dimensions(x, y, width, height);
+	}
 }
