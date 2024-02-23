@@ -3,6 +3,8 @@ package cc.cosmetica.kupe.api.gui;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 
+import java.util.Optional;
+
 /**
  * 30 years late to the party.
  */
@@ -33,8 +35,8 @@ public class Stylesheet {
 	 * @param vh the screen height.
 	 * @return the maximum size of this component.
 	 */
-	public Dimensions maximumSize(int vw, int vh) {
-		return Dimensions.NONE;
+	public Optional<Dimensions> maximumSize(int vw, int vh) {
+		return Optional.empty();
 	}
 
 	/**
@@ -44,8 +46,8 @@ public class Stylesheet {
 	 * @param vh the screen height.
 	 * @return the preferred size of this component.
 	 */
-	public Dimensions preferredSize(int vw, int vh) {
-		return Dimensions.NONE;
+	public Optional<Dimensions> preferredSize(int vw, int vh) {
+		return this.maximumSize(vw, vh);
 	}
 
 	/**
@@ -56,8 +58,16 @@ public class Stylesheet {
 	 * @param vh the screen height.
 	 * @return the minimum size of this component.
 	 */
-	public Dimensions minimumSize(int vw, int vh) {
-		return Dimensions.NONE;
+	public Optional<Dimensions> minimumSize(int vw, int vh) {
+		return Optional.empty();
+	}
+
+	/**
+	 * Whether to preserve the shape (ratio of x and y) of this component, when resizing.
+	 * @return whether the shape of this component should be preserved.
+	 */
+	public boolean preserveShape() {
+		return false;
 	}
 
 	/**
