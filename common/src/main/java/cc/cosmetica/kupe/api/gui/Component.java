@@ -10,20 +10,38 @@ import java.util.List;
  *
  * All nodes in the GUI tree are components, from the base to the top. Base nodes return an empty list for build().
  */
-public abstract class Component {
-	protected Component() {
+public abstract class Component<T extends Stylesheet> {
+	protected Component(T defaultStylesheet) {
+		this.stylesheet = defaultStylesheet;
 	}
 
-	protected Stylesheet stylesheet = Stylesheet.DEFAULT;
+	protected T stylesheet;
 
 	/**
 	 * Set the style sheet of this component.
 	 * @param stylesheet the stylesheet to apply to this component.
-	 * @return
+	 * @return this component.
 	 */
-	public Component withStyle(Stylesheet stylesheet) {
+	public Component<T> withStyle(T stylesheet) {
 		this.stylesheet = stylesheet;
 		return this;
+	}
+
+	/**
+	 * Calculate the minimum size given the component's children. This should be consistent with how the component
+	 * positions its children.
+	 * @param children the children of this component.
+	 */
+	public void minimumSize(List<Component<?>> children) {
+
+	}
+
+	/**
+	 * Calculate the preferred size of this component given the component's children
+	 * @param children
+	 */
+	public void preferredSize(List<Component<?>> children) {
+
 	}
 
 	/**
@@ -31,7 +49,7 @@ public abstract class Component {
 	 * Will be called again if states acquired by this component or a parent component change.
 	 * @return the list of children of this component
 	 */
-	public abstract List<Component> build();
+	public abstract List<Component<?>> build();
 
 	public void resize(Dimensions dimensions, List<Component> children) {
 		// By default, lay out children in a column from top to bottom. Extra space is left unfilled.
