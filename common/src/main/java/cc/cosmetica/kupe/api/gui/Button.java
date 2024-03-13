@@ -49,4 +49,10 @@ public class Button extends Component<Stylesheet> {
 	public void render(Canvas canvas, Region region, int mouseX, int mouseY) {
 		canvas.renderMinecraftComponent(this.minecraftButton, mouseX, mouseY);
 	}
+
+	@Override
+	public boolean mouseClicked(double x, double y, int button) {
+		this.minecraftButton.mouseClicked(x, y, button);
+		return true;
+	}
 }
