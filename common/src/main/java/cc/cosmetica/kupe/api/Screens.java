@@ -1,6 +1,9 @@
 package cc.cosmetica.kupe.api;
 
 import cc.cosmetica.kupe.api.gui.Component;
+import cc.cosmetica.kupe.impl.KupeScreen;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.HashMap;
@@ -24,5 +27,19 @@ public final class Screens {
 		}
 
 		REGISTRY.put(location, component);
+	}
+
+	/**
+	 * Set the current screen to the screen registered at the given location.
+	 * @param location the resource key for the screen to use.
+	 * @throws IllegalArgumentException if there is no screen at the given location.
+	 */
+	public static void setScreen(ResourceLocation location) {
+		if (!REGISTRY.containsKey(location)) {
+			throw new IllegalArgumentException("No screen at the given location");
+		}
+
+		Screen screen = new KupeScreen(location, REGISTRY.get(location));
+		Minecraft.getInstance().setScreen(screen);
 	}
 }
