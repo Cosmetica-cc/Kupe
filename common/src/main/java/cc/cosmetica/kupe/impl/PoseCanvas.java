@@ -8,20 +8,25 @@ import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Matrix4f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.components.Widget;
 import net.minecraft.resources.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
 /**
  * Implementation of Canvas.
+ * It seems somewhat wasteful to create this every frame. Perhaps if the posestack doesn't change we can cache and just
+ * update tickDelta.
  */
 public class PoseCanvas implements Canvas {
-	public PoseCanvas(PoseStack stack, Minecraft minecraft) {
+	public PoseCanvas(PoseStack stack, Minecraft minecraft, float tickDelta) {
 		this.stack = stack;
 		this.minecraft = minecraft;
+		this.tickDelta = tickDelta;
 	}
 
 	private final PoseStack stack;
 	private final Minecraft minecraft;
+	private final float tickDelta;
 
 	@Override
 	public void disableTransparency() {
@@ -79,6 +84,11 @@ public class PoseCanvas implements Canvas {
 	@Override
 	public QuadBuilder drawQuads(QuadBuilder.Mode mode) {
 		return new BufferQuadBuilder(Tesselator.getInstance().getBuilder(), mode, this.stack.last().pose());
+	}
+
+	@Override
+	public void renderMinecraftComponent(Widget component, int mouseX, int mouseY) {
+		component.render(this.stack, mouseX, mouseY, this.tickDelta);
 	}
 
 	/// Impl Only

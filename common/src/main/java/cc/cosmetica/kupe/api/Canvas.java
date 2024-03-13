@@ -1,5 +1,6 @@
 package cc.cosmetica.kupe.api;
 
+import cc.cosmetica.kupe.impl.LeavesSandbox;
 import net.minecraft.resources.ResourceLocation;
 
 /**
@@ -64,4 +65,14 @@ public interface Canvas {
 	 * @param mode the format to draw vertices in. Each vertex will require these parameters.
 	 */
 	QuadBuilder drawQuads(QuadBuilder.Mode mode);
+
+	/**
+	 * Render the provided minecraft component.
+	 *
+	 * @param component the minecraft component to render.
+	 * @param mouseX the x position of the mouse on the screen.
+	 * @param mouseY the y position of the mouse on the screen.
+	 */
+	@LeavesSandbox
+	void renderMinecraftComponent(net.minecraft.client.gui.components.Widget component, int mouseX, int mouseY);
 }

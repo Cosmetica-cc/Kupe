@@ -89,8 +89,33 @@ public abstract class Component<T extends Stylesheet> {
 	 * Render this component. This does not have to handle rendering children.
 	 * @param canvas the canvas for drawing on the screen.
 	 * @param region the region of the screen this component has been placed in.
+	 * @param mouseX the x position of the mouse on the screen.
+	 * @param mouseY the y position of the mosue on the screen.
 	 */
-	public void render(Canvas canvas, Region region) {
+	public void render(Canvas canvas, Region region, int mouseX, int mouseY) {
 		// By default, do nothing
+	}
+
+	// Non-Render Methods
+
+	/**
+	 * Called when the mouse is clicked on this component.
+	 * @param x the x position of the mouse on the screen.
+	 * @param y the y position of the mouse on the screen.
+	 * @param button the button pressed.
+	 * @return whether this component should consume the click. If the click is consumed, children won't be passed the
+	 * 		   mouse click.
+	 */
+	public boolean mouseClicked(double x, double y, int button) {
+		return false;
+	}
+
+	/**
+	 * Called when the mouse is moved on this component.
+	 * @param x the x position of the mouse on the screen.
+	 * @param y the y position of the mouse on the screen.
+	 */
+	public void mouseMoved(double x, double y) {
+		// No default implementation
 	}
 }
