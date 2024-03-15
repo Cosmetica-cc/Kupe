@@ -14,34 +14,35 @@ public final class KupeScreen extends Screen {
 	public KupeScreen(ResourceLocation location, Component<?> rootComponent) {
 		super(new TranslatableComponent("screens." + location.getNamespace() + "." + location.getPath()));
 
-		this.root = rootComponent;
+		this.tree = new ComponentTree(rootComponent);
 	}
 
-	private final Component<?> root;
+	private final ComponentTree tree;
 
 	@Override
-	public void init(Minecraft minecraft, int i, int j) {
-		// TODO build and resize
+	public void init(Minecraft minecraft, int w, int h) {
+		this.tree.buildAll();
+		this.resize(minecraft, w, h);
 	}
 
 	@Override
-	public void resize(Minecraft minecraft, int i, int j) {
+	public void resize(Minecraft minecraft, int x, int h) {
 		// TODO resize
 	}
 
 	@Override
-	public void render(PoseStack poseStack, int i, int j, float f) {
+	public void render(PoseStack poseStack, int mouseX, int mouseY, float tickDelta) {
 		// TODO render component
 	}
 
 	@Override
-	public boolean mouseClicked(double d, double e, int i) {
-		return super.mouseClicked(d, e, i); // returns whether to consume click and not pass to game
+	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+		return super.mouseClicked(mouseX, mouseY, button); // returns whether to consume click and not pass to game
 		// TODO implement this
 	}
 
 	@Override
-	public void mouseMoved(double d, double e) {
-		// TODO implement this
+	public void mouseMoved(double mouseX, double mouseY) {
+		this.root.mouseMoved(mouseX, mouseY);
 	}
 }
