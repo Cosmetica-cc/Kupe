@@ -40,6 +40,8 @@ class ComponentTree {
 		 * Build just this node. Does not recursively build children.
 		 */
 		private void buildOnce() {
+			this.children.clear();
+
 			for (Component<?> component : this.element.build()) {
 				this.children.add(new ComponentNode(component));
 			}
