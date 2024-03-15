@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "kupe_test",
+  "version": "${version}",
+  "name": "Kupe Test Mod",
+  "description": "Test the Kupe GUI library",
+  "authors": [
+    "Valoeghese"
+  ],
+  "contact": {
+    "sources": "https://github.com/Cosmetica-cc/Kupe/tree/1.16.5/testmod-fabric"
+  },
+  "license": "Apache 2.0",
+  "environment": "client",
+  "entrypoints": {
+    "main": [
+      "cc.cosmetica.kupe.testmod.KupeTestmodFabric"
+    ]
+  },
+  "depends": {
+    "fabric": "*",
+    "kupe": "*",
+    "minecraft": ">=1.16.5"
+  }
+}

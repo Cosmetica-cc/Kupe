@@ -3,7 +3,7 @@
   "id": "kupe",
   "version": "${version}",
   "name": "Kupe",
-  "description": "This is an example description! Tell everyone what your mod is about!",
+  "description": "Reactive cross-platform and cross-version GUI library. For all your navigation needs.",
   "authors": [
     "Valoeghese"
   ],
@@ -12,7 +12,7 @@
     "sources": "https://github.com/FabricMC/fabric-example-mod"
   },
   "license": "Insert License Here",
-  "icon": "assets/examplemod/icon.png",
+  "icon": "assets/kupe/icon.png",
   "environment": "*",
   "entrypoints": {
     "main": [
