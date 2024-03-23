@@ -1,11 +1,13 @@
 package cc.cosmetica.kupe.impl;
 
 import cc.cosmetica.kupe.api.gui.Component;
+import cc.cosmetica.kupe.api.maths.Region;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
+import java.util.stream.Collectors;
 
 class ComponentTree {
 	public ComponentTree(Component<?> root) {
@@ -15,7 +17,7 @@ class ComponentTree {
 	private final ComponentNode root;
 
 	/**
-	 * Recursively build the component tree from the root.
+	 * Build the component tree from the root.
 	 */
 	public void buildAll() {
 		Deque<ComponentNode> nodes = new ArrayDeque<>();
@@ -28,6 +30,21 @@ class ComponentTree {
 		}
 	}
 
+	/**
+	 * Resize all elements in the component tree.
+	 * @param screenRegion the region to size the root component to.
+	 */
+	public void resizeAll(Region screenRegion) {
+		Deque<ComponentNode> nodes = new ArrayDeque<>();
+		nodes.add(this.root);
+
+		while (!nodes.isEmpty()) { // nb we need to compute actual preferred sizes before resizing
+			ComponentNode node = nodes.remove();
+			node.element.resize(node.renderRegion, node.children.stream().map(nd -> nd.element).collect(Collectors.toList()));
+			nodes.addAll(node.children);
+		}
+	}
+
 	private static class ComponentNode {
 		ComponentNode(Component<?> element) {
 			this.element = element;
@@ -35,6 +52,7 @@ class ComponentTree {
 
 		final Component<?> element;
 		final List<ComponentNode> children = new ArrayList<>();
+		Region renderRegion;
 
 		/**
 		 * Build just this node. Does not recursively build children.
@@ -45,6 +63,13 @@ class ComponentTree {
 			for (Component<?> component : this.element.build()) {
 				this.children.add(new ComponentNode(component));
 			}
+		}
+
+		/**
+		 * Resize the component
+		 */
+		private void resize() {
+
 		}
 	}
 }

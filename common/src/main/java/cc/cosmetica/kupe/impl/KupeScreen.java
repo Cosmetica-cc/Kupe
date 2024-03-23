@@ -27,7 +27,7 @@ public final class KupeScreen extends Screen {
 
 	@Override
 	public void resize(Minecraft minecraft, int x, int h) {
-		// TODO resize
+		this.tree.getRoot()
 	}
 
 	@Override
