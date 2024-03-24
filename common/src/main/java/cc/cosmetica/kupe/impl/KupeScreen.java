@@ -1,6 +1,7 @@
 package cc.cosmetica.kupe.impl;
 
 import cc.cosmetica.kupe.api.gui.Component;
+import cc.cosmetica.kupe.api.maths.Region;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -26,8 +27,8 @@ public final class KupeScreen extends Screen {
 	}
 
 	@Override
-	public void resize(Minecraft minecraft, int x, int h) {
-		this.tree.getRoot()
+	public void resize(Minecraft minecraft, int w, int h) {
+		this.tree.resizeAll(new Region(0, 0, w, h));
 	}
 
 	@Override

@@ -80,7 +80,7 @@ public abstract class Component<T extends Stylesheet> {
 	 */
 	public abstract List<Component<?>> build();
 
-	public void resize(Region region, List<Component<?>> children) {
+	public void resize(Region region, List<? extends ResizableElement> children) {
 		// By default, lay out children in specified positions.
 
 	}

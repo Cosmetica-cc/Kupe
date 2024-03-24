@@ -1,7 +1,10 @@
 package cc.cosmetica.kupe.impl;
 
 import cc.cosmetica.kupe.api.gui.Component;
+import cc.cosmetica.kupe.api.gui.ResizableElement;
+import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Region;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -45,16 +48,17 @@ class ComponentTree {
 		}
 
 		nodes.add(this.root);
+		this.root.renderRegion = screenRegion;
 
 		// Resize down the tree
 		while (!nodes.isEmpty()) { // nb we need to compute actual preferred sizes before resizing
 			ComponentNode node = nodes.remove(); // nb we also, upon resizing, need to set the children's actual render regions
-			node.element.resize(node.renderRegion, node.children.stream().map(nd -> nd.element).collect(Collectors.toList()));
+			node.element.resize(node.renderRegion, node.children);
 			nodes.addAll(node.children);
 		}
 	}
 
-	private static class ComponentNode {
+	private static class ComponentNode implements ResizableElement {
 		ComponentNode(Component<?> element) {
 			this.element = element;
 		}
@@ -79,6 +83,30 @@ class ComponentTree {
 		 */
 		private void resize() {
 
+		}
+
+		// ResizableElement
+
+		@Override
+		public Dimensions getPreferredSize() {
+			// TODO
+			throw new NotImplementedException("Not yet implemented!");
+		}
+
+		@Override
+		public Dimensions getMinimumSize() {
+			// TODO
+			throw new NotImplementedException("Not yet implemented!");
+		}
+
+		@Override
+		public Component<?> getComponent() {
+			return this.element;
+		}
+
+		@Override
+		public void setRenderRegion(Region region) {
+			this.renderRegion = region;
 		}
 	}
 }
