@@ -38,8 +38,17 @@ class ComponentTree {
 		Deque<ComponentNode> nodes = new ArrayDeque<>();
 		nodes.add(this.root);
 
-		while (!nodes.isEmpty()) { // nb we need to compute actual preferred sizes before resizing
+		// Calculate preferred sizes down the tree
+		while (!nodes.isEmpty()) {
 			ComponentNode node = nodes.remove();
+			// TODO
+		}
+
+		nodes.add(this.root);
+
+		// Resize down the tree
+		while (!nodes.isEmpty()) { // nb we need to compute actual preferred sizes before resizing
+			ComponentNode node = nodes.remove(); // nb we also, upon resizing, need to set the children's actual render regions
 			node.element.resize(node.renderRegion, node.children.stream().map(nd -> nd.element).collect(Collectors.toList()));
 			nodes.addAll(node.children);
 		}
