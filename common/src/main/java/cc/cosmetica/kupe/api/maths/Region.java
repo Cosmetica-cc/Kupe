@@ -5,6 +5,18 @@ package cc.cosmetica.kupe.api.maths;
  */
 public class Region {
 	/**
+	 * Construct a new Region object from a position and dimensions.
+	 * @param position the position of the top left corner of this region.
+	 * @param dimensions the dimensions of this region.
+	 */
+	public Region(Position position, Dimensions dimensions) {
+		this.x = position.x;
+		this.y = position.y;
+		this.width = dimensions.getWidth();
+		this.height = dimensions.getHeight();
+	}
+
+	/**
 	 * Construct a new Region object.
 	 * @param x x of the top left corner of the region.
 	 * @param y y of the top left corner of the region.
@@ -29,6 +41,14 @@ public class Region {
 
 	public int getY() {
 		return y;
+	}
+
+	public int getEndX() {
+		return this.x + this.width - 1;
+	}
+
+	public int getEndY() {
+		return this.y + this.height - 1;
 	}
 
 	public int getWidth() {

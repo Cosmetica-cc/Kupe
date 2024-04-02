@@ -1,11 +1,10 @@
 package cc.cosmetica.kupe.api.gui;
 
 import cc.cosmetica.kupe.api.Canvas;
+import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Position;
 import cc.cosmetica.kupe.api.maths.Region;
-import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.impl.MathsImpl;
-import net.minecraft.util.Tuple;
 
 import java.util.HashMap;
 import java.util.List;
@@ -86,7 +85,21 @@ public abstract class Component<T extends Stylesheet> {
 
 	public void resize(Region region, List<? extends ResizableElement> children) {
 		// By default, lay out children in specified positions.
+		for (ResizableElement child : children) {
+			Position position = this.absolutePositions.get(child.getComponent());
+			Dimensions dimensions = child.getPreferredSize();
+			Dimensions min = child.getMinimumSize();
 
+			// shrink child region so it doesn't extend beyond the borders of the parent region
+			int endX = Math.min(position.x + dimensions.getWidth() - 1, region.getEndX());
+			int endY = Math.min(position.y + dimensions.getHeight() - 1, region.getEndY());
+
+			int width = Math.min(dimensions.getWidth(), Math.max(min.getWidth(), endX - position.x));
+			int height = Math.min(dimensions.getHeight(), Math.max(min.getHeight(), endY - position.y));
+
+			Region childRegion = new Region(position, new Dimensions(width, height));
+			child.setRenderRegion(childRegion);
+		}
 	}
 
 	/**
