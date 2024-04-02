@@ -84,9 +84,11 @@ public abstract class Component<T extends Stylesheet> {
 	public abstract List<Component<?>> build();
 
 	public void resize(Region region, List<? extends ResizableElement> children) {
+		final Position start = new Position(region.getX(), region.getY());
+
 		// By default, lay out children in specified positions.
 		for (ResizableElement child : children) {
-			Position position = this.absolutePositions.get(child.getComponent());
+			Position position = this.absolutePositions.getOrDefault(child.getComponent(), start);
 			Dimensions dimensions = child.getPreferredSize();
 			Dimensions min = child.getMinimumSize();
 
