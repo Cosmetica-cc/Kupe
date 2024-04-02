@@ -15,7 +15,7 @@ import java.util.Map;
  *
  * All nodes in the GUI tree are components, from the base to the top. Base nodes return an empty list for build().
  */
-public abstract class Component<T extends Stylesheet> {
+public abstract class Component {
 	protected Component(T defaultStylesheet) {
 		this.stylesheet = defaultStylesheet;
 	}

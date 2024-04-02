@@ -29,7 +29,7 @@ public final class KupeScreen extends Screen {
 
 	@Override
 	public void resize(Minecraft minecraft, int w, int h) {
-		super.init(minecraft, w, h); // requiredg
+		super.init(minecraft, w, h); // required
 		this.resize(w, h);
 	}
 

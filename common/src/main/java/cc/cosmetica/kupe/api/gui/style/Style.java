@@ -1,0 +1,59 @@
+package cc.cosmetica.kupe.api.gui.style;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * A collection of properties to apply to a specific component, or group of components.
+ */
+public class Style {
+	private Style() {
+	}
+
+	/**
+	 * Get the value of a given property from this Style.
+	 * @param property the property to fetch.
+	 * @return the value for this property in this Style, or the default value if this Style does not contain that
+	 * property.
+	 * @param <T> the type contained within the property.
+	 */
+	@SuppressWarnings("unchecked")
+	public <T> T get(Property<T> property) {
+		return (T) this.properties.getOrDefault(property, property.getDefaultValue());
+	}
+
+	protected final Map<Property<?>, Object> properties = new HashMap<>();
+
+	public static class MutableStyle extends Style {
+		public MutableStyle() {
+			// no-op; visibility change
+		}
+
+		/**
+		 * Set the given property in this {@linkplain Style style}.
+		 * @param property the property to set.
+		 * @param value the value to give to the property.
+		 * @return the
+		 * @param <T>
+		 */
+		public <T> MutableStyle set(Property<T> property, T value) {
+			this.properties.put(property, value);
+			return this;
+		}
+	}
+
+	/**
+	 * A style property that can be configured.
+	 */
+	public static class Property<T> {
+		public Property(T defaultValue) {
+			this.defaultValue = defaultValue;
+		}
+
+		private final T defaultValue;
+
+		public T getDefaultValue() {
+			return this.defaultValue;
+		}
+	}
+}

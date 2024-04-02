@@ -1,6 +1,6 @@
 package cc.cosmetica.kupe;
 
-public class ExampleMod {
+public class Kupe {
     public static final String MOD_ID = "kupe";
     // We can use this if we don't want to use DeferredRegister
     
