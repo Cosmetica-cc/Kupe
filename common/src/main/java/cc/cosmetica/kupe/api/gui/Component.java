@@ -39,21 +39,25 @@ public abstract class Component<T extends Stylesheet> {
 		return this;
 	}
 
+	public final T getStylesheet() {
+		return this.stylesheet;
+	}
+
 	/**
 	 * Calculate the minimum size given the component's children. This should be consistent with how the component
 	 * positions its children.
 	 * @param children a list of the children of this component and their minimum sizes.
 	 */
-	public Dimensions minimumSize(List<Tuple<Component<?>, Dimensions>> children) {
+	public Dimensions minimumSize(List<? extends ResizableElement> children) {
 		if (children.isEmpty()) { // leaf components
 			return Dimensions.NONE;
 		}
 
 		if (children.size() == 1) {
-			return children.get(0).getB();
+			return children.get(0).getMinimumSize();
 		}
 
-		return MathsImpl.calculateSizeAbsolute(children, this.absolutePositions);
+		return MathsImpl.calculateSizeAbsolute(children, ResizableElement::getMinimumSize, this.absolutePositions);
 	}
 
 	/**
@@ -61,16 +65,16 @@ public abstract class Component<T extends Stylesheet> {
 	 * the component positions its children.
 	 * @param children a list of the children of this component and their preferred sizes.
 	 */
-	public Dimensions preferredSize(List<Tuple<Component<?>, Dimensions>> children) {
+	public Dimensions preferredSize(List<? extends ResizableElement> children) {
 		if (children.isEmpty()) { // leaf components
 			return Dimensions.NONE;
 		}
 
 		if (children.size() == 1) {
-			return children.get(0).getB();
+			return children.get(0).getPreferredSize();
 		}
 
-		return MathsImpl.calculateSizeAbsolute(children, this.absolutePositions);
+		return MathsImpl.calculateSizeAbsolute(children, ResizableElement::getPreferredSize, this.absolutePositions);
 	}
 
 	/**

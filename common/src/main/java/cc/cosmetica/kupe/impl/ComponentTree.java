@@ -38,24 +38,50 @@ class ComponentTree {
 	 * @param screenRegion the region to size the root component to.
 	 */
 	public void resizeAll(Region screenRegion) {
+		// DFS for preferred size calculation
+		// We want the leaves to have preferred sizes calculated before their parents
+		// because it depends on the children's preferred sizes being calculated
+
 		Deque<ComponentNode> nodes = new ArrayDeque<>();
-		nodes.add(this.root);
+		nodes.push(this.root);
 
 		// Calculate preferred sizes down the tree
 		while (!nodes.isEmpty()) {
-			ComponentNode node = nodes.remove();
-			// TODO
+			ComponentNode node = nodes.pop();
+
+			if (node.grey) {
+				node.grey = false; // we are done with this node
+				node.computeSizes();
+			} else {
+				node.grey = true; // we need to visit it one more time, after children are done
+				nodes.push(node);
+
+				// all children need to be visited before this node
+				for (ComponentNode child : node.children) {
+					nodes.push(child);
+				}
+			}
 		}
+
+		// BFS for resizing (down the tree)
 
 		nodes.add(this.root);
 		this.root.renderRegion = screenRegion;
 
 		// Resize down the tree
-		while (!nodes.isEmpty()) { // nb we need to compute actual preferred sizes before resizing
+		while (!nodes.isEmpty()) { // we have computed actual preferred sizes before resizing
 			ComponentNode node = nodes.remove(); // nb we also, upon resizing, need to set the children's actual render regions
-			node.element.resize(node.renderRegion, node.children);
+			node.resize();
 			nodes.addAll(node.children);
 		}
+	}
+
+	public void render() {
+
+	}
+
+	public void mouseMoved(double mouseX, double mouseY) {
+		throw new NotImplementedException("Not yet implemented");
 	}
 
 	private static class ComponentNode implements ResizableElement {
@@ -66,6 +92,9 @@ class ComponentTree {
 		final Component<?> element;
 		final List<ComponentNode> children = new ArrayList<>();
 		Region renderRegion;
+		Dimensions preferredSize, minimumSize; // calculated and cached
+		boolean grey; // grey if visited in resizing stage for adding children
+		              // but not for actual preferred size calculation
 
 		/**
 		 * Build just this node. Does not recursively build children.
@@ -82,21 +111,37 @@ class ComponentTree {
 		 * Resize the component
 		 */
 		private void resize() {
+			this.element.resize(this.renderRegion, this.children);
+		}
 
+		private void computeSizes(int vw, int vh) {
+			this.minimumSize = Dimensions.max(
+					this.element.minimumSize(this.children),
+					this.element.getStylesheet().minimumSize(vw, vh).orElse(Dimensions.NONE)
+			);
+
+			this.preferredSize = this.element.getStylesheet().preferredSize(vw, vh)
+					.orElse(this.element.preferredSize(this.children));
 		}
 
 		// ResizableElement
 
 		@Override
 		public Dimensions getPreferredSize() {
-			// TODO
-			throw new NotImplementedException("Not yet implemented!");
+			if (this.preferredSize == null) {
+				throw new NullPointerException("Preferred Size not yet calculated!");
+			}
+
+			return this.preferredSize;
 		}
 
 		@Override
 		public Dimensions getMinimumSize() {
-			// TODO
-			throw new NotImplementedException("Not yet implemented!");
+			if (this.minimumSize == null) {
+				throw new NullPointerException("Minimum Size not yet calculated!");
+			}
+
+			return this.minimumSize;
 		}
 
 		@Override

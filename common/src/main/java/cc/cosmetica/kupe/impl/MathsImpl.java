@@ -1,6 +1,7 @@
 package cc.cosmetica.kupe.impl;
 
 import cc.cosmetica.kupe.api.gui.Component;
+import cc.cosmetica.kupe.api.gui.ResizableElement;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Position;
 import cc.cosmetica.kupe.api.maths.Vec3;
@@ -9,6 +10,7 @@ import net.minecraft.util.Tuple;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 public class MathsImpl {
 	public static Vec3 createVec3(double x, double y, double z) {
@@ -18,11 +20,13 @@ public class MathsImpl {
 	/**
 	 * Calculate the size for absolute positioning.
 	 * @param children the children of the given widget. Not all are guaranteed to be in the positions map.
+	 * @param dimensionsFunction function to get the dimensions from a child element,
 	 * @param positions the absolute positions of the components.
 	 * @return the size of the components.
 	 */
 	public static Dimensions calculateSizeAbsolute(
-			List<Tuple<Component<?>, Dimensions>> children,
+			List<? extends ResizableElement> children,
+			Function<ResizableElement, Dimensions> dimensionsFunction,
 			Map<Component<?>, Position> positions) {
 		boolean first = true;
 		int x0 = 0;
@@ -30,12 +34,12 @@ public class MathsImpl {
 		int y0 = 0;
 		int y1 = 0;
 
-		for (Tuple<Component<?>, Dimensions> component : children) {
-			Position position = positions.get(component.getA());
+		for (ResizableElement child : children) {
+			Position position = positions.get(child.getComponent());
 
 			// if this component is absolutely positioned take it into account.
 			if (position != null) {
-				Dimensions dimensions = component.getB();
+				Dimensions dimensions = dimensionsFunction.apply(child);
 
 				if (first) {
 					first = false;

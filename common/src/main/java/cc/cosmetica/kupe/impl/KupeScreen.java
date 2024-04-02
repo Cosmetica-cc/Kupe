@@ -44,6 +44,6 @@ public final class KupeScreen extends Screen {
 
 	@Override
 	public void mouseMoved(double mouseX, double mouseY) {
-		this.root.mouseMoved(mouseX, mouseY);
+		this.tree.mouseMoved(mouseX, mouseY);
 	}
 }
