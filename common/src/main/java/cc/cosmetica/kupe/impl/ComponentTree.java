@@ -1,5 +1,6 @@
 package cc.cosmetica.kupe.impl;
 
+import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.gui.Component;
 import cc.cosmetica.kupe.api.gui.ResizableElement;
 import cc.cosmetica.kupe.api.maths.Dimensions;
@@ -10,6 +11,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 class ComponentTree {
@@ -23,14 +25,7 @@ class ComponentTree {
 	 * Build the component tree from the root.
 	 */
 	public void buildAll() {
-		Deque<ComponentNode> nodes = new ArrayDeque<>();
-		nodes.add(this.root);
-
-		while (!nodes.isEmpty()) {
-			ComponentNode node = nodes.remove();
-			node.buildOnce();
-			nodes.addAll(node.children);
-		}
+		this.root.forEachChild(ComponentNode::buildOnce);
 	}
 
 	/**
@@ -79,12 +74,22 @@ class ComponentTree {
 		}
 	}
 
-	public void render() {
-
+	public void render(Canvas canvas, int mouseX, int mouseY) {
+		this.root.forEachChild(node -> node.render(canvas, mouseX, mouseY));
 	}
 
 	public void mouseMoved(double mouseX, double mouseY) {
-		throw new NotImplementedException("Not yet implemented");
+		Deque<ComponentNode> nodes = new ArrayDeque<>();
+		nodes.add(this.root);
+
+		while (!nodes.isEmpty()) {
+			ComponentNode node = nodes.remove();
+
+			if (node.renderRegion.contains((int)mouseX, (int)mouseY)) {
+				node.element.mouseMoved(mouseX, mouseY);
+				nodes.addAll(node.children); // children should be within parent's region!
+			}
+		}
 	}
 
 	private static class ComponentNode implements ResizableElement {
@@ -110,13 +115,6 @@ class ComponentTree {
 			}
 		}
 
-		/**
-		 * Resize the component
-		 */
-		private void resize() {
-			this.element.resize(this.renderRegion, this.children);
-		}
-
 		private void computeSizes(int vw, int vh) {
 			this.minimumSize = Dimensions.max(
 					this.element.minimumSize(this.children),
@@ -125,6 +123,28 @@ class ComponentTree {
 
 			this.preferredSize = this.element.getStylesheet().preferredSize(vw, vh)
 					.orElse(this.element.preferredSize(this.children));
+		}
+
+		/**
+		 * Resize the component
+		 */
+		private void resize() {
+			this.element.resize(this.renderRegion, this.children);
+		}
+
+		private void render(Canvas canvas, int mouseX, int mouseY) {
+			this.element.render(canvas, this.renderRegion, mouseX, mouseY);
+		}
+
+		private void forEachChild(Consumer<ComponentNode> nodeConsumer) {
+			Deque<ComponentNode> nodes = new ArrayDeque<>();
+			nodes.add(this);
+
+			while (!nodes.isEmpty()) {
+				ComponentNode node = nodes.remove();
+				nodeConsumer.accept(node);
+				nodes.addAll(node.children);
+			}
 		}
 
 		// ResizableElement

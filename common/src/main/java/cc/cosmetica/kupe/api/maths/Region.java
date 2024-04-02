@@ -39,6 +39,17 @@ public class Region {
 		return height;
 	}
 
+	/**
+	 * Get whether the given set of coordinates are in this region.
+	 * This method assumes the width and height are provided as positive values.
+	 * @param x the x coordinate to test.
+	 * @param y the y coordinate to test.
+	 * @return whether the coordinates are within this region.
+	 */
+	public boolean contains(int x, int y) {
+		return x >= this.x && x < this.x + this.width && y >= this.y && y < this.y + this.height;
+	}
+
 	public static Region withMargins(Region dimensions, Margins region) {
 		// i am speed
 		if (region == Margins.NONE) {

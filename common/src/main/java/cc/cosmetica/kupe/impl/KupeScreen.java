@@ -33,7 +33,7 @@ public final class KupeScreen extends Screen {
 
 	@Override
 	public void render(PoseStack poseStack, int mouseX, int mouseY, float tickDelta) {
-		// TODO render component
+		this.tree.render(new PoseCanvas(poseStack, this.minecraft, tickDelta), mouseX, mouseY);
 	}
 
 	@Override
