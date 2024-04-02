@@ -17,6 +17,9 @@
       "cc.cosmetica.kupe.testmod.KupeTestmodFabric"
     ]
   },
+  "mixins": [
+    "testmod-common.mixins.json"
+  ],
   "depends": {
     "fabric": "*",
     "kupe": "*",
