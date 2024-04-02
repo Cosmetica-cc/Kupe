@@ -5,14 +5,12 @@ import cc.cosmetica.kupe.api.gui.Component;
 import cc.cosmetica.kupe.api.gui.ResizableElement;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Region;
-import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 class ComponentTree {
 	public ComponentTree(Component<?> root) {
@@ -25,7 +23,7 @@ class ComponentTree {
 	 * Build the component tree from the root.
 	 */
 	public void buildAll() {
-		this.root.forEachChild(ComponentNode::buildOnce);
+		this.root.walk(ComponentNode::buildOnce);
 	}
 
 	/**
@@ -75,7 +73,7 @@ class ComponentTree {
 	}
 
 	public void render(Canvas canvas, int mouseX, int mouseY) {
-		this.root.forEachChild(node -> node.render(canvas, mouseX, mouseY));
+		this.root.walk(node -> node.render(canvas, mouseX, mouseY));
 	}
 
 	public void mouseMoved(double mouseX, double mouseY) {
@@ -130,13 +128,19 @@ class ComponentTree {
 		 */
 		private void resize() {
 			this.element.resize(this.renderRegion, this.children);
+
+			for (ComponentNode node : this.children) {
+				if (node.renderRegion == null) {
+					throw new IllegalStateException("Node " + this.element + " has not resized child " + node.element);
+				}
+			}
 		}
 
 		private void render(Canvas canvas, int mouseX, int mouseY) {
 			this.element.render(canvas, this.renderRegion, mouseX, mouseY);
 		}
 
-		private void forEachChild(Consumer<ComponentNode> nodeConsumer) {
+		private void walk(Consumer<ComponentNode> nodeConsumer) {
 			Deque<ComponentNode> nodes = new ArrayDeque<>();
 			nodes.add(this);
 

@@ -55,4 +55,9 @@ public class Button extends Component<Stylesheet> {
 		this.minecraftButton.mouseClicked(x, y, button);
 		return true;
 	}
+
+	@Override
+	public String toString() {
+		return this.getClass().getName() + "(" + this.text.toString() + ")";
+	}
 }

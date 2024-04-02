@@ -28,4 +28,9 @@ public class LiteralText implements Text {
 	public Component toMinecraftComponent() {
 		return new TextComponent(this.text);
 	}
+
+	@Override
+	public String toString() {
+		return "LiteralText(\"" + text + "\")";
+	}
 }

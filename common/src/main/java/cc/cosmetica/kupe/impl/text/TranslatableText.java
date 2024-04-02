@@ -3,25 +3,26 @@ package cc.cosmetica.kupe.impl.text;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.util.Cache;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
+
+import java.util.Arrays;
 
 /**
  * Component for plain text.
  */
 public class TranslatableText implements Text {
 	public TranslatableText(String text, Object... format) {
-		this.text = text;
+		this.key = text;
 		this.format = format;
 	}
 
-	private final String text;
+	private final String key;
 	private final Object[] format;
 	private final Cache<String> display = new Cache<>();
 
 	@Override
 	public String getString() {
-		return this.text;
+		return this.key;
 	}
 
 	@Override
@@ -33,6 +34,14 @@ public class TranslatableText implements Text {
 
 	@Override
 	public Component toMinecraftComponent() {
-		return new TranslatableComponent(this.text, this.format);
+		return new TranslatableComponent(this.key, this.format);
+	}
+
+	@Override
+	public String toString() {
+		return "TranslatableText{" +
+				"key='" + key + '\'' +
+				", format=" + Arrays.toString(format) +
+				'}';
 	}
 }
