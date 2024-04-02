@@ -2,18 +2,22 @@ package cc.cosmetica.kupe.api.gui;
 
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.Text;
+import cc.cosmetica.kupe.api.gui.style.CommonProperties;
+import cc.cosmetica.kupe.api.gui.style.Style;
+import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Region;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
+import java.util.Optional;
 
-public class Button extends Component<Stylesheet> {
+public class Button extends Component {
 	/**
 	 * Create a new buttom with the given text.
 	 * @param text the text to provide.
 	 */
 	public Button(Text text, Runnable onClicked) {
-		super(Stylesheet.DEFAULT);
+		super(DEFAULT_STYLE);
 		this.text = text;
 		this.onClicked = onClicked;
 	}
@@ -29,7 +33,7 @@ public class Button extends Component<Stylesheet> {
 	}
 
 	@Override
-	public List<Component<?>> build() {
+	public List<Component> build() {
 		return ImmutableList.of();
 	}
 
@@ -60,4 +64,8 @@ public class Button extends Component<Stylesheet> {
 	public String toString() {
 		return this.getClass().getName() + "(" + this.text.toString() + ")";
 	}
+
+	private static final Dimensions DEFAULT_DIMENSIONS = new Dimensions(200, 20);
+	private static final Style DEFAULT_STYLE = Style.create()
+			.set(CommonProperties.PREFERRED_SIZE, (vw, vh) -> Optional.of(DEFAULT_DIMENSIONS));
 }

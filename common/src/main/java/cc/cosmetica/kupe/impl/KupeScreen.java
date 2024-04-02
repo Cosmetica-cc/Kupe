@@ -12,7 +12,7 @@ import net.minecraft.resources.ResourceLocation;
  * The screen that controls the Kupe gui rendering. This handles the rendering and event calls to the root component.
  */
 public final class KupeScreen extends Screen {
-	public KupeScreen(ResourceLocation location, Component<?> rootComponent) {
+	public KupeScreen(ResourceLocation location, Component rootComponent) {
 		super(new TranslatableComponent("screens." + location.getNamespace() + "." + location.getPath()));
 
 		this.tree = new ComponentTree(rootComponent);

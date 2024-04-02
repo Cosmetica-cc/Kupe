@@ -27,7 +27,7 @@ public class MathsImpl {
 	public static Dimensions calculateSizeAbsolute(
 			List<? extends ResizableElement> children,
 			Function<ResizableElement, Dimensions> dimensionsFunction,
-			Map<Component<?>, Position> positions) {
+			Map<Component, Position> positions) {
 		boolean first = true;
 		int x0 = 0;
 		int x1 = 0;

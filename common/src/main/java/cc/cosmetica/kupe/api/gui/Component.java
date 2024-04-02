@@ -1,6 +1,8 @@
 package cc.cosmetica.kupe.api.gui;
 
 import cc.cosmetica.kupe.api.Canvas;
+import cc.cosmetica.kupe.api.gui.style.Style;
+import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Position;
 import cc.cosmetica.kupe.api.maths.Region;
@@ -16,30 +18,40 @@ import java.util.Map;
  * All nodes in the GUI tree are components, from the base to the top. Base nodes return an empty list for build().
  */
 public abstract class Component {
-	protected Component(T defaultStylesheet) {
-		this.stylesheet = defaultStylesheet;
+	protected Component(Style defaultOverrides) {
+
 	}
 
-	protected T stylesheet;
+	protected Component() {
+		// no-op
+	}
+
+	protected Stylesheet stylesheet;
+
+	/**
+	 * The flattened style settings to apply to this component. These are inherited from this component's stylesheet and
+	 * parent stylesheets.
+	 */
+	private Style style;
 
 	/**
 	 * The map of absolute positions.
 	 * If this is being used to place children, clear it and put components in the map, then call the base resize().
 	 */
-	protected Map<Component<?>, Position> absolutePositions = new HashMap<>();
+	protected Map<Component, Position> absolutePositions = new HashMap<>();
 
 	/**
 	 * Set the style sheet of this component.
 	 * @param stylesheet the stylesheet to apply to this component.
 	 * @return this component.
 	 */
-	public Component<T> withStyle(T stylesheet) {
+	public Component withStyle(Stylesheet stylesheet) {
 		this.stylesheet = stylesheet;
 		return this;
 	}
 
-	public final T getStylesheet() {
-		return this.stylesheet;
+	public final Style getStyle() {
+		return this.style;
 	}
 
 	/**
@@ -81,7 +93,7 @@ public abstract class Component {
 	 * Will be called again if states acquired by this component or a parent component change.
 	 * @return the list of children of this component
 	 */
-	public abstract List<Component<?>> build();
+	public abstract List<Component> build();
 
 	public void resize(Region region, List<? extends ResizableElement> children) {
 		final Position start = new Position(region.getX(), region.getY());

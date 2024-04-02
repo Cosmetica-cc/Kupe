@@ -24,8 +24,16 @@ public class Style {
 
 	protected final Map<Property<?>, Object> properties = new HashMap<>();
 
+	/**
+	 * Create a new, {@linkplain MutableStyle mutable style}.
+	 * @return the newly created style.
+	 */
+	public static final MutableStyle create() {
+		return new MutableStyle();
+	}
+
 	public static class MutableStyle extends Style {
-		public MutableStyle() {
+		protected MutableStyle() {
 			// no-op; visibility change
 		}
 

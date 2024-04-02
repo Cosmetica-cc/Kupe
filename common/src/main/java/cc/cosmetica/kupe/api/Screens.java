@@ -13,7 +13,7 @@ import java.util.Map;
  * For managing screens.
  */
 public final class Screens {
-	private static final Map<ResourceLocation, Component<?>> REGISTRY = new HashMap<>();
+	private static final Map<ResourceLocation, Component> REGISTRY = new HashMap<>();
 
 	/**
 	 * Register a component as a new screen.
@@ -21,7 +21,7 @@ public final class Screens {
 	 * @param component the component to use as the root of the screen.
 	 * @throws IllegalArgumentException if a screen is already registered at this location.
 	 */
-	public static void registerScreen(ResourceLocation location, Component<?> component) {
+	public static void registerScreen(ResourceLocation location, Component component) {
 		if (REGISTRY.containsKey(location)) {
 			throw new IllegalArgumentException("Screen already registered at " + location);
 		}

@@ -3,6 +3,7 @@ package cc.cosmetica.kupe.impl;
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.gui.Component;
 import cc.cosmetica.kupe.api.gui.ResizableElement;
+import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Region;
 
@@ -13,7 +14,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 class ComponentTree {
-	public ComponentTree(Component<?> root) {
+	public ComponentTree(Component root) {
 		this.root = new ComponentNode(root);
 	}
 
@@ -91,11 +92,11 @@ class ComponentTree {
 	}
 
 	private static class ComponentNode implements ResizableElement {
-		ComponentNode(Component<?> element) {
+		ComponentNode(Component element) {
 			this.element = element;
 		}
 
-		final Component<?> element;
+		final Component element;
 		final List<ComponentNode> children = new ArrayList<>();
 		Region renderRegion;
 		Dimensions preferredSize, minimumSize; // calculated and cached
@@ -108,7 +109,7 @@ class ComponentTree {
 		private void buildOnce() {
 			this.children.clear();
 
-			for (Component<?> component : this.element.build()) {
+			for (Component component : this.element.build()) {
 				this.children.add(new ComponentNode(component));
 			}
 		}
@@ -116,10 +117,10 @@ class ComponentTree {
 		private void computeSizes(int vw, int vh) {
 			this.minimumSize = Dimensions.max(
 					this.element.minimumSize(this.children),
-					this.element.getStylesheet().minimumSize(vw, vh).orElse(Dimensions.NONE)
+					this.element.getStyle().get(CommonProperties.MINIMUM_SIZE).apply(vw, vh).orElse(Dimensions.NONE)
 			);
 
-			this.preferredSize = this.element.getStylesheet().preferredSize(vw, vh)
+			this.preferredSize = this.element.getStyle().get(CommonProperties.PREFERRED_SIZE).apply(vw, vh)
 					.orElse(this.element.preferredSize(this.children));
 		}
 
@@ -172,7 +173,7 @@ class ComponentTree {
 		}
 
 		@Override
-		public Component<?> getComponent() {
+		public Component getComponent() {
 			return this.element;
 		}
 
