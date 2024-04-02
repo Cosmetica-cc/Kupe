@@ -22,17 +22,24 @@ public final class KupeScreen extends Screen {
 
 	@Override
 	public void init(Minecraft minecraft, int w, int h) {
+		super.init(minecraft, w, h); // required
 		this.tree.buildAll();
-		this.resize(minecraft, w, h);
+		this.resize(w, h);
 	}
 
 	@Override
 	public void resize(Minecraft minecraft, int w, int h) {
+		super.init(minecraft, w, h); // requiredg
+		this.resize(w, h);
+	}
+
+	private void resize(int w, int h) {
 		this.tree.resizeAll(new Region(0, 0, w, h));
 	}
 
 	@Override
 	public void render(PoseStack poseStack, int mouseX, int mouseY, float tickDelta) {
+		this.renderBackground(poseStack);
 		this.tree.render(new PoseCanvas(poseStack, this.minecraft, tickDelta), mouseX, mouseY);
 	}
 
