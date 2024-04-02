@@ -4,6 +4,7 @@ import cc.cosmetica.kupe.api.gui.Component;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -16,8 +17,26 @@ public class Stylesheet {
 		this.classStyles = new HashMap<>();
 	}
 
-	private final Map<Class<Component>, Style> classStyles;
+	private final Map<Class<? extends Component>, Style> classStyles;
 	private Style self;
+
+	/**
+	 * Used internally when flattening styles.
+	 * @param styles the list of style overrides, in order of most important to least.
+	 * @param component the component class to add styles for.
+	 * @param self whether to add self overrides.
+	 */
+	public void fillOverrides(List<Style> styles, Class<? extends Component> component, boolean self) {
+		if (self && this.self != null) {
+			styles.add(this.self);
+		}
+
+		Style componentStyle = this.classStyles.get(component);
+
+		if (componentStyle != null) {
+			styles.add(componentStyle);
+		}
+	}
 
 	/**
 	 * Apply the given style overrides to components of the given class.
@@ -25,7 +44,7 @@ public class Stylesheet {
 	 * @param style the style overrides.
 	 * @return this style sheet.
 	 */
-	public Stylesheet component(Class<Component> componentClass, Style style) {
+	public Stylesheet component(Class<? extends Component> componentClass, Style style) {
 		this.classStyles.put(componentClass, style);
 		return this;
 	}

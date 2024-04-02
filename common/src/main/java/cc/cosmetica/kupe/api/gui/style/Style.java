@@ -1,6 +1,7 @@
 package cc.cosmetica.kupe.api.gui.style;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -28,8 +29,23 @@ public class Style {
 	 * Create a new, {@linkplain MutableStyle mutable style}.
 	 * @return the newly created style.
 	 */
-	public static final MutableStyle create() {
+	public static MutableStyle create() {
 		return new MutableStyle();
+	}
+
+	/**
+	 * Merge the given list of styles together to make a flattened style.
+	 * @param styles the list of styles, in descending level of importance.
+	 * @return the new, flattened style object.
+	 */
+	public static Style merge(List<Style> styles) {
+		Style result = new Style();
+
+		for (int i = styles.size() - 1; i >= 0; i--) {
+			result.properties.putAll(styles.get(i).properties);
+		}
+
+		return result;
 	}
 
 	public static class MutableStyle extends Style {

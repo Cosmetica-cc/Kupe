@@ -7,6 +7,7 @@ import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Position;
 import cc.cosmetica.kupe.api.maths.Region;
 import cc.cosmetica.kupe.impl.MathsImpl;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -26,7 +27,7 @@ public abstract class Component {
 		// no-op
 	}
 
-	protected Stylesheet stylesheet;
+	protected @Nullable Stylesheet stylesheet;
 
 	/**
 	 * The flattened style settings to apply to this component. These are inherited from this component's stylesheet and
@@ -50,8 +51,28 @@ public abstract class Component {
 		return this;
 	}
 
+	/**
+	 * Used internally to set the style of this component.
+	 * @param style the flattened style of the component.
+	 */
+	public void setFlattenedStyle(Style style) {
+		this.style = style;
+	}
+
+	/**
+	 * Get the style of this component.
+	 * @return the style of this component.
+	 */
 	public final Style getStyle() {
 		return this.style;
+	}
+
+	/**
+	 * Get the style sheet attached to this component.
+	 * @return the style sheet of this component.
+	 */
+	public final @Nullable Stylesheet getStylesheet() {
+		return this.stylesheet;
 	}
 
 	/**

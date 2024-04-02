@@ -4,8 +4,11 @@ import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.gui.Component;
 import cc.cosmetica.kupe.api.gui.ResizableElement;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
+import cc.cosmetica.kupe.api.gui.style.Style;
+import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Region;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -15,7 +18,7 @@ import java.util.function.Consumer;
 
 class ComponentTree {
 	public ComponentTree(Component root) {
-		this.root = new ComponentNode(root);
+		this.root = new ComponentNode(null, root);
 	}
 
 	private final ComponentNode root;
@@ -92,12 +95,17 @@ class ComponentTree {
 	}
 
 	private static class ComponentNode implements ResizableElement {
-		ComponentNode(Component element) {
+		ComponentNode(@Nullable ComponentNode parent, Component element) {
+			this.parent = parent;
 			this.element = element;
 		}
 
+		// content
 		final Component element;
+		// hierarchy
 		final List<ComponentNode> children = new ArrayList<>();
+		final @Nullable ComponentNode parent;
+		// extra data
 		Region renderRegion;
 		Dimensions preferredSize, minimumSize; // calculated and cached
 		boolean grey; // grey if visited in resizing stage for adding children
@@ -107,12 +115,31 @@ class ComponentTree {
 		 * Build just this node. Does not recursively build children.
 		 */
 		private void buildOnce() {
+			// rebuild children
 			this.children.clear();
 
 			for (Component component : this.element.build()) {
-				this.children.add(new ComponentNode(component));
+				this.children.add(new ComponentNode(this, component));
 			}
-		}
+
+			// flatten style for component
+			List<Style> styles = new ArrayList<>();
+			ComponentNode node = this;
+			boolean self = true;
+
+			while (node != null) {
+				@Nullable Stylesheet stylesheet = node.element.getStylesheet();
+
+				if (stylesheet != null) {
+					stylesheet.fillOverrides(styles, node.element.getClass(), self);
+				}
+
+				node = node.parent;
+				self = false;
+			}
+
+			this.element.setFlattenedStyle(Style.merge(styles));
+ 		}
 
 		private void computeSizes(int vw, int vh) {
 			this.minimumSize = Dimensions.max(
