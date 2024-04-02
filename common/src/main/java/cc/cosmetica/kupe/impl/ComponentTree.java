@@ -38,6 +38,9 @@ class ComponentTree {
 	 * @param screenRegion the region to size the root component to.
 	 */
 	public void resizeAll(Region screenRegion) {
+		final int vw = screenRegion.getWidth();
+		final int vh = screenRegion.getHeight();
+
 		// DFS for preferred size calculation
 		// We want the leaves to have preferred sizes calculated before their parents
 		// because it depends on the children's preferred sizes being calculated
@@ -51,7 +54,7 @@ class ComponentTree {
 
 			if (node.grey) {
 				node.grey = false; // we are done with this node
-				node.computeSizes();
+				node.computeSizes(vw, vh);
 			} else {
 				node.grey = true; // we need to visit it one more time, after children are done
 				nodes.push(node);
