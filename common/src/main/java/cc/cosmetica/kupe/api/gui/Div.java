@@ -23,12 +23,64 @@ public class Div extends Component {
 
 	@Override
 	public Dimensions preferredSize(List<? extends ResizableElement> children) {
-		return super.preferredSize(children);
+		return this.size(children, true);
 	}
 
 	@Override
 	public Dimensions minimumSize(List<? extends ResizableElement> children) {
-		return super.minimumSize(children);
+		return this.size(children, false);
+	}
+
+	/**
+	 * Calculate the theoretical size of this element, given its children.
+	 * @param children the children of this element.
+	 * @param preferred whether to calculate the preferred size. If this is false, the minimum size will instead be
+	 *                  calculated.
+	 * @return the theoretical size of this element.
+	 */
+	private Dimensions size(List<? extends ResizableElement> children, boolean preferred) {
+		int width = 0;
+		int height = 0;
+
+		// for size calculation, NEGATIVE and POSITIVE variations can be treated the same
+		switch (this.getStyle().get(PRIMARY_AXIS)) {
+		case NEGATIVE_X:
+		case POSITIVE_X:
+			// elements flow in x direction (cumulative)
+			// elements stretch in y direction (max)
+			for (ResizableElement child : children) {
+				Dimensions size = preferred ? child.getPreferredSize() : child.getMinimumSize();
+
+				// x
+				width += size.getWidth();
+				// y
+				int childHeight = size.getHeight();
+
+				if (childHeight > height) {
+					height = childHeight;
+				}
+			}
+			break;
+		case NEGATIVE_Y:
+		case POSITIVE_Y:
+			// elements flow in y direction (cumulative)
+			// elements stretch in x direction (max)
+			for (ResizableElement child : children) {
+				Dimensions size = preferred ? child.getPreferredSize() : child.getMinimumSize();
+
+				// x
+				int childWidth = size.getWidth();
+
+				if (childWidth > width) {
+					width = childWidth;
+				}
+				// y
+				height += size.getHeight();
+			}
+			break;
+		}
+
+		return new Dimensions(width, height);
 	}
 
 	@Override
