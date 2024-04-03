@@ -8,13 +8,11 @@ import cc.cosmetica.kupe.api.gui.style.RootStylesheet;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Dimensions;
+import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 
 class ComponentTree {
@@ -38,6 +36,9 @@ class ComponentTree {
 	public void resizeAll(Region screenRegion) {
 		final int vw = screenRegion.getWidth();
 		final int vh = screenRegion.getHeight();
+
+		// Compute all paddings and margins
+		this.root.walk(node -> node.computeMargins(vw, vh));
 
 		// DFS for preferred size calculation
 		// We want the leaves to have preferred sizes calculated before their parents
@@ -132,7 +133,8 @@ class ComponentTree {
 		final @Nullable ComponentNode parent;
 		// extra data
 		Region renderRegion;
-		Dimensions preferredSize, minimumSize; // calculated and cached
+		Dimensions preferredSize, minimumSize, maximumSize; // calculated and cached
+		Margins padding, margins; // as above
 		boolean grey; // grey if visited in resizing stage for adding children
 		              // but not for actual preferred size calculation
 
@@ -169,6 +171,11 @@ class ComponentTree {
 			this.element.setFlattenedStyle(Style.merge(styles));
  		}
 
+		private void computeMargins(int vw, int vh) {
+			this.padding = this.element.getStyle().get(CommonProperties.PADDING).apply(vw, vh);
+			this.margins = this.element.getStyle().get(CommonProperties.MARGINS).apply(vw, vh);
+		}
+
 		private void computeSizes(int vw, int vh) {
 			this.minimumSize = Dimensions.max(
 					this.element.minimumSize(this.children, vw, vh),
@@ -177,6 +184,9 @@ class ComponentTree {
 
 			this.preferredSize = this.element.getStyle().get(CommonProperties.PREFERRED_SIZE).apply(vw, vh)
 					.orElse(this.element.preferredSize(this.children, vw, vh));
+
+			// if preferred size is specified in style, use as max size
+			this.maximumSize = this.element.getStyle().get(CommonProperties.MAXIMUM_SIZE).apply(vw, vh).orElse(Dimensions.MAX);
 		}
 
 		/**
@@ -193,9 +203,14 @@ class ComponentTree {
 		}
 
 		private void render(Canvas canvas, int mouseX, int mouseY) {
+			this.element.renderBackground(canvas, this.renderRegion, this.padding);
 			this.element.render(canvas, this.renderRegion, mouseX, mouseY);
 		}
 
+		/**
+		 * Recursively iterate (in a BFS manner) this node and its children, performing the provided operation on them.
+		 * @param nodeConsumer the operation to perform on each node in the tree.
+		 */
 		private void walk(Consumer<ComponentNode> nodeConsumer) {
 			Deque<ComponentNode> nodes = new ArrayDeque<>();
 			nodes.add(this);
@@ -225,6 +240,15 @@ class ComponentTree {
 			}
 
 			return this.minimumSize;
+		}
+
+		@Override
+		public Dimensions getMaximumSize() {
+			if (this.maximumSize == null) {
+				throw new NullPointerException("Maximum Size not yet calculated!");
+			}
+
+			return maximumSize;
 		}
 
 		@Override

@@ -30,7 +30,6 @@ public final class CommonProperties {
 
 	/**
 	 * The maximum size of the component. This does not include padding or margins.
-	 * TODO If this is not provided, but the preferred size is, will default to the preferred size.
 	 */
 	public static final Style.Property<DimensionsOperator<Optional<Dimensions>>> MAXIMUM_SIZE = new Style.Property<>((vw, vh) -> Optional.empty());
 

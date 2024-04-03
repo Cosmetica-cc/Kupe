@@ -11,7 +11,7 @@ public interface ResizableElement {
 	/**
 	 * Get the maximum size of this element. If not specified, will return {@link Dimensions#MAX}.
 	 * @return the maximum size of this element.
-	 * @see {@link cc.cosmetica.kupe.api.gui.style.CommonProperties#MAXIMUM_SIZE}.
+	 * @see cc.cosmetica.kupe.api.gui.style.CommonProperties#MAXIMUM_SIZE
 	 */
 	Dimensions getMaximumSize();
 
