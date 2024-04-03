@@ -38,7 +38,7 @@ public class Button extends Component {
 	}
 
 	@Override
-	public void resize(Region region, List<? extends ResizableElement> children) {
+	public void resize(Region region, Dimensions preferredSize, List<? extends ResizableElement> children) {
 		this.minecraftButton = new net.minecraft.client.gui.components.Button(
 				region.getX(),
 				region.getY(),

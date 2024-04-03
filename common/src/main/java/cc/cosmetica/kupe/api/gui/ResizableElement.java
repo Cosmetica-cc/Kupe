@@ -9,6 +9,13 @@ import cc.cosmetica.kupe.api.maths.Region;
  */
 public interface ResizableElement {
 	/**
+	 * Get the maximum size of this element. If not specified, will return {@link Dimensions#MAX}.
+	 * @return the maximum size of this element.
+	 * @see {@link cc.cosmetica.kupe.api.gui.style.CommonProperties#MAXIMUM_SIZE}.
+	 */
+	Dimensions getMaximumSize();
+
+	/**
 	 * Get the calculated and cached preferred size for this element the current component hierarchy.
 	 * @return the preferred size of the element.
 	 */

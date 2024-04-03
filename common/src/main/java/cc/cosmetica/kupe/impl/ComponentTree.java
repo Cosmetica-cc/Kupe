@@ -183,7 +183,7 @@ class ComponentTree {
 		 * Resize the component
 		 */
 		private void resize() {
-			this.element.resize(this.renderRegion, this.children);
+			this.element.resize(this.renderRegion, this.preferredSize, this.children);
 
 			for (ComponentNode node : this.children) {
 				if (node.renderRegion == null) {

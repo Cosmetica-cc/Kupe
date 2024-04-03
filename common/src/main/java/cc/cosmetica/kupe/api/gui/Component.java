@@ -116,7 +116,14 @@ public abstract class Component {
 	 */
 	public abstract List<Component> build();
 
-	public void resize(Region region, List<? extends ResizableElement> children) {
+	/**
+	 * Resize this component's children.
+	 * @param region the region allocated to this component.
+	 * @param preferredSize this component's preferred size. This may differ from this component's actual size.
+	 * @param children a list of children of this component, including their preferred, minimum, and maximum sizes, and
+	 *                 a method with which to allocate their regions.
+	 */
+	public void resize(Region region, Dimensions preferredSize, List<? extends ResizableElement> children) {
 		final Position start = new Position(region.getX(), region.getY());
 
 		// By default, lay out children in specified positions.

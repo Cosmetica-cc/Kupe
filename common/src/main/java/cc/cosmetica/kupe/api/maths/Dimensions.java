@@ -35,6 +35,11 @@ public class Dimensions {
 	 */
 	public static Dimensions NONE = new Dimensions(0, 0);
 
+	/**
+	 * A constant representing the dimensions (Integer.MAX_VALUE, Integer.MAX_VALUE).
+	 */
+	public static Dimensions MAX = new Dimensions(Integer.MAX_VALUE, Integer.MAX_VALUE);
+
 	public static Dimensions max(Dimensions first, Dimensions second) {
 		return new Dimensions(
 				Math.max(first.width, second.width),
