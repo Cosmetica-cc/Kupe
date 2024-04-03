@@ -2,6 +2,8 @@ package cc.cosmetica.kupe.api.gui;
 
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.maths.Axis2D;
+import cc.cosmetica.kupe.api.maths.Dimensions;
+import cc.cosmetica.kupe.api.maths.Region;
 
 import java.util.List;
 
@@ -15,6 +17,23 @@ public class Div extends Component {
 	@Override
 	public List<Component> build() {
 		return this.children;
+	}
+
+	// Div Layout Logic
+
+	@Override
+	public Dimensions preferredSize(List<? extends ResizableElement> children) {
+		return super.preferredSize(children);
+	}
+
+	@Override
+	public Dimensions minimumSize(List<? extends ResizableElement> children) {
+		return super.minimumSize(children);
+	}
+
+	@Override
+	public void resize(Region region, List<? extends ResizableElement> children) {
+		super.resize(region, children);
 	}
 
 	/**

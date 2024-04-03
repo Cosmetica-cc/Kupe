@@ -37,6 +37,7 @@ public abstract class Component {
 	/**
 	 * The map of absolute positions.
 	 * If this is being used to place children, clear it and put components in the map, then call the base resize().
+	 * Positions are relative to the top left corner of the parent element.
 	 */
 	protected Map<Component, Position> absolutePositions = new HashMap<>();
 
@@ -120,7 +121,7 @@ public abstract class Component {
 
 		// By default, lay out children in specified positions.
 		for (ResizableElement child : children) {
-			Position position = this.absolutePositions.getOrDefault(child.getComponent(), start);
+			Position position = start.add(this.absolutePositions.getOrDefault(child.getComponent(), Position.ZERO));
 			Dimensions dimensions = child.getPreferredSize();
 			Dimensions min = child.getMinimumSize();
 
