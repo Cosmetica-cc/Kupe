@@ -24,7 +24,7 @@ public interface ResizableElement {
 	 * Get the {@linkplain Component component} being resized and positioned.
 	 * @return the component underlying this {@link ResizableElement}.
 	 */
-	Component<?> getComponent();
+	Component getComponent();
 
 	/**
 	 * Set the render region of this resizable element.
