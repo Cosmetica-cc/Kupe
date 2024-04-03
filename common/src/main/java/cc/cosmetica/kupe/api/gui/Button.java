@@ -3,6 +3,7 @@ package cc.cosmetica.kupe.api.gui;
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
+import cc.cosmetica.kupe.api.gui.style.RootStylesheet;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Region;
@@ -17,7 +18,6 @@ public class Button extends Component {
 	 * @param text the text to provide.
 	 */
 	public Button(Text text, Runnable onClicked) {
-		super(DEFAULT_STYLE);
 		this.text = text;
 		this.onClicked = onClicked;
 	}
@@ -68,4 +68,8 @@ public class Button extends Component {
 	private static final Dimensions DEFAULT_DIMENSIONS = new Dimensions(200, 20);
 	private static final Style DEFAULT_STYLE = Style.create()
 			.set(CommonProperties.PREFERRED_SIZE, (vw, vh) -> Optional.of(DEFAULT_DIMENSIONS));
+
+	static {
+		RootStylesheet.setDefaultOverrides(Button.class, DEFAULT_STYLE);
+	}
 }

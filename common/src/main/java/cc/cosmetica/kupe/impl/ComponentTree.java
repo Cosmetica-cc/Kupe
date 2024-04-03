@@ -4,6 +4,7 @@ import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.gui.Component;
 import cc.cosmetica.kupe.api.gui.ResizableElement;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
+import cc.cosmetica.kupe.api.gui.style.RootStylesheet;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Dimensions;
@@ -124,19 +125,22 @@ class ComponentTree {
 
 			// flatten style for component
 			List<Style> styles = new ArrayList<>();
-			ComponentNode node = this;
+			ComponentNode visitingNode = this;
 			boolean self = true;
 
-			while (node != null) {
-				@Nullable Stylesheet stylesheet = node.element.getStylesheet();
+			while (visitingNode != null) {
+				@Nullable Stylesheet stylesheet = visitingNode.element.getStylesheet();
 
 				if (stylesheet != null) {
-					stylesheet.fillOverrides(styles, node.element.getClass(), self);
+					// fill overrides for this element class
+					stylesheet.fillOverrides(styles, this.element.getClass(), self);
 				}
 
-				node = node.parent;
+				visitingNode = visitingNode.parent;
 				self = false;
 			}
+
+			RootStylesheet.fillDefaultOverrides(styles, this.element.getClass());
 
 			this.element.setFlattenedStyle(Style.merge(styles));
  		}

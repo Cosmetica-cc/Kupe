@@ -43,8 +43,13 @@ public class Stylesheet {
 	 * @param componentClass the class of components to apply the given style overrides to.
 	 * @param style the style overrides.
 	 * @return this style sheet.
+	 * @throws IllegalArgumentException if the style overrides for the given component class have already been set.
 	 */
 	public Stylesheet component(Class<? extends Component> componentClass, Style style) {
+		if (this.classStyles.containsKey(componentClass)) {
+			throw new IllegalArgumentException("Cannot set style overrides for same class (" + componentClass + ") twice.");
+		}
+
 		this.classStyles.put(componentClass, style);
 		return this;
 	}

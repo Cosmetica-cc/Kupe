@@ -19,10 +19,9 @@ import java.util.Map;
  * All nodes in the GUI tree are components, from the base to the top. Base nodes return an empty list for build().
  */
 public abstract class Component {
-	protected Component(Style defaultOverrides) {
-
-	}
-
+	/**
+	 * Base constructor for a component.
+	 */
 	protected Component() {
 		// no-op
 	}
