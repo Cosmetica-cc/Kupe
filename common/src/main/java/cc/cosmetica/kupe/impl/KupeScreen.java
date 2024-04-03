@@ -43,10 +43,13 @@ public final class KupeScreen extends Screen {
 		this.tree.render(new PoseCanvas(poseStack, this.minecraft, tickDelta), mouseX, mouseY);
 	}
 
+	/**
+	 * Handle a mouse click at the specified position on the screen.
+	 * @return whether to consume click and not pass to game.
+	 */
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		return super.mouseClicked(mouseX, mouseY, button); // returns whether to consume click and not pass to game
-		// TODO implement this
+		return this.tree.mouseClicked(mouseX, mouseY, button);
 	}
 
 	@Override

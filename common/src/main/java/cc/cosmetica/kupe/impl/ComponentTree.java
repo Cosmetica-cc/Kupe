@@ -81,6 +81,30 @@ class ComponentTree {
 		this.root.walk(node -> node.render(canvas, mouseX, mouseY));
 	}
 
+	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+		boolean consumedClick = false;
+
+		Deque<ComponentNode> nodes = new ArrayDeque<>();
+		nodes.add(this.root);
+
+		while (!nodes.isEmpty()) {
+			ComponentNode node = nodes.remove();
+
+			// only process clicks in this element's render region
+			if (node.renderRegion.contains((int)mouseX, (int)mouseY)) {
+				// if this element consumes the click, do not pass to its children, and mark as consumed click.
+				// it can be passed to overlapping siblings, however.
+				if (node.element.mouseClicked(mouseX, mouseY, button)) {
+					consumedClick = true;
+				} else {
+					nodes.addAll(node.children); // children should be within parent's region!
+				}
+			}
+		}
+
+		return consumedClick;
+	}
+
 	public void mouseMoved(double mouseX, double mouseY) {
 		Deque<ComponentNode> nodes = new ArrayDeque<>();
 		nodes.add(this.root);
