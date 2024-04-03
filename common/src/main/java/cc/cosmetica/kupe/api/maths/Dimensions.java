@@ -25,6 +25,11 @@ public class Dimensions {
 		return height;
 	}
 
+	@Override
+	public String toString() {
+		return "Dimensions(" + this.width + "x" + this.height + ")";
+	}
+
 	/**
 	 * A constant representing the dimensions (0, 0).
 	 */

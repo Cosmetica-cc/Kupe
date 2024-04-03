@@ -70,6 +70,16 @@ public class Region {
 		return x >= this.x && x < this.x + this.width && y >= this.y && y < this.y + this.height;
 	}
 
+	@Override
+	public String toString() {
+		return "Region{" +
+				"x=" + x +
+				", y=" + y +
+				", width=" + width +
+				", height=" + height +
+				'}';
+	}
+
 	public static Region withMargins(Region dimensions, Margins region) {
 		// i am speed
 		if (region == Margins.NONE) {
