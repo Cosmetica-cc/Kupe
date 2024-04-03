@@ -4,6 +4,7 @@ import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 
 import java.util.Optional;
+import java.util.OptionalInt;
 
 
 public final class CommonProperties {
@@ -56,6 +57,24 @@ public final class CommonProperties {
 	 * collection, allocate this proportion to this component. If 0, this component will not flex.
 	 */
 	public static final Style.Property<Integer> FLEX = new Style.Property<>(0);
+
+	// Background and Border
+	// ======================
+
+	/**
+	 * The background colour for this component.
+	 */
+	public static final Style.Property<OptionalInt> BACKGROUND_COLOUR = new Style.Property<>(OptionalInt.empty());
+
+	/**
+	 * The border colour for this component.
+	 */
+	public static final Style.Property<Integer> BORDER_COLOUR = new Style.Property<>(0x000000);
+
+	/**
+	 * Get the border size for this component.
+	 */
+	public static final Style.Property<Integer> BORDER_SIZE = new Style.Property<>(0);
 
 	public interface DimensionsOperator<T> {
 		/**

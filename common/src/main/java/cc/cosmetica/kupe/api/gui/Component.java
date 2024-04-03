@@ -4,6 +4,7 @@ import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Dimensions;
+import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Position;
 import cc.cosmetica.kupe.api.maths.Region;
 import cc.cosmetica.kupe.impl.MathsImpl;
@@ -146,6 +147,13 @@ public abstract class Component {
 			Region childRegion = new Region(position, new Dimensions(width, height));
 			child.setRenderRegion(childRegion);
 		}
+	}
+
+	/**
+	 * Render this component's background. This includes things like borders.
+	 */
+	public void renderBackground(Canvas canvas, Region region, Margins padding) {
+		// TODO background colour and border
 	}
 
 	/**
