@@ -1,10 +1,12 @@
 package cc.cosmetica.kupe.api.gui;
 
+import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
+import net.minecraft.network.chat.CommonComponents;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,13 +26,13 @@ public class Div extends Component {
 	// Div Layout Logic
 
 	@Override
-	public Dimensions preferredSize(List<? extends ResizableElement> children) {
-		return this.size(children, true);
+	public Dimensions preferredSize(List<? extends ResizableElement> children, int vw, int vh) {
+		return this.size(children, vw, vh, true);
 	}
 
 	@Override
-	public Dimensions minimumSize(List<? extends ResizableElement> children) {
-		return this.size(children, false);
+	public Dimensions minimumSize(List<? extends ResizableElement> children, int vw, int vh) {
+		return this.size(children, vw, vh, false);
 	}
 
 	/**
@@ -40,7 +42,7 @@ public class Div extends Component {
 	 *                  calculated.
 	 * @return the theoretical size of this element.
 	 */
-	private Dimensions size(List<? extends ResizableElement> children, boolean preferred) {
+	private Dimensions size(List<? extends ResizableElement> children, int vw, int vh, boolean preferred) {
 		int width = 0;
 		int height = 0;
 
@@ -53,10 +55,21 @@ public class Div extends Component {
 			for (ResizableElement child : children) {
 				Dimensions size = preferred ? child.getPreferredSize() : child.getMinimumSize();
 
+				Style style = child.getComponent().getStyle();
+				Margins margins = style.get(CommonProperties.MARGINS).apply(vw, vh);
+				Margins padding = style.get(CommonProperties.PADDING).apply(vw, vh);
+
 				// x
+				// direct width
 				width += size.getWidth();
+				// padding and margin
+				width += margins.left + padding.left + padding.right + margins.right;
+
 				// y
+				// direct height
 				int childHeight = size.getHeight();
+				// padding and margin
+				childHeight += margins.bottom + padding.bottom + padding.top + margins.top;
 
 				if (childHeight > height) {
 					height = childHeight;
@@ -70,14 +83,25 @@ public class Div extends Component {
 			for (ResizableElement child : children) {
 				Dimensions size = preferred ? child.getPreferredSize() : child.getMinimumSize();
 
+				Style style = child.getComponent().getStyle();
+				Margins margins = style.get(CommonProperties.MARGINS).apply(vw, vh);
+				Margins padding = style.get(CommonProperties.PADDING).apply(vw, vh);
+
 				// x
+				// direct width
 				int childWidth = size.getWidth();
+				// padding and margin
+				childWidth += margins.left + padding.left + padding.right + margins.right;
 
 				if (childWidth > width) {
 					width = childWidth;
 				}
+
 				// y
+				// direct height
 				height += size.getHeight();
+				// padding and margin
+				height += margins.bottom + padding.bottom + padding.top + margins.top;
 			}
 			break;
 		}
@@ -129,13 +153,9 @@ public class Div extends Component {
 
 		int preferredDepth = preferredSize.getHeight();
 		int actualDepth = region.getHeight();
-		// TODO add margins and padding
+		// TODO add margins and padding (including in size)
 
-		// if any dimension is smaller than preferred, we downscale
-		if (actualLength < preferredLength || actualDepth < preferredDepth) {
-			// calculate the largest difference (this is the amount we need to downscale)
-			// TODO consider elements that don't care about being deformed
-		}
+
 
 		// 2. Calculate Start Position
 		// this depends on the flow direction, and justify content

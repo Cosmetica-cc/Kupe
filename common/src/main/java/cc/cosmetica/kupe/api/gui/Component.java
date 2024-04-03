@@ -79,8 +79,10 @@ public abstract class Component {
 	 * Calculate the minimum size given the component's children. This should be consistent with how the component
 	 * positions its children.
 	 * @param children a list of the children of this component and their minimum sizes.
+	 * @param vw view width, the width of the window.
+	 * @param vh view height, the height of the window.
 	 */
-	public Dimensions minimumSize(List<? extends ResizableElement> children) {
+	public Dimensions minimumSize(List<? extends ResizableElement> children, int vw, int vh) {
 		if (children.isEmpty()) { // leaf components
 			return Dimensions.NONE;
 		}
@@ -96,8 +98,10 @@ public abstract class Component {
 	 * Calculate the preferred size of this component given the component's children. This should be consistent with how
 	 * the component positions its children.
 	 * @param children a list of the children of this component and their preferred sizes.
+	 * @param vw view width, the width of the window.
+	 * @param vh view height, the height of the window.
 	 */
-	public Dimensions preferredSize(List<? extends ResizableElement> children) {
+	public Dimensions preferredSize(List<? extends ResizableElement> children, int vw, int vh) {
 		if (children.isEmpty()) { // leaf components
 			return Dimensions.NONE;
 		}

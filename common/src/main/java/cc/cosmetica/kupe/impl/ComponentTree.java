@@ -171,12 +171,12 @@ class ComponentTree {
 
 		private void computeSizes(int vw, int vh) {
 			this.minimumSize = Dimensions.max(
-					this.element.minimumSize(this.children),
+					this.element.minimumSize(this.children, vw, vh),
 					this.element.getStyle().get(CommonProperties.MINIMUM_SIZE).apply(vw, vh).orElse(Dimensions.NONE)
 			);
 
 			this.preferredSize = this.element.getStyle().get(CommonProperties.PREFERRED_SIZE).apply(vw, vh)
-					.orElse(this.element.preferredSize(this.children));
+					.orElse(this.element.preferredSize(this.children, vw, vh));
 		}
 
 		/**
