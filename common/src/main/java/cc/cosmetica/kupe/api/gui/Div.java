@@ -6,7 +6,6 @@ import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
-import net.minecraft.network.chat.CommonComponents;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -123,13 +122,12 @@ public class Div extends Component {
 					new Region(region.getY(), region.getX(), region.getHeight(), region.getWidth()), // x,w <-> y,h
 					new Dimensions(preferredSize.getHeight(), preferredSize.getWidth()), // w <-> h
 					children.stream().map(AxisFlipAdapter::new).collect(Collectors.toList()),
-					primaryAxis == Axis2D.NEGATIVE_Y,
-					true);
+					primaryAxis == Axis2D.NEGATIVE_Y);
 			break;
 		case NEGATIVE_X:
 		case POSITIVE_X:
 			// perform normal operation
-			this.resize(region, preferredSize, children, primaryAxis == Axis2D.NEGATIVE_X, false);
+			this.resize(region, preferredSize, children, primaryAxis == Axis2D.NEGATIVE_X);
 			break;
 		}
 	}
@@ -139,9 +137,8 @@ public class Div extends Component {
 	 * @param region the region which this div has been allocated.
 	 * @param children the children of this div.
 	 * @param reverse whether to order elements from right to left, instead of left to right.
-	 * @param flipMargins whether to flip margins (see: {@link Div#flipMargins(Margins)})
 	 */
-	private void resize(Region region, Dimensions preferredSize, List<? extends ResizableElement> children, boolean reverse, boolean flipMargins) {
+	private void resize(Region region, Dimensions preferredSize, List<? extends ResizableElement> children, boolean reverse) {
 		// This method is written for a div with components flowing in the X direction.
 
 		// 1. Resize
@@ -189,15 +186,8 @@ public class Div extends Component {
 	public static final Style.Property<Align> ALIGN_ITEMS = new Style.Property<>(Align.START);
 
 	/**
-	 * Flip margins from real Y-flowing environment to transformed X-flowing environment, for use in flipped environments.
-	 * @return the new margins.
-	 */
-	private static Margins flipMargins(Margins old) {
-		return new Margins(old.right, old.bottom, old.left, old.top); // top right bottom left
-	}
-
-	/**
 	 * Flips the axis of operations. Y <-> X.
+	 * Margins are transformed from a Y-flowing environment to their corresponding values in an X-flowing environment.
 	 */
 	private static class AxisFlipAdapter implements ResizableElement {
 		public AxisFlipAdapter(ResizableElement wrapped) {
@@ -206,12 +196,17 @@ public class Div extends Component {
 			this.maximumSize = new Dimensions(wrapped.getMaximumSize().getHeight(), wrapped.getMaximumSize().getWidth());
 			this.preferredSize = new Dimensions(wrapped.getPreferredSize().getHeight(), wrapped.getPreferredSize().getWidth());
 			this.minimumSize = new Dimensions(wrapped.getMinimumSize().getHeight(), wrapped.getMinimumSize().getWidth());
+			// rotate margins
+			this.margins = rotateMargins(wrapped.getMargins());
+			this.padding = rotateMargins(wrapped.getPadding());
 		}
 
 		private final ResizableElement wrapped;
 		private final Dimensions maximumSize;
 		private final Dimensions preferredSize;
 		private final Dimensions minimumSize;
+		private final Margins margins;
+		private final Margins padding;
 
 		@Override
 		public Dimensions getMaximumSize() {
@@ -229,6 +224,16 @@ public class Div extends Component {
 		}
 
 		@Override
+		public Margins getMargins() {
+			return margins;
+		}
+
+		@Override
+		public Margins getPadding() {
+			return padding;
+		}
+
+		@Override
 		public Component getComponent() {
 			return this.wrapped.getComponent();
 		}
@@ -241,6 +246,14 @@ public class Div extends Component {
 					region.getHeight(), // width
 					region.getWidth()   // height
 			));
+		}
+
+		/**
+		 * Flip margins from real Y-flowing environment to transformed X-flowing environment, for use in flipped environments.
+		 * @return the new margins.
+		 */
+		private static Margins rotateMargins(Margins old) {
+			return new Margins(old.right, old.bottom, old.left, old.top); // top right bottom left
 		}
 	}
 }

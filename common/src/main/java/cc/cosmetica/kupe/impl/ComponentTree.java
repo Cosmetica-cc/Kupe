@@ -252,6 +252,16 @@ class ComponentTree {
 		}
 
 		@Override
+		public Margins getMargins() {
+			return margins;
+		}
+
+		@Override
+		public Margins getPadding() {
+			return padding;
+		}
+
+		@Override
 		public Component getComponent() {
 			return this.element;
 		}

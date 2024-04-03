@@ -1,6 +1,7 @@
 package cc.cosmetica.kupe.api.gui;
 
 import cc.cosmetica.kupe.api.maths.Dimensions;
+import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
 
 /**
@@ -26,6 +27,18 @@ public interface ResizableElement {
 	 * @return the minimum size of the element.
 	 */
 	Dimensions getMinimumSize();
+
+	/**
+	 * Get the calculated and cached margins for this element.
+	 * @return the margins for this element.
+	 */
+	Margins getMargins();
+
+	/**
+	 * Get the calculated and cached padding for this element.
+	 * @return the padding for this element.
+	 */
+	Margins getPadding();
 
 	/**
 	 * Get the {@linkplain Component component} being resized and positioned.
