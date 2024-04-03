@@ -1,6 +1,7 @@
 package cc.cosmetica.kupe.api.gui;
 
 import cc.cosmetica.kupe.api.Canvas;
+import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Dimensions;
@@ -13,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.OptionalInt;
 
 /**
  * A GUI component. Whenever relevant states are changed, the tree of components is updated via calling build().
@@ -153,7 +155,23 @@ public abstract class Component {
 	 * Render this component's background. This includes things like borders.
 	 */
 	public void renderBackground(Canvas canvas, Region region, Margins padding) {
-		// TODO background colour and border
+		OptionalInt backgroundColour = this.getStyle().get(CommonProperties.BACKGROUND_COLOUR);
+
+		if (backgroundColour.isPresent()) {
+			int x0 = region.getX() - padding.left;
+			int x1 = region.getEndX() + padding.right;
+			int y0 = region.getY() - padding.top;
+			int y1 = region.getEndY() + padding.bottom;
+
+			int colour = backgroundColour.getAsInt();
+			// TODO should we store colour as 3 floats instead to eliminate floating point division?
+			float r = ((colour >> 16) & 0xFF) / 255.0f;
+			float g = ((colour >> 8) & 0xFF) / 255.0f;
+			float b = (colour & 0xFF) / 255.0f;
+
+			canvas.drawRect(x0, y0, x1, y1, r, g, b);
+		}
+		// TODO border
 	}
 
 	/**
