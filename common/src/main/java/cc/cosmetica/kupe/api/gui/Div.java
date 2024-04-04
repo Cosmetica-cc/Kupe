@@ -26,12 +26,12 @@ public class Div extends Component {
 
 	@Override
 	public Dimensions preferredSize(List<? extends ResizableElement> children, int vw, int vh) {
-		return this.size(children, vw, vh, true);
+		return this.size(children, true);
 	}
 
 	@Override
 	public Dimensions minimumSize(List<? extends ResizableElement> children, int vw, int vh) {
-		return this.size(children, vw, vh, false);
+		return this.size(children, false);
 	}
 
 	/**
@@ -41,7 +41,7 @@ public class Div extends Component {
 	 *                  calculated.
 	 * @return the theoretical size of this element.
 	 */
-	private Dimensions size(List<? extends ResizableElement> children, int vw, int vh, boolean preferred) {
+	private Dimensions size(List<? extends ResizableElement> children, boolean preferred) {
 		int width = 0;
 		int height = 0;
 
@@ -54,9 +54,8 @@ public class Div extends Component {
 			for (ResizableElement child : children) {
 				Dimensions size = preferred ? child.getPreferredSize() : child.getMinimumSize();
 
-				Style style = child.getComponent().getStyle();
-				Margins margins = style.get(CommonProperties.MARGINS).apply(vw, vh);
-				Margins padding = style.get(CommonProperties.PADDING).apply(vw, vh);
+				Margins margins = child.getMargins();
+				Margins padding = child.getPadding();
 
 				// x
 				// direct width
@@ -82,9 +81,8 @@ public class Div extends Component {
 			for (ResizableElement child : children) {
 				Dimensions size = preferred ? child.getPreferredSize() : child.getMinimumSize();
 
-				Style style = child.getComponent().getStyle();
-				Margins margins = style.get(CommonProperties.MARGINS).apply(vw, vh);
-				Margins padding = style.get(CommonProperties.PADDING).apply(vw, vh);
+				Margins margins = child.getMargins();
+				Margins padding = child.getPadding();
 
 				// x
 				// direct width
