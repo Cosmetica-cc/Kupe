@@ -117,11 +117,16 @@ public class Div extends Component {
 		switch (primaryAxis) {
 		case NEGATIVE_Y:
 		case POSITIVE_Y:
-			// perform flipped operation
+			// perform rotate operation
+			// when rotating, we need to consider what corresponds with what carefully
+			// Luckily, this is only really important when setting the real positions. See: AxisRotationAdapter.
+			// We will rotate around the origin (x, y), so we will keep (x, y) as our origin
+			// Height and width are absolute values, so we can just flip them.
+
 			this.resize(
-					new Region(region.getY(), region.getX(), region.getHeight(), region.getWidth()), // x,w <-> y,h
+					new Region(region.getX(), region.getY(), region.getHeight(), region.getWidth()), // w <-> h
 					new Dimensions(preferredSize.getHeight(), preferredSize.getWidth()), // w <-> h
-					children.stream().map(AxisFlipAdapter::new).collect(Collectors.toList()),
+					children.stream().map(element -> new AxisRotationAdapter(region, element)).collect(Collectors.toList()),
 					primaryAxis == Axis2D.NEGATIVE_Y);
 			break;
 		case NEGATIVE_X:
@@ -187,10 +192,11 @@ public class Div extends Component {
 
 	/**
 	 * Flips the axis of operations. Y <-> X.
-	 * Margins are transformed from a Y-flowing environment to their corresponding values in an X-flowing environment.
+	 * Transforms from a Y-flowing environment to an X-flowing environment.
+	 * When regions are set back, it transforms them from the X-flowing environment to a Y-flowing environment.
 	 */
-	private static class AxisFlipAdapter implements ResizableElement {
-		public AxisFlipAdapter(ResizableElement wrapped) {
+	private static class AxisRotationAdapter implements ResizableElement {
+		public AxisRotationAdapter(Region parentRegion, ResizableElement wrapped) {
 			this.wrapped = wrapped;
 			// flip dimensions
 			this.maximumSize = new Dimensions(wrapped.getMaximumSize().getHeight(), wrapped.getMaximumSize().getWidth());
@@ -199,6 +205,9 @@ public class Div extends Component {
 			// rotate margins
 			this.margins = rotateMargins(wrapped.getMargins());
 			this.padding = rotateMargins(wrapped.getPadding());
+			// Region in real space
+			// Top left corner is the pivot point, which is the same position in both regions.
+			this.parentRegion = parentRegion;
 		}
 
 		private final ResizableElement wrapped;
@@ -207,6 +216,7 @@ public class Div extends Component {
 		private final Dimensions minimumSize;
 		private final Margins margins;
 		private final Margins padding;
+		private final Region parentRegion;
 
 		@Override
 		public Dimensions getMaximumSize() {
@@ -240,9 +250,30 @@ public class Div extends Component {
 
 		@Override
 		public void setRenderRegion(Region region) {
+			// when rotating back, we need to consider what corresponds with what more carefully
+			// Going from transformed to real, we do a clockwise rotation.
+			// ↓y  →x , rotating back corresponds to
+			// ←-x ↓y
+			// So when considering the x position we need to be careful.
+
+			// We have a shared origin (x0, y0)
+			// a position (xt, yt) in transformed space can be written (x0 + dxt, y0 + dyt)
+			// Because of direction changes, the real space correspondance is dy=dxt, dx=-dyt
+			// However, the origin in the transformed space is also really in a different corner, so x0 => x0 + WIDTH (this goes along with the dx=-dyt)
+			// so (xt, yt) = (x0 + dxt, y0 + dyt) => (x0 + WIDTH - dyt, y0 + dxt)
+
+			// However, that is just for mapping points. We actually need to map a region.
+			// Luckily, if we can map the true top left corner, we are all good.
+			// The true top left corner will be, in the transformed region, the bottom left corner.
+			int dxt = region.getX();
+			int dyt = region.getEndY(); // bottom left corner in transformed region
+
+			int x = this.parentRegion.getEndX() - dyt;
+			int y = this.parentRegion.getY() + dxt;
+
 			this.wrapped.setRenderRegion(new Region(
-					region.getY(),      // x
-					region.getX(),      // y
+					x,
+					y,
 					region.getHeight(), // width
 					region.getWidth()   // height
 			));
