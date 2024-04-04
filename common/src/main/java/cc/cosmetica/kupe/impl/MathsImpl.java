@@ -1,13 +1,11 @@
 package cc.cosmetica.kupe.impl;
 
 import cc.cosmetica.kupe.api.gui.Component;
-import cc.cosmetica.kupe.api.gui.ResizableElement;
+import cc.cosmetica.kupe.api.gui.SizedElement;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Position;
 import cc.cosmetica.kupe.api.maths.Vec3;
-import net.minecraft.util.Tuple;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -25,8 +23,8 @@ public class MathsImpl {
 	 * @return the size of the components.
 	 */
 	public static Dimensions calculateSizeAbsolute(
-			List<? extends ResizableElement> children,
-			Function<ResizableElement, Dimensions> dimensionsFunction,
+			List<? extends SizedElement> children,
+			Function<SizedElement, Dimensions> dimensionsFunction,
 			Map<Component, Position> positions) {
 		boolean first = true;
 		int x0 = 0;
@@ -34,7 +32,7 @@ public class MathsImpl {
 		int y0 = 0;
 		int y1 = 0;
 
-		for (ResizableElement child : children) {
+		for (SizedElement child : children) {
 			Position position = positions.get(child.getComponent());
 
 			// if this component is absolutely positioned take it into account.

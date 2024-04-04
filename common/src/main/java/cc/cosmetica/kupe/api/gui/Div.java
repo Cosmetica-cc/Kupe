@@ -1,6 +1,5 @@
 package cc.cosmetica.kupe.api.gui;
 
-import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Dimensions;
@@ -25,12 +24,12 @@ public class Div extends Component {
 	// Div Layout Logic
 
 	@Override
-	public Dimensions preferredSize(List<? extends ResizableElement> children, int vw, int vh) {
+	public Dimensions preferredSize(List<? extends SizedElement> children, int vw, int vh) {
 		return this.size(children, true);
 	}
 
 	@Override
-	public Dimensions minimumSize(List<? extends ResizableElement> children, int vw, int vh) {
+	public Dimensions minimumSize(List<? extends SizedElement> children, int vw, int vh) {
 		return this.size(children, false);
 	}
 
@@ -41,7 +40,7 @@ public class Div extends Component {
 	 *                  calculated.
 	 * @return the theoretical size of this element.
 	 */
-	private Dimensions size(List<? extends ResizableElement> children, boolean preferred) {
+	private Dimensions size(List<? extends SizedElement> children, boolean preferred) {
 		int width = 0;
 		int height = 0;
 
@@ -51,7 +50,7 @@ public class Div extends Component {
 		case POSITIVE_X:
 			// elements flow in x direction (cumulative)
 			// elements stretch in y direction (max)
-			for (ResizableElement child : children) {
+			for (SizedElement child : children) {
 				Dimensions size = preferred ? child.getPreferredSize() : child.getMinimumSize();
 
 				Margins margins = child.getMargins();
@@ -78,7 +77,7 @@ public class Div extends Component {
 		case POSITIVE_Y:
 			// elements flow in y direction (cumulative)
 			// elements stretch in x direction (max)
-			for (ResizableElement child : children) {
+			for (SizedElement child : children) {
 				Dimensions size = preferred ? child.getPreferredSize() : child.getMinimumSize();
 
 				Margins margins = child.getMargins();
@@ -107,10 +106,11 @@ public class Div extends Component {
 	}
 
 	@Override
-	public void resize(Region region, Dimensions preferredSize, List<? extends ResizableElement> children) {
+	public void resize(Region region, SizedElement sizedElement, List<? extends ResizableElement> children) {
 		// The code will be written as if doing all operations on the X axis.
 		// However, if we are actually doing actions on the Y axis, we want to flip.
 		final Axis2D primaryAxis = this.getStyle().get(PRIMARY_AXIS);
+		final Dimensions inheritedSize = sizedElement.getInheritedSize();
 
 		switch (primaryAxis) {
 		case NEGATIVE_Y:
@@ -123,14 +123,14 @@ public class Div extends Component {
 
 			this.resize(
 					new Region(region.getX(), region.getY(), region.getHeight(), region.getWidth()), // w <-> h
-					new Dimensions(preferredSize.getHeight(), preferredSize.getWidth()), // w <-> h
+					new Dimensions(inheritedSize.getHeight(), inheritedSize.getWidth()), // w <-> h
 					children.stream().map(element -> new AxisRotationAdapter(region, element)).collect(Collectors.toList()),
 					primaryAxis == Axis2D.NEGATIVE_Y);
 			break;
 		case NEGATIVE_X:
 		case POSITIVE_X:
 			// perform normal operation
-			this.resize(region, preferredSize, children, primaryAxis == Axis2D.NEGATIVE_X);
+			this.resize(region, inheritedSize, children, primaryAxis == Axis2D.NEGATIVE_X);
 			break;
 		}
 	}
@@ -138,24 +138,25 @@ public class Div extends Component {
 	/**
 	 * Resize child elements of this div.
 	 * @param region the region which this div has been allocated.
+	 * @param inheritedSize the inherited preferred size based on children.
 	 * @param children the children of this div.
 	 * @param reverse whether to order elements from right to left, instead of left to right.
 	 */
-	private void resize(Region region, Dimensions preferredSize, List<? extends ResizableElement> children, boolean reverse) {
+	private void resize(Region region, Dimensions inheritedSize, List<? extends SizedElement> children, boolean reverse) {
 		// This method is written for a div with components flowing in the X direction.
 
 		// 1. Resize
 
 		// we will hereinafter use 'length' to refer to length of the primary axis,
 		// and 'depth' to refer to the length of the secondary axis.
-		int preferredLength = preferredSize.getWidth();
+		int preferredLength = inheritedSize.getWidth();
 		int actualLength = region.getWidth();
 
-		int preferredDepth = preferredSize.getHeight();
-		int actualDepth = region.getHeight();
-		// TODO add margins and padding (including in size)
+		// 1.1, Find the difference in preferred and actual length. This is the difference we have to compensate.
+		int difference = actualLength - preferredLength;
 
-
+		// if difference > 0, we have more space available
+		// if difference < 0, we have less space available
 
 		// 2. Calculate Start Position
 		// this depends on the flow direction, and justify content
@@ -199,6 +200,7 @@ public class Div extends Component {
 			// flip dimensions
 			this.maximumSize = new Dimensions(wrapped.getMaximumSize().getHeight(), wrapped.getMaximumSize().getWidth());
 			this.preferredSize = new Dimensions(wrapped.getPreferredSize().getHeight(), wrapped.getPreferredSize().getWidth());
+			this.inheritedSize = new Dimensions(wrapped.getInheritedSize().getHeight(), wrapped.getInheritedSize().getWidth());
 			this.minimumSize = new Dimensions(wrapped.getMinimumSize().getHeight(), wrapped.getMinimumSize().getWidth());
 			// rotate margins
 			this.margins = rotateMargins(wrapped.getMargins());
@@ -209,9 +211,7 @@ public class Div extends Component {
 		}
 
 		private final ResizableElement wrapped;
-		private final Dimensions maximumSize;
-		private final Dimensions preferredSize;
-		private final Dimensions minimumSize;
+		private final Dimensions preferredSize, inheritedSize, minimumSize, maximumSize;
 		private final Margins margins;
 		private final Margins padding;
 		private final Region parentRegion;
@@ -224,6 +224,11 @@ public class Div extends Component {
 		@Override
 		public Dimensions getPreferredSize() {
 			return this.preferredSize;
+		}
+
+		@Override
+		public Dimensions getInheritedSize() {
+			return this.inheritedSize;
 		}
 
 		@Override

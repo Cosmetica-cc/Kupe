@@ -3,6 +3,7 @@ package cc.cosmetica.kupe.impl;
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.gui.Component;
 import cc.cosmetica.kupe.api.gui.ResizableElement;
+import cc.cosmetica.kupe.api.gui.SizedElement;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.RootStylesheet;
 import cc.cosmetica.kupe.api.gui.style.Style;
@@ -133,7 +134,7 @@ class ComponentTree {
 		final @Nullable ComponentNode parent;
 		// extra data
 		Region renderRegion;
-		Dimensions preferredSize, minimumSize, maximumSize; // calculated and cached
+		Dimensions inheritedSize, preferredSize, minimumSize, maximumSize; // calculated and cached
 		Margins padding, margins; // as above
 		boolean grey; // grey if visited in resizing stage for adding children
 		              // but not for actual preferred size calculation
@@ -182,8 +183,8 @@ class ComponentTree {
 					this.element.getStyle().get(CommonProperties.MINIMUM_SIZE).apply(vw, vh).orElse(Dimensions.NONE)
 			);
 
-			this.preferredSize = this.element.getStyle().get(CommonProperties.PREFERRED_SIZE).apply(vw, vh)
-					.orElse(this.element.preferredSize(this.children, vw, vh));
+			this.inheritedSize = this.element.preferredSize(this.children, vw, vh);
+			this.preferredSize = this.element.getStyle().get(CommonProperties.PREFERRED_SIZE).apply(vw, vh).orElse(this.inheritedSize);
 
 			// if preferred size is specified in style, use as max size
 			this.maximumSize = this.element.getStyle().get(CommonProperties.MAXIMUM_SIZE).apply(vw, vh).orElse(Dimensions.MAX);
@@ -193,7 +194,7 @@ class ComponentTree {
 		 * Resize the component
 		 */
 		private void resize() {
-			this.element.resize(this.renderRegion, this.preferredSize, this.children);
+			this.element.resize(this.renderRegion, this, this.children);
 
 			for (ComponentNode node : this.children) {
 				if (node.renderRegion == null) {
@@ -231,6 +232,15 @@ class ComponentTree {
 			}
 
 			return this.preferredSize;
+		}
+
+		@Override
+		public Dimensions getInheritedSize() {
+			if (this.inheritedSize == null) {
+				throw new NullPointerException("Inherited Size not yet calculated!");
+			}
+
+			return this.inheritedSize;
 		}
 
 		@Override

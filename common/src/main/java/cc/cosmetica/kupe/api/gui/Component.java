@@ -85,7 +85,7 @@ public abstract class Component {
 	 * @param vw view width, the width of the window.
 	 * @param vh view height, the height of the window.
 	 */
-	public Dimensions minimumSize(List<? extends ResizableElement> children, int vw, int vh) {
+	public Dimensions minimumSize(List<? extends SizedElement> children, int vw, int vh) {
 		if (children.isEmpty()) { // leaf components
 			return Dimensions.NONE;
 		}
@@ -94,7 +94,7 @@ public abstract class Component {
 			return children.get(0).getMinimumSize();
 		}
 
-		return MathsImpl.calculateSizeAbsolute(children, ResizableElement::getMinimumSize, this.absolutePositions);
+		return MathsImpl.calculateSizeAbsolute(children, SizedElement::getMinimumSize, this.absolutePositions);
 	}
 
 	/**
@@ -104,7 +104,7 @@ public abstract class Component {
 	 * @param vw view width, the width of the window.
 	 * @param vh view height, the height of the window.
 	 */
-	public Dimensions preferredSize(List<? extends ResizableElement> children, int vw, int vh) {
+	public Dimensions preferredSize(List<? extends SizedElement> children, int vw, int vh) {
 		if (children.isEmpty()) { // leaf components
 			return Dimensions.NONE;
 		}
@@ -113,7 +113,7 @@ public abstract class Component {
 			return children.get(0).getPreferredSize();
 		}
 
-		return MathsImpl.calculateSizeAbsolute(children, ResizableElement::getPreferredSize, this.absolutePositions);
+		return MathsImpl.calculateSizeAbsolute(children, SizedElement::getPreferredSize, this.absolutePositions);
 	}
 
 	/**
@@ -126,11 +126,12 @@ public abstract class Component {
 	/**
 	 * Resize this component's children.
 	 * @param region the region allocated to this component.
-	 * @param preferredSize this component's preferred size. This may differ from this component's actual size.
+	 * @param sizedElement this component's dimensions. These may differ from this component's actual allocated size
+	 *                     as provided in the region.
 	 * @param children a list of children of this component, including their preferred, minimum, and maximum sizes, and
 	 *                 a method with which to allocate their regions.
 	 */
-	public void resize(Region region, Dimensions preferredSize, List<? extends ResizableElement> children) {
+	public void resize(Region region, SizedElement sizedElement, List<? extends ResizableElement> children) {
 		final Position start = new Position(region.getX(), region.getY());
 
 		// By default, lay out children in specified positions.
