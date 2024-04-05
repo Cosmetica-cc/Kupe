@@ -174,7 +174,7 @@ public class Div extends Component {
 			}
 
 			// ensure no elements go below their minimum length
-			int extraSpace = difference - shrinkAmount * children.size();
+			int extraSpace = difference - shrinkAmount * children.size(); // unused space. should be at least 0
 			List<ResizableElement> shrinkableElements = new ArrayList<>(children);
 
 			// distribute extra space
@@ -193,7 +193,11 @@ public class Div extends Component {
 						shrinkableElements.remove(element);
 					}
 				}
-			} while (!shrinkableElements.isEmpty() && extraSpace > 0);
+			} while (!shrinkableElements.isEmpty() && extraSpace < 0);
+
+			// try hand out any extra space by giving 1 bit of extra space to any element which wouldnt exceed its max
+			// size.
+			// if extra space is above zero it should be minimally above zero.
 		}
 
 		// 2. Calculate Start Position
