@@ -5,8 +5,13 @@ import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
+import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Div extends Component {
@@ -142,21 +147,54 @@ public class Div extends Component {
 	 * @param children the children of this div.
 	 * @param reverse whether to order elements from right to left, instead of left to right.
 	 */
-	private void resize(Region region, Dimensions inheritedSize, List<? extends SizedElement> children, boolean reverse) {
+	private void resize(Region region, Dimensions inheritedSize, List<? extends ResizableElement> children, boolean reverse) {
 		// This method is written for a div with components flowing in the X direction.
+		// width will be primary axis, height will be secondary axis
 
 		// 1. Resize
 
-		// we will hereinafter use 'length' to refer to length of the primary axis,
-		// and 'depth' to refer to the length of the secondary axis.
+		final Object2IntMap<ResizableElement> widths = new Object2IntArrayMap<>();
+		final Object2IntMap<ResizableElement> heights = new Object2IntArrayMap<>();
+
 		int preferredLength = inheritedSize.getWidth();
 		int actualLength = region.getWidth();
 
-		// 1.1, Find the difference in preferred and actual length. This is the difference we have to compensate.
+		// 1.1, Find the difference in preferred and actual width. This is the difference we have to compensate.
 		int difference = actualLength - preferredLength;
 
 		// if difference > 0, we have more space available
 		// if difference < 0, we have less space available
+		if (difference < 0) {
+			// shrink elements equally. overcorrect rather than undercorrect.
+			int shrinkAmount = (int) Math.floor((double)difference / children.size());
+
+			// first, allocate lengths with this naive guess
+			for (ResizableElement element : children) {
+				widths.put(element, element.getPreferredSize().getWidth() - shrinkAmount);
+			}
+
+			// ensure no elements go below their minimum length
+			int extraSpace = difference - shrinkAmount * children.size();
+			List<ResizableElement> shrinkableElements = new ArrayList<>(children);
+
+			// distribute extra space
+			// do one round first so we can catch elements that are below minimum size initially.
+			do {
+				// find who is below minimum size
+				for (int i = shrinkableElements.size() - 1; i >= 0; i--) {
+					ResizableElement element = shrinkableElements.get(i);
+
+					Dimensions minimum = element.getMinimumSize();
+
+					if (widths.getInt(element) < minimum.getWidth()) {
+						// set width to minimum width
+						extraSpace += minimum.getWidth() - widths.getInt(element);
+						widths.put(element, minimum.getWidth());
+						shrinkableElements.remove(element);
+					}
+				}
+			} while (!shrinkableElements.isEmpty() && extraSpace > 0);
+		}
 
 		// 2. Calculate Start Position
 		// this depends on the flow direction, and justify content
