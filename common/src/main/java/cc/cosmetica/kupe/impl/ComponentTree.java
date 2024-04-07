@@ -134,7 +134,7 @@ class ComponentTree {
 		final @Nullable ComponentNode parent;
 		// extra data
 		Region renderRegion;
-		Dimensions inheritedSize, preferredSize, minimumSize, maximumSize; // calculated and cached
+		Dimensions minimumSize, maximumSize; // calculated and cached
 		Margins padding, margins; // as above
 		boolean grey; // grey if visited in resizing stage for adding children
 		              // but not for actual preferred size calculation
@@ -183,9 +183,6 @@ class ComponentTree {
 					this.element.getStyle().get(CommonProperties.MINIMUM_SIZE).apply(vw, vh).orElse(Dimensions.NONE)
 			);
 
-			this.inheritedSize = this.element.preferredSize(this.children, vw, vh);
-			this.preferredSize = this.element.getStyle().get(CommonProperties.PREFERRED_SIZE).apply(vw, vh).orElse(this.inheritedSize);
-
 			// if preferred size is specified in style, use as max size
 			this.maximumSize = this.element.getStyle().get(CommonProperties.MAXIMUM_SIZE).apply(vw, vh).orElse(Dimensions.MAX);
 		}
@@ -224,24 +221,6 @@ class ComponentTree {
 		}
 
 		// ResizableElement
-
-		@Override
-		public Dimensions getPreferredSize() {
-			if (this.preferredSize == null) {
-				throw new NullPointerException("Preferred Size not yet calculated!");
-			}
-
-			return this.preferredSize;
-		}
-
-		@Override
-		public Dimensions getInheritedSize() {
-			if (this.inheritedSize == null) {
-				throw new NullPointerException("Inherited Size not yet calculated!");
-			}
-
-			return this.inheritedSize;
-		}
 
 		@Override
 		public Dimensions getMinimumSize() {

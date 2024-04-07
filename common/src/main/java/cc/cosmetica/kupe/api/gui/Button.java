@@ -67,7 +67,7 @@ public class Button extends Component {
 
 	private static final Dimensions DEFAULT_DIMENSIONS = new Dimensions(200, 20);
 	private static final Style DEFAULT_STYLE = Style.create()
-			.set(CommonProperties.PREFERRED_SIZE, (vw, vh) -> Optional.of(DEFAULT_DIMENSIONS));
+			.set(CommonProperties.MAXIMUM_SIZE, (vw, vh) -> Optional.of(DEFAULT_DIMENSIONS));
 
 	static {
 		RootStylesheet.setDefaultOverrides(Button.class, DEFAULT_STYLE);

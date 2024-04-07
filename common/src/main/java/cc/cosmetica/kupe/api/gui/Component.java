@@ -98,25 +98,6 @@ public abstract class Component {
 	}
 
 	/**
-	 * Calculate the preferred size of this component given the component's children. This should be consistent with how
-	 * the component positions its children.
-	 * @param children a list of the children of this component and their preferred sizes.
-	 * @param vw view width, the width of the window.
-	 * @param vh view height, the height of the window.
-	 */
-	public Dimensions preferredSize(List<? extends SizedElement> children, int vw, int vh) {
-		if (children.isEmpty()) { // leaf components
-			return Dimensions.NONE;
-		}
-
-		if (children.size() == 1) {
-			return children.get(0).getPreferredSize();
-		}
-
-		return MathsImpl.calculateSizeAbsolute(children, SizedElement::getPreferredSize, this.absolutePositions);
-	}
-
-	/**
 	 * Get a list of children of this component.
 	 * Will be called again if states acquired by this component or a parent component change.
 	 * @return the list of children of this component
@@ -137,15 +118,16 @@ public abstract class Component {
 		// By default, lay out children in specified positions.
 		for (ResizableElement child : children) {
 			Position position = start.add(this.absolutePositions.getOrDefault(child.getComponent(), Position.ZERO));
-			Dimensions dimensions = child.getPreferredSize();
+			Dimensions max = child.getMaximumSize();
 			Dimensions min = child.getMinimumSize();
 
 			// shrink child region so it doesn't extend beyond the borders of the parent region
-			int endX = Math.min(position.x + dimensions.getWidth() - 1, region.getEndX());
-			int endY = Math.min(position.y + dimensions.getHeight() - 1, region.getEndY());
+			int endX = Math.min(position.x + max.getWidth() - 1, region.getEndX());
+			int endY = Math.min(position.y + max.getHeight() - 1, region.getEndY());
 
-			int width = Math.min(dimensions.getWidth(), Math.max(min.getWidth(), endX - position.x));
-			int height = Math.min(dimensions.getHeight(), Math.max(min.getHeight(), endY - position.y));
+			int width = Math.min(max.getWidth(), Math.max(min.getWidth(), endX - position.x));
+			int height = Math.min(max.getHeight(), Math.max(min.getHeight(), endY - position.y));
+			// TODO preserve_shape
 
 			Region childRegion = new Region(position, new Dimensions(width, height));
 			child.setRenderRegion(childRegion);

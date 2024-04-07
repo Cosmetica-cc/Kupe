@@ -25,7 +25,7 @@ public interface Text {
 	}
 
 	static Text translatable(String text, String... format) {
-		return new TranslatableText(text, format);
+		return new TranslatableText(text, (Object[])format);
 	}
 
 	/**

@@ -29,23 +29,7 @@ public class Div extends Component {
 	// Div Layout Logic
 
 	@Override
-	public Dimensions preferredSize(List<? extends SizedElement> children, int vw, int vh) {
-		return this.size(children, true);
-	}
-
-	@Override
 	public Dimensions minimumSize(List<? extends SizedElement> children, int vw, int vh) {
-		return this.size(children, false);
-	}
-
-	/**
-	 * Calculate the theoretical size of this element, given its children.
-	 * @param children the children of this element.
-	 * @param preferred whether to calculate the preferred size. If this is false, the minimum size will instead be
-	 *                  calculated.
-	 * @return the theoretical size of this element.
-	 */
-	private Dimensions size(List<? extends SizedElement> children, boolean preferred) {
 		int width = 0;
 		int height = 0;
 
@@ -56,7 +40,7 @@ public class Div extends Component {
 			// elements flow in x direction (cumulative)
 			// elements stretch in y direction (max)
 			for (SizedElement child : children) {
-				Dimensions size = preferred ? child.getPreferredSize() : child.getMinimumSize();
+				Dimensions size = child.getMinimumSize();
 
 				Margins margins = child.getMargins();
 				Margins padding = child.getPadding();
@@ -83,7 +67,7 @@ public class Div extends Component {
 			// elements flow in y direction (cumulative)
 			// elements stretch in x direction (max)
 			for (SizedElement child : children) {
-				Dimensions size = preferred ? child.getPreferredSize() : child.getMinimumSize();
+				Dimensions size = child.getMinimumSize();
 
 				Margins margins = child.getMargins();
 				Margins padding = child.getPadding();
@@ -177,7 +161,7 @@ public class Div extends Component {
 			int extraSpace = difference - shrinkAmount * children.size(); // unused space. should be at least 0
 			List<ResizableElement> shrinkableElements = new ArrayList<>(children);
 
-			// distribute extra space
+			// stop elements going below minimum size and distribute extra space
 			// do one round first so we can catch elements that are below minimum size initially.
 			do {
 				// find who is below minimum size
@@ -193,6 +177,8 @@ public class Div extends Component {
 						shrinkableElements.remove(element);
 					}
 				}
+
+				// distribute extra space to elements
 			} while (!shrinkableElements.isEmpty() && extraSpace < 0);
 
 			// try hand out any extra space by giving 1 bit of extra space to any element which wouldnt exceed its max
@@ -241,8 +227,6 @@ public class Div extends Component {
 			this.wrapped = wrapped;
 			// flip dimensions
 			this.maximumSize = new Dimensions(wrapped.getMaximumSize().getHeight(), wrapped.getMaximumSize().getWidth());
-			this.preferredSize = new Dimensions(wrapped.getPreferredSize().getHeight(), wrapped.getPreferredSize().getWidth());
-			this.inheritedSize = new Dimensions(wrapped.getInheritedSize().getHeight(), wrapped.getInheritedSize().getWidth());
 			this.minimumSize = new Dimensions(wrapped.getMinimumSize().getHeight(), wrapped.getMinimumSize().getWidth());
 			// rotate margins
 			this.margins = rotateMargins(wrapped.getMargins());
@@ -253,7 +237,7 @@ public class Div extends Component {
 		}
 
 		private final ResizableElement wrapped;
-		private final Dimensions preferredSize, inheritedSize, minimumSize, maximumSize;
+		private final Dimensions minimumSize, maximumSize;
 		private final Margins margins;
 		private final Margins padding;
 		private final Region parentRegion;
@@ -261,16 +245,6 @@ public class Div extends Component {
 		@Override
 		public Dimensions getMaximumSize() {
 			return this.maximumSize;
-		}
-
-		@Override
-		public Dimensions getPreferredSize() {
-			return this.preferredSize;
-		}
-
-		@Override
-		public Dimensions getInheritedSize() {
-			return this.inheritedSize;
 		}
 
 		@Override

@@ -18,20 +18,6 @@ public interface SizedElement {
 	Dimensions getMaximumSize();
 
 	/**
-	 * Get the calculated and cached preferred size for this element in the current component hierarchy.
-	 * @return the preferred size of the element.
-	 */
-	Dimensions getPreferredSize();
-
-	/**
-	 * Get the calculated and cached inherited preferred size for this element based in the current component hierarchy.
-	 * The inherited preferred size is the preferred size as calculated by {@link Component#preferredSize(List, int, int)},
-	 * ignoring stylesheets.
-	 * @return the inherited preferred size of the element.
-	 */
-	Dimensions getInheritedSize();
-
-	/**
 	 * Get the calculated and cached minimum size for this element in the current component hierarchy.
 	 * @return the minimum size of the element.
 	 */
