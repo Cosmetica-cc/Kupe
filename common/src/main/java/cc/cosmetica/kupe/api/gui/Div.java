@@ -134,6 +134,25 @@ public class Div extends Component {
 		final Object2IntMap<ResizableElement> widths = new Object2IntArrayMap<>();
 		final Object2IntMap<ResizableElement> heights = new Object2IntArrayMap<>();
 
+		int availableWidth = region.getWidth();
+
+		// calculate fixed widths first
+		List<? extends ResizableElement> toBeResized = new ArrayList<>(children);
+		Iterator<? extends ResizableElement> iterator = toBeResized.iterator();
+
+		while (iterator.hasNext()) {
+			ResizableElement element = iterator.next();
+			OptionalInt eWidth = element.getWidth();
+
+			if (eWidth.isPresent()) {
+				iterator.remove(); // remove this element
+
+				// subtract this width from available
+				availableWidth -= eWidth.getAsInt();
+			}
+		}
+		// only elements in toBeResized are dynamically sized now
+
 		// 2. Calculate Start Position
 		// this depends on the flow direction, and justify content
 

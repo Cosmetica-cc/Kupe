@@ -54,11 +54,6 @@ public final class CommonProperties {
 	public static final Style.Property<DimensionsOperator<Optional<Dimensions>>> MINIMUM_SIZE = new Style.Property<>((vw, vh) -> Optional.empty());
 
 	/**
-	 * Whether to preserve the shape (ratio of x and y) of the component, when resizing.
-	 */
-	public static final Style.Property<Boolean> PRESERVE_SHAPE = new Style.Property<>(false);
-
-	/**
 	 * Get the amount this object flexes in divisions. That is, when objects are being made to fill the space of the
 	 * division, allocate this proportion to this component. If 0, this component will not flex.
 	 */
