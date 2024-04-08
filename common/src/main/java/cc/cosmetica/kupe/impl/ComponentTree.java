@@ -135,6 +135,7 @@ class ComponentTree {
 		// extra data
 		Region renderRegion;
 		Dimensions minimumSize, maximumSize; // calculated and cached
+		OptionalInt width, height;
 		Margins padding, margins; // as above
 		boolean grey; // grey if visited in resizing stage for adding children
 		              // but not for actual preferred size calculation
@@ -184,7 +185,28 @@ class ComponentTree {
 			);
 
 			// if preferred size is specified in style, use as max size
-			this.maximumSize = this.element.getStyle().get(CommonProperties.MAXIMUM_SIZE).apply(vw, vh).orElse(Dimensions.MAX);
+			this.maximumSize = this.element.getStyle().get(CommonProperties.MAXIMUM_SIZE).apply(vw, vh);
+
+			// width and height
+			this.width = this.element.getStyle().get(CommonProperties.WIDTH).apply(vw, vh);
+
+			if (this.width.isPresent()) {
+				int n = this.width.getAsInt();
+
+				this.width = OptionalInt.of(
+					Math.min(this.maximumSize.getWidth(), Math.max(n, this.minimumSize.getWidth()))
+				);
+			}
+
+			this.height = this.element.getStyle().get(CommonProperties.HEIGHT).apply(vw, vh);
+
+			if (this.height.isPresent()) {
+				int n = this.height.getAsInt();
+
+				this.height = OptionalInt.of(
+						Math.min(this.maximumSize.getHeight(), Math.max(n, this.minimumSize.getHeight()))
+				);
+			}
 		}
 
 		/**
@@ -238,6 +260,16 @@ class ComponentTree {
 			}
 
 			return maximumSize;
+		}
+
+		@Override
+		public OptionalInt getWidth() {
+			return width;
+		}
+
+		@Override
+		public OptionalInt getHeight() {
+			return height;
 		}
 
 		@Override

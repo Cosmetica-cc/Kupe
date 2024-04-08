@@ -8,10 +8,7 @@ import cc.cosmetica.kupe.api.maths.Region;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Div extends Component {
@@ -99,7 +96,6 @@ public class Div extends Component {
 		// The code will be written as if doing all operations on the X axis.
 		// However, if we are actually doing actions on the Y axis, we want to flip.
 		final Axis2D primaryAxis = this.getStyle().get(PRIMARY_AXIS);
-		final Dimensions inheritedSize = sizedElement.getInheritedSize();
 
 		switch (primaryAxis) {
 		case NEGATIVE_Y:
@@ -112,14 +108,13 @@ public class Div extends Component {
 
 			this.resize(
 					new Region(region.getX(), region.getY(), region.getHeight(), region.getWidth()), // w <-> h
-					new Dimensions(inheritedSize.getHeight(), inheritedSize.getWidth()), // w <-> h
 					children.stream().map(element -> new AxisRotationAdapter(region, element)).collect(Collectors.toList()),
 					primaryAxis == Axis2D.NEGATIVE_Y);
 			break;
 		case NEGATIVE_X:
 		case POSITIVE_X:
 			// perform normal operation
-			this.resize(region, inheritedSize, children, primaryAxis == Axis2D.NEGATIVE_X);
+			this.resize(region, children, primaryAxis == Axis2D.NEGATIVE_X);
 			break;
 		}
 	}
@@ -127,11 +122,10 @@ public class Div extends Component {
 	/**
 	 * Resize child elements of this div.
 	 * @param region the region which this div has been allocated.
-	 * @param inheritedSize the inherited preferred size based on children.
 	 * @param children the children of this div.
 	 * @param reverse whether to order elements from right to left, instead of left to right.
 	 */
-	private void resize(Region region, Dimensions inheritedSize, List<? extends ResizableElement> children, boolean reverse) {
+	private void resize(Region region, List<? extends ResizableElement> children, boolean reverse) {
 		// This method is written for a div with components flowing in the X direction.
 		// width will be primary axis, height will be secondary axis
 
@@ -139,52 +133,6 @@ public class Div extends Component {
 
 		final Object2IntMap<ResizableElement> widths = new Object2IntArrayMap<>();
 		final Object2IntMap<ResizableElement> heights = new Object2IntArrayMap<>();
-
-		int preferredLength = inheritedSize.getWidth();
-		int actualLength = region.getWidth();
-
-		// 1.1, Find the difference in preferred and actual width. This is the difference we have to compensate.
-		int difference = actualLength - preferredLength;
-
-		// if difference > 0, we have more space available
-		// if difference < 0, we have less space available
-		if (difference < 0) {
-			// shrink elements equally. overcorrect rather than undercorrect.
-			int shrinkAmount = (int) Math.floor((double)difference / children.size());
-
-			// first, allocate lengths with this naive guess
-			for (ResizableElement element : children) {
-				widths.put(element, element.getPreferredSize().getWidth() - shrinkAmount);
-			}
-
-			// ensure no elements go below their minimum length
-			int extraSpace = difference - shrinkAmount * children.size(); // unused space. should be at least 0
-			List<ResizableElement> shrinkableElements = new ArrayList<>(children);
-
-			// stop elements going below minimum size and distribute extra space
-			// do one round first so we can catch elements that are below minimum size initially.
-			do {
-				// find who is below minimum size
-				for (int i = shrinkableElements.size() - 1; i >= 0; i--) {
-					ResizableElement element = shrinkableElements.get(i);
-
-					Dimensions minimum = element.getMinimumSize();
-
-					if (widths.getInt(element) < minimum.getWidth()) {
-						// set width to minimum width
-						extraSpace += minimum.getWidth() - widths.getInt(element);
-						widths.put(element, minimum.getWidth());
-						shrinkableElements.remove(element);
-					}
-				}
-
-				// distribute extra space to elements
-			} while (!shrinkableElements.isEmpty() && extraSpace < 0);
-
-			// try hand out any extra space by giving 1 bit of extra space to any element which wouldnt exceed its max
-			// size.
-			// if extra space is above zero it should be minimally above zero.
-		}
 
 		// 2. Calculate Start Position
 		// this depends on the flow direction, and justify content
@@ -228,6 +176,8 @@ public class Div extends Component {
 			// flip dimensions
 			this.maximumSize = new Dimensions(wrapped.getMaximumSize().getHeight(), wrapped.getMaximumSize().getWidth());
 			this.minimumSize = new Dimensions(wrapped.getMinimumSize().getHeight(), wrapped.getMinimumSize().getWidth());
+			this.width = wrapped.getHeight();
+			this.height = wrapped.getWidth();
 			// rotate margins
 			this.margins = rotateMargins(wrapped.getMargins());
 			this.padding = rotateMargins(wrapped.getPadding());
@@ -238,6 +188,7 @@ public class Div extends Component {
 
 		private final ResizableElement wrapped;
 		private final Dimensions minimumSize, maximumSize;
+		private final OptionalInt width, height;
 		private final Margins margins;
 		private final Margins padding;
 		private final Region parentRegion;
@@ -250,6 +201,16 @@ public class Div extends Component {
 		@Override
 		public Dimensions getMinimumSize() {
 			return this.minimumSize;
+		}
+
+		@Override
+		public OptionalInt getWidth() {
+			return width;
+		}
+
+		@Override
+		public OptionalInt getHeight() {
+			return height;
 		}
 
 		@Override

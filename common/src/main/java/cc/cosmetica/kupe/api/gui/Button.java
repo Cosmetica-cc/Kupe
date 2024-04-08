@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableList;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
 
 public class Button extends Component {
 	/**
@@ -67,7 +68,8 @@ public class Button extends Component {
 
 	private static final Dimensions DEFAULT_DIMENSIONS = new Dimensions(200, 20);
 	private static final Style DEFAULT_STYLE = Style.create()
-			.set(CommonProperties.MAXIMUM_SIZE, (vw, vh) -> Optional.of(DEFAULT_DIMENSIONS));
+			.set(CommonProperties.WIDTH, (vw, vh) -> OptionalInt.of(DEFAULT_DIMENSIONS.getWidth()))
+			.set(CommonProperties.HEIGHT, (vw, vh) -> OptionalInt.of(DEFAULT_DIMENSIONS.getHeight()));
 
 	static {
 		RootStylesheet.setDefaultOverrides(Button.class, DEFAULT_STYLE);

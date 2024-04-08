@@ -32,7 +32,19 @@ public final class CommonProperties {
 	/**
 	 * The maximum size of the component. This does not include padding or margins.
 	 */
-	public static final Style.Property<DimensionsOperator<Optional<Dimensions>>> MAXIMUM_SIZE = new Style.Property<>((vw, vh) -> Optional.empty());
+	public static final Style.Property<DimensionsOperator<Dimensions>> MAXIMUM_SIZE = new Style.Property<>((vw, vh) -> Dimensions.MAX);
+
+	/**
+	 * The fixed width of the component. This is bounded by the {@linkplain CommonProperties#MAXIMUM_SIZE maximum} and
+	 * {@linkplain CommonProperties#MINIMUM_SIZE minimum} sizes.
+	 */
+	public static final Style.Property<DimensionsOperator<OptionalInt>> WIDTH = new Style.Property<>((vw, vh) -> OptionalInt.empty());
+
+	/**
+	 * The fixed height of the component. This is bounded by the {@linkplain CommonProperties#MAXIMUM_SIZE maximum} and
+	 * {@linkplain CommonProperties#MINIMUM_SIZE minimum} sizes.
+	 */
+	public static final Style.Property<DimensionsOperator<OptionalInt>> HEIGHT = new Style.Property<>((vw, vh) -> OptionalInt.empty());
 
 	/**
 	 * The minimum size of the component. This does not include padding or margins.

@@ -4,6 +4,7 @@ import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 
 import java.util.List;
+import java.util.OptionalInt;
 
 
 /**
@@ -21,7 +22,19 @@ public interface SizedElement {
 	 * Get the calculated and cached minimum size for this element in the current component hierarchy.
 	 * @return the minimum size of the element.
 	 */
-	Dimensions getMinimumSize();
+	Dimensions getMinimumSize(); // TODO how does the inherited min size interact with fixed width and height.
+
+	/**
+	 * Get the computed width, bounded by the maximum and minimum sizes. Empty if not provided.
+	 * @return the width of this component.
+	 */
+	OptionalInt getWidth();
+
+	/**
+	 * Get the computed height, bounded by the maximum and minimum sizes. Empty if not provided.
+	 * @return the height of this component.
+	 */
+	OptionalInt getHeight();
 
 	/**
 	 * Get the calculated and cached margins for this element.
