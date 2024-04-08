@@ -149,9 +149,18 @@ public class Div extends Component {
 
 				// subtract this width from available
 				availableWidth -= eWidth.getAsInt();
+				widths.put(element, eWidth.getAsInt());
 			}
 		}
+
 		// only elements in toBeResized are dynamically sized now
+		// only distribute remaining width if it is available!
+		if (availableWidth > 0) {
+			// distribute based on the flex of the remaining components
+
+		} // TODO remove elements if they go outside the size (sed future Scroll region element)
+
+		// 1b. Calculate heights.
 
 		// 2. Calculate Start Position
 		// this depends on the flow direction, and justify content
