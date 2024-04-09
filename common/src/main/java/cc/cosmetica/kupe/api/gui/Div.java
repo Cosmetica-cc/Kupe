@@ -67,7 +67,10 @@ public class Div extends Component {
 			// elements flow in y direction (cumulative)
 			// elements stretch in x direction (max)
 			for (SizedElement child : children) {
-				Dimensions size = child.getMinimumSize();
+				Dimensions size = new Dimensions(
+						child.getWidth().orElse(child.getMinimumSize().getWidth()),
+						child.getHeight().orElse(child.getMinimumSize().getHeight())
+				);
 
 				Margins margins = child.getMargins();
 				Margins padding = child.getPadding();
