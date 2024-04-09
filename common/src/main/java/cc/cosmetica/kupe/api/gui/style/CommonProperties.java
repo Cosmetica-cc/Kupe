@@ -60,6 +60,12 @@ public final class CommonProperties {
 	public static final Style.Property<Integer> FLEX = new Style.Property<>(0);
 
 	/**
+	 * Get the amount this object flexes in divisions when shrinking. That is, when objects are being shrunk to fit
+	 * the space of the division, shrink this component proportionally. If 0, this component will not shrink.
+	 */
+	public static final Style.Property<Integer> FLEX_SHRINK = new Style.Property<>(1);
+
+	/**
 	 * Override how this component aligns in the hierarchy.
 	 */
 	public static final Style.Property<Optional<Align>> ALIGN_SELF = new Style.Property<>(Optional.empty());

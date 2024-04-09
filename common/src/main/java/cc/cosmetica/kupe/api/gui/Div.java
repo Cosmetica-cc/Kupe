@@ -154,15 +154,11 @@ public class Div extends Component {
 
 		// 1.2 calculate fixed widths first
 		List<? extends ResizableElement> toBeResized = new ArrayList<>(children);
-		Iterator<? extends ResizableElement> iterator = toBeResized.iterator();
 
-		while (iterator.hasNext()) {
-			ResizableElement element = iterator.next();
+		for (ResizableElement element: toBeResized) {
 			OptionalInt eWidth = element.getWidth();
 
 			if (eWidth.isPresent()) {
-				iterator.remove(); // remove this element
-
 				// subtract this width from available
 				availableWidth -= eWidth.getAsInt();
 				widths.put(element, eWidth.getAsInt());
@@ -173,7 +169,7 @@ public class Div extends Component {
 
 		// 1.3: dynamically sized (flexing) allocation
 		// only distribute remaining width if it is available!
-		if (availableWidth > 0) {
+		if (availableWidth != 0) {
 			// distribute based on the flex of the remaining components
 			int totalFlex = toBeResized.stream()
 					.mapToInt(e -> e.getComponent().getStyle().get(CommonProperties.FLEX))
@@ -185,12 +181,14 @@ public class Div extends Component {
 			// we do multiple takes while max/min bounds are still capping elements, to distribute freed up / taken away space
 			while (repeat) {
 				repeat = false;
-				iterator = toBeResized.iterator();
+				Iterator<? extends ResizableElement> iterator = toBeResized.iterator();
 				final int allocatingSpace = availableWidth;
+
+				Style.Property<Integer> flexProperty = allocatingSpace < 0 ? CommonProperties.FLEX_SHRINK : CommonProperties.FLEX;
 
 				while (iterator.hasNext()) {
 					ResizableElement element = iterator.next();
-					double flexProportion = (double) element.getComponent().getStyle().get(CommonProperties.FLEX) / totalFlex;
+					double flexProportion = (double) element.getComponent().getStyle().get(flexProperty) / totalFlex;
 					int width = widths.getOrDefault(element, 0) + (int) Math.floor(allocatingSpace * flexProportion);
 					// we floor the space we are allocating, as we preferably want to be left over with extra space
 					// rather than overflowing
@@ -252,7 +250,7 @@ public class Div extends Component {
 			else {
 				// otherwise allocate based on alignment stretch type: intrinsic or stretch.
 				// respect max and min sizes.
-				// TODO should intrinsic size be separated from minimum size?
+				// intrinsic size is not separated from minimum size currently
 				switch (element.getComponent().getStyle().get(CommonProperties.ALIGN_SELF).orElse(alignment)) {
 				case START:
 				case CENTRE:
@@ -282,18 +280,23 @@ public class Div extends Component {
 			}
 		}
 
-		// 2. Calculate Start Position
-		// this depends on the flow direction, and justify content
+		// 2. Calculate Start Position (along main axis)
+		// this depends on the flow direction and justify content
+		final Justify justifyContent = this.getStyle().get(JUSTIFY_CONTENT);
 
 		// starting positions for placing elements
 		int startX = reverse ? region.getEndX() : region.getX();
 		int startY = reverse ? region.getEndY() : region.getY();
 
-		// TODO use justify content to change start position
+		// availableWidth contains the space remaining. this is distributed by justify content.
+
 
 		// 3. Place Elements
 		// this is relatively straightforward after the first two steps are done
-		//
+		switch (justifyContent) {
+		case START:
+			break;
+		}
 	}
 
 	/**
