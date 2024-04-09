@@ -22,7 +22,7 @@ public interface SizedElement {
 	 * Get the calculated and cached minimum size for this element in the current component hierarchy.
 	 * @return the minimum size of the element.
 	 */
-	Dimensions getMinimumSize(); // TODO how does the inherited min size interact with fixed width and height.
+	Dimensions getMinimumSize();
 
 	/**
 	 * Get the computed width, bounded by the maximum and minimum sizes. Empty if not provided.
