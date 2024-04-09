@@ -1,5 +1,7 @@
 package cc.cosmetica.kupe.api.gui;
 
+import cc.cosmetica.kupe.Kupe;
+import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Dimensions;
@@ -142,7 +144,15 @@ public class Div extends Component {
 
 		int availableWidth = region.getWidth();
 
-		// calculate fixed widths first
+		// 1.1, remove margins from available width
+		for (ResizableElement element : children) {
+			Margins margins = element.getMargins();
+			Margins padding = element.getPadding();
+
+			availableWidth -= margins.left + padding.left + padding.right + margins.right;
+		}
+
+		// 1.2 calculate fixed widths first
 		List<? extends ResizableElement> toBeResized = new ArrayList<>(children);
 		Iterator<? extends ResizableElement> iterator = toBeResized.iterator();
 
@@ -160,13 +170,117 @@ public class Div extends Component {
 		}
 
 		// only elements in toBeResized are dynamically sized now
+
+		// 1.3: dynamically sized (flexing) allocation
 		// only distribute remaining width if it is available!
 		if (availableWidth > 0) {
 			// distribute based on the flex of the remaining components
+			int totalFlex = toBeResized.stream()
+					.mapToInt(e -> e.getComponent().getStyle().get(CommonProperties.FLEX))
+					.sum();
 
-		} // TODO remove elements if they go outside the size (sed future Scroll region element)
+			boolean repeat = true;
 
-		// 1b. Calculate heights.
+			// distribute available space as well as possible
+			// we do multiple takes while max/min bounds are still capping elements, to distribute freed up / taken away space
+			while (repeat) {
+				repeat = false;
+				iterator = toBeResized.iterator();
+				final int allocatingSpace = availableWidth;
+
+				while (iterator.hasNext()) {
+					ResizableElement element = iterator.next();
+					double flexProportion = (double) element.getComponent().getStyle().get(CommonProperties.FLEX) / totalFlex;
+					int width = widths.getOrDefault(element, 0) + (int) Math.floor(allocatingSpace * flexProportion);
+					// we floor the space we are allocating, as we preferably want to be left over with extra space
+					// rather than overflowing
+
+					int minWidth = element.getMinimumSize().getWidth();
+					int maxWidth = element.getMaximumSize().getWidth();
+
+					// account for min and max width
+					if (width < minWidth) {
+						width = minWidth;
+						iterator.remove();
+						repeat = true;
+					} else if (width > maxWidth) {
+						width = maxWidth;
+						iterator.remove();
+						repeat = true;
+					}
+
+					availableWidth -= width;
+					widths.put(element, width);
+				}
+			}
+
+			if (availableWidth < 0) {
+				// TODO use a logger
+				System.err.println("Warning! Div overflow by " + -availableWidth);
+			}
+
+			// available width is now just any extra leftover space. The drops at the bottom of the bucket.
+			// allocate it to remaining, dynamically sized elements that can accept it
+			if (!toBeResized.isEmpty() && availableWidth > 0) {
+				if (availableWidth > toBeResized.size()) {
+					System.err.println("Warning! Remaining width to distribute is more than the number of elements that can accept it. Likely issue in child resizing.");
+				}
+
+				for (ResizableElement element : toBeResized) {
+					int width = widths.getInt(element);
+
+					if (width < element.getMaximumSize().getWidth()) {
+						widths.put(element, width + 1);
+						availableWidth -= 1;
+
+						if (availableWidth == 0) {
+							break;
+						}
+					}
+				}
+			}
+		} // TODO remove elements if they go outside the size(?) (sed future Scroll region element)
+
+		// 1.4 Calculate heights.
+		final Align alignment = this.getStyle().get(ALIGN_ITEMS);
+
+		for (ResizableElement element : children) {
+			// fixed heights
+			if (element.getHeight().isPresent()) {
+				heights.put(element, element.getHeight().getAsInt());
+			}
+			else {
+				// otherwise allocate based on alignment stretch type: intrinsic or stretch.
+				// respect max and min sizes.
+				// TODO should intrinsic size be separated from minimum size?
+				switch (element.getComponent().getStyle().get(CommonProperties.ALIGN_SELF).orElse(alignment)) {
+				case START:
+				case CENTRE:
+				case END:
+					// intrinsic size (min size)
+					heights.put(element, element.getMinimumSize().getHeight());
+					break;
+				case STRETCH_START:
+				case STRETCH_CENTRE:
+				case STRETCH_END:
+					// as much space as possible (if stretch)
+					Margins margins = element.getMargins();
+					Margins padding = element.getPadding();
+					int theoreticalSpace = region.getHeight() - margins.top - padding.top - padding.bottom - margins.bottom;
+
+					if (theoreticalSpace < element.getMinimumSize().getHeight()) {
+						// TODO flood those margins and padding outside of the div (depending on alignment?) if overflows
+						// perhaps if align start, just care about top margins. if end just care about end
+						heights.put(element, element.getMinimumSize().getHeight());
+					} else {
+						// if it's over maximum, this is where the alignment type will really be important later
+						heights.put(element, Math.min(theoreticalSpace, element.getMaximumSize().getHeight()));
+					}
+
+					break;
+				}
+			}
+		}
 
 		// 2. Calculate Start Position
 		// this depends on the flow direction, and justify content
@@ -191,13 +305,13 @@ public class Div extends Component {
 	 * The alignment of components in this div along the primary axis.
 	 * The primary axis is the direction in which components are laid out.
 	 */
-	public static final Style.Property<Align> JUSTIFY_CONTENT = new Style.Property<>(Align.START);
+	public static final Style.Property<Justify> JUSTIFY_CONTENT = new Style.Property<>(Justify.START);
 
 	/**
 	 * The alignment of components in this div along the secondary axis.
 	 * The secondary axis is the direction perpendicular to the direction components are laid out.
 	 */
-	public static final Style.Property<Align> ALIGN_ITEMS = new Style.Property<>(Align.START);
+	public static final Style.Property<Align> ALIGN_ITEMS = new Style.Property<>(Align.STRETCH_START);
 
 	/**
 	 * Flips the axis of operations. Y <-> X.
