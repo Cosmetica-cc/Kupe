@@ -324,13 +324,19 @@ public class Div extends Component {
 
 		while (childIterator.hasNext()) {
 			ResizableElement element = childIterator.next();
+			final Margins margins = element.getMargins();
+			final Margins padding = element.getPadding();
+
+			// add left padding and margin
+			x += margins.left + padding.left;
 
 			// place child
+
 			final int width = widths.getInt(element);
 			final int height = heights.getInt(element);
 			final Align align = element.getComponent().getStyle().get(CommonProperties.ALIGN_SELF).orElse(alignItems);
 
-			int space = region.getHeight() - height;
+			int space = region.getHeight() - height - margins.top - padding.top - padding.bottom - margins.bottom;
 			int y = region.getY();
 
 			// align at start, middle, or end on secondary axis
@@ -349,10 +355,13 @@ public class Div extends Component {
 				break;
 			}
 
+			// account for padding and margins offsetting y start
+			y += margins.top + padding.top;
+
 			element.setRenderRegion(new Region((int)x, y, width, height));
 
-			// offset child width
-			x += width;
+			// offset child width and right margin/padding
+			x += width + padding.right + margins.right;
 
 			// post-child space
 			switch (justifyContent) {
