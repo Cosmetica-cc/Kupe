@@ -1,9 +1,7 @@
 package cc.cosmetica.kupe.testmod;
 
 import cc.cosmetica.kupe.api.Text;
-import cc.cosmetica.kupe.api.gui.Button;
-import cc.cosmetica.kupe.api.gui.Component;
-import cc.cosmetica.kupe.api.gui.Div;
+import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
@@ -23,6 +21,8 @@ public class KupeTestScreen extends Component {
 						new Button(Text.literal("Say Goodbye, World!"), () -> System.out.println("Goodbye, World!"))
 				).withStyle(new Stylesheet()
 						.self(Style.create()
+								.set(Div.JUSTIFY_CONTENT, Justify.CENTRE)
+								.set(Div.ALIGN_ITEMS, Align.CENTRE)
 								.set(CommonProperties.WIDTH, (vw, vh) -> OptionalInt.of(vw))
 								.set(CommonProperties.HEIGHT, (vw, vh) -> OptionalInt.of(vh))))
 		);

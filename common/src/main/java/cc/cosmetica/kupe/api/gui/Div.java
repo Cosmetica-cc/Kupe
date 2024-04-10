@@ -136,7 +136,7 @@ public class Div extends Component {
 	private void resize(Region region, List<? extends ResizableElement> children, boolean reverse) {
 		// This method is written for a div with components flowing in the X direction.
 		// width will be primary axis, height will be secondary axis
-		System.out.println("Resizing " + this + " to region "+  region);
+		//System.out.println("Resizing " + this + " to region "+  region);
 
 		// 1. Resize
 
@@ -172,10 +172,6 @@ public class Div extends Component {
 		// only distribute remaining width if it is available!
 		if (availableWidth != 0) {
 			// distribute based on the flex of the remaining components
-			int totalFlex = toBeResized.stream()
-					.mapToInt(e -> e.getComponent().getStyle().get(CommonProperties.FLEX))
-					.sum();
-
 			boolean repeat = true;
 
 			// distribute available space as well as possible
@@ -185,9 +181,24 @@ public class Div extends Component {
 				Iterator<? extends ResizableElement> iterator = toBeResized.iterator();
 				final int allocatingSpace = availableWidth;
 
-				Style.Property<Integer> flexProperty = allocatingSpace < 0 ? CommonProperties.FLEX_SHRINK : CommonProperties.FLEX;
+				Style.Property<Integer> flexProperty;
+				int totalFlex;
 
-				while (iterator.hasNext()) {
+				if (allocatingSpace < 0) {
+					flexProperty = CommonProperties.FLEX_SHRINK;
+
+					totalFlex = toBeResized.stream()
+							.mapToInt(e -> e.getComponent().getStyle().get(CommonProperties.FLEX_SHRINK))
+							.sum();
+				} else {
+					flexProperty = CommonProperties.FLEX;
+
+					totalFlex = toBeResized.stream()
+							.mapToInt(e -> e.getComponent().getStyle().get(CommonProperties.FLEX))
+							.sum();
+				}
+
+				if (totalFlex > 0) while (iterator.hasNext()) {
 					ResizableElement element = iterator.next();
 					double flexProportion = (double) element.getComponent().getStyle().get(flexProperty) / totalFlex;
 					int width = widths.getOrDefault(element, 0) + (int) Math.floor(allocatingSpace * flexProportion);
@@ -310,6 +321,8 @@ public class Div extends Component {
 				justifyContent = Justify.START;
 			}
 		}
+
+		//System.out.println(availableWidth);
 
 		// initial space
 		switch (justifyContent) {
