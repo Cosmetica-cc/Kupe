@@ -177,13 +177,13 @@ public abstract class Component {
 			Dimensions max = child.getMaximumSize();
 			Dimensions min = child.getMinimumSize();
 
+			// default size is min size, or specified width/height if provided
 			// shrink child region so it doesn't extend beyond the borders of the parent region
-			int endX = Math.min(position.x + max.getWidth() - 1, region.getEndX());
-			int endY = Math.min(position.y + max.getHeight() - 1, region.getEndY());
+			int endX = Math.min(position.x + child.getWidth().orElse(min.getWidth()) - 1, region.getEndX());
+			int endY = Math.min(position.y + child.getHeight().orElse(min.getHeight()) - 1, region.getEndY());
 
-			int width = Math.min(max.getWidth(), Math.max(min.getWidth(), endX - position.x));
-			int height = Math.min(max.getHeight(), Math.max(min.getHeight(), endY - position.y));
-			// TODO preserve_shape
+			int width = Math.min(max.getWidth(), Math.max(min.getWidth(), endX + 1- position.x));
+			int height = Math.min(max.getHeight(), Math.max(min.getHeight(), endY + 1- position.y));
 
 			Region childRegion = new Region(position, new Dimensions(width, height));
 			child.setRenderRegion(childRegion);

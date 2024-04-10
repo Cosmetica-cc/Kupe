@@ -14,8 +14,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class Div extends Component {
-	protected Div(List<Component> children) {
-		this.children = children;
+	public Div(Component... children) {
+		this.children = Arrays.asList(children);
 	}
 
 	private final List<Component> children;
@@ -33,7 +33,7 @@ public class Div extends Component {
 		int height = 0;
 
 		// for size calculation, NEGATIVE and POSITIVE variations can be treated the same
-		switch (this.getStyle().get(PRIMARY_AXIS)) {
+		switch (this.getStyle().get(FLOW_DIRECTION)) {
 		case NEGATIVE_X:
 		case POSITIVE_X:
 			// elements flow in x direction (cumulative)
@@ -103,7 +103,7 @@ public class Div extends Component {
 	public void resize(Region region, SizedElement sizedElement, List<? extends ResizableElement> children) {
 		// The code will be written as if doing all operations on the X axis.
 		// However, if we are actually doing actions on the Y axis, we want to flip.
-		final Axis2D primaryAxis = this.getStyle().get(PRIMARY_AXIS);
+		final Axis2D primaryAxis = this.getStyle().get(FLOW_DIRECTION);
 
 		switch (primaryAxis) {
 		case NEGATIVE_Y:
@@ -136,6 +136,7 @@ public class Div extends Component {
 	private void resize(Region region, List<? extends ResizableElement> children, boolean reverse) {
 		// This method is written for a div with components flowing in the X direction.
 		// width will be primary axis, height will be secondary axis
+		System.out.println("Resizing " + this + " to region "+  region);
 
 		// 1. Resize
 
@@ -216,6 +217,10 @@ public class Div extends Component {
 				// TODO use a logger
 				System.err.println("Warning! Div overflow by " + -availableWidth);
 			}
+
+			// remove non flexing elements before checking if there's leftover space
+			// As this is a non-issue if all components are non-flexing or have hit max size
+			toBeResized.removeIf(resizableElement -> resizableElement.getComponent().getStyle().get(CommonProperties.FLEX) == 0);
 
 			// available width is now just any extra leftover space. The drops at the bottom of the bucket.
 			// allocate it to remaining, dynamically sized elements that can accept it
@@ -375,10 +380,28 @@ public class Div extends Component {
 		}
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder("Div ");
+
+		if (this.getStyle() != null) {
+			sb.append("flow=").append(this.getStyle().get(FLOW_DIRECTION));
+			sb.append(" justify=").append(this.getStyle().get(JUSTIFY_CONTENT));
+			sb.append(" alignItems=").append(this.getStyle().get(ALIGN_ITEMS)).append(' ');
+		}
+
+		sb.append('{');
+		for (Component child : this.children) {
+			sb.append('\n').append(child.toString());
+		}
+		sb.append('}');
+		return sb.toString();
+	}
+
 	/**
 	 * The primary axis of this Div. Components will be laid out in this direction.
 	 */
-	public static final Style.Property<Axis2D> PRIMARY_AXIS = new Style.Property<>(Axis2D.POSITIVE_Y);
+	public static final Style.Property<Axis2D> FLOW_DIRECTION = new Style.Property<>(Axis2D.POSITIVE_Y);
 
 	/**
 	 * The alignment of components in this div along the primary axis.
