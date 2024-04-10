@@ -266,6 +266,15 @@ class ComponentTree {
 		}
 
 		@Override
+		public Dimensions getIntrinsicSize() {
+			if (this.intrinsicSize == null) {
+				throw new NullPointerException("Intrinsic Size not yet calculated!");
+			}
+
+			return intrinsicSize;
+		}
+
+		@Override
 		public OptionalInt getWidth() {
 			return width;
 		}
