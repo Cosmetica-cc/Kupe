@@ -20,9 +20,30 @@ public interface SizedElement {
 
 	/**
 	 * Get the calculated and cached minimum size for this element in the current component hierarchy.
-	 * @return the minimum size of the element.
+	 * @return the minimum size of this element.
 	 */
 	Dimensions getMinimumSize();
+
+	/**
+	 * Get the calculated and cached intrinsic size for this element in the current component hierarchy.
+	 * This is the 'raw' intrinsic size. For most cases, you should use {@link SizedElement#getPreferredSize()}}.
+	 * @return the intrinsic size of this element.
+	 */
+	Dimensions getIntrinsicSize();
+
+	/**
+	 * Get the size this component would size to on its own, had it infinite space.
+	 * @return the preferred size of this component.
+	 */
+	default Dimensions getPreferredSize() {
+		Dimensions intrinsic = this.getIntrinsicSize();
+		Dimensions min = this.getMinimumSize();
+
+		return new Dimensions(
+				Math.max(min.getWidth(), this.getWidth().orElse(intrinsic.getWidth())),
+				Math.max(min.getHeight(), this.getHeight().orElse(intrinsic.getHeight()))
+		);
+	}
 
 	/**
 	 * Get the computed width, bounded by the maximum and minimum sizes. Empty if not provided.

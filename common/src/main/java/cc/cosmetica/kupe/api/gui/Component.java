@@ -81,7 +81,7 @@ public abstract class Component {
 	/**
 	 * Calculate the minimum size given the component's children. This should be consistent with how the component
 	 * positions its children.
-	 * @param children a list of the children of this component and their minimum sizes.
+	 * @param children a list of the children of this component and their sizes.
 	 * @param vw view width, the width of the window.
 	 * @param vh view height, the height of the window.
 	 */
@@ -90,67 +90,24 @@ public abstract class Component {
 			return Dimensions.NONE;
 		}
 
-		if (children.size() == 1) {
-			return children.get(0).getMinimumSize();
+		return MathsImpl.totalSize(children, this.absolutePositions, SizedElement::getMinimumSize);
+	}
+
+	/**
+	 * Calculate the default size of this component, given its children. This should be consistent with how the component
+	 * positions its children. If more than a container, this should also take into account its contents and their
+	 * preferred sizing, should infinite space be available.
+	 * @param children a list of the children of this component and their sizes.
+	 * @param vw view width, the width of the window.
+	 * @param vh view height, the height of the window.
+	 * @return the intrinsic size of this component.
+	 */
+	public Dimensions intrinsicSize(List<? extends SizedElement> children, int vw, int vh) {
+		if (children.isEmpty()) { // leaf components
+			return Dimensions.NONE;
 		}
 
-		// compound calculation
-		// By default we only consider absolute positions.
-		boolean first = true;
-		int x0 = 0;
-		int x1 = 0;
-		int y0 = 0;
-		int y1 = 0;
-
-		for (SizedElement child : children) {
-			Position position = this.absolutePositions.get(child.getComponent());
-
-			// if this component is absolutely positioned take it into account.
-			if (position != null) {
-				Dimensions dimensions = child.getMinimumSize();
-				dimensions = new Dimensions(
-					child.getWidth().orElse(dimensions.getWidth()),
-					child.getHeight().orElse(dimensions.getHeight())
-				);
-
-				if (first) {
-					first = false;
-
-					// initially, it's just this widget's position.
-					x0 = position.x;
-					y0 = position.y;
-					x1 = x0 + dimensions.getWidth();
-					y1 = y0 + dimensions.getHeight();
-				} else {
-					// check if we need to expand the region for the new widget
-					// First, does the start need to be moved back?
-					int wx = position.x;
-					int wy = position.y;
-
-					if (wx < x0) {
-						x0 = wx;
-					}
-
-					if (wy < y0) {
-						y0 = wy;
-					}
-
-					// Second, does the end need to be moved forward?
-					wx = wx + dimensions.getWidth();
-					wy = wy + dimensions.getHeight();
-
-					if (wx > x1) {
-						x1 = wx;
-					}
-
-					if (wy > y1) {
-						y1 = wy;
-					}
-				}
-			}
-		}
-
-		return new Dimensions(x1 - x0, y1 - y0);
+		return MathsImpl.totalSize(children, this.absolutePositions, SizedElement::getPreferredSize);
 	}
 
 	/**
@@ -174,13 +131,16 @@ public abstract class Component {
 		// By default, lay out children in specified positions.
 		for (ResizableElement child : children) {
 			Position position = start.add(this.absolutePositions.getOrDefault(child.getComponent(), Position.ZERO));
-			Dimensions max = child.getMaximumSize();
-			Dimensions min = child.getMinimumSize();
+			Dimensions preferred = child.getPreferredSize();
 
 			// default size is min size, or specified width/height if provided
 			// shrink child region so it doesn't extend beyond the borders of the parent region
-			int endX = Math.min(position.x + child.getWidth().orElse(min.getWidth()) - 1, region.getEndX());
-			int endY = Math.min(position.y + child.getHeight().orElse(min.getHeight()) - 1, region.getEndY());
+			int endX = Math.min(position.x + child.getWidth().orElse(preferred.getWidth()) - 1, region.getEndX());
+			int endY = Math.min(position.y + child.getHeight().orElse(preferred.getHeight()) - 1, region.getEndY());
+
+			// apply min and max restrictions to find actual width
+			Dimensions max = child.getMaximumSize();
+			Dimensions min = child.getMinimumSize();
 
 			int width = Math.min(max.getWidth(), Math.max(min.getWidth(), endX + 1- position.x));
 			int height = Math.min(max.getHeight(), Math.max(min.getHeight(), endY + 1- position.y));

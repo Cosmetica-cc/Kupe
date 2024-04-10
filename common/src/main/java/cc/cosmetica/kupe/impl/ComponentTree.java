@@ -134,7 +134,7 @@ class ComponentTree {
 		final @Nullable ComponentNode parent;
 		// extra data
 		Region renderRegion;
-		Dimensions minimumSize, maximumSize; // calculated and cached
+		Dimensions minimumSize, maximumSize, intrinsicSize; // calculated and cached
 		OptionalInt width, height;
 		Margins padding, margins; // as above
 		boolean grey; // grey if visited in resizing stage for adding children
@@ -184,8 +184,11 @@ class ComponentTree {
 					this.element.getStyle().get(CommonProperties.MINIMUM_SIZE).apply(vw, vh).orElse(Dimensions.NONE)
 			);
 
-			// if preferred size is specified in style, use as max size
+			// max size is specified in the style only
 			this.maximumSize = this.element.getStyle().get(CommonProperties.MAXIMUM_SIZE).apply(vw, vh);
+			// intrinsic size is a property of the component only
+			// it will typically be used when combined with other properties to make 'preferred size'
+			this.intrinsicSize = this.element.intrinsicSize(this.children, vw, vh);
 
 			// width and height
 			this.width = this.element.getStyle().get(CommonProperties.WIDTH).apply(vw, vh);

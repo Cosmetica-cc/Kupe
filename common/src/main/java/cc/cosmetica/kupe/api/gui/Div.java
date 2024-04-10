@@ -11,6 +11,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class Div extends Component {
@@ -29,6 +30,20 @@ public class Div extends Component {
 
 	@Override
 	public Dimensions minimumSize(List<? extends SizedElement> children, int vw, int vh) {
+		return this.size(children, SizedElement::getMinimumSize);
+	}
+
+	@Override
+	public Dimensions intrinsicSize(List<? extends SizedElement> children, int vw, int vh) {
+		return this.size(children, SizedElement::getPreferredSize);
+	}
+
+	/**
+	 * Calculate the theoretical size of the div, given its children.
+	 * @param children the children of the div.
+	 * @return the theoretical size of the div, given its children.
+	 */
+	private Dimensions size(List<? extends SizedElement> children, Function<SizedElement, Dimensions> dimensionGetter) {
 		int width = 0;
 		int height = 0;
 
@@ -39,10 +54,7 @@ public class Div extends Component {
 			// elements flow in x direction (cumulative)
 			// elements stretch in y direction (max)
 			for (SizedElement child : children) {
-				Dimensions size = new Dimensions(
-						child.getWidth().orElse(child.getMinimumSize().getWidth()),
-						child.getHeight().orElse(child.getMinimumSize().getHeight())
-				);
+				Dimensions size = dimensionGetter.apply(child);
 
 				Margins margins = child.getMargins();
 				Margins padding = child.getPadding();
@@ -69,10 +81,7 @@ public class Div extends Component {
 			// elements flow in y direction (cumulative)
 			// elements stretch in x direction (max)
 			for (SizedElement child : children) {
-				Dimensions size = new Dimensions(
-						child.getWidth().orElse(child.getMinimumSize().getWidth()),
-						child.getHeight().orElse(child.getMinimumSize().getHeight())
-				);
+				Dimensions size = dimensionGetter.apply(child);
 
 				Margins margins = child.getMargins();
 				Margins padding = child.getPadding();
@@ -266,13 +275,12 @@ public class Div extends Component {
 			else {
 				// otherwise allocate based on alignment stretch type: intrinsic or stretch.
 				// respect max and min sizes.
-				// intrinsic size is not separated from minimum size currently
 				switch (element.getComponent().getStyle().get(CommonProperties.ALIGN_SELF).orElse(alignItems)) {
 				case START:
 				case CENTRE:
 				case END:
-					// intrinsic size (min size)
-					heights.put(element, element.getMinimumSize().getHeight());
+					// preferred intrinsic size
+					heights.put(element, element.getPreferredSize().getHeight());
 					break;
 				case STRETCH_START:
 				case STRETCH_CENTRE:
@@ -439,6 +447,7 @@ public class Div extends Component {
 			// flip dimensions
 			this.maximumSize = new Dimensions(wrapped.getMaximumSize().getHeight(), wrapped.getMaximumSize().getWidth());
 			this.minimumSize = new Dimensions(wrapped.getMinimumSize().getHeight(), wrapped.getMinimumSize().getWidth());
+			this.intrinsicSize = new Dimensions(wrapped.getIntrinsicSize().getHeight(), wrapped.getIntrinsicSize().getWidth());
 			this.width = wrapped.getHeight();
 			this.height = wrapped.getWidth();
 			// rotate margins
@@ -450,7 +459,7 @@ public class Div extends Component {
 		}
 
 		private final ResizableElement wrapped;
-		private final Dimensions minimumSize, maximumSize;
+		private final Dimensions minimumSize, maximumSize, intrinsicSize;
 		private final OptionalInt width, height;
 		private final Margins margins;
 		private final Margins padding;
@@ -464,6 +473,11 @@ public class Div extends Component {
 		@Override
 		public Dimensions getMinimumSize() {
 			return this.minimumSize;
+		}
+
+		@Override
+		public Dimensions getIntrinsicSize() {
+			return this.intrinsicSize;
 		}
 
 		@Override
