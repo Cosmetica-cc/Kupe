@@ -1,12 +1,12 @@
 package cc.cosmetica.kupe.api.gui;
 
-import cc.cosmetica.kupe.Kupe;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
+import cc.cosmetica.kupe.util.ReverseIterator;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 
@@ -116,7 +116,7 @@ public class Div extends Component {
 
 			this.resize(
 					new Region(region.getX(), region.getY(), region.getHeight(), region.getWidth()), // w <-> h
-					children.stream().map(element -> new AxisRotationAdapter(region, element)).collect(Collectors.toList()),
+					children.stream().map(element -> new AxisFlipAdapter(region, element)).collect(Collectors.toList()),
 					primaryAxis == Axis2D.NEGATIVE_Y);
 			break;
 		case NEGATIVE_X:
@@ -240,7 +240,7 @@ public class Div extends Component {
 		} // TODO remove elements if they go outside the size(?) (sed future Scroll region element)
 
 		// 1.4 Calculate heights.
-		final Align alignment = this.getStyle().get(ALIGN_ITEMS);
+		final Align alignItems = this.getStyle().get(ALIGN_ITEMS);
 
 		for (ResizableElement element : children) {
 			// fixed heights
@@ -251,7 +251,7 @@ public class Div extends Component {
 				// otherwise allocate based on alignment stretch type: intrinsic or stretch.
 				// respect max and min sizes.
 				// intrinsic size is not separated from minimum size currently
-				switch (element.getComponent().getStyle().get(CommonProperties.ALIGN_SELF).orElse(alignment)) {
+				switch (element.getComponent().getStyle().get(CommonProperties.ALIGN_SELF).orElse(alignItems)) {
 				case START:
 				case CENTRE:
 				case END:
@@ -281,21 +281,88 @@ public class Div extends Component {
 		}
 
 		// 2. Calculate Start Position (along main axis)
-		// this depends on the flow direction and justify content
-		final Justify justifyContent = this.getStyle().get(JUSTIFY_CONTENT);
+		Justify justifyContent = this.getStyle().get(JUSTIFY_CONTENT);
 
 		// starting positions for placing elements
-		int startX = reverse ? region.getEndX() : region.getX();
-		int startY = reverse ? region.getEndY() : region.getY();
+		double x = region.getX();
 
 		// availableWidth contains the space remaining. this is distributed by justify content.
-
+		// if it would overflow, space around and space between don't really make sense anymore
+		if (availableWidth < 0 && (justifyContent == Justify.SPACE_AROUND || justifyContent == Justify.SPACE_BETWEEN)) {
+			justifyContent = Justify.CENTRE;
+		}
 
 		// 3. Place Elements
 		// this is relatively straightforward after the first two steps are done
+		// Reverse + START/END is the same as flipping list iteration order and END/START
+		// The other types are symmetrical so we can just flip the list iteration.
+		Iterator<? extends ResizableElement> childIterator = reverse ? new ReverseIterator<>(children) : children.iterator();
+
+		if (reverse) {
+			if (justifyContent == Justify.START) {
+				justifyContent = Justify.END;
+			} else if (justifyContent == Justify.END) {
+				justifyContent = Justify.START;
+			}
+		}
+
+		// initial space
 		switch (justifyContent) {
-		case START:
+		case END:
+			x += availableWidth;
 			break;
+		case CENTRE:
+			// may as well do integer division for speed since this is the only space block, and it will round down anyway
+			// the only slight difference will be when available width is negative
+			x += (double) (availableWidth / 2);
+			break;
+		case SPACE_AROUND:
+			x += (double) availableWidth / children.size();
+			break;
+		}
+		// other justify contents don't have initial space
+
+		while (childIterator.hasNext()) {
+			ResizableElement element = childIterator.next();
+
+			// place child
+			final int width = widths.getInt(element);
+			final int height = heights.getInt(element);
+			final Align align = element.getComponent().getStyle().get(CommonProperties.ALIGN_SELF).orElse(alignItems);
+
+			int space = region.getHeight() - height;
+			int y = region.getY();
+
+			// align at start, middle, or end on secondary axis
+			switch (align) {
+			case START:
+			case STRETCH_START:
+				// no offset
+				break;
+			case CENTRE:
+			case STRETCH_CENTRE:
+				y += space/2;
+				break;
+			case END:
+			case STRETCH_END:
+				y += space;
+				break;
+			}
+
+			element.setRenderRegion(new Region((int)x, y, width, height));
+
+			// offset child width
+			x += width;
+
+			// post-child space
+			switch (justifyContent) {
+			case SPACE_AROUND:
+				x += 2.0 * availableWidth / children.size();
+				break;
+			case SPACE_BETWEEN:
+				x += availableWidth / (children.size() - 1.0);
+				break;
+			}
 		}
 	}
 
@@ -317,12 +384,12 @@ public class Div extends Component {
 	public static final Style.Property<Align> ALIGN_ITEMS = new Style.Property<>(Align.STRETCH_START);
 
 	/**
-	 * Flips the axis of operations. Y <-> X.
+	 * Flips the axis of operations. Y <-> X. Essentially mirrors along a line from top left corner down and right, 45 degrees.
 	 * Transforms from a Y-flowing environment to an X-flowing environment.
 	 * When regions are set back, it transforms them from the X-flowing environment to a Y-flowing environment.
 	 */
-	private static class AxisRotationAdapter implements ResizableElement {
-		public AxisRotationAdapter(Region parentRegion, ResizableElement wrapped) {
+	private static class AxisFlipAdapter implements ResizableElement {
+		public AxisFlipAdapter(Region parentRegion, ResizableElement wrapped) {
 			this.wrapped = wrapped;
 			// flip dimensions
 			this.maximumSize = new Dimensions(wrapped.getMaximumSize().getHeight(), wrapped.getMaximumSize().getWidth());
@@ -330,8 +397,8 @@ public class Div extends Component {
 			this.width = wrapped.getHeight();
 			this.height = wrapped.getWidth();
 			// rotate margins
-			this.margins = rotateMargins(wrapped.getMargins());
-			this.padding = rotateMargins(wrapped.getPadding());
+			this.margins = flipMargins(wrapped.getMargins());
+			this.padding = flipMargins(wrapped.getPadding());
 			// Region in real space
 			// Top left corner is the pivot point, which is the same position in both regions.
 			this.parentRegion = parentRegion;
@@ -381,27 +448,15 @@ public class Div extends Component {
 
 		@Override
 		public void setRenderRegion(Region region) {
-			// when rotating back, we need to consider what corresponds with what more carefully
-			// Going from transformed to real, we do a clockwise rotation.
-			// ↓y  →x , rotating back corresponds to
-			// ←-x ↓y
-			// So when considering the x position we need to be careful.
+			// Because we're mirroring as described above, the corner of the element which is top left stays the same
+			// Its new coordinates will simply be offset (dy, dx) from the top left corner of the region.
+			int dx = region.getX() - this.parentRegion.getX();
+			int dy = region.getY() - this.parentRegion.getY();
 
-			// We have a shared origin (x0, y0)
-			// a position (xt, yt) in transformed space can be written (x0 + dxt, y0 + dyt)
-			// Because of direction changes, the real space correspondance is dy=dxt, dx=-dyt
-			// However, the origin in the transformed space is also really in a different corner, so x0 => x0 + WIDTH (this goes along with the dx=-dyt)
-			// so (xt, yt) = (x0 + dxt, y0 + dyt) => (x0 + WIDTH - dyt, y0 + dxt)
+			int x = this.parentRegion.getX() + dy;
+			int y = this.parentRegion.getY() + dx;
 
-			// However, that is just for mapping points. We actually need to map a region.
-			// Luckily, if we can map the true top left corner, we are all good.
-			// The true top left corner will be, in the transformed region, the bottom left corner.
-			int dxt = region.getX();
-			int dyt = region.getEndY(); // bottom left corner in transformed region
-
-			int x = this.parentRegion.getEndX() - dyt;
-			int y = this.parentRegion.getY() + dxt;
-
+			// Width and height simply flip.
 			this.wrapped.setRenderRegion(new Region(
 					x,
 					y,
@@ -414,8 +469,10 @@ public class Div extends Component {
 		 * Flip margins from real Y-flowing environment to transformed X-flowing environment, for use in flipped environments.
 		 * @return the new margins.
 		 */
-		private static Margins rotateMargins(Margins old) {
-			return new Margins(old.right, old.bottom, old.left, old.top); // top right bottom left
+		private static Margins flipMargins(Margins old) {
+			// left <-> top
+			// bottom <-> right
+			return new Margins(old.left, old.bottom, old.right, old.top); // top right bottom left
 		}
 	}
 }
