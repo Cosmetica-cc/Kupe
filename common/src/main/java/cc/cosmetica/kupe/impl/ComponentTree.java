@@ -1,9 +1,9 @@
 package cc.cosmetica.kupe.impl;
 
 import cc.cosmetica.kupe.api.Canvas;
+import cc.cosmetica.kupe.api.Context;
 import cc.cosmetica.kupe.api.gui.Component;
 import cc.cosmetica.kupe.api.gui.ResizableElement;
-import cc.cosmetica.kupe.api.gui.SizedElement;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.RootStylesheet;
 import cc.cosmetica.kupe.api.gui.style.Style;
@@ -31,12 +31,12 @@ class ComponentTree {
 	}
 
 	/**
-	 * Resize all elements in the component tree.
-	 * @param screenRegion the region to size the root component to.
+	 * Resize all elements in the component tree. The root region will be resized to the screen size.
+	 * @param context the screen rendering context.
 	 */
-	public void resizeAll(Region screenRegion) {
-		final int vw = screenRegion.getWidth();
-		final int vh = screenRegion.getHeight();
+	public void resizeAll(Context context) {
+		final int vw = context.getViewWidth();
+		final int vh = context.getViewHeight();
 
 		// Compute all paddings and margins
 		this.root.walk(node -> node.computeMargins(vw, vh));
@@ -54,7 +54,7 @@ class ComponentTree {
 
 			if (node.grey) {
 				node.grey = false; // we are done with this node
-				node.computeSizes(vw, vh);
+				node.computeSizes(context);
 			} else {
 				node.grey = true; // we need to visit it one more time, after children are done
 				nodes.push(node);
@@ -69,7 +69,7 @@ class ComponentTree {
 		// BFS for resizing (down the tree)
 
 		nodes.add(this.root);
-		this.root.renderRegion = screenRegion;
+		this.root.renderRegion = new Region(0, 0, vw, vh);
 
 		// Resize down the tree
 		while (!nodes.isEmpty()) { // we have computed actual preferred sizes before resizing
@@ -178,7 +178,10 @@ class ComponentTree {
 			this.margins = this.element.getStyle().get(CommonProperties.MARGINS).apply(vw, vh);
 		}
 
-		private void computeSizes(int vw, int vh) {
+		private void computeSizes(Context context) {
+			final int vw = context.getViewWidth();
+			final int vh = context.getViewHeight();
+
 			this.minimumSize = Dimensions.max(
 					this.element.minimumSize(this.children, vw, vh),
 					this.element.getStyle().get(CommonProperties.MINIMUM_SIZE).apply(vw, vh).orElse(Dimensions.NONE)
@@ -188,7 +191,7 @@ class ComponentTree {
 			this.maximumSize = this.element.getStyle().get(CommonProperties.MAXIMUM_SIZE).apply(vw, vh);
 			// intrinsic size is a property of the component only
 			// it will typically be used when combined with other properties to make 'preferred size'
-			this.intrinsicSize = this.element.intrinsicSize(this.children, vw, vh);
+			this.intrinsicSize = this.element.intrinsicSize(this.children, context);
 
 			// width and height
 			this.width = this.element.getStyle().get(CommonProperties.WIDTH).apply(vw, vh);

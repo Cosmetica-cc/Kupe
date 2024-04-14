@@ -1,7 +1,8 @@
 package cc.cosmetica.kupe.impl;
 
+import cc.cosmetica.kupe.api.Context;
+import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.Component;
-import cc.cosmetica.kupe.api.maths.Region;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -16,31 +17,33 @@ public final class KupeScreen extends Screen {
 		super(new TranslatableComponent("screens." + location.getNamespace() + "." + location.getPath()));
 
 		this.tree = new ComponentTree(rootComponent);
+		this.context = new KupeScreenContext();
 	}
 
 	private final ComponentTree tree;
+	private final Context context;
 
 	@Override
 	public void init(Minecraft minecraft, int w, int h) {
 		super.init(minecraft, w, h); // required
 		this.tree.buildAll();
-		this.resize(w, h);
+		this.resize();
 	}
 
 	@Override
 	public void resize(Minecraft minecraft, int w, int h) {
 		super.init(minecraft, w, h); // required
-		this.resize(w, h);
+		this.resize();
 	}
 
-	private void resize(int w, int h) {
-		this.tree.resizeAll(new Region(0, 0, w, h));
+	private void resize() {
+		this.tree.resizeAll(this.context);
 	}
 
 	@Override
 	public void render(PoseStack poseStack, int mouseX, int mouseY, float tickDelta) {
 		this.renderBackground(poseStack);
-		this.tree.render(new PoseCanvas(poseStack, this.minecraft, tickDelta), mouseX, mouseY);
+		this.tree.render(new PoseCanvas(poseStack, this.minecraft, this.context, tickDelta), mouseX, mouseY);
 	}
 
 	/**
@@ -55,5 +58,33 @@ public final class KupeScreen extends Screen {
 	@Override
 	public void mouseMoved(double mouseX, double mouseY) {
 		this.tree.mouseMoved(mouseX, mouseY);
+	}
+
+	class KupeScreenContext implements Context {
+		@Override
+		public int getWidth(Text text) {
+			return KupeScreen.this.font.width(text.toMinecraftComponent());
+		}
+
+		@Override
+		public int getLineHeight() {
+			return KupeScreen.this.font.lineHeight;
+		}
+
+		@Override
+		public int getTextHeight(Text text, int maxWidth) {
+			assert KupeScreen.this.minecraft != null;
+			return KupeScreen.this.minecraft.font.wordWrapHeight(text.getDisplayString(), maxWidth);
+		}
+
+		@Override
+		public int getViewWidth() {
+			return KupeScreen.this.width;
+		}
+
+		@Override
+		public int getViewHeight() {
+			return KupeScreen.this.height;
+		}
 	}
 }

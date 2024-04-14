@@ -1,5 +1,6 @@
 package cc.cosmetica.kupe.api.gui;
 
+import cc.cosmetica.kupe.api.Context;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.maths.Axis2D;
@@ -34,7 +35,7 @@ public class Div extends Component {
 	}
 
 	@Override
-	public Dimensions intrinsicSize(List<? extends SizedElement> children, int vw, int vh) {
+	public Dimensions intrinsicSize(List<? extends SizedElement> children, Context context) {
 		return this.size(children, SizedElement::getPreferredSize);
 	}
 

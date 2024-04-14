@@ -40,7 +40,8 @@ public class Stylesheet {
 
 	/**
 	 * Apply the given style overrides to components of the given class.
-	 * @param componentClass the class of components to apply the given style overrides to.
+	 * @param componentClass the class of components to apply the given style overrides to. This will match *exactly* this
+	 *                       class, and not subclasses.
 	 * @param style the style overrides.
 	 * @return this style sheet.
 	 * @throws IllegalArgumentException if the style overrides for the given component class have already been set.

@@ -57,8 +57,8 @@ public class Style {
 		 * Set the given property in this {@linkplain Style style}.
 		 * @param property the property to set.
 		 * @param value the value to give to the property.
-		 * @return the
-		 * @param <T>
+		 * @return this mutable style object.
+		 * @param <T> the type of data contained within the property.
 		 */
 		public <T> MutableStyle set(Property<T> property, T value) {
 			this.properties.put(property, value);

@@ -1,6 +1,7 @@
 package cc.cosmetica.kupe.impl;
 
 import cc.cosmetica.kupe.api.Canvas;
+import cc.cosmetica.kupe.api.Context;
 import cc.cosmetica.kupe.api.QuadBuilder;
 import cc.cosmetica.kupe.api.Text;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -18,15 +19,22 @@ import org.lwjgl.opengl.GL11;
  * update tickDelta.
  */
 public class PoseCanvas implements Canvas {
-	public PoseCanvas(PoseStack stack, Minecraft minecraft, float tickDelta) {
+	public PoseCanvas(PoseStack stack, Minecraft minecraft, Context context, float tickDelta) {
 		this.stack = stack;
 		this.minecraft = minecraft;
+		this.context = context;
 		this.tickDelta = tickDelta;
 	}
 
 	private final PoseStack stack;
 	private final Minecraft minecraft;
+	private final Context context;
 	private final float tickDelta;
+
+	@Override
+	public Context getDrawingContext() {
+		return this.context;
+	}
 
 	@Override
 	public void disableTransparency() {

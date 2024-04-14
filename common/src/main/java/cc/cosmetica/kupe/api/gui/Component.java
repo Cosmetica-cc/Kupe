@@ -1,6 +1,7 @@
 package cc.cosmetica.kupe.api.gui;
 
 import cc.cosmetica.kupe.api.Canvas;
+import cc.cosmetica.kupe.api.Context;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
@@ -102,7 +103,7 @@ public abstract class Component {
 	 * @param vh view height, the height of the window.
 	 * @return the intrinsic size of this component.
 	 */
-	public Dimensions intrinsicSize(List<? extends SizedElement> children, int vw, int vh) {
+	public Dimensions intrinsicSize(List<? extends SizedElement> children, Context context) {
 		if (children.isEmpty()) { // leaf components
 			return Dimensions.NONE;
 		}

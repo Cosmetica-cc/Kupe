@@ -8,6 +8,13 @@ import net.minecraft.resources.ResourceLocation;
  */
 public interface Canvas {
 	/**
+	 * Get the drawing context. This allows you to make queries for various properties of the environment in which we
+	 * are drawing.
+	 * @return the drawing context.
+	 */
+	Context getDrawingContext();
+
+	/**
 	 * Disable transparent textures being drawn.
 	 */
 	void disableTransparency();
