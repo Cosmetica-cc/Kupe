@@ -24,6 +24,14 @@ public class Margins {
 	public final int bottom;
 	public final int left;
 
+	public int horizontal() {
+		return left + right;
+	}
+
+	public int vertical() {
+		return top + bottom;
+	}
+
 	@Override
 	public String toString() {
 		return "Margins(" + this.top + ", " + this.right + ", " + this.bottom + ", " + this.left + ")";

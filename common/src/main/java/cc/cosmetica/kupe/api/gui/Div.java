@@ -280,8 +280,9 @@ public class Div extends Component {
 				case START:
 				case CENTRE:
 				case END:
-					// preferred intrinsic size
-					heights.put(element, element.getPreferredSize().getHeight());
+					// preferred intrinsic size, capped to the height of this container available for the component
+					int availableHeight = region.getHeight() - element.getMargins().vertical() - element.getPadding().vertical();
+					heights.put(element, Math.min(availableHeight, element.getPreferredSize().getHeight()));
 					break;
 				case STRETCH_START:
 				case STRETCH_CENTRE:
