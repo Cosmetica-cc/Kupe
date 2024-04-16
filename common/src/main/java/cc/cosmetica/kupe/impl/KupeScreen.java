@@ -42,7 +42,7 @@ public final class KupeScreen extends Screen {
 
 	@Override
 	public void render(PoseStack poseStack, int mouseX, int mouseY, float tickDelta) {
-		this.renderBackground(poseStack);
+		this.renderBackground(poseStack); // TODO way to change background in screen -- perhaps do background rendering in `Screen extends Component`
 		this.tree.render(new PoseCanvas(poseStack, this.minecraft, this.context, tickDelta), mouseX, mouseY);
 	}
 
