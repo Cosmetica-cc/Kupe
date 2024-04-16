@@ -164,6 +164,7 @@ public class Div extends Component {
 		}
 
 		// 1.2 calculate fixed widths first
+		// Additionally, for flex-0 elements, use their intrinsic width.
 		List<? extends ResizableElement> toBeResized = new ArrayList<>(children);
 
 		for (ResizableElement element: toBeResized) {
@@ -173,6 +174,9 @@ public class Div extends Component {
 				// subtract this width from available
 				availableWidth -= eWidth.getAsInt();
 				widths.put(element, eWidth.getAsInt());
+			} else if (element.getComponent().getStyle().get(CommonProperties.FLEX) == 0) {
+				availableWidth -= element.getPreferredSize().getWidth();
+				widths.put(element, element.getPreferredSize().getWidth());
 			}
 		}
 
@@ -281,6 +285,7 @@ public class Div extends Component {
 				case CENTRE:
 				case END:
 					// preferred intrinsic size, capped to the height of this container available for the component
+					// TODO some way to adapt instrinsic height after squishing width?
 					int availableHeight = region.getHeight() - element.getMargins().vertical() - element.getPadding().vertical();
 					heights.put(element, Math.min(availableHeight, element.getPreferredSize().getHeight()));
 					break;
