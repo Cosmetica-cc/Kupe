@@ -3,6 +3,11 @@
 Cross-loader, cross-version GUI library for Minecraft. For all your navigation needs. Like the great and legendary navigator Kupe,
 who sailed to Aotearoa.
 
+The classes are split into `api` and `impl` packages. `api` classes are the only ones kept stable across
+environments and versions. In addition, a few api methods are marked as `@LeavesSandbox` and return minecraft classes.
+These are not guaranteed to be completely stable across environments, but will be kept stable where possible. They are provided in case
+a modder wishes to have greater flexibility than the library itself provides without referencing implementation classes.
+
 ## Setting Up
 
 You can include Kupe in your project via gradle. First, add the cosmetica maven to your repositories:

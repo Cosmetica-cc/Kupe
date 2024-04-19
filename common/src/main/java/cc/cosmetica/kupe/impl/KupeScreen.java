@@ -16,16 +16,24 @@
 
 package cc.cosmetica.kupe.impl;
 
+import cc.cosmetica.kupe.Kupe;
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.Context;
+import cc.cosmetica.kupe.api.Renderable;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.Component;
+import cc.cosmetica.kupe.impl.text.FormattedCharSeqRenderer;
+import cc.cosmetica.kupe.impl.text.LiteralText;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FormattedCharSequence;
 import org.lwjgl.glfw.GLFW;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The screen that controls the Kupe gui rendering. This handles the rendering and event calls to the root component.
@@ -116,6 +124,19 @@ public final class KupeScreen extends Screen {
 		public int getTextHeight(Text text, int maxWidth) {
 			assert KupeScreen.this.minecraft != null;
 			return KupeScreen.this.minecraft.font.wordWrapHeight(text.getDisplayString(), maxWidth);
+		}
+
+		@Override
+		public List<Renderable> split(Text text, int maxWidth) {
+			assert KupeScreen.this.minecraft != null;
+
+			List<Renderable> result = new ArrayList<>();
+
+			for (FormattedCharSequence component : KupeScreen.this.minecraft.font.split(text.toMinecraftComponent(), maxWidth)) {
+				result.add(new FormattedCharSeqRenderer(KupeScreen.this.minecraft.font, component));
+			}
+
+			return result;
 		}
 
 		@Override

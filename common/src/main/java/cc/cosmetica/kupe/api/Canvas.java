@@ -31,6 +31,12 @@ public interface Canvas {
 	Context getDrawingContext();
 
 	/**
+	 * Get the matrix stack for manipulating pose.
+	 * @return the matrix stack.
+	 */
+	MatrixStack getStack();
+
+	/**
 	 * Disable transparent textures being drawn.
 	 */
 	void disableTransparency();

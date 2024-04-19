@@ -126,7 +126,7 @@ public class Div extends Component {
 	}
 
 	@Override
-	public void resize(Region region, SizedElement sizedElement, List<? extends ResizableElement> children) {
+	public void resize(Region region, SizedElement sizedElement, List<? extends ResizableElement> children, Context context) {
 		// The code will be written as if doing all operations on the X axis.
 		// However, if we are actually doing actions on the Y axis, we want to flip.
 		final Axis2D primaryAxis = this.getStyle().get(FLOW_DIRECTION);

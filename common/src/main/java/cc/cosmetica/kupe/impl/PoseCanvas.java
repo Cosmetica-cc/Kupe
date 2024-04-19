@@ -16,10 +16,7 @@
 
 package cc.cosmetica.kupe.impl;
 
-import cc.cosmetica.kupe.api.Canvas;
-import cc.cosmetica.kupe.api.Context;
-import cc.cosmetica.kupe.api.QuadBuilder;
-import cc.cosmetica.kupe.api.Text;
+import cc.cosmetica.kupe.api.*;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Matrix4f;
@@ -37,12 +34,14 @@ import org.lwjgl.opengl.GL11;
 public class PoseCanvas implements Canvas {
 	public PoseCanvas(PoseStack stack, Minecraft minecraft, Context context, float tickDelta) {
 		this.stack = stack;
+		this.kupeStack = new KupeStack();
 		this.minecraft = minecraft;
 		this.context = context;
 		this.tickDelta = tickDelta;
 	}
 
 	private final PoseStack stack;
+	private final MatrixStack kupeStack;
 	private final Minecraft minecraft;
 	private final Context context;
 	private final float tickDelta;
@@ -50,6 +49,11 @@ public class PoseCanvas implements Canvas {
 	@Override
 	public Context getDrawingContext() {
 		return this.context;
+	}
+
+	@Override
+	public MatrixStack getStack() {
+		return this.kupeStack;
 	}
 
 	@Override
@@ -124,5 +128,22 @@ public class PoseCanvas implements Canvas {
 	@LeavesSandbox
 	public PoseStack getPoseStack() {
 		return this.stack;
+	}
+
+	class KupeStack implements MatrixStack {
+		@Override
+		public void push() {
+			PoseCanvas.this.stack.pushPose();
+		}
+
+		@Override
+		public void pop() {
+			PoseCanvas.this.stack.popPose();
+		}
+
+		@Override
+		public PoseStack toMinecraftStack() {
+			return PoseCanvas.this.stack;
+		}
 	}
 }

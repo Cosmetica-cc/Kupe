@@ -16,6 +16,10 @@
 
 package cc.cosmetica.kupe.api;
 
+import net.minecraft.network.chat.FormattedText;
+
+import java.util.List;
+
 /**
  * Provides access to information about the context in which we are drawing. Used to query information, but not draw.
  */
@@ -40,6 +44,15 @@ public interface Context {
 	 * @return the height, in pixels, this text would take up.
 	 */
 	int getTextHeight(Text text, int maxWidth);
+
+	/**
+	 * Split the given text into chunks with the given maximum width. That is, word wrap.
+	 * @param text the text.
+	 * @param maxWidth the maximum width.
+	 * @return a list of chunks of text to render, as renderable elements. These renderable elements will have
+	 * 		   {@link Renderable#width()} implemented.
+	 */
+	List<Renderable> split(Text text, int maxWidth);
 
 	/**
 	 * Get the window width.

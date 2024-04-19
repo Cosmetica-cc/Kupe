@@ -16,10 +16,13 @@
 
 package cc.cosmetica.kupe.api.gui;
 
+import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.Context;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.maths.Dimensions;
+import cc.cosmetica.kupe.api.maths.Region;
+import net.minecraft.client.gui.components.MultiLineLabel;
 
 import java.util.Collections;
 import java.util.List;
@@ -56,5 +59,17 @@ public class Label extends Component {
 	@Override
 	public List<Component> build() {
 		return Collections.emptyList();
+	}
+
+	// Generate text lines and render
+	MultiLineLabel label;
+
+	@Override
+	public void resize(Region region, SizedElement sizedElement, List<? extends ResizableElement> children, Context context) {
+
+	}
+
+	@Override
+	public void render(Canvas canvas, Region region, int mouseX, int mouseY) {
 	}
 }

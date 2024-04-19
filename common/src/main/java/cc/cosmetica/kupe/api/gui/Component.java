@@ -115,8 +115,7 @@ public abstract class Component {
 	 * positions its children. If more than a container, this should also take into account its contents and their
 	 * preferred sizing, should infinite space be available.
 	 * @param children a list of the children of this component and their sizes.
-	 * @param vw view width, the width of the window.
-	 * @param vh view height, the height of the window.
+	 * @param context provides information about the drawing context the component is being sized in.
 	 * @return the intrinsic size of this component.
 	 */
 	public Dimensions intrinsicSize(List<? extends SizedElement> children, Context context) {
@@ -141,8 +140,9 @@ public abstract class Component {
 	 *                     as provided in the region.
 	 * @param children a list of children of this component, including their preferred, minimum, and maximum sizes, and
 	 *                 a method with which to allocate their regions.
+	 * @param context provides information about the drawing context the component is being sized in.
 	 */
-	public void resize(Region region, SizedElement sizedElement, List<? extends ResizableElement> children) {
+	public void resize(Region region, SizedElement sizedElement, List<? extends ResizableElement> children, Context context) {
 		final Position start = new Position(region.getX(), region.getY());
 
 		// By default, lay out children in specified positions.

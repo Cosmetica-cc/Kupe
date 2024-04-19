@@ -17,6 +17,7 @@
 package cc.cosmetica.kupe.api.gui;
 
 import cc.cosmetica.kupe.api.Canvas;
+import cc.cosmetica.kupe.api.Context;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.RootStylesheet;
@@ -55,7 +56,7 @@ public class Button extends Component {
 	}
 
 	@Override
-	public void resize(Region region, SizedElement sizedElement, List<? extends ResizableElement> children) {
+	public void resize(Region region, SizedElement sizedElement, List<? extends ResizableElement> children, Context context) {
 		this.minecraftButton = new net.minecraft.client.gui.components.Button(
 				region.getX(),
 				region.getY(),

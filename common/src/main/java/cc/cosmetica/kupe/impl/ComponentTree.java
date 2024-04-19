@@ -93,7 +93,7 @@ class ComponentTree {
 		// Resize down the tree
 		while (!nodes.isEmpty()) { // we have computed actual preferred sizes before resizing
 			ComponentNode node = nodes.remove(); // nb we also, upon resizing, need to set the children's actual render regions
-			node.resize();
+			node.resize(context);
 			nodes.addAll(node.children);
 		}
 	}
@@ -323,8 +323,8 @@ class ComponentTree {
 		/**
 		 * Resize the component
 		 */
-		private void resize() {
-			this.element.resize(this.renderRegion, this, this.children);
+		private void resize(Context context) {
+			this.element.resize(this.renderRegion, this, this.children, context);
 
 			for (ComponentNode node : this.children) {
 				if (node.renderRegion == null) {
