@@ -18,6 +18,7 @@ package cc.cosmetica.kupe.api.gui;
 
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.Context;
+import cc.cosmetica.kupe.api.Renderable;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.maths.Dimensions;
@@ -62,14 +63,21 @@ public class Label extends Component {
 	}
 
 	// Generate text lines and render
-	MultiLineLabel label;
+	List<Renderable> label;
 
 	@Override
 	public void resize(Region region, SizedElement sizedElement, List<? extends ResizableElement> children, Context context) {
-
+		this.label = context.split(this.text, region.getWidth());
 	}
 
 	@Override
 	public void render(Canvas canvas, Region region, int mouseX, int mouseY) {
+		int y = region.getY();
+		final int lineHeight = canvas.getDrawingContext().getLineHeight();
+
+		for (Renderable renderable : this.label) {
+			renderable.render(canvas, region.getX(), y);
+			y += lineHeight;
+		}
 	}
 }
