@@ -16,6 +16,7 @@
 
 package cc.cosmetica.kupe.impl;
 
+import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.Context;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.Component;
@@ -24,6 +25,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
+import org.lwjgl.glfw.GLFW;
 
 /**
  * The screen that controls the Kupe gui rendering. This handles the rendering and event calls to the root component.
@@ -59,7 +61,24 @@ public final class KupeScreen extends Screen {
 	@Override
 	public void render(PoseStack poseStack, int mouseX, int mouseY, float tickDelta) {
 		this.renderBackground(poseStack); // TODO way to change background in screen -- perhaps do background rendering in `Screen extends Component`
-		this.tree.render(new PoseCanvas(poseStack, this.minecraft, this.context, tickDelta), mouseX, mouseY);
+
+		Canvas canvas = new PoseCanvas(poseStack, this.minecraft, this.context, tickDelta);
+		this.tree.render(canvas, mouseX, mouseY);
+
+		if (debug) {
+			this.tree.renderDebug(canvas, this.height);
+		}
+	}
+
+	@Override
+	public boolean keyPressed(int keyCode, int j, int k) {
+		if (debug) {
+			if (this.tree.keyDebug(keyCode)) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -74,6 +93,12 @@ public final class KupeScreen extends Screen {
 	@Override
 	public void mouseMoved(double mouseX, double mouseY) {
 		this.tree.mouseMoved(mouseX, mouseY);
+	}
+
+	private static boolean debug;
+
+	public static void enableDebug() {
+		debug = true;
 	}
 
 	class KupeScreenContext implements Context {

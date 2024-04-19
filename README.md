@@ -5,12 +5,33 @@ who sailed to Aotearoa.
 
 ## Setting Up
 
-You can include Kupe in your project by using maven. Kupe is not yet published to maven, but this section will be updated
-once it is.
+You can include Kupe in your project via gradle. First, add the cosmetica maven to your repositories:
 
-## Creating a Screen
+```groovy
+repositories {
+    maven { url 'https://maven.cosmetica.cc/' }
+}
+```
 
-## Reactive States
+Then, add the mod as a dependency:
+
+```groovy
+dependencies {
+    modImplementation 'cc.cosmetica:Kupe:1.0-SNAPSHOT'
+}
+```
+
+## Creating a Component
+
+
+### Creating a Screen
+
+
+### Reactive States
+
+
+### Creating a leaf Component
+
 
 ## Further Examples
 

@@ -7,6 +7,7 @@
 
 package cc.cosmetica.kupe.testmod;
 
+import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
@@ -23,9 +24,11 @@ public class KupeTestScreen extends Component {
 	public List<Component> build() {
 		return Arrays.asList(
 				new Div(
+						new Label(Text.literal("You can add some text like this!")),
 						new Button(Text.literal("Say Hello, World!"), () -> System.out.println("Hello, World!")),
 						new Button(Text.literal("Say Ok, World!"), () -> System.out.println("Ok, World!")),
-						new Button(Text.literal("Say Goodbye, World!"), () -> System.out.println("Goodbye, World!"))
+						new Button(Text.literal("Say Goodbye, World!"), () -> System.out.println("Goodbye, World!")),
+						new Button(Text.GUI_DONE, Screens::closeCurrentScreen)
 				).withStyle(new Stylesheet()
 						.self(Style.create()
 								.set(Div.JUSTIFY_CONTENT, Justify.CENTRE)

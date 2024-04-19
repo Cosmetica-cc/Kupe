@@ -20,6 +20,7 @@ import cc.cosmetica.kupe.impl.LeavesSandbox;
 import cc.cosmetica.kupe.impl.text.LiteralText;
 import cc.cosmetica.kupe.impl.text.TranslatableText;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 
 /**
  * Base class for a text component.
@@ -50,4 +51,45 @@ public interface Text {
 	 */
 	@LeavesSandbox
 	Component toMinecraftComponent();
+
+	/*
+	 * Common translation keys used in GUI development.
+	 */
+
+	/**
+	 * "ON"
+	 */
+	Text OPTION_ON = translatable("options.on");
+	/**
+	 * "OFF"
+	 */
+	Text OPTION_OFF = translatable("options.off");
+	/**
+	 * "Done"
+	 */
+	Text GUI_DONE = translatable("gui.done");
+	/**
+	 * "Cancel"
+	 */
+	Text GUI_CANCEL = translatable("gui.cancel");
+	/**
+	 * "Yes"
+	 */
+	Text GUI_YES = translatable("gui.yes");
+	/**
+	 * "No"
+	 */
+	Text GUI_NO = translatable("gui.no");
+	/**
+	 * "Proceed"
+	 */
+	Text GUI_PROCEED = translatable("gui.proceed");
+	/**
+	 * "Back"
+	 */
+	Text GUI_BACK = translatable("gui.back");
+	/**
+	 * "Failed to connect to the server"
+	 */
+	Text CONNECT_FAILED = translatable("connect.failed");
 }

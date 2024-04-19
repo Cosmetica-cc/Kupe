@@ -12,6 +12,7 @@ import cc.cosmetica.kupe.testmod.KupeTestScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.TitleScreen;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -20,7 +21,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class TitleScreenMixin {
 	@Inject(at = @At("RETURN"), method = "init")
 	private void onInit(CallbackInfo info) {
-		System.out.println("Title Screen Mixin");
-		Minecraft.getInstance().tell(() -> Screens.setScreen(KupeTestScreen.ID));
+		if (kupe_testmod$firstTime)
+		{
+			System.out.println("Setting debug kupe screen");
+			kupe_testmod$firstTime = false;
+			Minecraft.getInstance().tell(() -> Screens.setScreen(KupeTestScreen.ID));
+		}
 	}
+
+	@Unique
+	private static boolean kupe_testmod$firstTime = true;
 }

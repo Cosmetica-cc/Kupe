@@ -18,6 +18,7 @@ package cc.cosmetica.kupe.impl;
 
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.Context;
+import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.Component;
 import cc.cosmetica.kupe.api.gui.ResizableElement;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
@@ -28,6 +29,7 @@ import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -35,6 +37,7 @@ import java.util.function.Consumer;
 class ComponentTree {
 	public ComponentTree(Component root) {
 		this.root = new ComponentNode(null, root);
+		this.updateDebugComponent();
 	}
 
 	private final ComponentNode root;
@@ -136,6 +139,92 @@ class ComponentTree {
 			}
 		}
 	}
+
+	// Debug
+
+	private Text debugParentText;
+	private Text debugChildText;
+	private ComponentNode debugParent;
+	private int debugIndex = 0;
+
+	public void renderDebug(Canvas canvas, int vh) {
+		int lineHeight = canvas.getDrawingContext().getLineHeight();
+
+		canvas.drawText(debugParentText, 0, vh - lineHeight * 3, 0xFFFFFF);
+		canvas.drawText(debugChildText, 0, vh - lineHeight * 2, 0xFFFFFF);
+		canvas.drawText(DEBUG_INSTRUCTIONS, 0, vh - lineHeight, 0xFFFFFF);
+	}
+
+	public boolean keyDebug(int keyCode) {
+		switch (keyCode) {
+		case GLFW.GLFW_KEY_1: // Back
+			if (this.debugParent == this.root) {
+				this.debugParent = null;
+				this.updateDebugComponent();
+			} else if (this.debugParent != null) {
+				assert this.debugParent.parent != null : "Only root has null parent.";
+
+				this.debugIndex = this.debugParent.parent.children.indexOf(this.debugParent);
+				this.debugParent = this.debugParent.parent;
+				this.updateDebugComponent();
+			}
+			return true;
+		case GLFW.GLFW_KEY_2: // Step In
+			if (this.debugParent == null) {
+				this.debugParent = this.root;
+				this.debugIndex = 0;
+				this.updateDebugComponent();
+			} else if (this.debugParent.children.size() > 0) {
+				this.debugParent = this.debugParent.children.get(this.debugIndex);
+				this.debugIndex = 0;
+				this.updateDebugComponent();
+			}
+			return true;
+		case GLFW.GLFW_KEY_3: // Previous
+			if (this.debugParent != null) {
+				if (--this.debugIndex < 0) {
+					this.debugIndex = this.debugParent.children.size() - 1;
+				}
+
+				this.updateDebugComponent();
+			}
+			return true;
+		case GLFW.GLFW_KEY_4: // Next
+			if (this.debugParent != null) {
+				if (++this.debugIndex >= this.debugParent.children.size()) {
+					this.debugIndex = 0;
+				}
+
+				this.updateDebugComponent();
+			}
+			return true;
+		}
+
+		return false;
+	}
+
+	private void updateDebugComponent() {
+		if (this.debugParent == null) {
+			this.debugParentText = Text.literal("");
+			this.debugChildText = Text.literal("[Root]");
+		} else {
+			this.debugParentText = this.debugParent == this.root ? Text.literal("[Root]") : componentDebugInfo(this.debugParent);
+
+			if (this.debugParent.children.size() == 0) {
+				this.debugChildText = Text.literal("(No Children)");
+			} else {
+				ComponentNode child = this.debugParent.children.get(this.debugIndex);
+				this.debugChildText = componentDebugInfo(child);
+			}
+		}
+	}
+
+	private Text componentDebugInfo(ComponentNode node) {
+		return Text.literal(node.element.getClass().getSimpleName() + " " + node.renderRegion +
+				" (" + node.intrinsicSize + "i, " + node.minimumSize + "m, " + node.maximumSize + "M)");
+	}
+
+	private static final Text DEBUG_INSTRUCTIONS = Text.literal("[1] Back [2] Step In [3] Previous [4] Next");
 
 	private static class ComponentNode implements ResizableElement {
 		ComponentNode(@Nullable ComponentNode parent, Component element) {

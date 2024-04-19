@@ -58,4 +58,18 @@ public final class Screens {
 		Screen screen = new KupeScreen(location, REGISTRY.get(location));
 		Minecraft.getInstance().setScreen(screen);
 	}
+
+	/**
+	 * Close the current screen.
+	 */
+	public static void closeCurrentScreen() {
+		Minecraft.getInstance().screen.onClose();
+	}
+
+	/**
+	 * Enables debug on all Kupe screens.
+	 */
+	public static void enableDebug() {
+		KupeScreen.enableDebug();
+	}
 }
