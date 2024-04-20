@@ -21,9 +21,9 @@ import cc.cosmetica.kupe.api.Context;
 import cc.cosmetica.kupe.api.Renderable;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
+import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Region;
-import net.minecraft.client.gui.components.MultiLineLabel;
 
 import java.util.Collections;
 import java.util.List;
@@ -74,10 +74,16 @@ public class Label extends Component {
 	public void render(Canvas canvas, Region region, int mouseX, int mouseY) {
 		int y = region.getY();
 		final int lineHeight = canvas.getDrawingContext().getLineHeight();
+		final int tint = this.getStyle().get(TEXT_COLOUR);
 
 		for (Renderable renderable : this.label) {
-			renderable.render(canvas, region.getX(), y);
+			renderable.render(canvas, region.getX(), y, tint);
 			y += lineHeight;
 		}
 	}
+
+	/**
+	 * The text colour, as an RGB integer. Default value is #FFFFFF (0xFFFFFF)
+	 */
+	public static final Style.Property<Integer> TEXT_COLOUR = new Style.Property<>(0xFFFFFF);
 }

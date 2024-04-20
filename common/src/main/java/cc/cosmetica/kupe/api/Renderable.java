@@ -27,7 +27,18 @@ public interface Renderable {
 	 * @param x the x coordinate to render from.
 	 * @param y the y coordinate to render from.
 	 */
-	void render(Canvas canvas, int x, int y);
+	default void render(Canvas canvas, int x, int y) {
+		this.render(canvas, x, y, 0xFFFFFF);
+	}
+
+	/**
+	 * Render starting at the given coordinates.
+	 * @param canvas the canvas to draw onto.
+	 * @param x the x coordinate to render from.
+	 * @param y the y coordinate to render from.
+	 * @param colour the colour tint to draw with.
+	 */
+	void render(Canvas canvas, int x, int y, int colour);
 
 	/**
 	 * Get the width of this component, in pixels.

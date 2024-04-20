@@ -34,8 +34,8 @@ public class FormattedCharSeqRenderer implements Renderable {
 	private final FormattedCharSequence sequence;
 
 	@Override
-	public void render(Canvas canvas, int x, int y) {
-		this.font.draw(canvas.getStack().toMinecraftStack(), this.sequence, x, y, 0x808080);
+	public void render(Canvas canvas, int x, int y, int colour) {
+		this.font.draw(canvas.getStack().toMinecraftStack(), this.sequence, x, y, colour);
 	}
 
 	@Override

@@ -32,7 +32,7 @@ import java.util.List;
  */
 public class Image extends Component {
 	/**
-	 * Load the given image from the asset tree at the given location.
+	 * Load the given image from the provided location.
 	 * @param texture the resource location for the texture.
 	 */
 	public Image(ResourceLocation texture) {
