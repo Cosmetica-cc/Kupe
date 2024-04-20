@@ -20,9 +20,7 @@ import cc.cosmetica.kupe.api.gui.Component;
 import cc.cosmetica.kupe.api.gui.ResizableElement;
 import cc.cosmetica.kupe.api.gui.SizedElement;
 import cc.cosmetica.kupe.api.maths.Region;
-import cc.cosmetica.kupe.impl.LeavesSandbox;
 import com.google.common.collect.ImmutableList;
-import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
