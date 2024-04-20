@@ -17,7 +17,13 @@
 package cc.cosmetica.kupe.api;
 
 import cc.cosmetica.kupe.api.gui.Component;
+import cc.cosmetica.kupe.api.gui.ResizableElement;
+import cc.cosmetica.kupe.api.gui.SizedElement;
+import cc.cosmetica.kupe.api.maths.Region;
+import cc.cosmetica.kupe.impl.LeavesSandbox;
 import com.google.common.collect.ImmutableList;
+import net.minecraft.client.renderer.texture.AbstractTexture;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
 
@@ -25,9 +31,28 @@ import java.util.List;
  * Component to display an image.
  */
 public class Image extends Component {
-	// TODO
+	/**
+	 * Load the given image from the asset tree at the given location.
+	 * @param texture the resource location for the texture.
+	 */
+	public Image(ResourceLocation texture) {
+		this.texture = texture;
+	}
+
+	private final ResourceLocation texture;
+
 	@Override
 	public List<Component> build() {
 		return ImmutableList.of();
+	}
+
+	@Override
+	public void resize(Region region, SizedElement sizedElement, List<? extends ResizableElement> children, Context context) {
+		// nothing
+	}
+
+	@Override
+	public void render(Canvas canvas, Region region, int mouseX, int mouseY) {
+		canvas.drawTexture(region.getX(), region.getY(), region.getEndX(), region.getEndY(), 0.0f, this.texture);
 	}
 }

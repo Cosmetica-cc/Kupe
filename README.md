@@ -8,6 +8,8 @@ environments and versions. In addition, a few api methods are marked as `@Leaves
 These are not guaranteed to be completely stable across environments, but will be kept stable where possible. They are provided in case
 a modder wishes to have greater flexibility than the library itself provides without referencing implementation classes.
 
+`ResourceLocation` is considered a stable vanilla class, so methods that use it are not marked as `@LeavesSandbox`.
+
 ## Setting Up
 
 You can include Kupe in your project via gradle. First, add the cosmetica maven to your repositories:
