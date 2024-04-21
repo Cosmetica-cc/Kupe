@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.kupe.forge;
+package cc.cosmetica.kupe.impl.fabric;
 
-import cc.cosmetica.kupe.Kupe;
-import net.minecraftforge.fml.common.Mod;
+import net.fabricmc.api.ModInitializer;
 
-@Mod(Kupe.MOD_ID)
-public class ExampleModForge {
-    public ExampleModForge() {
-        Kupe.init();
+public class KupeFabric implements ModInitializer {
+    @Override
+    public void onInitialize() {
     }
 }

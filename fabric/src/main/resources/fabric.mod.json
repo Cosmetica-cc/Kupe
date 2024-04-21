@@ -15,7 +15,7 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "cc.cosmetica.kupe.fabric.ExampleModFabric"
+      "cc.cosmetica.kupe.impl.fabric.KupeFabric"
     ]
   },
   "mixins": [

@@ -7,12 +7,14 @@
 
 package cc.cosmetica.kupe.testmod;
 
+import cc.cosmetica.kupe.api.Image;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
+import cc.cosmetica.kupe.api.maths.Axis2D;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Arrays;
@@ -27,7 +29,12 @@ public class KupeTestScreen extends Component {
 						new Label(Text.literal("You can add some text like this!")),
 						new Button(Text.literal("Say Hello, World!"), () -> System.out.println("Hello, World!")),
 						new Button(Text.literal("Say Ok, World!"), () -> System.out.println("Ok, World!")),
-						new Button(Text.literal("Say Goodbye, World!"), () -> System.out.println("Goodbye, World!")),
+						new Div(
+								new Button(Text.literal("Say Goodbye, World!"), () -> System.out.println("Goodbye, World!")),
+								new Image(new ResourceLocation("kupe", "icon.png"))
+						).withStyle(new Stylesheet()
+								.self(Style.create()
+										.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X))),
 						new Button(Text.GUI_DONE, Screens::closeCurrentScreen)
 				).withStyle(new Stylesheet()
 						.self(Style.create()

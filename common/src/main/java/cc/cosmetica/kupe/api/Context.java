@@ -16,9 +16,15 @@
 
 package cc.cosmetica.kupe.api;
 
+import cc.cosmetica.kupe.api.maths.Dimensions;
+import cc.cosmetica.kupe.impl.LeavesSandbox;
+import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.network.chat.FormattedText;
+import net.minecraft.resources.ResourceLocation;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides access to information about the context in which we are drawing. Used to query information, but not draw.
@@ -44,6 +50,19 @@ public interface Context {
 	 * @return the height, in pixels, this text would take up.
 	 */
 	int getTextHeight(Text text, int maxWidth);
+
+	@LeavesSandbox
+	AbstractTexture getTexture(ResourceLocation location);
+
+	/**
+	 * Get the dimensions of an image in the resource manager at the given location. This will purely read the headers,
+	 * and is only guaranteed to support PNG images. Other image formats may be supported at the implementation's
+	 * discretion.
+	 * @param location the location to look for the image.
+	 * @return the dimensions found.
+	 * @throws IOException if an IOException happened reading the image.
+	 */
+	Optional<Dimensions> getImageDimensions(ResourceLocation location) throws IOException;
 
 	/**
 	 * Split the given text into chunks with the given maximum width. That is, word wrap.

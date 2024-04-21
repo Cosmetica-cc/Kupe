@@ -16,24 +16,27 @@
 
 package cc.cosmetica.kupe.impl;
 
-import cc.cosmetica.kupe.Kupe;
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.Context;
 import cc.cosmetica.kupe.api.Renderable;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.Component;
+import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.impl.text.FormattedCharSeqRenderer;
-import cc.cosmetica.kupe.impl.text.LiteralText;
+import cc.cosmetica.kupe.util.ImageUtilities;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.util.FormattedCharSequence;
-import org.lwjgl.glfw.GLFW;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * The screen that controls the Kupe gui rendering. This handles the rendering and event calls to the root component.
@@ -124,6 +127,18 @@ public final class KupeScreen extends Screen {
 		public int getTextHeight(Text text, int maxWidth) {
 			assert KupeScreen.this.minecraft != null;
 			return KupeScreen.this.minecraft.font.wordWrapHeight(text.getDisplayString(), maxWidth);
+		}
+
+		@Override
+		public AbstractTexture getTexture(ResourceLocation location) {
+			assert KupeScreen.this.minecraft != null;
+			return KupeScreen.this.minecraft.getTextureManager().getTexture(location);
+		}
+
+		@Override
+		public Optional<Dimensions> getImageDimensions(ResourceLocation location) throws IOException {
+			Resource resource = Minecraft.getInstance().getResourceManager().getResource(location);
+			return ImageUtilities.getImageDimensions(resource.getInputStream());
 		}
 
 		@Override
