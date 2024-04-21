@@ -231,7 +231,8 @@ public class Div extends Component {
 				if (totalFlex > 0) while (iterator.hasNext()) {
 					ResizableElement element = iterator.next();
 					double flexProportion = (double) element.getComponent().getStyle().get(flexProperty) / totalFlex;
-					int width = widths.getOrDefault(element, 0) + (int) Math.floor(allocatingSpace * flexProportion);
+					int dWidth = (int) Math.floor(allocatingSpace * flexProportion);
+					int width = widths.getOrDefault(element, 0) + dWidth;
 					// we floor the space we are allocating, as we preferably want to be left over with extra space
 					// rather than overflowing
 
@@ -249,7 +250,7 @@ public class Div extends Component {
 						repeat = true;
 					}
 
-					availableWidth -= width;
+					availableWidth -= dWidth; // record change in width to available space
 					widths.put(element, width);
 				}
 			}
