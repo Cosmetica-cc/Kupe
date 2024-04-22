@@ -83,7 +83,7 @@ public class Image extends Component {
 				return new Dimensions(width, (int) (width * aspectRatio));
 			}
 
-			OptionalInt fixedHeight = this.getStyle().get(CommonProperties.WIDTH).apply(vw, vh);
+			OptionalInt fixedHeight = this.getStyle().get(CommonProperties.HEIGHT).apply(vw, vh);
 
 			if (fixedHeight.isPresent()) {
 				Dimensions maxDimensions = this.getStyle().get(CommonProperties.MAXIMUM_SIZE).apply(vw, vh);

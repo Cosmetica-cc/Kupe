@@ -43,7 +43,7 @@ public class Dimensions {
 
 	@Override
 	public String toString() {
-		return "Dimensions(" + this.width + "x" + this.height + ")";
+		return this.width + "x" + this.height;
 	}
 
 	/**

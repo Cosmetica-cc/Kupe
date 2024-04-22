@@ -96,6 +96,8 @@ class ComponentTree {
 			node.resize(context);
 			nodes.addAll(node.children);
 		}
+
+		this.updateDebugComponent();
 	}
 
 	public void render(Canvas canvas, int mouseX, int mouseY) {
@@ -221,7 +223,7 @@ class ComponentTree {
 
 	private Text componentDebugInfo(ComponentNode node) {
 		return Text.literal(node.element.getClass().getSimpleName() + " " + node.renderRegion +
-				" (" + node.intrinsicSize + "i, " + node.minimumSize + "m, " + node.maximumSize + "M)");
+				" (" + node.intrinsicSize.toString() + "i, " + node.minimumSize + "m, " + node.maximumSize + "M)");
 	}
 
 	private static final Text DEBUG_INSTRUCTIONS = Text.literal("[1] Back [2] Step In [3] Previous [4] Next");
