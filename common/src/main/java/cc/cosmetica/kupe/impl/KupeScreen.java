@@ -24,6 +24,7 @@ import cc.cosmetica.kupe.api.gui.Component;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.impl.text.FormattedCharSeqRenderer;
 import cc.cosmetica.kupe.util.ImageUtilities;
+import cc.cosmetica.kupe.util.MultiCache;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -113,6 +114,9 @@ public final class KupeScreen extends Screen {
 	}
 
 	class KupeScreenContext implements Context {
+		// don't do lots of IO when resizing the screen!
+		private final MultiCache<Optional<Dimensions>> dimensionCache = new MultiCache<>(new Optional[64], 5000L);
+
 		@Override
 		public int getWidth(Text text) {
 			return KupeScreen.this.font.width(text.toMinecraftComponent());
@@ -137,6 +141,10 @@ public final class KupeScreen extends Screen {
 
 		@Override
 		public Optional<Dimensions> getImageDimensions(ResourceLocation location) throws IOException {
+			return this.dimensionCache.compute(location, this::computeImageDimensions);
+		}
+
+		private Optional<Dimensions> computeImageDimensions(ResourceLocation location) throws IOException {
 			Resource resource = Minecraft.getInstance().getResourceManager().getResource(location);
 			return ImageUtilities.getImageDimensions(resource.getInputStream());
 		}
