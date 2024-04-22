@@ -20,7 +20,7 @@
   },
   "mixins": [
     "kupe.mixins.json",
-    "examplemod-common.mixins.json"
+    "kupe-common.mixins.json"
   ],
   "depends": {
     "fabric": "*",
