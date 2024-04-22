@@ -37,7 +37,11 @@ public class KupeTestScreen extends Component {
 								.set(Div.JUSTIFY_CONTENT, Justify.CENTRE)
 								.set(Div.ALIGN_ITEMS, Align.CENTRE)
 								.set(CommonProperties.WIDTH, (vw, vh) -> OptionalInt.of(vw))
-								.set(CommonProperties.HEIGHT, (vw, vh) -> OptionalInt.of(vh))))
+								.set(CommonProperties.HEIGHT, (vw, vh) -> OptionalInt.of(vh)))
+						.component(Image.class, Style.create()
+								.setFixed(CommonProperties.HEIGHT, OptionalInt.of(200))))
+				// note the image may still be shrunk further due to FLEX_SHRINK.
+				// You can set minimum size or remove the flex shrink to handle this.
 		);
 	}
 

@@ -80,6 +80,18 @@ public class Style {
 			this.properties.put(property, value);
 			return this;
 		}
+
+		/**
+		 * Set the given property in this {@linkplain Style style} to a fixed value independent of screen size.
+		 * @param property the property to set.
+		 * @param value the value to give to the property.
+		 * @return this mutable style object.
+		 * @param <T> the type of data contained within the property.
+		 */
+		public <T> MutableStyle setFixed(Property<CommonProperties.DimensionsOperator<T>> property, T value) {
+			this.properties.put(property, (CommonProperties.DimensionsOperator<T>)((vw, vh) -> value));
+			return this;
+		}
 	}
 
 	/**

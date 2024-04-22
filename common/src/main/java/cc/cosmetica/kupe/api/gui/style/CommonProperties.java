@@ -53,12 +53,14 @@ public final class CommonProperties {
 	/**
 	 * The fixed width of the component. This is bounded by the {@linkplain CommonProperties#MAXIMUM_SIZE maximum} and
 	 * {@linkplain CommonProperties#MINIMUM_SIZE minimum} sizes.
+	 * This may still resize due to flex attributes.
 	 */
 	public static final Style.Property<DimensionsOperator<OptionalInt>> WIDTH = new Style.Property<>((vw, vh) -> OptionalInt.empty());
 
 	/**
 	 * The fixed height of the component. This is bounded by the {@linkplain CommonProperties#MAXIMUM_SIZE maximum} and
 	 * {@linkplain CommonProperties#MINIMUM_SIZE minimum} sizes.
+	 * This may still resize due to flex attributes.
 	 */
 	public static final Style.Property<DimensionsOperator<OptionalInt>> HEIGHT = new Style.Property<>((vw, vh) -> OptionalInt.empty());
 

@@ -22,6 +22,5 @@ import net.minecraftforge.fml.common.Mod;
 @Mod(Kupe.MOD_ID)
 public class KupeForge {
     public KupeForge() {
-        Kupe.init();
     }
 }
