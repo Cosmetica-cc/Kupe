@@ -15,6 +15,7 @@ import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
+import cc.cosmetica.kupe.api.maths.Margins;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Arrays;
@@ -27,7 +28,17 @@ public class KupeTestScreen extends Component {
 		return Arrays.asList(
 				new Div(
 						new Label(Text.literal("You can add some text like this!")),
-						new Button(Text.literal("Say Hello, World!"), () -> System.out.println("Hello, World!")),
+						new Div(
+								new Button(Text.literal("Say Hello, World!"), () -> System.out.println("Hello, World!")),
+								new Button(Text.literal("Say Hola, World!"), () -> System.out.println("Hola, World!"))
+						).withStyle(new Stylesheet()
+								.self(Style.create()
+										.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
+										.set(Div.JUSTIFY_CONTENT, Justify.SPACE_BETWEEN)
+										.setFixed(CommonProperties.WIDTH, OptionalInt.of(200))
+										.setFixed(CommonProperties.MARGINS, new Margins(20, 0)))
+								.component(Button.class, Style.create()
+										.setFixed(CommonProperties.WIDTH, OptionalInt.of(90)))),
 						new Button(Text.literal("Say Ok, World!"), () -> System.out.println("Ok, World!")),
 						new Image(new ResourceLocation("kupe", "icon.png")),
 						new Button(Text.literal("Say Goodbye, World!"), () -> System.out.println("Goodbye, World!")),
