@@ -12,7 +12,7 @@
   },
   "license": "Insert License Here",
   "icon": "assets/kupe/icon.png",
-  "environment": "*",
+  "environment": "client",
   "entrypoints": {
     "main": [
       "cc.cosmetica.kupe.impl.fabric.KupeFabric"

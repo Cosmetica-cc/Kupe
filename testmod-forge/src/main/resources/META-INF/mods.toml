@@ -4,30 +4,30 @@ loaderVersion = "[36,)"
 license = "Insert License Here"
 
 [[mods]]
-modId = "examplemod"
+modId = "kupe_test"
 version = "${version}"
-displayName = "Example Mod"
+displayName = "Kupe Testmod"
 authors = "Valoeghese"
 description = '''
-This is an example description! Tell everyone what your mod is about!
+Test the Kupe GUI library
 '''
 #logoFile = ""
 
-[[dependencies.examplemod]]
+[[dependencies.kupe_test]]
 modId = "forge"
 mandatory = true
 versionRange = "[36,)"
 ordering = "NONE"
 side = "BOTH"
 
-[[dependencies.examplemod]]
+[[dependencies.kupe_test]]
 modId = "minecraft"
 mandatory = true
 versionRange = "[1.16.5,)"
 ordering = "NONE"
 side = "BOTH"
 
-[[dependencies.examplemod]]
+[[dependencies.kupe_test]]
 modId = "kupe"
 mandatory = true
 versionRange = "[1.0.0,)"

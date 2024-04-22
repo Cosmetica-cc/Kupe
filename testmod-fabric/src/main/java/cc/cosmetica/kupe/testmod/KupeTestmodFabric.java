@@ -13,7 +13,6 @@ import net.fabricmc.api.ModInitializer;
 public class KupeTestmodFabric implements ModInitializer {
 	@Override
 	public void onInitialize() {
-		Screens.enableDebug(); // enable debug on all kupe screens
-		Screens.registerScreen(KupeTestScreen.ID, new KupeTestScreen());
+		KupeTestInit.init();
 	}
 }
