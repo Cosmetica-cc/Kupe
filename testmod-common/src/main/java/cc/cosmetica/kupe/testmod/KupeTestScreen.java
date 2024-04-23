@@ -27,7 +27,7 @@ public class KupeTestScreen extends Screen {
 	}
 
 	@Override
-	public Component[] buildScreen(Style rootStyle) {
+	public Component[] build(Style rootStyle) {
 		// note the image may still be shrunk further due to FLEX_SHRINK.
 		// You can set minimum size or remove the flex shrink to handle this.
 

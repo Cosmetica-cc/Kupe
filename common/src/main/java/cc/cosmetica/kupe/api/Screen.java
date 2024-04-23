@@ -13,7 +13,7 @@ import java.util.OptionalInt;
 /**
  * An extension to Component that implements common behaviour for screens.
  * <br>
- * Children are provided through buildScreen, and are placed in a div that encompasses the screen space, with
+ * Children are provided through build(Style rootStyle), and are placed in a div that encompasses the screen space, with
  * {@linkplain Justify justify} and {@linkplain Align align} both set to CENTRE by default.
  */
 public abstract class Screen extends Component {
@@ -28,7 +28,7 @@ public abstract class Screen extends Component {
 	private final Text key;
 
 	@Override
-	public List<Component> build() {
+	public final List<Component> build() {
 		// default style
 		Style style = Style.create()
 				.set(CommonProperties.WIDTH, FULL_WIDTH)
@@ -41,7 +41,7 @@ public abstract class Screen extends Component {
 						.withStyle(new Stylesheet().self(Style.create()
 								.set(CommonProperties.WIDTH, FULL_WIDTH)
 								.set(Label.ALIGN_TEXT, Align.CENTRE))),
-				new Div(this.buildScreen(style)) // when building components the child screen may want to override the style
+				new Div(this.build(style)) // when building components the child screen may want to override the style
 						.withStyle(new Stylesheet().self(style))
 		);
 	}
@@ -52,7 +52,7 @@ public abstract class Screen extends Component {
 	 *              The default properties are WIDTH: vw, HEIGHT: vh, JUSTIFY_CONTENT: centre, ALIGN_ITEMS: centre.
 	 * @return the child components of this screen.
 	 */
-	protected abstract Component[] buildScreen(Style rootStyle);
+	protected abstract Component[] build(Style rootStyle);
 
 	private static final CommonProperties.DimensionsOperator<OptionalInt> FULL_WIDTH = (vw, vh) -> OptionalInt.of(vw);
 }
