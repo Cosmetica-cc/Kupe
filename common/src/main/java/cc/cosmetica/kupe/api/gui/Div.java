@@ -315,7 +315,6 @@ public class Div extends Component {
 					int theoreticalSpace = region.getHeight() - margins.top - padding.top - padding.bottom - margins.bottom;
 
 					if (theoreticalSpace < element.getMinimumSize().getHeight()) {
-						// TODO flood those margins and padding outside of the div (depending on alignment?) if overflows
 						// perhaps if align start, just care about top margins. if end just care about end
 						heights.put(element, element.getMinimumSize().getHeight());
 					} else {
@@ -326,6 +325,23 @@ public class Div extends Component {
 					break;
 				}
 			}
+
+			// constrain heights to height of div
+			int paddingMarginSecondary = element.getMargins().vertical() + element.getPadding().vertical();
+			int totalOccupiedHeight = heights.getInt(element) + paddingMarginSecondary;
+
+			if (totalOccupiedHeight > region.getHeight()) {
+				int constrainedHeight = region.getHeight() - paddingMarginSecondary;
+
+				// but not at the expense of the element's minimum height
+				heights.put(element,
+						Math.max(
+								constrainedHeight,
+								element.getMinimumSize().getHeight()
+						)
+				);
+			}
+
 		}
 
 		// 2. Calculate Start Position (along main axis)
