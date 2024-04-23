@@ -85,7 +85,6 @@ public class PoseCanvas implements Canvas {
 		int y0 = region.getY();
 		int y1 = region.getEndY();
 
-		// TODO should we store colour as 3 floats instead to eliminate floating point division?
 		float r = ((colour >> 16) & 0xFF) / 255.0f;
 		float g = ((colour >> 8) & 0xFF) / 255.0f;
 		float b = (colour & 0xFF) / 255.0f;

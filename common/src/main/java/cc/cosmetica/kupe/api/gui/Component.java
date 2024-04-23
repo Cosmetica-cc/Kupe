@@ -25,7 +25,6 @@ import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Position;
 import cc.cosmetica.kupe.api.maths.Region;
-import cc.cosmetica.kupe.impl.MathsImpl;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -174,22 +173,52 @@ public abstract class Component {
 		// we want to draw within the padded region
 		Region drawRegion = region.addMargins(padding);
 
+		OptionalInt backgroundColour = this.getStyle().get(CommonProperties.BACKGROUND_COLOUR);
 		int borderSize = this.getStyle().get(CommonProperties.BORDER_SIZE);
 
-		if (borderSize > 0) {
-			int borderColour = this.getStyle().get(CommonProperties.BORDER_COLOUR);
-			canvas.drawRect(drawRegion, borderColour);
-
-			// draw background colour in the shrunk area
-			// TODO transparent background and border
-			drawRegion = drawRegion.shrink(borderSize);
-		}
-
-		// Background Colour
-		OptionalInt backgroundColour = this.getStyle().get(CommonProperties.BACKGROUND_COLOUR);
-
 		if (backgroundColour.isPresent()) {
+			if (borderSize > 0) {
+				int borderColour = this.getStyle().get(CommonProperties.BORDER_COLOUR);
+				canvas.drawRect(drawRegion, borderColour);
+
+				// draw background colour in the shrunk area
+				drawRegion = drawRegion.shrink(borderSize);
+			}
+
+			// Draw background Colour
 			canvas.drawRect(drawRegion, backgroundColour.getAsInt());
+		}
+		else if (borderSize > 0) {
+			int borderColour = this.getStyle().get(CommonProperties.BORDER_COLOUR);
+
+			float r = ((borderColour >> 16) & 0xFF) / 255.0f;
+			float g = ((borderColour >> 8) & 0xFF) / 255.0f;
+			float b = (borderColour & 0xFF) / 255.0f;
+
+			// ======
+			// |    |
+			// ======
+
+			// border with transparent centre
+			canvas.drawRect(
+					region.getX(), region.getY(),
+					region.getEndX(), region.getY() + borderSize, // top
+					r, g, b);
+
+			canvas.drawRect(
+					region.getX(), region.getEndY() - borderSize, // bottom
+					region.getEndX(), region.getEndY(),
+					r, g, b);
+
+			canvas.drawRect( // left
+					region.getX(), region.getY() + borderSize,
+					region.getX() + borderSize, region.getEndY() - borderSize,
+					r, g, b);
+
+			canvas.drawRect( // right
+					region.getEndX() - borderSize, region.getY() + borderSize,
+					region.getEndX(), region.getEndY() - borderSize,
+					r, g, b);
 		}
 	}
 
