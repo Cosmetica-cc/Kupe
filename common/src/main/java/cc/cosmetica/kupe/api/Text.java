@@ -17,6 +17,7 @@
 package cc.cosmetica.kupe.api;
 
 import cc.cosmetica.kupe.impl.LeavesSandbox;
+import cc.cosmetica.kupe.impl.text.EmptyText;
 import cc.cosmetica.kupe.impl.text.LiteralText;
 import cc.cosmetica.kupe.impl.text.TranslatableText;
 import net.minecraft.network.chat.Component;
@@ -37,12 +38,27 @@ public interface Text {
 	 */
 	String getDisplayString();
 
+	static Text empty() {
+		return EmptyText.INSTANCE;
+	}
+
+	/**
+	 * Get a text instance that contains the provided text as-is.
+	 * @param text the text to display.
+	 * @return a text object with the given text literal.
+	 */
 	static Text literal(String text) {
 		return new LiteralText(text);
 	}
 
-	static Text translatable(String text, String... format) {
-		return new TranslatableText(text, (Object[])format);
+	/**
+	 * Get a text instance that uses the given key as a translation key, formatted with the given format items.
+	 * @param key the translation key.
+	 * @param format the format items.
+	 * @return a text object which translates based on the provided key and format.
+	 */
+	static Text translatable(String key, String... format) {
+		return new TranslatableText(key, (Object[])format);
 	}
 
 	/**

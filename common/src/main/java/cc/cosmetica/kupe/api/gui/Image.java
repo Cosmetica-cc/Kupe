@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.kupe.api;
+package cc.cosmetica.kupe.api.gui;
 
+import cc.cosmetica.kupe.api.Canvas;
+import cc.cosmetica.kupe.api.Context;
 import cc.cosmetica.kupe.api.gui.Component;
 import cc.cosmetica.kupe.api.gui.ResizableElement;
 import cc.cosmetica.kupe.api.gui.SizedElement;

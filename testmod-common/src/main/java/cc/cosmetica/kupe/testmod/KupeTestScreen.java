@@ -7,7 +7,8 @@
 
 package cc.cosmetica.kupe.testmod;
 
-import cc.cosmetica.kupe.api.Image;
+import cc.cosmetica.kupe.api.gui.Image;
+import cc.cosmetica.kupe.api.Screen;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.*;
@@ -18,42 +19,40 @@ import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Margins;
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.OptionalInt;
 
-public class KupeTestScreen extends Component {
+public class KupeTestScreen extends Screen {
+	public KupeTestScreen() {
+		super(ID);
+	}
+
 	@Override
-	public List<Component> build() {
-		return Arrays.asList(
+	public Component[] buildScreen(Style rootStyle) {
+		// note the image may still be shrunk further due to FLEX_SHRINK.
+		// You can set minimum size or remove the flex shrink to handle this.
+
+		return new Component[] {
+				new Label(Text.literal("You can add some text like this!")),
 				new Div(
-						new Label(Text.literal("You can add some text like this!")),
-						new Div(
-								new Button(Text.literal("Say Hello, World!"), () -> System.out.println("Hello, World!")),
-								new Button(Text.literal("Say Hola, World!"), () -> System.out.println("Hola, World!"))
-						).withStyle(new Stylesheet()
-								.self(Style.create()
-										.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
-										.set(Div.JUSTIFY_CONTENT, Justify.SPACE_BETWEEN)
-										.setFixed(CommonProperties.WIDTH, OptionalInt.of(200))
-										.setFixed(CommonProperties.MARGINS, new Margins(20, 0)))
-								.component(Button.class, Style.create()
-										.setFixed(CommonProperties.WIDTH, OptionalInt.of(90)))),
-						new Button(Text.literal("Say Ok, World!"), () -> System.out.println("Ok, World!")),
-						new Image(new ResourceLocation("kupe", "icon.png")),
-						new Button(Text.literal("Say Goodbye, World!"), () -> System.out.println("Goodbye, World!")),
-						new Button(Text.GUI_DONE, Screens::closeCurrentScreen)
+						new Button(Text.literal("Say Hello, World!"), () -> System.out.println("Hello, World!")),
+						new Button(Text.literal("Say Hola, World!"), () -> System.out.println("Hola, World!"))
 				).withStyle(new Stylesheet()
 						.self(Style.create()
-								.set(Div.JUSTIFY_CONTENT, Justify.CENTRE)
-								.set(Div.ALIGN_ITEMS, Align.CENTRE)
-								.set(CommonProperties.WIDTH, (vw, vh) -> OptionalInt.of(vw))
-								.set(CommonProperties.HEIGHT, (vw, vh) -> OptionalInt.of(vh)))
-						.component(Image.class, Style.create()
-								.setFixed(CommonProperties.HEIGHT, OptionalInt.of(200))))
-				// note the image may still be shrunk further due to FLEX_SHRINK.
-				// You can set minimum size or remove the flex shrink to handle this.
-		);
+								.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
+								.set(Div.JUSTIFY_CONTENT, Justify.SPACE_BETWEEN)
+								.setFixed(CommonProperties.WIDTH, OptionalInt.of(200))
+								.setFixed(CommonProperties.MARGINS, new Margins(20, 0)))
+						.component(Button.class, Style.create()
+								.setFixed(CommonProperties.WIDTH, OptionalInt.of(90)))),
+				new Button(Text.literal("Say Ok, World!"), () -> System.out.println("Ok, World!")),
+				new Image(new ResourceLocation("kupe", "icon.png"))
+						.withStyle(
+								new Stylesheet()
+										.self(Style.create().setFixed(CommonProperties.HEIGHT, OptionalInt.of(150)))
+						),
+				new Button(Text.literal("Say Goodbye, World!"), () -> System.out.println("Goodbye, World!")),
+				new Button(Text.GUI_DONE, Screens::closeCurrentScreen)
+		};
 	}
 
 	public static final ResourceLocation ID = new ResourceLocation("kupe_test", "screen");

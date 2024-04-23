@@ -43,15 +43,17 @@ import java.util.Optional;
  * The screen that controls the Kupe gui rendering. This handles the rendering and event calls to the root component.
  */
 public final class KupeScreen extends Screen {
-	public KupeScreen(ResourceLocation location, Component rootComponent) {
+	public KupeScreen(ResourceLocation location, Component rootComponent, boolean defaultBackground) {
 		super(new TranslatableComponent("screens." + location.getNamespace() + "." + location.getPath()));
 
 		this.tree = new ComponentTree(rootComponent);
 		this.context = new KupeScreenContext();
+		this.defaultBackground = defaultBackground;
 	}
 
 	private final ComponentTree tree;
 	private final Context context;
+	private final boolean defaultBackground;
 
 	@Override
 	public void init(Minecraft minecraft, int w, int h) {
@@ -72,7 +74,9 @@ public final class KupeScreen extends Screen {
 
 	@Override
 	public void render(PoseStack poseStack, int mouseX, int mouseY, float tickDelta) {
-		this.renderBackground(poseStack); // TODO way to change background in screen -- perhaps do background rendering in `Screen extends Component`
+		if (this.defaultBackground) { // TODO better way to do this that also handles scrolling backgrounds
+			this.renderBackground(poseStack);
+		}
 
 		Canvas canvas = new PoseCanvas(poseStack, this.minecraft, this.context, tickDelta);
 		this.tree.render(canvas, mouseX, mouseY);
@@ -109,8 +113,8 @@ public final class KupeScreen extends Screen {
 
 	private static boolean debug;
 
-	public static void enableDebug() {
-		debug = true;
+	public static void setDebug(boolean enabled) {
+		debug = enabled;
 	}
 
 	class KupeScreenContext implements Context {
