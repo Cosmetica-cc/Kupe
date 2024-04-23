@@ -17,6 +17,7 @@
 package cc.cosmetica.kupe.impl;
 
 import cc.cosmetica.kupe.api.*;
+import cc.cosmetica.kupe.api.maths.Region;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Matrix4f;
@@ -75,6 +76,21 @@ public class PoseCanvas implements Canvas {
 	@Override
 	public void drawText(Text text, int x, int y, int colour) {
 		GuiComponent.drawString(this.stack, this.minecraft.font, text.toMinecraftComponent(), x, y, colour);
+	}
+
+	@Override
+	public void drawRect(Region region, int colour) {
+		int x0 = region.getX();
+		int x1 = region.getEndX();
+		int y0 = region.getY();
+		int y1 = region.getEndY();
+
+		// TODO should we store colour as 3 floats instead to eliminate floating point division?
+		float r = ((colour >> 16) & 0xFF) / 255.0f;
+		float g = ((colour >> 8) & 0xFF) / 255.0f;
+		float b = (colour & 0xFF) / 255.0f;
+
+		this.drawRect(x0, y0, x1, y1, r, g, b);
 	}
 
 	@Override

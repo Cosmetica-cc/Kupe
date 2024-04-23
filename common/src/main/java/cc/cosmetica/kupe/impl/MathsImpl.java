@@ -16,12 +16,7 @@
 
 package cc.cosmetica.kupe.impl;
 
-import cc.cosmetica.kupe.api.gui.SizedElement;
-import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Vec3;
-
-import java.util.List;
-import java.util.function.Function;
 
 public class MathsImpl {
 	public static Vec3 createVec3(double x, double y, double z) {

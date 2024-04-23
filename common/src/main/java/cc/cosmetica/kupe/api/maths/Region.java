@@ -86,41 +86,37 @@ public class Region {
 		return x >= this.x && x < this.x + this.width && y >= this.y && y < this.y + this.height;
 	}
 
-	@Override
-	public String toString() {
-		return "Region{" +
-				"x=" + x +
-				", y=" + y +
-				", width=" + width +
-				", height=" + height +
-				'}';
-	}
-
-	public static Region withMargins(Region dimensions, Margins region) {
+	public Region addMargins(Margins margins) {
 		// i am speed
-		if (region == Margins.NONE) {
-			return dimensions;
+		if (margins == Margins.NONE) {
+			return this;
 		}
 
 		return new Region(
-				dimensions.x - region.left,
-				dimensions.y - region.top,
-				dimensions.width + region.left + region.right,
-				dimensions.height + region.top + region.bottom
+				this.x - margins.left,
+				this.y - margins.top,
+				this.width + margins.left + margins.right,
+				this.height + margins.top + margins.bottom
 		);
 	}
 
-	public static Region subtractPadding(Region region, Margins padding) {
+	/**
+	 * Shrink this region by the given amount on all sides.
+	 * @param by
+	 * @return
+	 */
+	public Region shrink(int by) {
 		// i am speed
-		if (padding == Margins.NONE) {
-			return region;
+		if (by == 0) {
+			return this;
 		}
 
-		int x = region.x + padding.left;
-		int y = region.y + padding.top;
-		int width = region.width + padding.left + padding.right;
-		int height = region.height + padding.top + padding.bottom;
+		int x = this.x + by;
+		int y = this.y + by;
+		int width = this.width + by * 2;
+		int height = this.height + by * 2;
 
+		// ensure no negative width and height
 		if (width < 0) {
 			x -= width/2;
 			width = 0;
@@ -132,5 +128,15 @@ public class Region {
 		}
 
 		return new Region(x, y, width, height);
+	}
+
+	@Override
+	public String toString() {
+		return "Region{" +
+				"x=" + x +
+				", y=" + y +
+				", width=" + width +
+				", height=" + height +
+				'}';
 	}
 }

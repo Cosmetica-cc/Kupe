@@ -102,7 +102,7 @@ public final class CommonProperties {
 	public static final Style.Property<Integer> BORDER_COLOUR = new Style.Property<>(0x000000);
 
 	/**
-	 * Get the border size for this component.
+	 * Get the border size for this component. The border is placed at the edge of the padding, within the padding.
 	 */
 	public static final Style.Property<Integer> BORDER_SIZE = new Style.Property<>(0);
 

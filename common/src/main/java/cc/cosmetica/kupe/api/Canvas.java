@@ -16,6 +16,7 @@
 
 package cc.cosmetica.kupe.api;
 
+import cc.cosmetica.kupe.api.maths.Region;
 import cc.cosmetica.kupe.impl.LeavesSandbox;
 import net.minecraft.resources.ResourceLocation;
 
@@ -64,6 +65,13 @@ public interface Canvas {
 	 * @param colour the colour to use, as an RGB int.
 	 */
 	void drawCenteredText(Text text, int x, int y, int colour);
+
+	/**
+	 * Fill the given colour value in the given region.
+	 * @param region the region to draw in.
+	 * @param colour the colour, as a packed RGB integer. For example, 0xFFFFFF.
+	 */
+	void drawRect(Region region, int colour);
 
 	/**
 	 * Draw a rectangle filled with the given colour.

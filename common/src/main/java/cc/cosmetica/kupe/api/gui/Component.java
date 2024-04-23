@@ -168,25 +168,29 @@ public abstract class Component {
 
 	/**
 	 * Render this component's background. This includes things like borders.
+	 * The border is placed within the padding.
 	 */
 	public void renderBackground(Canvas canvas, Region region, Margins padding) {
+		// we want to draw within the padded region
+		Region drawRegion = region.addMargins(padding);
+
+		int borderSize = this.getStyle().get(CommonProperties.BORDER_SIZE);
+
+		if (borderSize > 0) {
+			int borderColour = this.getStyle().get(CommonProperties.BORDER_COLOUR);
+			canvas.drawRect(drawRegion, borderColour);
+
+			// draw background colour in the shrunk area
+			// TODO transparent background and border
+			drawRegion = drawRegion.shrink(borderSize);
+		}
+
+		// Background Colour
 		OptionalInt backgroundColour = this.getStyle().get(CommonProperties.BACKGROUND_COLOUR);
 
 		if (backgroundColour.isPresent()) {
-			int x0 = region.getX() - padding.left;
-			int x1 = region.getEndX() + padding.right;
-			int y0 = region.getY() - padding.top;
-			int y1 = region.getEndY() + padding.bottom;
-
-			int colour = backgroundColour.getAsInt();
-			// TODO should we store colour as 3 floats instead to eliminate floating point division?
-			float r = ((colour >> 16) & 0xFF) / 255.0f;
-			float g = ((colour >> 8) & 0xFF) / 255.0f;
-			float b = (colour & 0xFF) / 255.0f;
-
-			canvas.drawRect(x0, y0, x1, y1, r, g, b);
+			canvas.drawRect(drawRegion, backgroundColour.getAsInt());
 		}
-		// TODO border
 	}
 
 	/**
