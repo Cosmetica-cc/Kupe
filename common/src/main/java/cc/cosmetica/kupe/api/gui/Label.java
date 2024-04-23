@@ -76,9 +76,30 @@ public class Label extends Component {
 		final int lineHeight = canvas.getDrawingContext().getLineHeight();
 		final int tint = this.getStyle().get(TEXT_COLOUR);
 
-		for (Renderable renderable : this.label) {
-			renderable.render(canvas, region.getX(), y, tint);
-			y += lineHeight;
+		switch (this.getStyle().get(ALIGN_TEXT)) {
+		case START:
+		case STRETCH_START:
+			for (Renderable renderable : this.label) {
+				renderable.render(canvas, region.getX(), y, tint);
+				y += lineHeight;
+			}
+			break;
+		case CENTRE:
+		case STRETCH_CENTRE:
+			final int width = region.getWidth();
+
+			for (Renderable renderable : this.label) {
+				renderable.render(canvas, region.getX() + (width-renderable.width())/2, y, tint);
+				y += lineHeight;
+			}
+			break;
+		case END:
+		case STRETCH_END:
+			for (Renderable renderable : this.label) {
+				renderable.render(canvas, region.getEndX() - renderable.width(), y, tint);
+				y += lineHeight;
+			}
+			break;
 		}
 	}
 

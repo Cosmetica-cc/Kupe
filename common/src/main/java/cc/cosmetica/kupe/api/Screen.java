@@ -38,7 +38,9 @@ public abstract class Screen extends Component {
 
 		return Arrays.asList(
 				new Label(this.key)
-						.withStyle(new Stylesheet().self(Style.create().set(CommonProperties.WIDTH, FULL_WIDTH))),
+						.withStyle(new Stylesheet().self(Style.create()
+								.set(CommonProperties.WIDTH, FULL_WIDTH)
+								.set(Label.ALIGN_TEXT, Align.CENTRE))),
 				new Div(this.buildScreen(style)) // when building components the child screen may want to override the style
 						.withStyle(new Stylesheet().self(style))
 		);
