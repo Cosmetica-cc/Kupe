@@ -28,10 +28,9 @@ import cc.cosmetica.kupe.api.maths.Region;
 import cc.cosmetica.kupe.impl.MathsImpl;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.OptionalInt;
+import java.util.function.Function;
 
 /**
  * A GUI component. Whenever relevant states are changed, the tree of components is updated via calling build().
@@ -53,13 +52,6 @@ public abstract class Component {
 	 * parent stylesheets.
 	 */
 	private Style style;
-
-	/**
-	 * The map of absolute positions.
-	 * If this is being used to place children, clear it and put components in the map, then call the base resize().
-	 * Positions are relative to the top left corner of the parent element.
-	 */
-	protected Map<Component, Position> absolutePositions = new HashMap<>();
 
 	/**
 	 * Set the style sheet of this component.
@@ -107,7 +99,8 @@ public abstract class Component {
 			return Dimensions.NONE;
 		}
 
-		return MathsImpl.totalSize(children, this.absolutePositions, SizedElement::getMinimumSize);
+		// by default all components are positioned at top left (including margins and padding)
+		return largestSizeWithMargins(children, SizedElement::getMinimumSize);
 	}
 
 	/**
@@ -123,7 +116,8 @@ public abstract class Component {
 			return Dimensions.NONE;
 		}
 
-		return MathsImpl.totalSize(children, this.absolutePositions, SizedElement::getPreferredSize);
+		// by default all components are positioned at top left (including margins and padding)
+		return largestSizeWithMargins(children, SizedElement::getPreferredSize);
 	}
 
 	/**
@@ -147,20 +141,25 @@ public abstract class Component {
 
 		// By default, lay out children in specified positions.
 		for (ResizableElement child : children) {
-			Position position = start.add(this.absolutePositions.getOrDefault(child.getComponent(), Position.ZERO));
+			final Margins margins = child.getMargins();
+			final Margins padding = child.getPadding();
+
+			Position position = start.add(margins.left + padding.left, margins.top + padding.top);
 			Dimensions preferred = child.getPreferredSize();
 
-			// default size is min size, or specified width/height if provided
+			// default size is preferred size, which accounts for a few properties already.
 			// shrink child region so it doesn't extend beyond the borders of the parent region
-			int endX = Math.min(position.x + child.getWidth().orElse(preferred.getWidth()) - 1, region.getEndX());
-			int endY = Math.min(position.y + child.getHeight().orElse(preferred.getHeight()) - 1, region.getEndY());
+			int endX = Math.min(position.x + preferred.getWidth() - 1, region.getEndX());
+			int endY = Math.min(position.y + preferred.getHeight() - 1, region.getEndY());
+			// - 1 is required to match endX() and endY()
 
 			// apply min and max restrictions to find actual width
 			Dimensions max = child.getMaximumSize();
 			Dimensions min = child.getMinimumSize();
 
-			int width = Math.min(max.getWidth(), Math.max(min.getWidth(), endX + 1- position.x));
-			int height = Math.min(max.getHeight(), Math.max(min.getHeight(), endY + 1- position.y));
+			// + 1 compensates for - 1 earlier.
+			int width = Math.min(max.getWidth(), Math.max(min.getWidth(), endX + 1 - position.x));
+			int height = Math.min(max.getHeight(), Math.max(min.getHeight(), endY + 1 - position.y));
 
 			Region childRegion = new Region(position, new Dimensions(width, height));
 			child.setRenderRegion(childRegion);
@@ -222,5 +221,40 @@ public abstract class Component {
 	 */
 	public void mouseMoved(double x, double y) {
 		// No default implementation
+	}
+
+	/**
+	 * Compute the dimensions of the largest total width and largest total height, when the sizes, margins, and padding
+	 * of each child is summed up.
+	 * @param children the children to compute for.
+	 * @param childDimensionGetter the function to get the dimensions for this calculation.
+	 * @return a Dimensions object containing the largest total width and largest total height, including margins and padding of the children.
+	 */
+	private static Dimensions largestSizeWithMargins(List<? extends SizedElement> children, Function<SizedElement, Dimensions> childDimensionGetter) {
+		// calculate the largest total width of all children
+		// assume the top left corner of all (with margins and padding added) is top-left corner
+		int width = 0;
+		int height = 0;
+
+		for (SizedElement child : children) {
+			Dimensions dimensions = childDimensionGetter.apply(child);
+
+			// check if we need to expand the region for the new widget
+			// width
+			int childTotalWidth = dimensions.getWidth() + child.getMargins().horizontal() + child.getPadding().horizontal();
+
+			if (childTotalWidth > width) {
+				width = childTotalWidth;
+			}
+
+			// height
+			int childTotalHeight = dimensions.getHeight() + child.getMargins().vertical() + child.getPadding().vertical();
+
+			if (childTotalHeight > height) {
+				height = childTotalHeight;
+			}
+		}
+
+		return new Dimensions(width, height);
 	}
 }
