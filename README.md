@@ -65,12 +65,12 @@ import cc.cosmetica.kupe.api.Screen;
 public class MyScreen extends Screen {
 	public MyScreen() {
 		super(ID); // will use translation key "screens.examplemod.example"
-    }
+	}
 	
 	@Override
 	public Component[] build(Style rootStyle) {
 		return new Component[] {
-        };
+		};
 	}
 	
 	public static final ResourceLocation ID = new ResourceLocation("examplemod", "example");
@@ -81,6 +81,12 @@ The screen can be registered at init by using `Screens.registerScreen`:
 
 ```java
 Screens.registerScreen(MyScreen.ID, new MyScreen());
+```
+
+You can set the screen using `Screens.setScreen`:
+
+```java
+Screens.setScreen(MyScreen.ID);
 ```
 
 ### Debugging Screens
