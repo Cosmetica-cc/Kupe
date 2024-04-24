@@ -48,10 +48,21 @@ public class BiMultiMap<A, B> {
 
 		// clear reverse mappings
 		for (B b : bs) {
-			this.bToA.get(b).remove(a);
+			List<A> aMappings = this.bToA.get(b);
+			aMappings.remove(a);
+
+			// free memory when empty
+			if (aMappings.isEmpty()) {
+				this.bToA.remove(b);
+			}
 		}
 
 		// clear main mapping
 		this.aToB.remove(a);
+	}
+
+	public void clear() {
+		this.aToB.clear();
+		this.bToA.clear();
 	}
 }
