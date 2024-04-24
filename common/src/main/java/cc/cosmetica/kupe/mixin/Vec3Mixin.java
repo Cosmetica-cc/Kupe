@@ -17,9 +17,37 @@
 package cc.cosmetica.kupe.mixin;
 
 import net.minecraft.world.phys.Vec3;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(Vec3.class)
 public abstract class Vec3Mixin implements cc.cosmetica.kupe.api.maths.Vec3 {
-	// x(), y(), z() are implemented in Vec3
+	@Shadow public abstract Vec3 add(double d, double e, double f);
+
+	@Shadow @Final public double x;
+
+	@Shadow @Final public double y;
+
+	@Shadow @Final public double z;
+
+	@Override
+	public cc.cosmetica.kupe.api.maths.Vec3 plus(double dx, double dy, double dz) {
+		return (cc.cosmetica.kupe.api.maths.Vec3) this.add(dx, dy, dz);
+	}
+
+	@Override
+	public double getX() {
+		return this.x;
+	}
+
+	@Override
+	public double getY() {
+		return this.y;
+	}
+
+	@Override
+	public double getZ() {
+		return this.z;
+	}
 }

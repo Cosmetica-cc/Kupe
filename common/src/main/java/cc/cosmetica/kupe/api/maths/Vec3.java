@@ -19,12 +19,21 @@ package cc.cosmetica.kupe.api.maths;
 import cc.cosmetica.kupe.impl.MathsImpl;
 
 /**
- * A 3d vector of doubles.
+ * A 3d vector of doubles. Operations generally create a new vector object.
  */
 public interface Vec3 {
-	double x();
-	double y();
-	double z();
+	double getX();
+	double getY();
+	double getZ();
+
+	/**
+	 * Add the given coordinates to the given vector.
+	 * @param dx the change in x to this vector.
+	 * @param dy the change in y to this vector.
+	 * @param dz the change in z to this vector.
+	 * @return a new Vec3 with the given changes.
+	 */
+	Vec3 plus(double dx, double dy, double dz);
 
 	static Vec3 of(double x, double y, double z) {
 		return MathsImpl.createVec3(x, y, z);

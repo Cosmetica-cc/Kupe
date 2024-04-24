@@ -4,9 +4,10 @@
   "compatibilityLevel": "JAVA_8",
   "minVersion": "0.8",
   "client": [
+    "Matrix4fMixin",
+    "Vec3Mixin"
   ],
   "mixins": [
-    "Vec3Mixin"
   ],
   "injectors": {
     "defaultRequire": 1

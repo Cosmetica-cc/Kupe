@@ -17,10 +17,16 @@
 package cc.cosmetica.kupe.api.maths;
 
 /**
- * Represents an axis in 3D.
+ * Constants for 3D Axes.
  */
-public enum Axis {
-	X,
-	Y,
-	Z
+public final class Axis {
+	private Axis() {
+	}
+
+	private static final Vec3 POSITIVE_X = Vec3.of(1.0, 0.0, 0.0);
+	private static final Vec3 NEGATIVE_X = Vec3.of(-1.0, 0.0, 0.0);
+	private static final Vec3 POSITIVE_Y = Vec3.of(0.0, 1.0, 0.0);
+	private static final Vec3 NEGATIVE_Y = Vec3.of(0.0, -1.0, 0.0);
+	private static final Vec3 POSITIVE_Z = Vec3.of(0.0, 0.0, 1.0);
+	private static final Vec3 NEGATIVE_Z = Vec3.of(0.0, 0.0, -1.0);
 }
