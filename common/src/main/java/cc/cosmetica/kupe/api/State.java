@@ -56,6 +56,7 @@ public class State<T> {
 	 * each iteration to prevent unpredictable behaviour. This includes mixing with {@linkplain DynamicStylesheet#useStylesheet(Stylesheet)}.
 	 * @param initialValue the initial value upon state creation.
 	 * @return the fetched state.
+	 * @apiNote an alternative to this is creating the states in the constructor of your component.
 	 */
 	public static <T> State<T> useState(T initialValue) {
 		return StateManagerImpl.fetchAndAcquireState(initialValue, State::new, false);
