@@ -22,6 +22,8 @@ import cc.cosmetica.kupe.impl.StateManagerImpl;
 
 /**
  * Reactive state.
+ * To do something to the effect of useState() in react, create a new State<T> instance in the constructor of your component,
+ * and acquire it in your component's {@linkplain Component#build() build} method.
  */
 public class State<T> {
 	public State(T initialValue) {
@@ -47,19 +49,8 @@ public class State<T> {
 
 	public void set(T value) {
 		this.value = value;
-		// TODO rebuild listeners
-	}
 
-	/**
-	 * Fetch or create a state for the calling component. This must be called during build.
-	 * <br/>
-	 * This can be called multiple times per build, but must be called the same number of times and in the same order
-	 * each iteration to prevent unpredictable behaviour. This includes mixing with {@linkplain DynamicStylesheet#useStylesheet(Stylesheet)}.
-	 * @param initialValue the initial value upon state creation.
-	 * @return the fetched state.
-	 * @apiNote an alternative to this is creating the states in the constructor of your component.
-	 */
-	public static <T> State<T> useState(T initialValue) {
-		return StateManagerImpl.fetchAndAcquireState(initialValue, State::new, false);
+		// rebuild listeners
+		StateManagerImpl.scheduleRebuild(this);
 	}
 }

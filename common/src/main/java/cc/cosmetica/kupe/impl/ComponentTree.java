@@ -261,13 +261,8 @@ class ComponentTree {
 			// rebuild children
 			this.children.clear();
 
-			// build component
-			StateManagerImpl.setBuildingComponent(this.element); // set building component
-			List<Component> children = this.element.build();
-			StateManagerImpl.setBuildingComponent(null); // clear building component
-
-			// add children to the tree
-			for (Component component : children) {
+			// build component and add children to the tree
+			for (Component component : this.element.build()) {
 				this.children.add(new ComponentNode(this, component));
 			}
 
