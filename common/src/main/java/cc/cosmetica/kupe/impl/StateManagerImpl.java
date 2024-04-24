@@ -26,6 +26,12 @@ public final class StateManagerImpl {
 		STATES.remove(component);
 	}
 
+	public static void acquireState(State<?> state, Component component) {
+		if (!STATES.getReverse(state).contains(component)) {
+			STATES.put(component, state);
+		}
+	}
+
 	/**
 	 * Fetch, or create and acquire, the next state for the currently building component.
 	 * @param defaultValue the default value of the state.

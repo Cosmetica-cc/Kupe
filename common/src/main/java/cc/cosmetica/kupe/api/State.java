@@ -39,8 +39,9 @@ public class State<T> {
 	}
 
 	public T acquire(Component component) {
-		// TODO register component as a listener for state changes
-		// If the component is destroyed, we also want to remove it from our list of listeners
+		// register component as a listener for state changes
+		// If the component is destroyed, we also want to remove it from our list of listeners. This is handled in the tree.
+		StateManagerImpl.acquireState(this, component);
 		return this.value;
 	}
 
