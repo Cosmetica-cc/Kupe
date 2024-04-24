@@ -142,6 +142,13 @@ class ComponentTree {
 		}
 	}
 
+	/**
+	 * Called when hooks referencing the components need to be cleared.
+	 */
+	public void dispose() {
+		this.root.walk(ComponentNode::dispose);
+	}
+
 	// Debug
 
 	private Text debugParentText;
@@ -254,7 +261,13 @@ class ComponentTree {
 			// rebuild children
 			this.children.clear();
 
-			for (Component component : this.element.build()) {
+			// build component
+			StateManagerImpl.setBuildingComponent(this.element); // set building component
+			List<Component> children = this.element.build();
+			StateManagerImpl.setBuildingComponent(null); // clear building component
+
+			// add children to the tree
+			for (Component component : children) {
 				this.children.add(new ComponentNode(this, component));
 			}
 
@@ -338,6 +351,13 @@ class ComponentTree {
 		private void render(Canvas canvas, int mouseX, int mouseY) {
 			this.element.renderBackground(canvas, this.renderRegion, this.padding);
 			this.element.render(canvas, this.renderRegion, mouseX, mouseY);
+		}
+
+		/**
+		 * Called when hooks referencing this component need to be cleared.
+		 */
+		private void dispose() {
+			StateManagerImpl.clearStates(this.element);
 		}
 
 		/**

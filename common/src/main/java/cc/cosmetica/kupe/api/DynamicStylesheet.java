@@ -17,6 +17,7 @@
 package cc.cosmetica.kupe.api;
 
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
+import cc.cosmetica.kupe.impl.StateManagerImpl;
 
 /**
  * Dynamic Stylesheet. This is similar to using a pure {@link State}&lt;{@link cc.cosmetica.kupe.api.gui.style.Stylesheet Stylesheet}&gt;,
@@ -32,5 +33,17 @@ public class DynamicStylesheet extends State<Stylesheet> {
 	public void set(Stylesheet value) {
 		this.value = value;
 		// TODO resize root
+	}
+
+	/**
+	 * Fetch or create a dynamic stylesheet for the calling component. This must be called during build.
+	 * <br/>
+	 * This can be called multiple times per build, but must be called the same number of times and in the same order
+	 * each iteration to prevent unpredictable behaviour. This includes mixing with {@linkplain State#useState(Object)}.
+	 * @param initialValue the initial value upon state creation.
+	 * @return the fetched state.
+	 */
+	public static DynamicStylesheet useStylesheet(Stylesheet initialValue) {
+		return StateManagerImpl.fetchAndAcquireState(initialValue, DynamicStylesheet::new, true);
 	}
 }

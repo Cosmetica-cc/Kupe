@@ -17,6 +17,8 @@
 package cc.cosmetica.kupe.api;
 
 import cc.cosmetica.kupe.api.gui.Component;
+import cc.cosmetica.kupe.api.gui.style.Stylesheet;
+import cc.cosmetica.kupe.impl.StateManagerImpl;
 
 /**
  * Reactive state.
@@ -45,5 +47,17 @@ public class State<T> {
 	public void set(T value) {
 		this.value = value;
 		// TODO rebuild listeners
+	}
+
+	/**
+	 * Fetch or create a state for the calling component. This must be called during build.
+	 * <br/>
+	 * This can be called multiple times per build, but must be called the same number of times and in the same order
+	 * each iteration to prevent unpredictable behaviour. This includes mixing with {@linkplain DynamicStylesheet#useStylesheet(Stylesheet)}.
+	 * @param initialValue the initial value upon state creation.
+	 * @return the fetched state.
+	 */
+	public static <T> State<T> useState(T initialValue) {
+		return StateManagerImpl.fetchAndAcquireState(initialValue, State::new, false);
 	}
 }

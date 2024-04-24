@@ -111,6 +111,12 @@ public final class KupeScreen extends Screen {
 		this.tree.mouseMoved(mouseX, mouseY);
 	}
 
+	@Override
+	public void onClose() {
+		super.onClose();
+		this.tree.dispose();
+	}
+
 	private static boolean debug;
 
 	public static void setDebug(boolean enabled) {
