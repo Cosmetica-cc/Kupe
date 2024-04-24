@@ -17,10 +17,14 @@
 package cc.cosmetica.kupe.impl;
 
 import cc.cosmetica.kupe.api.*;
+import cc.cosmetica.kupe.api.maths.Matrix4;
 import cc.cosmetica.kupe.api.maths.Region;
+import cc.cosmetica.kupe.api.maths.Vec3;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Matrix4f;
+import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Widget;
@@ -157,7 +161,31 @@ public class PoseCanvas implements Canvas {
 		}
 
 		@Override
-		public PoseStack toMinecraftStack() {
+		public Matrix4 peek() {
+			return (Matrix4) (Object) PoseCanvas.this.stack.last().pose();
+		}
+
+		@Override
+		public void translate(double x, double y, double z) {
+			PoseCanvas.this.stack.translate(x, y, z);
+		}
+
+		@Override
+		public void rotate(Vec3 axis, float amount, boolean degrees) {
+			PoseCanvas.this.stack.mulPose(new Quaternion(
+					new Vector3f((float)axis.getX(), (float)axis.getY(), (float)axis.getZ()),
+					amount,
+					degrees
+			));
+		}
+
+		@Override
+		public void scale(float x, float y, float z) {
+			PoseCanvas.this.stack.scale(x, y, z);
+		}
+
+		@Override
+		public PoseStack getMinecraftStack() {
 			return PoseCanvas.this.stack;
 		}
 	}
