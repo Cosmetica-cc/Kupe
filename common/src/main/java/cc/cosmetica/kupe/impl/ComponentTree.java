@@ -46,7 +46,37 @@ class ComponentTree {
 	 * Build the component tree from the root.
 	 */
 	public void buildAll() {
-		this.root.walk(ComponentNode::buildOnce);
+		this.root.walk(ComponentNode::buildThis);
+	}
+
+	/**
+	 * Rebuild the given components. Will only rebuild the most basal nodes. For example, if a parent and its descendant
+	 * are provided, the parent will be the one rebuilt.
+	 * @param components the components to rebuild.
+	 */
+	public void rebuildComponents(Iterable<Component> components) {
+		// create a set copying the components iterable
+		HashSet<Component> toRebuild = new HashSet<>();
+		components.forEach(toRebuild::add);
+
+		// find which component nodes actually need to be rebuilt
+		// we want to do this at the most basal points possible.
+		// That is, if a parent node and its child both need to be rebuilt, rebuild the parent.
+		Deque<ComponentNode> nodes = new ArrayDeque<>();
+		nodes.add(this.root);
+
+		while (!nodes.isEmpty()) {
+			ComponentNode node = nodes.remove();
+
+			// if the node needs to be rebuilt, destroy its children and rebuild the node
+			if (toRebuild.contains(node.element)) {
+				node.rebuildThis();
+			}
+			// otherwise check its children to see if they need rebuilding
+			else for (ComponentNode child : node.children) {
+				nodes.push(child);
+			}
+		}
 	}
 
 	/**
@@ -255,12 +285,25 @@ class ComponentTree {
 		              // but not for actual preferred size calculation
 
 		/**
-		 * Build just this node. Does not recursively build children.
+		 * Rebuild just this node.
 		 */
-		private void buildOnce() {
-			// rebuild children
+		private void rebuildThis() {
+			// clear any states used by children
+			for (ComponentNode child : this.children) {
+				child.walk(ComponentNode::dispose);
+			}
+
+			// clear children
 			this.children.clear();
 
+			// build
+			this.buildThis();
+		}
+
+		/**
+		 * Build just this node. Does not recursively build children.
+		 */
+		private void buildThis() {
 			// build component and add children to the tree
 			for (Component component : this.element.build()) {
 				this.children.add(new ComponentNode(this, component));

@@ -35,9 +35,7 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.util.FormattedCharSequence;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * The screen that controls the Kupe gui rendering. This handles the rendering and event calls to the root component.
@@ -54,11 +52,19 @@ public final class KupeScreen extends Screen {
 	private final ComponentTree tree;
 	private final Context context;
 	private final boolean defaultBackground;
+	private boolean built = false;
 
 	@Override
 	public void init(Minecraft minecraft, int w, int h) {
 		super.init(minecraft, w, h); // required
-		this.tree.buildAll();
+
+		// can only do the initial tree build once
+		// subsequent changes to the tree *must* be rebuilds!
+		if (!built) {
+			this.tree.buildAll();
+			built = true;
+		}
+
 		this.resize();
 	}
 
@@ -68,8 +74,13 @@ public final class KupeScreen extends Screen {
 		this.resize();
 	}
 
-	private void resize() {
+	void resize() {
 		this.tree.resizeAll(this.context);
+	}
+
+	void rebuildComponents(Iterable<Component> components) {
+		this.tree.rebuildComponents(components);
+		this.resize();
 	}
 
 	@Override
