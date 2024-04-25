@@ -45,11 +45,11 @@ public class HelloHolaComponent extends Component {
 	private void printMessage(String message) {
 		System.out.println(message + ", World!");
 
-		String[] newMessages = Arrays.stream(allMessages).filter(m -> !message.equals(m)).toArray(String[]::new);
+		String[] newMessages = Arrays.stream(ALL_MESSAGES).filter(m -> !message.equals(m)).toArray(String[]::new);
 		this.messages.set(newMessages);
 	}
 
-	private static final String[] allMessages = {
+	private static final String[] ALL_MESSAGES = {
 			"Hello",
 			"Hola",
 			"Guten Tag"

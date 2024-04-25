@@ -7,16 +7,16 @@
 
 package cc.cosmetica.kupe.testmod.gui;
 
-import cc.cosmetica.kupe.api.gui.Image;
 import cc.cosmetica.kupe.api.Screen;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.Text;
-import cc.cosmetica.kupe.api.gui.*;
+import cc.cosmetica.kupe.api.gui.Button;
+import cc.cosmetica.kupe.api.gui.Component;
+import cc.cosmetica.kupe.api.gui.Image;
+import cc.cosmetica.kupe.api.gui.Label;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
-import cc.cosmetica.kupe.api.maths.Axis2D;
-import cc.cosmetica.kupe.api.maths.Margins;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.OptionalInt;
