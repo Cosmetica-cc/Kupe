@@ -8,6 +8,7 @@
 package cc.cosmetica.kupe.testmod;
 
 import cc.cosmetica.kupe.api.Screens;
+import cc.cosmetica.kupe.testmod.gui.KupeTestScreen;
 
 public final class KupeTestInit {
 	private KupeTestInit() {

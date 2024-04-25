@@ -5,7 +5,7 @@
  * You should have received a copy of the CC0 Public Domain Dedication along with this software. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
  */
 
-package cc.cosmetica.kupe.testmod;
+package cc.cosmetica.kupe.testmod.gui;
 
 import cc.cosmetica.kupe.api.gui.Image;
 import cc.cosmetica.kupe.api.Screen;
@@ -21,6 +21,9 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.util.OptionalInt;
 
+/**
+ * The example/test screen.
+ */
 public class KupeTestScreen extends Screen {
 	public KupeTestScreen() {
 		super(ID);
@@ -33,17 +36,7 @@ public class KupeTestScreen extends Screen {
 
 		return new Component[] {
 				new Label(Text.literal("You can add some text like this!")),
-				new Div(
-						new Button(Text.literal("Say Hello, World!"), () -> System.out.println("Hello, World!")),
-						new Button(Text.literal("Say Hola, World!"), () -> System.out.println("Hola, World!"))
-				).withStyle(new Stylesheet()
-						.self(Style.create()
-								.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
-								.set(Div.JUSTIFY_CONTENT, Justify.SPACE_BETWEEN)
-								.setFixed(CommonProperties.WIDTH, OptionalInt.of(200))
-								.setFixed(CommonProperties.MARGINS, new Margins(20, 0)))
-						.component(Button.class, Style.create()
-								.setFixed(CommonProperties.WIDTH, OptionalInt.of(90)))),
+				new HelloHolaComponent(),
 				new Button(Text.literal("Say Ok, World!"), () -> System.out.println("Ok, World!")),
 				new Image(new ResourceLocation("kupe", "icon.png"))
 						.withStyle(
