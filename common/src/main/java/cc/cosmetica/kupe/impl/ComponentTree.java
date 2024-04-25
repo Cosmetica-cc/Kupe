@@ -70,7 +70,13 @@ class ComponentTree {
 
 			// if the node needs to be rebuilt, destroy its children and rebuild the node
 			if (toRebuild.contains(node.element)) {
+				// rebuild node
 				node.rebuildThis();
+
+				// build new children
+				for (ComponentNode child : node.children) {
+					child.walk(ComponentNode::buildThis);
+				}
 			}
 			// otherwise check its children to see if they need rebuilding
 			else for (ComponentNode child : node.children) {
@@ -387,8 +393,12 @@ class ComponentTree {
 		}
 
 		private void render(Canvas canvas, int mouseX, int mouseY) {
-			this.element.renderBackground(canvas, this.renderRegion, this.padding);
-			this.element.render(canvas, this.renderRegion, mouseX, mouseY);
+			try {
+				this.element.renderBackground(canvas, this.renderRegion, this.padding);
+				this.element.render(canvas, this.renderRegion, mouseX, mouseY);
+			} catch (NullPointerException e) {
+				throw new RuntimeException("Rendering " + this.element, e);
+			}
 		}
 
 		/**

@@ -37,7 +37,7 @@ public class Stylesheet {
 	private Style self;
 
 	/**
-	 * Used internally when flattening styles.
+	 * Used internally when flattening styles. Adds relevant styles from this stylesheet to the provided list.
 	 * @param styles the list of style overrides, in order of most important to least.
 	 * @param component the component class to add styles for.
 	 * @param self whether to add self overrides.

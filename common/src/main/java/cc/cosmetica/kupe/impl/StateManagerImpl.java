@@ -3,6 +3,7 @@ package cc.cosmetica.kupe.impl;
 import cc.cosmetica.kupe.api.State;
 import cc.cosmetica.kupe.api.gui.Component;
 import cc.cosmetica.kupe.util.BiMultiMap;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 
@@ -22,7 +23,7 @@ public final class StateManagerImpl {
 	}
 
 	public static void scheduleResize() {
-		Minecraft.getInstance().tell(() -> {
+		RenderSystem.recordRenderCall(() -> {
 			Screen screen = Minecraft.getInstance().screen;
 
 			if (screen instanceof KupeScreen) {
@@ -34,7 +35,7 @@ public final class StateManagerImpl {
 	public static void scheduleRebuild(State<?> state) {
 		Iterable<Component> components = ACQUIRED.getReverse(state);
 
-		Minecraft.getInstance().tell(() -> {
+		RenderSystem.recordRenderCall(() -> {
 			Screen screen = Minecraft.getInstance().screen;
 
 			if (screen instanceof KupeScreen) {
