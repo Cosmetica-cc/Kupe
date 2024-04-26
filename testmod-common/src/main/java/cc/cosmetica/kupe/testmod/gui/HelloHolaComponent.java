@@ -36,7 +36,9 @@ public class HelloHolaComponent extends Component {
 								.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
 								.set(Div.JUSTIFY_CONTENT, Justify.SPACE_BETWEEN)
 								.setFixed(CommonProperties.WIDTH, OptionalInt.of(200))
-								.setFixed(CommonProperties.MARGINS, new Margins(20, 0)))
+								.setFixed(CommonProperties.MARGINS, new Margins(20, 0))
+								.setFixed(CommonProperties.PADDING, new Margins(1, 1)) // need padding for border
+								.set(CommonProperties.BORDER_SIZE, 1))
 						.component(Button.class, Style.create()
 								.setFixed(CommonProperties.WIDTH, OptionalInt.of(90))))
 		);
