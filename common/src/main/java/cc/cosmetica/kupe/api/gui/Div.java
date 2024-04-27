@@ -462,19 +462,19 @@ public class Div extends Component {
 	/**
 	 * The primary axis of this Div. Components will be laid out in this direction.
 	 */
-	public static final Style.Property<Axis2D> FLOW_DIRECTION = new Style.Property<>("flow_direction", Axis2D.POSITIVE_Y);
+	public static final Style.Property<Axis2D> FLOW_DIRECTION = new Style.Property<>(Axis2D.POSITIVE_Y);
 
 	/**
 	 * The alignment of components in this div along the primary axis.
 	 * The primary axis is the direction in which components are laid out.
 	 */
-	public static final Style.Property<Justify> JUSTIFY_CONTENT = new Style.Property<>("justify", Justify.START);
+	public static final Style.Property<Justify> JUSTIFY_CONTENT = new Style.Property<>(Justify.START);
 
 	/**
 	 * The alignment of components in this div along the secondary axis.
 	 * The secondary axis is the direction perpendicular to the direction components are laid out.
 	 */
-	public static final Style.Property<Align> ALIGN_ITEMS = new Style.Property<>("align", Align.STRETCH_START);
+	public static final Style.Property<Align> ALIGN_ITEMS = new Style.Property<>(Align.STRETCH_START);
 
 	/**
 	 * Flips the axis of operations. Y <-> X. Essentially mirrors along a line from top left corner down and right, 45 degrees.

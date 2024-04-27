@@ -244,15 +244,6 @@ class ComponentTree {
 				this.updateDebugComponent();
 			}
 			return true;
-		case GLFW.GLFW_KEY_5: // Print (Flattened) Style
-			if (this.debugParent == null) {
-				// print root stylesheet
-				System.out.println("Root Stylesheet: " + RootStylesheet.getDebugString());
-			} else if (!this.debugParent.children.isEmpty()) {
-				ComponentNode child = this.debugParent.children.get(this.debugIndex);
-				System.out.println(child.element.getStyle());
-			}
-			return true;
 		}
 
 		return false;
@@ -279,7 +270,7 @@ class ComponentTree {
 				" (" + node.intrinsicSize.toString() + "i, " + node.minimumSize + "m, " + node.maximumSize + "M)");
 	}
 
-	private static final Text DEBUG_INSTRUCTIONS = Text.literal("[1] Back [2] Step In [3] Previous [4] Next [5] Print Style");
+	private static final Text DEBUG_INSTRUCTIONS = Text.literal("[1] Back [2] Step In [3] Previous [4] Next");
 
 	private static class ComponentNode implements ResizableElement {
 		ComponentNode(@Nullable ComponentNode parent, Component element) {

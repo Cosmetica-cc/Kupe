@@ -103,21 +103,14 @@ public class Style {
 	 * A style property that can be configured.
 	 */
 	public static class Property<T> {
-		public Property(String name, T defaultValue) {
-			this.name = name;
+		public Property(T defaultValue) {
 			this.defaultValue = defaultValue;
 		}
 
-		private final String name;
 		private final T defaultValue;
 
 		public T getDefaultValue() {
 			return this.defaultValue;
-		}
-
-		@Override
-		public String toString() {
-			return this.name;
 		}
 	}
 }

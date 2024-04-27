@@ -35,7 +35,7 @@ public final class CommonProperties {
 	 * @param vh the screen height.
 	 * @return the margins of this component.
 	 */
-	public static final Style.Property<DimensionsOperator<Margins>> MARGINS = new Style.Property<>("margins", (vw, vh) -> Margins.NONE);
+	public static final Style.Property<DimensionsOperator<Margins>> MARGINS = new Style.Property<>((vw, vh) -> Margins.NONE);
 
 	/**
 	 * The padding of the component. These are the boundaries within this component.
@@ -43,50 +43,50 @@ public final class CommonProperties {
 	 * @param vh the screen height.
 	 * @return the padding of this component.
 	 */
-	public static final Style.Property<DimensionsOperator<Margins>> PADDING = new Style.Property<>("padding", (vw, vh) -> Margins.NONE);
+	public static final Style.Property<DimensionsOperator<Margins>> PADDING = new Style.Property<>((vw, vh) -> Margins.NONE);
 
 	/**
 	 * The maximum size of the component. This does not include padding or margins.
 	 */
-	public static final Style.Property<DimensionsOperator<Dimensions>> MAXIMUM_SIZE = new Style.Property<>("maximum_size", (vw, vh) -> Dimensions.MAX);
+	public static final Style.Property<DimensionsOperator<Dimensions>> MAXIMUM_SIZE = new Style.Property<>((vw, vh) -> Dimensions.MAX);
 
 	/**
 	 * The fixed width of the component. This is bounded by the {@linkplain CommonProperties#MAXIMUM_SIZE maximum} and
 	 * {@linkplain CommonProperties#MINIMUM_SIZE minimum} sizes.
 	 * This may still resize due to flex attributes.
 	 */
-	public static final Style.Property<DimensionsOperator<OptionalInt>> WIDTH = new Style.Property<>("width", (vw, vh) -> OptionalInt.empty());
+	public static final Style.Property<DimensionsOperator<OptionalInt>> WIDTH = new Style.Property<>((vw, vh) -> OptionalInt.empty());
 
 	/**
 	 * The fixed height of the component. This is bounded by the {@linkplain CommonProperties#MAXIMUM_SIZE maximum} and
 	 * {@linkplain CommonProperties#MINIMUM_SIZE minimum} sizes.
 	 * This may still resize due to flex attributes.
 	 */
-	public static final Style.Property<DimensionsOperator<OptionalInt>> HEIGHT = new Style.Property<>("height", (vw, vh) -> OptionalInt.empty());
+	public static final Style.Property<DimensionsOperator<OptionalInt>> HEIGHT = new Style.Property<>((vw, vh) -> OptionalInt.empty());
 
 	/**
 	 * The minimum size of the component. This does not include padding or margins.
 	 * The actual minimum size of the component is the maximum, per-axis, of this and the minimum size due to its
 	 * children.
 	 */
-	public static final Style.Property<DimensionsOperator<Optional<Dimensions>>> MINIMUM_SIZE = new Style.Property<>("minimum_size", (vw, vh) -> Optional.empty());
+	public static final Style.Property<DimensionsOperator<Optional<Dimensions>>> MINIMUM_SIZE = new Style.Property<>((vw, vh) -> Optional.empty());
 
 	/**
 	 * Get the amount this object flexes in divisions. That is, when objects are being made to fill the space of the
 	 * division, allocate this proportion to this component. If 0, this component will not flex.
 	 */
-	public static final Style.Property<Integer> FLEX = new Style.Property<>("flex", 0);
+	public static final Style.Property<Integer> FLEX = new Style.Property<>(0);
 
 	/**
 	 * Get the amount this object flexes in divisions when shrinking. That is, when objects are being shrunk to fit
 	 * the space of the division, shrink this component proportionally. If 0, this component will not shrink.
 	 */
-	public static final Style.Property<Integer> FLEX_SHRINK = new Style.Property<>("flex_shrink", 1);
+	public static final Style.Property<Integer> FLEX_SHRINK = new Style.Property<>(1);
 
 	/**
 	 * Override how this component aligns in the hierarchy.
 	 */
-	public static final Style.Property<Optional<Align>> ALIGN_SELF = new Style.Property<>("align_self", Optional.empty());
+	public static final Style.Property<Optional<Align>> ALIGN_SELF = new Style.Property<>(Optional.empty());
 
 	// Background and Border
 	// ======================
@@ -94,17 +94,17 @@ public final class CommonProperties {
 	/**
 	 * The background colour for this component.
 	 */
-	public static final Style.Property<OptionalInt> BACKGROUND_COLOUR = new Style.Property<>("background_colour", OptionalInt.empty());
+	public static final Style.Property<OptionalInt> BACKGROUND_COLOUR = new Style.Property<>(OptionalInt.empty());
 
 	/**
 	 * The border colour for this component.
 	 */
-	public static final Style.Property<Integer> BORDER_COLOUR = new Style.Property<>("border_colour", 0xFFFFFF);
+	public static final Style.Property<Integer> BORDER_COLOUR = new Style.Property<>(0xFFFFFF);
 
 	/**
 	 * Get the border size for this component. The border is placed at the edge of the padding, within the padding.
 	 */
-	public static final Style.Property<Integer> BORDER_SIZE = new Style.Property<>("border_size", 0);
+	public static final Style.Property<Integer> BORDER_SIZE = new Style.Property<>( 0);
 
 	public interface DimensionsOperator<T> {
 		/**
