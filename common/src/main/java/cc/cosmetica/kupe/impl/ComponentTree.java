@@ -196,7 +196,7 @@ class ComponentTree {
 	public void renderDebug(Canvas canvas, int vh) {
 		int lineHeight = canvas.getDrawingContext().getLineHeight();
 
-		canvas.drawText(debugParentText, 0, vh - lineHeight * 3, 0xDDDDDD); // grey to show it's not selected
+		canvas.drawText(debugParentText, 0, vh - lineHeight * 3, 0xAAAAAA); // grey to show it's not selected
 		canvas.drawText(debugChildText, 0, vh - lineHeight * 2, 0xFFFFFF);
 		canvas.drawText(DEBUG_INSTRUCTIONS, 0, vh - lineHeight, 0xFFFFFF);
 	}
