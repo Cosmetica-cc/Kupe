@@ -100,15 +100,17 @@ public class PoseCanvas implements Canvas {
 	public void drawRect(int x0, int y0, int x1, int y1, float r, float g, float b) {
 		RenderSystem.disableTexture();
 		BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
+//		RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
 
 		bufferBuilder.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_COLOR);
-		bufferBuilder.vertex(x0, y1, 0.0D).color(r, g, b, 1.0F).endVertex();
-		bufferBuilder.vertex(x1, y1, 0.0D).color(r, g, b, 1.0F).endVertex();
-		bufferBuilder.vertex(x1, y0, 0.0D).color(r, g, b, 1.0F).endVertex();
-		bufferBuilder.vertex(x0, y0, 0.0D).color(r, g, b, 1.0F).endVertex();
+		bufferBuilder.vertex(x0, y1, 1.0D).color(r, g, b, 1.0F).endVertex();
+		bufferBuilder.vertex(x1, y1, 1.0D).color(r, g, b, 1.0F).endVertex();
+		bufferBuilder.vertex(x1, y0, 1.0D).color(r, g, b, 1.0F).endVertex();
+		bufferBuilder.vertex(x0, y0, 1.0D).color(r, g, b, 1.0F).endVertex();
 
 		bufferBuilder.end();
 		BufferUploader.end(bufferBuilder);
+		RenderSystem.enableTexture(); // re-enable
 	}
 
 	@Override

@@ -99,7 +99,7 @@ public final class CommonProperties {
 	/**
 	 * The border colour for this component.
 	 */
-	public static final Style.Property<Integer> BORDER_COLOUR = new Style.Property<>(0x000000);
+	public static final Style.Property<Integer> BORDER_COLOUR = new Style.Property<>(0xFFFFFF);
 
 	/**
 	 * Get the border size for this component. The border is placed at the edge of the padding, within the padding.
