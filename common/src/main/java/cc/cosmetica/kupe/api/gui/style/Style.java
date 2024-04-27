@@ -27,6 +27,8 @@ public class Style {
 	private Style() {
 	}
 
+	protected final Map<Property<?>, Object> properties = new HashMap<>();
+
 	/**
 	 * Get the value of a given property from this Style.
 	 * @param property the property to fetch.
@@ -39,7 +41,10 @@ public class Style {
 		return (T) this.properties.getOrDefault(property, property.getDefaultValue());
 	}
 
-	protected final Map<Property<?>, Object> properties = new HashMap<>();
+	@Override
+	public String toString() {
+		return this.properties.toString();
+	}
 
 	/**
 	 * Create a new, {@linkplain MutableStyle mutable style}.
@@ -98,14 +103,21 @@ public class Style {
 	 * A style property that can be configured.
 	 */
 	public static class Property<T> {
-		public Property(T defaultValue) {
+		public Property(String name, T defaultValue) {
+			this.name = name;
 			this.defaultValue = defaultValue;
 		}
 
+		private final String name;
 		private final T defaultValue;
 
 		public T getDefaultValue() {
 			return this.defaultValue;
+		}
+
+		@Override
+		public String toString() {
+			return this.name;
 		}
 	}
 }

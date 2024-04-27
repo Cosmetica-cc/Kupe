@@ -16,6 +16,7 @@
 
 package cc.cosmetica.kupe.impl;
 
+import cc.cosmetica.kupe.Kupe;
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.Context;
 import cc.cosmetica.kupe.api.Text;
@@ -195,7 +196,7 @@ class ComponentTree {
 	public void renderDebug(Canvas canvas, int vh) {
 		int lineHeight = canvas.getDrawingContext().getLineHeight();
 
-		canvas.drawText(debugParentText, 0, vh - lineHeight * 3, 0xFFFFFF);
+		canvas.drawText(debugParentText, 0, vh - lineHeight * 3, 0xDDDDDD); // grey to show it's not selected
 		canvas.drawText(debugChildText, 0, vh - lineHeight * 2, 0xFFFFFF);
 		canvas.drawText(DEBUG_INSTRUCTIONS, 0, vh - lineHeight, 0xFFFFFF);
 	}
@@ -243,6 +244,15 @@ class ComponentTree {
 				this.updateDebugComponent();
 			}
 			return true;
+		case GLFW.GLFW_KEY_5: // Print (Flattened) Style
+			if (this.debugParent == null) {
+				// print root stylesheet
+				System.out.println("Root Stylesheet: " + RootStylesheet.getDebugString());
+			} else if (!this.debugParent.children.isEmpty()) {
+				ComponentNode child = this.debugParent.children.get(this.debugIndex);
+				System.out.println(child.element.getStyle());
+			}
+			return true;
 		}
 
 		return false;
@@ -269,7 +279,7 @@ class ComponentTree {
 				" (" + node.intrinsicSize.toString() + "i, " + node.minimumSize + "m, " + node.maximumSize + "M)");
 	}
 
-	private static final Text DEBUG_INSTRUCTIONS = Text.literal("[1] Back [2] Step In [3] Previous [4] Next");
+	private static final Text DEBUG_INSTRUCTIONS = Text.literal("[1] Back [2] Step In [3] Previous [4] Next [5] Print Style");
 
 	private static class ComponentNode implements ResizableElement {
 		ComponentNode(@Nullable ComponentNode parent, Component element) {

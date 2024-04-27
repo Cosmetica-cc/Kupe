@@ -80,4 +80,14 @@ public class Stylesheet {
 		this.self = style;
 		return this;
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder("{\nself: ").append(this.self);
+
+		this.classStyles.forEach((clazz, style) -> sb.append(",\n").append(clazz.getName()).append(":").append(style));
+
+		sb.append("\n}");
+		return sb.toString();
+	}
 }

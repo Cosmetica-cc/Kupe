@@ -50,5 +50,13 @@ public final class RootStylesheet {
 		STYLESHEET.fillOverrides(styles, componentClass, false);
 	}
 
+	/**
+	 * Get a debug string containing the data of the root stylesheet.
+	 * @return a string containing info about the properties of the root stylesheet.
+	 */
+	public static String getDebugString() {
+		return STYLESHEET.toString();
+	}
+
 	private static final Stylesheet STYLESHEET = new Stylesheet();
 }
