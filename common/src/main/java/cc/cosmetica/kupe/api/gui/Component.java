@@ -200,24 +200,24 @@ public abstract class Component {
 			// ======
 
 			// border with transparent centre
-			canvas.drawRect(
-					region.getX(), region.getY(),
-					region.getEndX(), region.getY() + borderSize, // top
+			canvas.drawRect( // top
+					drawRegion.getX(), drawRegion.getY(),
+					drawRegion.getWidth(), borderSize,
 					r, g, b);
 
-			canvas.drawRect(
-					region.getX(), region.getEndY() - borderSize, // bottom
-					region.getEndX(), region.getEndY(),
+			canvas.drawRect( // bottom
+					drawRegion.getX(), drawRegion.getY() + drawRegion.getHeight() - borderSize,
+					drawRegion.getWidth(), borderSize,
 					r, g, b);
 
 			canvas.drawRect( // left
-					region.getX(), region.getY() + borderSize,
-					region.getX() + borderSize, region.getEndY() - borderSize,
+					drawRegion.getX(), drawRegion.getY() + borderSize,
+					borderSize, drawRegion.getHeight() - borderSize * 2,
 					r, g, b);
 
 			canvas.drawRect( // right
-					region.getEndX() - borderSize, region.getY() + borderSize,
-					region.getEndX(), region.getEndY() - borderSize,
+					drawRegion.getX() + drawRegion.getWidth() - borderSize, drawRegion.getY() + borderSize,
+					borderSize, drawRegion.getHeight() - borderSize * 2,
 					r, g, b);
 		}
 	}

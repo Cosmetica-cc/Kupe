@@ -116,7 +116,7 @@ public class Image extends Component {
 
 	@Override
 	public void render(Canvas canvas, Region region, int mouseX, int mouseY) {
-		canvas.drawTexture(region.getX(), region.getY(), region.getEndX(), region.getEndY(), 0.0f, this.texture);
+		canvas.drawTexture(region.getX(), region.getY(), region.getWidth(), region.getHeight(), 0.0f, this.texture);
 	}
 
 	/**

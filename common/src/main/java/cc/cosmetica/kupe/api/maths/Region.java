@@ -59,10 +59,17 @@ public class Region {
 		return y;
 	}
 
+	/**
+	 * Get the inclusive end x of this region.
+	 * @return
+	 */
 	public int getEndX() {
 		return this.x + this.width - 1;
 	}
 
+	/**
+	 * Get the inclusive end y of this region.
+	 */
 	public int getEndY() {
 		return this.y + this.height - 1;
 	}

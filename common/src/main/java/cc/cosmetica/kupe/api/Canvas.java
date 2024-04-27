@@ -77,24 +77,24 @@ public interface Canvas {
 	 * Draw a rectangle filled with the given colour.
 	 * @param x0 the x coordinate of the top left corner.
 	 * @param y0 the y coordinate of the top left corner
-	 * @param x1 the x coordinate of the bottom right corner
-	 * @param y1 the y coordinate of the bottom right corner
+	 * @param width the width of the rectangle in pixels.
+	 * @param height the height of the rectangle in pixels.
 	 * @param r the red value to use for the colour.
 	 * @param g the green value to use for the colour.
 	 * @param b the blue value to use for the colour.
 	 */
-	void drawRect(int x0, int y0, int x1, int y1, float r, float g, float b);
+	void drawRect(int x0, int y0, int width, int height, float r, float g, float b);
 
 	/**
 	 * Draw a rectangle filled with the given texture.
 	 * @param x0 the x coordinate of the top left corner.
 	 * @param y0 the y coordinate of the top left corner
-	 * @param x1 the x coordinate of the bottom right corner
-	 * @param y1 the y coordinate of the bottom right corner
+	 * @param width the width of the rectangle in pixels.
+	 * @param height the height of the rectangle in pixels.
 	 * @param z the z coordinate to draw the texture at. Write 0 if you do not need to use this parameter.
 	 * @param texture the location at which the texture can be found.
 	 */
-	void drawTexture(int x0, int y0, int x1, int y1, float z, ResourceLocation texture);
+	void drawTexture(int x0, int y0, int width, int height, float z, ResourceLocation texture);
 
 	/**
 	 * Start drawing quads.

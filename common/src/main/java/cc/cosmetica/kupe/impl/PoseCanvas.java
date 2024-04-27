@@ -85,22 +85,24 @@ public class PoseCanvas implements Canvas {
 	@Override
 	public void drawRect(Region region, int colour) {
 		int x0 = region.getX();
-		int x1 = region.getEndX();
 		int y0 = region.getY();
-		int y1 = region.getEndY();
 
 		float r = ((colour >> 16) & 0xFF) / 255.0f;
 		float g = ((colour >> 8) & 0xFF) / 255.0f;
 		float b = (colour & 0xFF) / 255.0f;
 
-		this.drawRect(x0, y0, x1, y1, r, g, b);
+		this.drawRect(x0, y0, region.getWidth(), region.getHeight(), r, g, b);
 	}
 
 	@Override
-	public void drawRect(int x0, int y0, int x1, int y1, float r, float g, float b) {
+	public void drawRect(int x0, int y0, int width, int height, float r, float g, float b) {
 		RenderSystem.disableTexture();
 		BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
 //		RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+		// x1, y1 exclusive because for some reason minecraft works this way
+		int x1 = x0 + width;
+		int y1 = y0 + height;
 
 		bufferBuilder.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_COLOR);
 		bufferBuilder.vertex(x0, y1, 1.0D).color(r, g, b, 1.0F).endVertex();
@@ -114,11 +116,15 @@ public class PoseCanvas implements Canvas {
 	}
 
 	@Override
-	public void drawTexture(int x0, int y0, int x1, int y1, float z, ResourceLocation texture) {
+	public void drawTexture(int x0, int y0, int width, int height, float z, ResourceLocation texture) {
 		RenderSystem.enableTexture();
 		Minecraft.getInstance().getTextureManager().bind(texture);
 		BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
 		Matrix4f matrix4f = this.stack.last().pose();
+
+		// x1, y1 exclusive because for some reason minecraft works this way
+		int x1 = x0 + width;
+		int y1 = y0 + height;
 
 		bufferBuilder.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_TEX);
 		bufferBuilder.vertex(matrix4f, (float)x0, (float)y1, z).uv(0, 1).endVertex();
@@ -138,17 +144,6 @@ public class PoseCanvas implements Canvas {
 	@Override
 	public void renderMinecraftComponent(Widget component, int mouseX, int mouseY) {
 		component.render(this.stack, mouseX, mouseY, this.tickDelta);
-	}
-
-	/// Impl Only
-
-	/**
-	 * Get the minecraft pose stack.
-	 * @return the pose stack.
-	 */
-	@LeavesSandbox
-	public PoseStack getPoseStack() {
-		return this.stack;
 	}
 
 	class KupeStack implements MatrixStack {
