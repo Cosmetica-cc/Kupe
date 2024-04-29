@@ -2,6 +2,7 @@ package cc.cosmetica.kupe.api.gui;
 
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.Text;
+import cc.cosmetica.kupe.api.maths.Region;
 import cc.cosmetica.kupe.impl.fakeplayer.AttachmentsRegistry;
 import cc.cosmetica.kupe.impl.fakeplayer.CapeAttachment;
 import cc.cosmetica.kupe.impl.fakeplayer.ElytraAttachment;
@@ -52,11 +53,16 @@ public class FakePlayer extends Component {
 	/**
 	 * Configure the given attachment on this FakePlayer.
 	 * @param attachment the attachment to configure on this FakePlayer.
-	 * @param configuration the configuration to provide for this attachment.
+	 * @param configuration the configuration to provide for this attachment. If null, will remove the configuration.
 	 * @return this fake player.
 	 */
-	public <T> FakePlayer configureAttachment(Attachment<T> attachment, T configuration) {
-		this.configurations.put(attachment, configuration);
+	public <T> FakePlayer configureAttachment(Attachment<T> attachment, @Nullable T configuration) {
+		if (configuration == null) {
+			this.configurations.remove(attachment);
+		} else {
+			this.configurations.put(attachment, configuration);
+		}
+
 		return this;
 	}
 
@@ -87,6 +93,11 @@ public class FakePlayer extends Component {
 	@Override
 	public List<Component> build() {
 		return Collections.emptyList();
+	}
+
+	@Override
+	public void render(Canvas canvas, Region region, int mouseX, int mouseY) {
+		super.render(canvas, region, mouseX, mouseY);
 	}
 
 	public static Attachment<ResourceLocation> CAPE = registerAttachment(new CapeAttachment());
