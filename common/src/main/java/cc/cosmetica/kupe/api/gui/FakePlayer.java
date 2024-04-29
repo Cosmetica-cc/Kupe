@@ -1,12 +1,15 @@
 package cc.cosmetica.kupe.api.gui;
 
 import cc.cosmetica.kupe.api.Canvas;
+import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.impl.fakeplayer.AttachmentsRegistry;
+import cc.cosmetica.kupe.impl.fakeplayer.CapeAttachment;
+import cc.cosmetica.kupe.impl.fakeplayer.ElytraAttachment;
+import cc.cosmetica.kupe.impl.fakeplayer.NameTagAttachment;
 import com.google.common.base.Preconditions;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.injection.At;
 
 import java.util.*;
 
@@ -85,7 +88,7 @@ public class FakePlayer extends Component {
 
 	public static Attachment<ResourceLocation> CAPE = registerAttachment(new CapeAttachment());
 	public static Attachment<ResourceLocation> ELYTRA = registerAttachment(new ElytraAttachment());
-	public static Attachment<String> NAMETAG = registerAttachment(new NameTagAttachment());
+	public static Attachment<Text> NAMETAG = registerAttachment(new NameTagAttachment());
 
 	public static <T> Attachment<T> registerAttachment(Attachment<T> attachment) {
 		AttachmentsRegistry.register(attachment);
