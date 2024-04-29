@@ -20,6 +20,8 @@ import cc.cosmetica.kupe.api.gui.Component;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.impl.StateManagerImpl;
 
+import java.util.function.Function;
+
 /**
  * Reactive state.
  * To do something to the effect of useState() in react, create a new State<T> instance in the constructor of your component,
@@ -45,6 +47,18 @@ public class State<T> {
 		// If the component is destroyed, we also want to remove it from our list of listeners. This is handled in the tree.
 		StateManagerImpl.acquireState(this, component);
 		return this.value;
+	}
+
+	/**
+	 * Extract and acquire data from this state. This state depends on that state, and will be rebuilt if and only if
+	 * the new extracted state is mapped to a new value.
+	 * @param mappingFunction the mapping function to extract data from this state.
+	 * @return the data extracted.
+	 * @param <E> the type to use for the resulting variable.
+	 */
+	public <E> E extract(Component component, Function<T, E> mappingFunction) {
+		// TODO
+		throw new UnsupportedOperationException("Not implemented");
 	}
 
 	public void set(T value) {
