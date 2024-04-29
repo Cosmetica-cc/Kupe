@@ -97,7 +97,7 @@ public class FakePlayer extends Component {
 
 	@Override
 	public void render(Canvas canvas, Region region, int mouseX, int mouseY) {
-		super.render(canvas, region, mouseX, mouseY);
+
 	}
 
 	public static Attachment<ResourceLocation> CAPE = registerAttachment(new CapeAttachment());

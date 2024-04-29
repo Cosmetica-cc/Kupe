@@ -1,0 +1,450 @@
+package cc.cosmetica.kupe.impl.fakeplayer;
+
+import cc.cosmetica.kupe.util.GlobalPoseStack;
+import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
+import net.minecraft.CrashReport;
+import net.minecraft.CrashReportCategory;
+import net.minecraft.ReportedException;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.AnimationUtils;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.player.PlayerModelPart;
+import net.minecraft.world.phys.Vec3;
+
+import java.util.HashSet;
+import java.util.Set;
+
+/**
+ * Renderer for {@link cc.cosmetica.kupe.api.gui.FakePlayer}.
+ * This is largely adapted from code used in the vanilla game to render players. So take the licensing of this file with
+ * a grain of salt.
+ */
+public final class FakePlayerRenderer {
+	// properties
+	public boolean sneaking;
+	public boolean leftHanded;
+	public boolean isMainArmRaised;
+	public Set<PlayerModelPart> shownParts = new HashSet<>();
+
+	public void render(int left, int top, float extraScale, float lookX, float lookY) {
+		float h = (float)Math.atan(lookX / 40.0F);
+		float l = (float)Math.atan(lookY / 40.0F);
+		PoseStack stack = GlobalPoseStack.INSTANCE;
+
+		stack.pushPose();
+		stack.translate(left, top, 1050.0D);
+		stack.scale(2.0F, 2.0F, -1.0F);
+		//RenderSystem.applyModelViewMatrix();
+
+		// view
+		PoseStack viewStack = new PoseStack();
+		viewStack.translate(0.0D, 0.0D, 1000.0D);
+		viewStack.scale(extraScale, extraScale, extraScale);
+		Quaternion zRotation = Vector3f.ZP.rotationDegrees(180.0F);
+		Quaternion xRotation = Vector3f.XP.rotationDegrees(l * 20.0F);
+		zRotation.mul(xRotation);
+		viewStack.mulPose(zRotation);
+
+		float rotationBody = 180.0F + h * 20.0F;
+		float rotationMain = 180.0F + h * 40.0F;
+		fakePlayer.yRotBody += rotationBody;
+		fakePlayer.yRot += rotationMain;
+		fakePlayer.xRot = -l * 20.0F;
+		fakePlayer.yRotHead = fakePlayer.getYRot(0);
+		//Lighting.setupForEntityInInventory();
+
+		xRotation.conj();
+		FakePlayerRenderer.cameraOrientation = xRotation;
+		MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
+
+		RenderSystem.runAsFancy(() -> {
+			// Above 1.16.5 we need to do an extra step here
+			render(viewStack, fakePlayer, bufferSource, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, 15728880);
+		});
+		bufferSource.endBatch();
+
+		fakePlayer.yRotBody -= rotationBody;
+		fakePlayer.yRot -= rotationMain;
+
+		stack.popPose();
+		//RenderSystem.applyModelViewMatrix();
+		Lighting.setupFor3DItems();
+	}
+
+	private Quaternion cameraOrientation = Quaternion.ONE;
+
+	// EntityRenderDispatcher#render
+	public void render(PoseStack stack, MultiBufferSource bufferSource, double xOffset, double yOffset, double zOffset, float rotation, float delta, int light) {
+		try {
+			Vec3 vec3 = getRenderOffset(player, delta);
+			double x = xOffset + vec3.x();
+			double y = yOffset + vec3.y();
+			double z = zOffset + vec3.z();
+			stack.pushPose();
+			stack.translate(x, y, z);
+
+			drawFakePlayer(player, rotation, delta, stack, bufferSource, light);
+
+			stack.popPose();
+		} catch (Throwable var24) {
+			CrashReport crashReport = CrashReport.forThrowable(var24, "Rendering fake player in menu");
+			crashReport.addCategory("Fake Player being rendered");
+
+			CrashReportCategory crashReportCategory2 = crashReport.addCategory("Renderer details");
+			crashReportCategory2.setDetail("Location", xOffset + "," + yOffset + "," + zOffset);
+			crashReportCategory2.setDetail("Rotation", rotation);
+			crashReportCategory2.setDetail("Delta", delta);
+			throw new ReportedException(crashReport);
+		}
+	}
+
+	private Vec3 getRenderOffset() {
+		return this.sneaking ? new Vec3(0.0D, -0.125D, 0.0D) : Vec3.ZERO;
+	}
+
+	// PlayerRenderer#render
+	private void drawFakePlayer(float rotation, float delta, PoseStack stack, MultiBufferSource bufferSource, int light) {
+		setModelProperties(player);
+		drawLivingEntity(player, rotation, delta, stack, bufferSource, light);
+	}
+
+	// PlayerRenderer#setModelProperties()
+	private void setModelProperties() {
+		PlayerModel playerModel = fakePlayer.getModel();
+
+		playerModel.setAllVisible(true);
+		playerModel.hat.visible = this.shownParts.contains(PlayerModelPart.HAT);
+		playerModel.jacket.visible = this.shownParts.contains(PlayerModelPart.JACKET);
+		playerModel.leftPants.visible = this.shownParts.contains(PlayerModelPart.LEFT_PANTS_LEG);
+		playerModel.rightPants.visible = this.shownParts.contains(PlayerModelPart.RIGHT_PANTS_LEG);
+		playerModel.leftSleeve.visible = this.shownParts.contains(PlayerModelPart.LEFT_SLEEVE);
+		playerModel.rightSleeve.visible = this.shownParts.contains(PlayerModelPart.RIGHT_SLEEVE);
+		playerModel.crouching = this.sneaking;
+
+		if (!this.leftHanded) {
+			playerModel.rightArmPose = this.isMainArmRaised ? HumanoidModel.ArmPose.ITEM : HumanoidModel.ArmPose.EMPTY;
+			playerModel.leftArmPose = HumanoidModel.ArmPose.EMPTY;
+		} else {
+			playerModel.rightArmPose = HumanoidModel.ArmPose.EMPTY;
+			playerModel.leftArmPose = this.isMainArmRaised ? HumanoidModel.ArmPose.ITEM : HumanoidModel.ArmPose.EMPTY;
+		}
+	}
+
+	// LivingEntityRenderer#render
+	private void drawLivingEntity(float rotation, float delta, PoseStack stack, MultiBufferSource bufferSource, int light) {
+		stack.pushPose();
+		PlayerModel<AbstractClientPlayer> model = player.getModel();
+
+		model.attackTime = 0;
+		model.riding = false;
+		model.young = false;
+
+		float yRotBody = player.getYRotBody(delta);
+		float yRotHead = player.getYRotHead(delta);
+		float yRotDiff = yRotHead - yRotBody;
+		float bob = delta;
+
+		float xRot = player.getXRot(delta);
+
+		if (player.getData().upsideDown()) {
+			xRot *= -1.0F;
+			yRotDiff *= -1.0F;
+		}
+
+		setupRotations(player, stack, bob, yRotBody, delta);
+
+		stack.scale(-1.0F, -1.0F, 1.0F);
+		stack.scale(0.9375F, 0.9375F, 0.9375F); // PlayerRenderer#scale
+		stack.translate(0.0D, -1.5010000467300415D, 0.0D);
+
+		float animationSpeed = 0.0f;//Mth.lerp(delta, player.animationSpeedOld, player.animationSpeed);
+		float animationPosition = 0.0f;//player.animationPosition - player.animationSpeed * (1.0F - delta);
+
+		if (animationSpeed > 1.0F) {
+			animationSpeed = 1.0F;
+		}
+
+		//model.prepareMobModel(player, o, n, delta); only does swim stuff, not necessary
+		modelSetupAnim(model, player, animationPosition, animationSpeed, bob, yRotDiff, xRot);
+
+		RenderType renderType = getRenderType(player, true, false, false);
+
+		if (renderType != null) {
+			VertexConsumer vertexConsumer = bufferSource.getBuffer(renderType);
+			int packedOverlayCoords = getOverlayCoords(0.0f);
+			model.renderToBuffer(stack, vertexConsumer, light, packedOverlayCoords, 1.0F, 1.0F, 1.0F, 1.0F);
+		}
+
+		// render layers
+
+		for (MenuRenderLayer layer : player.getLayers()) {
+			layer.render(stack, bufferSource, light, player, animationPosition, animationSpeed, delta, bob, yRotDiff, xRot);
+		}
+
+		stack.popPose();
+
+		if (player.renderNametag) {
+			renderNameTag(player, stack, bufferSource, light);
+		}
+	}
+
+	private RenderType getRenderType(FakePlayer player, boolean isVisible, boolean isInvisibleToPlayer, boolean isGlowing) {
+		ResourceLocation resourceLocation = player.getSkin();
+
+		if (isInvisibleToPlayer) {
+			return RenderType.itemEntityTranslucentCull(resourceLocation);
+		} else if (isVisible) {
+			return player.getModel().renderType(resourceLocation);
+		} else {
+			return isGlowing ? RenderType.outline(resourceLocation) : null;
+		}
+	}
+
+	private void modelSetupAnim(PlayerModel<AbstractClientPlayer> model, FakePlayer player, float f, float g, float bob, float yRotDiff, float xRot) {
+		model.head.yRot = yRotDiff * 0.017453292F;
+
+		if (model.swimAmount > 0.0F) {
+			model.head.xRot = ((HumanoidModelAccessor) model).invokeRotlerpRad(model.swimAmount, model.head.xRot, xRot * 0.017453292F);
+		} else {
+			model.head.xRot = xRot * 0.017453292F;
+		}
+
+		model.body.yRot = 0.0F;
+		model.rightArm.z = 0.0F;
+		model.rightArm.x = -5.0F;
+		model.leftArm.z = 0.0F;
+		model.leftArm.x = 5.0F;
+		float k = 1.0F;
+
+		if (k < 1.0F) {
+			k = 1.0F;
+		}
+
+		model.rightArm.xRot = Mth.cos(f * 0.6662F + 3.1415927F) * 2.0F * g * 0.5F / k;
+		model.leftArm.xRot = Mth.cos(f * 0.6662F) * 2.0F * g * 0.5F / k;
+		model.rightArm.zRot = 0.0F;
+		model.leftArm.zRot = 0.0F;
+		model.rightLeg.xRot = Mth.cos(f * 0.6662F) * 1.4F * g / k;
+		model.leftLeg.xRot = Mth.cos(f * 0.6662F + 3.1415927F) * 1.4F * g / k;
+		model.rightLeg.yRot = 0.0F;
+		model.leftLeg.yRot = 0.0F;
+		model.rightLeg.zRot = 0.0F;
+		model.leftLeg.zRot = 0.0F;
+		ModelPart currentModel;
+
+		if (model.riding) {
+			currentModel = model.rightArm;
+			currentModel.xRot += -0.62831855F;
+			currentModel = model.leftArm;
+			currentModel.xRot += -0.62831855F;
+			model.rightLeg.xRot = -1.4137167F;
+			model.rightLeg.yRot = 0.31415927F;
+			model.rightLeg.zRot = 0.07853982F;
+			model.leftLeg.xRot = -1.4137167F;
+			model.leftLeg.yRot = -0.31415927F;
+			model.leftLeg.zRot = -0.07853982F;
+		}
+
+		model.rightArm.yRot = 0.0F;
+		model.leftArm.yRot = 0.0F;
+		boolean bl3 = player.getMainArm() == HumanoidArm.RIGHT;
+		boolean bl4;
+
+		bl4 = bl3 ? model.leftArmPose.isTwoHanded() : model.rightArmPose.isTwoHanded();
+
+		if (bl3 != bl4) {
+			poseLeftArm(model);
+			poseRightArm(model);
+		} else {
+			poseRightArm(model);
+			poseLeftArm(model);
+		}
+
+		if (model.crouching) {
+			model.body.xRot = 0.5F;
+			currentModel = model.rightArm;
+			currentModel.xRot += 0.4F;
+			currentModel = model.leftArm;
+			currentModel.xRot += 0.4F;
+			model.rightLeg.z = 4.0F;
+			model.leftLeg.z = 4.0F;
+			model.rightLeg.y = 12.2F;
+			model.leftLeg.y = 12.2F;
+			model.head.y = 4.2F;
+			model.body.y = 3.2F;
+			model.leftArm.y = 5.2F;
+			model.rightArm.y = 5.2F;
+		} else {
+			model.body.xRot = 0.0F;
+			model.rightLeg.z = 0.1F;
+			model.leftLeg.z = 0.1F;
+			model.rightLeg.y = 12.0F;
+			model.leftLeg.y = 12.0F;
+			model.head.y = 0.0F;
+			model.body.y = 0.0F;
+			model.leftArm.y = 2.0F;
+			model.rightArm.y = 2.0F;
+		}
+
+		AnimationUtils.bobArms(model.rightArm, model.leftArm, 1.0F);
+
+		if (model.swimAmount > 0.0F) {
+			float l = f % 26.0F;
+			HumanoidArm humanoidArm = player.getMainArm();
+			float m = humanoidArm == HumanoidArm.RIGHT && model.attackTime > 0.0F ? 0.0F : model.swimAmount;
+			float n = humanoidArm == HumanoidArm.LEFT && model.attackTime > 0.0F ? 0.0F : model.swimAmount;
+			float o;
+
+			if (l < 14.0F) {
+				model.leftArm.xRot = ((HumanoidModelAccessor) model).invokeRotlerpRad(n, model.leftArm.xRot, 0.0F);
+				model.rightArm.xRot = Mth.lerp(m, model.rightArm.xRot, 0.0F);
+				model.leftArm.yRot = ((HumanoidModelAccessor) model).invokeRotlerpRad(n, model.leftArm.yRot, 3.1415927F);
+				model.rightArm.yRot = Mth.lerp(m, model.rightArm.yRot, 3.1415927F);
+				model.leftArm.zRot = ((HumanoidModelAccessor) model).invokeRotlerpRad(n, model.leftArm.zRot, 3.1415927F + 1.8707964F * ((HumanoidModelAccessor) model).invokeQuadraticArmUpdate(l) / ((HumanoidModelAccessor) model).invokeQuadraticArmUpdate(14.0F));
+				model.rightArm.zRot = Mth.lerp(m, model.rightArm.zRot, 3.1415927F - 1.8707964F * ((HumanoidModelAccessor) model).invokeQuadraticArmUpdate(l) / ((HumanoidModelAccessor) model).invokeQuadraticArmUpdate(14.0F));
+			} else if (l >= 14.0F && l < 22.0F) {
+				o = (l - 14.0F) / 8.0F;
+				model.leftArm.xRot = ((HumanoidModelAccessor) model).invokeRotlerpRad(n, model.leftArm.xRot, 1.5707964F * o);
+				model.rightArm.xRot = Mth.lerp(m, model.rightArm.xRot, 1.5707964F * o);
+				model.leftArm.yRot = ((HumanoidModelAccessor) model).invokeRotlerpRad(n, model.leftArm.yRot, 3.1415927F);
+				model.rightArm.yRot = Mth.lerp(m, model.rightArm.yRot, 3.1415927F);
+				model.leftArm.zRot = ((HumanoidModelAccessor) model).invokeRotlerpRad(n, model.leftArm.zRot, 5.012389F - 1.8707964F * o);
+				model.rightArm.zRot = Mth.lerp(m, model.rightArm.zRot, 1.2707963F + 1.8707964F * o);
+			} else if (l >= 22.0F && l < 26.0F) {
+				o = (l - 22.0F) / 4.0F;
+				model.leftArm.xRot = ((HumanoidModelAccessor) model).invokeRotlerpRad(n, model.leftArm.xRot, 1.5707964F - 1.5707964F * o);
+				model.rightArm.xRot = Mth.lerp(m, model.rightArm.xRot, 1.5707964F - 1.5707964F * o);
+				model.leftArm.yRot = ((HumanoidModelAccessor) model).invokeRotlerpRad(n, model.leftArm.yRot, 3.1415927F);
+				model.rightArm.yRot = Mth.lerp(m, model.rightArm.yRot, 3.1415927F);
+				model.leftArm.zRot = ((HumanoidModelAccessor) model).invokeRotlerpRad(n, model.leftArm.zRot, 3.1415927F);
+				model.rightArm.zRot = Mth.lerp(m, model.rightArm.zRot, 3.1415927F);
+			}
+
+			model.leftLeg.xRot = Mth.lerp(model.swimAmount, model.leftLeg.xRot, 0.3F * Mth.cos(f * 0.33333334F + 3.1415927F));
+			model.rightLeg.xRot = Mth.lerp(model.swimAmount, model.rightLeg.xRot, 0.3F * Mth.cos(f * 0.33333334F));
+		}
+
+		model.hat.copyFrom(model.head);
+
+		model.leftPants.copyFrom(model.leftLeg);
+		model.rightPants.copyFrom(model.rightLeg);
+		model.leftSleeve.copyFrom(model.leftArm);
+		model.rightSleeve.copyFrom(model.rightArm);
+		model.jacket.copyFrom(model.body);
+
+		ModelPart cloak = ((PlayerModelAccessor) model).getCloak();
+
+		if (player.isSneaking()) {
+			cloak.z = 1.4F;
+			cloak.y = 1.85F;
+		} else {
+			cloak.z = 0.0F;
+			cloak.y = 0.0F;
+		}
+	}
+
+	private static void poseLeftArm(PlayerModel model) {
+		switch(model.leftArmPose) {
+		case EMPTY:
+			model.leftArm.yRot = 0.0F;
+			break;
+		case BLOCK:
+			model.leftArm.xRot = model.leftArm.xRot * 0.5F - 0.9424779F;
+			model.leftArm.yRot = 0.5235988F;
+			break;
+		case ITEM:
+			model.leftArm.xRot = model.leftArm.xRot * 0.5F - 0.31415927F;
+			model.leftArm.yRot = 0.0F;
+			break;
+		}
+	}
+
+	private static void poseRightArm(PlayerModel model) {
+		switch (model.rightArmPose) {
+		case EMPTY:
+			model.rightArm.yRot = 0.0F;
+			break;
+		case BLOCK:
+			model.rightArm.xRot = model.rightArm.xRot * 0.5F - 0.9424779F;
+			model.rightArm.yRot = -0.5235988F;
+			break;
+		case ITEM:
+			model.rightArm.xRot = model.rightArm.xRot * 0.5F - 0.31415927F;
+			model.rightArm.yRot = 0.0F;
+			break;
+		}
+	}
+
+	private static void setupRotations(FakePlayer player, PoseStack stack, float f, float g, float h) {
+		stack.mulPose(Vector3f.YP.rotationDegrees(180.0F - g));
+
+		if (player.getData().upsideDown()) {
+			stack.translate(0.0D, EntityType.PLAYER.getDimensions().height + 0.1, 0.0D);
+			stack.mulPose(Vector3f.ZP.rotationDegrees(180.0F));
+		}
+	}
+
+	private static int getOverlayCoords(float u) {
+		return OverlayTexture.pack(OverlayTexture.u(u), OverlayTexture.v(false));
+	}
+
+	private static void renderNameTag(FakePlayer player, PoseStack stack, MultiBufferSource bufferSource, int light) {
+		Component name = player.getDisplayName();
+
+		boolean fullyRender = !player.renderDiscreteNametag();
+		float yPosition = EntityType.PLAYER.getDimensions().height + 0.5F;
+		int offsetForDeadmau5 = "deadmau5".equals(name.getString()) ? -10 : 0;
+
+		stack.pushPose();
+
+		// add lore
+		Cosmetica.renderLore(
+				stack,
+				cameraOrientation,
+				Minecraft.getInstance().font,
+				bufferSource,
+				player.getData().lore(),
+				player.getData().hats(),
+				false,
+				true,
+				player.renderDiscreteNametag(),
+				player.getData().upsideDown(),
+				EntityType.PLAYER.getDimensions().height,
+				player.getModel().getHead().xRot,
+				light);
+
+		stack.translate(0.0D, yPosition, 0.0D);
+		stack.mulPose(cameraOrientation);
+		stack.scale(-0.025F, -0.025F, 0.025F);
+		Matrix4f pose = stack.last().pose();
+		float backgroundOpacity = Minecraft.getInstance().options.getBackgroundOpacity(0.25F);
+		int k = (int)(backgroundOpacity * 255.0F) << 24;
+		Font font = Minecraft.getInstance().font;
+		float h = (float)(-font.width(name) / 2);
+		font.drawInBatch(name, h, (float)offsetForDeadmau5, 0x20FFFFFF, false, pose, bufferSource, fullyRender, k, light);
+
+		if (fullyRender) {
+			font.drawInBatch(name, h, (float)offsetForDeadmau5, -1, false, pose, bufferSource, false, 0, light);
+		}
+
+		// add comsetica icon
+		if (player.getData().icon() != null) {
+			Cosmetica.renderIcon(stack, bufferSource, player, font, light, name);
+		}
+
+		stack.popPose();
+	}
+}
