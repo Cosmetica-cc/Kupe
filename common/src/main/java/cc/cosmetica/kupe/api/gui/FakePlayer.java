@@ -1,14 +1,14 @@
 package cc.cosmetica.kupe.api.gui;
 
 import cc.cosmetica.kupe.api.Canvas;
+import cc.cosmetica.kupe.impl.fakeplayer.AttachmentsRegistry;
 import com.google.common.base.Preconditions;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.injection.At;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Component to show a player, like in the inventory.
@@ -16,7 +16,7 @@ import java.util.UUID;
  */
 public class FakePlayer extends Component {
 	/**
-	 * Display a fake player with the given skin texture. No attachments by default.
+	 * Display a 'static' fake player with the given skin texture. No attachments by default.
 	 * @param skin the resource location of the skin texture.
 	 */
 	public FakePlayer(@NotNull ResourceLocation skin) {
@@ -27,8 +27,8 @@ public class FakePlayer extends Component {
 	}
 
 	/**
-	 * Create a new FakePlayer with the given UUID. All attachments will be enabled by default and configured by the
-	 * provided UUID.
+	 * Create a new, 'dynamic' FakePlayer with the given UUID. All attachments will be enabled by default and dynamically
+	 * configured by the provided UUID.
 	 * @param uuid the uuid of the player to render.
 	 */
 	public FakePlayer(@NotNull UUID uuid) {
@@ -40,6 +40,8 @@ public class FakePlayer extends Component {
 
 	private final @Nullable UUID uuid;
 	private final @Nullable ResourceLocation skin;
+	private final Map<Attachment<?>, Object> configurations = new HashMap<>();
+	private final Set<Attachment<?>> shown = new HashSet<>();
 
 	/**
 	 * Configure the given attachment on this FakePlayer.
@@ -48,6 +50,7 @@ public class FakePlayer extends Component {
 	 * @return this fake player.
 	 */
 	public <T> FakePlayer configureAttachment(Attachment<T> attachment, T configuration) {
+		this.configurations.put(attachment, configuration);
 		return this;
 	}
 
@@ -56,6 +59,11 @@ public class FakePlayer extends Component {
 	 * @param attachments a list of attachments to show on this fake player. Leave blank to show all attachments.
 	 */
 	public void showAttachments(Attachment<?>... attachments) {
+		if (attachments.length == 0) {
+			this.shown.addAll(AttachmentsRegistry.getAll());
+		} else {
+			Collections.addAll(this.shown, attachments);
+		}
 	}
 
 	/**
@@ -63,6 +71,11 @@ public class FakePlayer extends Component {
 	 * @param attachments a list of attachments to hide on this fake player. Leave blank to hide all attachments.
 	 */
 	public void hideAttachments(Attachment<?>... attachments) {
+		if (attachments.length == 0) {
+			this.shown.clear();
+		} else for (Attachment<?> attachment : attachments) {
+			this.shown.remove(attachment);
+		}
 	}
 
 	@Override
@@ -70,15 +83,20 @@ public class FakePlayer extends Component {
 		return Collections.emptyList();
 	}
 
+	public static Attachment<ResourceLocation> CAPE = registerAttachment(new CapeAttachment());
+	public static Attachment<ResourceLocation> ELYTRA = registerAttachment(new ElytraAttachment());
+	public static Attachment<String> NAMETAG = registerAttachment(new NameTagAttachment());
+
+	public static <T> Attachment<T> registerAttachment(Attachment<T> attachment) {
+		AttachmentsRegistry.register(attachment);
+		return attachment;
+	}
+
 	/**
 	 * An attachment for the FakePlayer.
 	 * @param <T> the configuration object for this attachment.
 	 */
 	public interface Attachment<T> {
-		// CapeAttachment -- requires ResourceLocation or can look up via UUID
-		// ElytraAttachment -- "
-		// NameTagAttachment -- String or look up via UUID
-
 		/**
 		 * Render this attachment on the fake player.
 		 * @param canvas the canvas environment for rendering.
