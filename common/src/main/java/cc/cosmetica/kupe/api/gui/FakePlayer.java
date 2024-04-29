@@ -30,8 +30,8 @@ public class FakePlayer extends Component {
 	}
 
 	/**
-	 * Create a new, 'dynamic' FakePlayer with the given UUID. All attachments will be enabled by default and dynamically
-	 * configured by the provided UUID.
+	 * Create a new, 'dynamic' FakePlayer with the given UUID. All attachments except ELYTRA will be enabled by default
+	 * and dynamically configured by the provided UUID.
 	 * @param uuid the uuid of the player to render.
 	 */
 	public FakePlayer(@NotNull UUID uuid) {
@@ -39,6 +39,9 @@ public class FakePlayer extends Component {
 
 		this.uuid = uuid;
 		this.skin = null;
+
+		this.showAttachments();
+		this.hideAttachments(ELYTRA);
 	}
 
 	private final @Nullable UUID uuid;
