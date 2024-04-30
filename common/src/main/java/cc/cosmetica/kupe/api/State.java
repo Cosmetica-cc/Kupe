@@ -57,8 +57,7 @@ public class State<T> {
 	 * @param <E> the type to use for the resulting variable.
 	 */
 	public <E> E extract(Component component, Function<T, E> mappingFunction) {
-		// TODO
-		throw new UnsupportedOperationException("Not implemented");
+		return StateManagerImpl.extractState(this, component, mappingFunction);
 	}
 
 	public void set(T value) {
