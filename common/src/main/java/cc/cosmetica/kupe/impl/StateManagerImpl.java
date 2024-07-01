@@ -15,16 +15,40 @@ import java.util.function.Function;
  */
 public final class StateManagerImpl {
 	private static final BiMultiMap<Component, State<?>> ACQUIRED = new BiMultiMap<>();
-	private static final Map<Component, Map<State<?>, List<Follower>>> EXTRACTIONS = new HashMap<>();
+	private static final Map<Component, Map<State<?>, Config>> EXTRACTIONS = new HashMap<>();
 
+	private static class Config {
+		List<Follower> followers = new ArrayList<>();
+		boolean globalCapture = false; // enabled if the whole state is captured, so should be updated every time.
+	}
+
+	/**
+	 * Clear states acquired by the given component. Is called when a component is disposed.
+	 * @param component the component for which to clear states acquired.
+	 */
 	static void clearStates(Component component) {
 		// clear states acquired by this component
 		ACQUIRED.remove(component);
 		EXTRACTIONS.remove(component);
 	}
 
+	/**
+	 * Clear only the extractions acquired by this component. Called upon rebuilding a component.
+	 * @param component used to re-generate Followers.
+	 */
+	static void clearConfig(Component component) {
+		// clear only extractions for this component.
+		// used for rebuilding a component when it doesn't need to be disposed.
+		EXTRACTIONS.remove(component);
+	}
+
 	public static void acquireState(State<?> state, Component component) {
 		ACQUIRED.put(component, state);
+
+		// configure global in config
+		EXTRACTIONS
+				.computeIfAbsent(component, x -> new HashMap<>())
+				.computeIfAbsent(state, x -> new Config()).globalCapture = true;
 	}
 
 	public static <T, E> E extractState(State<T> state, Component component, Function<T, E> mapping) {
@@ -32,9 +56,9 @@ public final class StateManagerImpl {
 
 		List<Follower> followers = EXTRACTIONS
 				.computeIfAbsent(component, x -> new HashMap<>())
-				.computeIfAbsent(state, x -> new ArrayList<>());
+				.computeIfAbsent(state, x -> new Config()).followers;
 
-		// TODO reuse the same follower :(
+		// the same follower doesn't need to be reused on rebuilds as we reset extractions upon rebuild.
 		Follower<T, E> follower = new Follower<>(mapping);
 
 		followers.add(follower);
@@ -53,24 +77,53 @@ public final class StateManagerImpl {
 		});
 	}
 
+	/**
+	 * Schedule rebuild for the given state updating.
+	 */
 	public static void scheduleRebuild(State<?> state) {
-		Iterable<Component> components = ACQUIRED.getReverse(state);
+		Iterable<Component> allComponents = ACQUIRED.getReverse(state);
 
+		// filter
+		Collection<Component> rebuildComponents = new ArrayList<>();
+
+		for (Component component : allComponents) {
+			if (shouldRebuild(state, component)) {
+				rebuildComponents.add(component);
+			}
+		}
+
+		// rebuild
 		RenderSystem.recordRenderCall(() -> {
 			Screen screen = Minecraft.getInstance().screen;
 
 			if (screen instanceof KupeScreen) {
-				((KupeScreen) screen).rebuildComponents(components, );
+				((KupeScreen) screen).rebuildComponents(rebuildComponents);
 			}
 		});
 	}
 
+	/**
+	 * Determine if a given component should be rebuilt given a state update ("re-rendered" for react fans).
+	 * @param state the state that updated.
+	 * @param component the component that needs determining whether it should be rebuilt.
+	 * @return whether the component should be rebuilt.
+	 */
 	private static boolean shouldRebuild(State<?> state, Component component) {
-		for (Follower follower : EXTRACTIONS.get(component).get(state)) {
+		Config config = EXTRACTIONS.get(component).get(state);
+
+		// n.b. if this method returns true, not all followers have necessarily updated
+		// but that's okay, because a rebuilding component resets abstractions and creates the objects again.
+		if (config.globalCapture) {
+			return true;
+		}
+
+		for (Follower follower : config.followers) {
 			if (follower.update(state.peek())) {
 				return true;
 			}
 		}
+
+		return false;
 	}
 
 	/**

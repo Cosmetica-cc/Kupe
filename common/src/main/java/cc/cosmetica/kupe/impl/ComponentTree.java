@@ -16,7 +16,6 @@
 
 package cc.cosmetica.kupe.impl;
 
-import cc.cosmetica.kupe.Kupe;
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.Context;
 import cc.cosmetica.kupe.api.Text;
@@ -302,6 +301,9 @@ class ComponentTree {
 
 			// clear children
 			this.children.clear();
+
+			// clear extractions as we want to re-generate these.
+			StateManagerImpl.clearConfig(this.element);
 
 			// build
 			this.buildThis();
