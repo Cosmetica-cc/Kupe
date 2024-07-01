@@ -14,22 +14,17 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.kupe.impl.fakeplayer;
+package cc.cosmetica.kupe.mixin.fakeplayer;
 
-import cc.cosmetica.kupe.api.Canvas;
-import cc.cosmetica.kupe.api.Text;
-import cc.cosmetica.kupe.api.gui.FakePlayer;
+import net.minecraft.client.model.HumanoidModel;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.gen.Invoker;
 
-import java.util.UUID;
+@Mixin(HumanoidModel.class)
+public interface HumanoidModelAccessor {
+	@Invoker
+	float invokeRotlerpRad(float f, float g, float h);
 
-public class NameTagAttachment implements FakePlayer.Attachment<Text> {
-	@Override
-	public void render(Canvas canvas, Text configuration) {
-
-	}
-
-	@Override
-	public Text getUserConfiguration(UUID uuid) {
-		return null;
-	}
+	@Invoker
+	float invokeQuadraticArmUpdate(float f);
 }

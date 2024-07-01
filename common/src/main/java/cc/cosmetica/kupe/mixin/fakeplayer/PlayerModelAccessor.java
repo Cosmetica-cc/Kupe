@@ -14,22 +14,18 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.kupe.impl.fakeplayer;
+package cc.cosmetica.kupe.mixin.fakeplayer;
 
-import cc.cosmetica.kupe.api.Canvas;
-import cc.cosmetica.kupe.api.Text;
-import cc.cosmetica.kupe.api.gui.FakePlayer;
+import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.geom.ModelPart;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.gen.Accessor;
 
-import java.util.UUID;
+@Mixin(PlayerModel.class)
+public interface PlayerModelAccessor {
+	@Accessor
+	ModelPart getCloak();
 
-public class NameTagAttachment implements FakePlayer.Attachment<Text> {
-	@Override
-	public void render(Canvas canvas, Text configuration) {
-
-	}
-
-	@Override
-	public Text getUserConfiguration(UUID uuid) {
-		return null;
-	}
+	@Accessor
+	ModelPart getEar();
 }

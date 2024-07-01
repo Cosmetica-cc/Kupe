@@ -1,16 +1,37 @@
+/*
+ * Copyright 2024 Cosmetica
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package cc.cosmetica.kupe.impl.fakeplayer;
 
+import cc.cosmetica.kupe.api.gui.FakePlayer;
+import cc.cosmetica.kupe.mixin.fakeplayer.HumanoidModelAccessor;
+import cc.cosmetica.kupe.mixin.fakeplayer.PlayerModelAccessor;
 import cc.cosmetica.kupe.util.GlobalPoseStack;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Matrix4f;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.model.AnimationUtils;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
@@ -18,8 +39,12 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.phys.Vec3;
@@ -37,6 +62,8 @@ public final class FakePlayerRenderer {
 	public boolean sneaking;
 	public boolean leftHanded;
 	public boolean isMainArmRaised;
+	private float yRotBody, yRotHead, yRot, xRot;
+	private Quaternion cameraOrientation = Quaternion.ONE;
 	public Set<PlayerModelPart> shownParts = new HashSet<>();
 
 	public void render(int left, int top, float extraScale, float lookX, float lookY) {
@@ -60,43 +87,41 @@ public final class FakePlayerRenderer {
 
 		float rotationBody = 180.0F + h * 20.0F;
 		float rotationMain = 180.0F + h * 40.0F;
-		fakePlayer.yRotBody += rotationBody;
-		fakePlayer.yRot += rotationMain;
-		fakePlayer.xRot = -l * 20.0F;
-		fakePlayer.yRotHead = fakePlayer.getYRot(0);
+		this.yRotBody += rotationBody;
+		this.yRot += rotationMain;
+		this.xRot = -l * 20.0F;
+		this.yRotHead = this.yRot;//fakePlayer.getYRot(0);
 		//Lighting.setupForEntityInInventory();
 
 		xRotation.conj();
-		FakePlayerRenderer.cameraOrientation = xRotation;
+		this.cameraOrientation = xRotation;
 		MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
 
 		RenderSystem.runAsFancy(() -> {
 			// Above 1.16.5 we need to do an extra step here
-			render(viewStack, fakePlayer, bufferSource, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, 15728880);
+			this.render(viewStack, bufferSource, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, 15728880);
 		});
 		bufferSource.endBatch();
 
-		fakePlayer.yRotBody -= rotationBody;
-		fakePlayer.yRot -= rotationMain;
+		this.yRotBody -= rotationBody;
+		this.yRot -= rotationMain;
 
 		stack.popPose();
 		//RenderSystem.applyModelViewMatrix();
 		Lighting.setupFor3DItems();
 	}
 
-	private Quaternion cameraOrientation = Quaternion.ONE;
-
 	// EntityRenderDispatcher#render
 	public void render(PoseStack stack, MultiBufferSource bufferSource, double xOffset, double yOffset, double zOffset, float rotation, float delta, int light) {
 		try {
-			Vec3 vec3 = getRenderOffset(player, delta);
+			Vec3 vec3 = getRenderOffset();
 			double x = xOffset + vec3.x();
 			double y = yOffset + vec3.y();
 			double z = zOffset + vec3.z();
 			stack.pushPose();
 			stack.translate(x, y, z);
 
-			drawFakePlayer(player, rotation, delta, stack, bufferSource, light);
+			drawFakePlayer(rotation, delta, stack, bufferSource, light);
 
 			stack.popPose();
 		} catch (Throwable var24) {
@@ -117,8 +142,8 @@ public final class FakePlayerRenderer {
 
 	// PlayerRenderer#render
 	private void drawFakePlayer(float rotation, float delta, PoseStack stack, MultiBufferSource bufferSource, int light) {
-		setModelProperties(player);
-		drawLivingEntity(player, rotation, delta, stack, bufferSource, light);
+		setModelProperties();
+		drawLivingEntity(rotation, delta, stack, bufferSource, light);
 	}
 
 	// PlayerRenderer#setModelProperties()
@@ -152,17 +177,18 @@ public final class FakePlayerRenderer {
 		model.riding = false;
 		model.young = false;
 
-		float yRotBody = player.getYRotBody(delta);
-		float yRotHead = player.getYRotHead(delta);
+		float yRotBody = this.yRotBody; //player.getYRotBody(delta);
+		float yRotHead = this.yRotHead; //player.getYRotHead(delta);
 		float yRotDiff = yRotHead - yRotBody;
 		float bob = delta;
 
-		float xRot = player.getXRot(delta);
+		float xRot = this.xRot; //player.getXRot(delta);
 
-		if (player.getData().upsideDown()) {
-			xRot *= -1.0F;
-			yRotDiff *= -1.0F;
-		}
+		// Upside Down
+//		if (player.getData().upsideDown()) {
+//			xRot *= -1.0F;
+//			yRotDiff *= -1.0F;
+//		}
 
 		setupRotations(player, stack, bob, yRotBody, delta);
 
@@ -190,15 +216,17 @@ public final class FakePlayerRenderer {
 
 		// render layers
 
-		for (MenuRenderLayer layer : player.getLayers()) {
-			layer.render(stack, bufferSource, light, player, animationPosition, animationSpeed, delta, bob, yRotDiff, xRot);
-		}
+		// TODO
+//		for (MenuRenderLayer layer : player.getLayers()) {
+//			layer.render(stack, bufferSource, light, player, animationPosition, animationSpeed, delta, bob, yRotDiff, xRot);
+//		}
 
 		stack.popPose();
 
-		if (player.renderNametag) {
+		// TODO
+//		if (player.renderNametag) {
 			renderNameTag(player, stack, bufferSource, light);
-		}
+//		}
 	}
 
 	private RenderType getRenderType(FakePlayer player, boolean isVisible, boolean isInvisibleToPlayer, boolean isGlowing) {
@@ -347,13 +375,14 @@ public final class FakePlayerRenderer {
 
 		ModelPart cloak = ((PlayerModelAccessor) model).getCloak();
 
-		if (player.isSneaking()) {
+		// TODO
+		//if (player.isSneaking()) {
 			cloak.z = 1.4F;
 			cloak.y = 1.85F;
-		} else {
-			cloak.z = 0.0F;
-			cloak.y = 0.0F;
-		}
+		//} else {
+		//	cloak.z = 0.0F;
+		//	cloak.y = 0.0F;
+		//}
 	}
 
 	private static void poseLeftArm(PlayerModel model) {
@@ -388,46 +417,47 @@ public final class FakePlayerRenderer {
 		}
 	}
 
-	private static void setupRotations(FakePlayer player, PoseStack stack, float f, float g, float h) {
+	private static void setupRotations(PoseStack stack, float f, float g, float h) {
 		stack.mulPose(Vector3f.YP.rotationDegrees(180.0F - g));
 
-		if (player.getData().upsideDown()) {
-			stack.translate(0.0D, EntityType.PLAYER.getDimensions().height + 0.1, 0.0D);
-			stack.mulPose(Vector3f.ZP.rotationDegrees(180.0F));
-		}
+		// Upside Down
+//		if (player.getData().upsideDown()) {
+//			stack.translate(0.0D, EntityType.PLAYER.getDimensions().height + 0.1, 0.0D);
+//			stack.mulPose(Vector3f.ZP.rotationDegrees(180.0F));
+//		}
 	}
 
 	private static int getOverlayCoords(float u) {
 		return OverlayTexture.pack(OverlayTexture.u(u), OverlayTexture.v(false));
 	}
 
-	private static void renderNameTag(FakePlayer player, PoseStack stack, MultiBufferSource bufferSource, int light) {
-		Component name = player.getDisplayName();
+	private void renderNameTag(PoseStack stack, MultiBufferSource bufferSource, int light) {
+		Component name = new TextComponent("Player");// TODO player.getDisplayName();
 
-		boolean fullyRender = !player.renderDiscreteNametag();
+		boolean fullyRender = true; // TODO !player.renderDiscreteNametag();
 		float yPosition = EntityType.PLAYER.getDimensions().height + 0.5F;
 		int offsetForDeadmau5 = "deadmau5".equals(name.getString()) ? -10 : 0;
 
 		stack.pushPose();
 
 		// add lore
-		Cosmetica.renderLore(
-				stack,
-				cameraOrientation,
-				Minecraft.getInstance().font,
-				bufferSource,
-				player.getData().lore(),
-				player.getData().hats(),
-				false,
-				true,
-				player.renderDiscreteNametag(),
-				player.getData().upsideDown(),
-				EntityType.PLAYER.getDimensions().height,
-				player.getModel().getHead().xRot,
-				light);
+//		Cosmetica.renderLore(
+//				stack,
+//				cameraOrientation,
+//				Minecraft.getInstance().font,
+//				bufferSource,
+//				player.getData().lore(),
+//				player.getData().hats(),
+//				false,
+//				true,
+//				player.renderDiscreteNametag(),
+//				player.getData().upsideDown(),
+//				EntityType.PLAYER.getDimensions().height,
+//				player.getModel().getHead().xRot,
+//				light);
 
 		stack.translate(0.0D, yPosition, 0.0D);
-		stack.mulPose(cameraOrientation);
+		stack.mulPose(this.cameraOrientation);
 		stack.scale(-0.025F, -0.025F, 0.025F);
 		Matrix4f pose = stack.last().pose();
 		float backgroundOpacity = Minecraft.getInstance().options.getBackgroundOpacity(0.25F);
@@ -440,10 +470,10 @@ public final class FakePlayerRenderer {
 			font.drawInBatch(name, h, (float)offsetForDeadmau5, -1, false, pose, bufferSource, false, 0, light);
 		}
 
-		// add comsetica icon
-		if (player.getData().icon() != null) {
-			Cosmetica.renderIcon(stack, bufferSource, player, font, light, name);
-		}
+		// TODO add cosmetica icon
+//		if (player.getData().icon() != null) {
+//			Cosmetica.renderIcon(stack, bufferSource, player, font, light, name);
+//		}
 
 		stack.popPose();
 	}
