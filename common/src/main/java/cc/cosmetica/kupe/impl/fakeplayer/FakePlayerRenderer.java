@@ -58,15 +58,39 @@ import java.util.Set;
  * a grain of salt.
  */
 public final class FakePlayerRenderer {
+	// Lazy Model Loading
+	// Important on newer mc versions
+	private PlayerModel<AbstractClientPlayer> model;
+	private boolean slimModel;
+
+	private boolean lazyLoadModel() {
+		if (this.model == null || (this.slimModel != this.slim)) {
+			this.model = new PlayerModel<>(0.0f, this.slimModel = this.slim);
+		}
+
+		return true;
+	}
+
 	// properties
 	public boolean sneaking;
+	public boolean slim;
 	public boolean leftHanded;
 	public boolean isMainArmRaised;
-	private float yRotBody, yRotHead, yRot, xRot;
+	public ResourceLocation skin;
+	public PlayerRenderMode renderMode = PlayerRenderMode.NORMAL;
+	public HumanoidArm mainArm;
+	public boolean renderNametag;
+	public float yRotBody, yRotHead, yRot, xRot;
+
 	private Quaternion cameraOrientation = Quaternion.ONE;
 	public Set<PlayerModelPart> shownParts = new HashSet<>();
 
 	public void render(int left, int top, float extraScale, float lookX, float lookY) {
+		// lazy load model (important on newer mc versions)
+		if (!this.lazyLoadModel()) {
+			return;
+		}
+
 		float h = (float)Math.atan(lookX / 40.0F);
 		float l = (float)Math.atan(lookY / 40.0F);
 		PoseStack stack = GlobalPoseStack.INSTANCE;
@@ -142,13 +166,13 @@ public final class FakePlayerRenderer {
 
 	// PlayerRenderer#render
 	private void drawFakePlayer(float rotation, float delta, PoseStack stack, MultiBufferSource bufferSource, int light) {
-		setModelProperties();
+		this.setModelProperties();
 		drawLivingEntity(rotation, delta, stack, bufferSource, light);
 	}
 
 	// PlayerRenderer#setModelProperties()
 	private void setModelProperties() {
-		PlayerModel playerModel = fakePlayer.getModel();
+		PlayerModel playerModel = this.model;
 
 		playerModel.setAllVisible(true);
 		playerModel.hat.visible = this.shownParts.contains(PlayerModelPart.HAT);
@@ -171,7 +195,7 @@ public final class FakePlayerRenderer {
 	// LivingEntityRenderer#render
 	private void drawLivingEntity(float rotation, float delta, PoseStack stack, MultiBufferSource bufferSource, int light) {
 		stack.pushPose();
-		PlayerModel<AbstractClientPlayer> model = player.getModel();
+		PlayerModel<AbstractClientPlayer> model = this.model;
 
 		model.attackTime = 0;
 		model.riding = false;
@@ -190,7 +214,7 @@ public final class FakePlayerRenderer {
 //			yRotDiff *= -1.0F;
 //		}
 
-		setupRotations(player, stack, bob, yRotBody, delta);
+		this.setupRotations(stack, bob, yRotBody, delta);
 
 		stack.scale(-1.0F, -1.0F, 1.0F);
 		stack.scale(0.9375F, 0.9375F, 0.9375F); // PlayerRenderer#scale
@@ -204,9 +228,9 @@ public final class FakePlayerRenderer {
 		}
 
 		//model.prepareMobModel(player, o, n, delta); only does swim stuff, not necessary
-		modelSetupAnim(model, player, animationPosition, animationSpeed, bob, yRotDiff, xRot);
+		this.modelSetupAnim(model, animationPosition, animationSpeed, bob, yRotDiff, xRot);
 
-		RenderType renderType = getRenderType(player, true, false, false);
+		RenderType renderType = this.getRenderType(this.renderMode);
 
 		if (renderType != null) {
 			VertexConsumer vertexConsumer = bufferSource.getBuffer(renderType);
@@ -223,25 +247,33 @@ public final class FakePlayerRenderer {
 
 		stack.popPose();
 
-		// TODO
-//		if (player.renderNametag) {
-			renderNameTag(player, stack, bufferSource, light);
-//		}
-	}
-
-	private RenderType getRenderType(FakePlayer player, boolean isVisible, boolean isInvisibleToPlayer, boolean isGlowing) {
-		ResourceLocation resourceLocation = player.getSkin();
-
-		if (isInvisibleToPlayer) {
-			return RenderType.itemEntityTranslucentCull(resourceLocation);
-		} else if (isVisible) {
-			return player.getModel().renderType(resourceLocation);
-		} else {
-			return isGlowing ? RenderType.outline(resourceLocation) : null;
+		if (this.renderNametag) {
+			this.renderNameTag(stack, bufferSource, light);
 		}
 	}
 
-	private void modelSetupAnim(PlayerModel<AbstractClientPlayer> model, FakePlayer player, float f, float g, float bob, float yRotDiff, float xRot) {
+	public enum PlayerRenderMode {
+		INVISIBLE,
+		NORMAL,
+		GLOWING,
+		NO_RENDER
+	}
+
+	private RenderType getRenderType(PlayerRenderMode mode) {
+		switch (mode) {
+		case INVISIBLE:
+			return RenderType.itemEntityTranslucentCull(this.skin);
+		case NORMAL:
+			return this.model.renderType(this.skin);
+		case GLOWING:
+			return RenderType.outline(this.skin);
+		case NO_RENDER:
+		default:
+			return null;
+		}
+	}
+
+	private void modelSetupAnim(PlayerModel<AbstractClientPlayer> model, float f, float g, float bob, float yRotDiff, float xRot) {
 		model.head.yRot = yRotDiff * 0.017453292F;
 
 		if (model.swimAmount > 0.0F) {
@@ -288,7 +320,7 @@ public final class FakePlayerRenderer {
 
 		model.rightArm.yRot = 0.0F;
 		model.leftArm.yRot = 0.0F;
-		boolean bl3 = player.getMainArm() == HumanoidArm.RIGHT;
+		boolean bl3 = this.mainArm == HumanoidArm.RIGHT;
 		boolean bl4;
 
 		bl4 = bl3 ? model.leftArmPose.isTwoHanded() : model.rightArmPose.isTwoHanded();
@@ -331,7 +363,7 @@ public final class FakePlayerRenderer {
 
 		if (model.swimAmount > 0.0F) {
 			float l = f % 26.0F;
-			HumanoidArm humanoidArm = player.getMainArm();
+			HumanoidArm humanoidArm = this.mainArm;
 			float m = humanoidArm == HumanoidArm.RIGHT && model.attackTime > 0.0F ? 0.0F : model.swimAmount;
 			float n = humanoidArm == HumanoidArm.LEFT && model.attackTime > 0.0F ? 0.0F : model.swimAmount;
 			float o;
