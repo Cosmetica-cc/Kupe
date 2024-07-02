@@ -24,7 +24,7 @@ import java.util.UUID;
 
 public class CapeAttachment implements FakePlayer.Attachment<ResourceLocation> {
 	@Override
-	public void render(Canvas canvas, ResourceLocation configuration) {
+	public void render(Canvas canvas, ResourceLocation configuration, int packedLight) {
 
 	}
 

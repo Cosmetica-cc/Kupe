@@ -39,7 +39,7 @@ import org.lwjgl.opengl.GL11;
 public class PoseCanvas implements Canvas {
 	public PoseCanvas(PoseStack stack, Minecraft minecraft, Context context, float tickDelta) {
 		this.stack = stack;
-		this.kupeStack = new KupeStack();
+		this.kupeStack = new KupeStack(stack);
 		this.minecraft = minecraft;
 		this.context = context;
 		this.tickDelta = tickDelta;
@@ -144,46 +144,5 @@ public class PoseCanvas implements Canvas {
 	@Override
 	public void renderMinecraftComponent(Widget component, int mouseX, int mouseY) {
 		component.render(this.stack, mouseX, mouseY, this.tickDelta);
-	}
-
-	class KupeStack implements MatrixStack {
-		@Override
-		public void push() {
-			PoseCanvas.this.stack.pushPose();
-		}
-
-		@Override
-		public void pop() {
-			PoseCanvas.this.stack.popPose();
-		}
-
-		@Override
-		public Matrix4 peek() {
-			return (Matrix4) (Object) PoseCanvas.this.stack.last().pose();
-		}
-
-		@Override
-		public void translate(double x, double y, double z) {
-			PoseCanvas.this.stack.translate(x, y, z);
-		}
-
-		@Override
-		public void rotate(Vec3 axis, float amount, boolean degrees) {
-			PoseCanvas.this.stack.mulPose(new Quaternion(
-					new Vector3f((float)axis.getX(), (float)axis.getY(), (float)axis.getZ()),
-					amount,
-					degrees
-			));
-		}
-
-		@Override
-		public void scale(float x, float y, float z) {
-			PoseCanvas.this.stack.scale(x, y, z);
-		}
-
-		@Override
-		public PoseStack getMinecraftStack() {
-			return PoseCanvas.this.stack;
-		}
 	}
 }

@@ -16,10 +16,14 @@
 
 package cc.cosmetica.kupe.impl.fakeplayer;
 
+import cc.cosmetica.kupe.api.Canvas;
+import cc.cosmetica.kupe.api.Context;
+import cc.cosmetica.kupe.api.MatrixStack;
 import cc.cosmetica.kupe.api.gui.FakePlayer;
+import cc.cosmetica.kupe.impl.PoseCanvas;
 import cc.cosmetica.kupe.mixin.fakeplayer.HumanoidModelAccessor;
 import cc.cosmetica.kupe.mixin.fakeplayer.PlayerModelAccessor;
-import cc.cosmetica.kupe.util.GlobalPoseStack;
+import cc.cosmetica.kupe.util.GlobalMatrixStack;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -49,8 +53,7 @@ import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Renderer for {@link cc.cosmetica.kupe.api.gui.FakePlayer}.
@@ -74,18 +77,18 @@ public final class FakePlayerRenderer {
 	// properties
 	public boolean sneaking;
 	public boolean slim;
+	public boolean upsideDown;
 	public boolean leftHanded;
 	public boolean isMainArmRaised;
 	public ResourceLocation skin;
 	public PlayerRenderMode renderMode = PlayerRenderMode.NORMAL;
 	public HumanoidArm mainArm;
-	public boolean renderNametag;
 	public float yRotBody, yRotHead, yRot, xRot;
 
 	private Quaternion cameraOrientation = Quaternion.ONE;
 	public Set<PlayerModelPart> shownParts = new HashSet<>();
 
-	public void render(int left, int top, float extraScale, float lookX, float lookY) {
+	public void render(FakePlayer player, Context context, int left, int top, float extraScale, float lookX, float lookY) {
 		// lazy load model (important on newer mc versions)
 		if (!this.lazyLoadModel()) {
 			return;
@@ -93,9 +96,9 @@ public final class FakePlayerRenderer {
 
 		float h = (float)Math.atan(lookX / 40.0F);
 		float l = (float)Math.atan(lookY / 40.0F);
-		PoseStack stack = GlobalPoseStack.INSTANCE;
+		MatrixStack stack = GlobalMatrixStack.INSTANCE;
 
-		stack.pushPose();
+		stack.push();
 		stack.translate(left, top, 1050.0D);
 		stack.scale(2.0F, 2.0F, -1.0F);
 		//RenderSystem.applyModelViewMatrix();
@@ -123,20 +126,20 @@ public final class FakePlayerRenderer {
 
 		RenderSystem.runAsFancy(() -> {
 			// Above 1.16.5 we need to do an extra step here
-			this.render(viewStack, bufferSource, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, 15728880);
+			this.render(player, context, viewStack, bufferSource, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, 15728880);
 		});
 		bufferSource.endBatch();
 
 		this.yRotBody -= rotationBody;
 		this.yRot -= rotationMain;
 
-		stack.popPose();
+		stack.pop();
 		//RenderSystem.applyModelViewMatrix();
 		Lighting.setupFor3DItems();
 	}
 
 	// EntityRenderDispatcher#render
-	public void render(PoseStack stack, MultiBufferSource bufferSource, double xOffset, double yOffset, double zOffset, float rotation, float delta, int light) {
+	public void render(FakePlayer player, Context context, PoseStack stack, MultiBufferSource bufferSource, double xOffset, double yOffset, double zOffset, float rotation, float delta, int light) {
 		try {
 			Vec3 vec3 = getRenderOffset();
 			double x = xOffset + vec3.x();
@@ -145,29 +148,26 @@ public final class FakePlayerRenderer {
 			stack.pushPose();
 			stack.translate(x, y, z);
 
-			drawFakePlayer(rotation, delta, stack, bufferSource, light);
+			// PlayerRenderer#render
+			this.setModelProperties();
+			drawLivingEntity(player, context, rotation, delta, stack, bufferSource, light);
+			// </PlayerRenderer#render>
 
 			stack.popPose();
 		} catch (Throwable var24) {
 			CrashReport crashReport = CrashReport.forThrowable(var24, "Rendering fake player in menu");
 			crashReport.addCategory("Fake Player being rendered");
 
-			CrashReportCategory crashReportCategory2 = crashReport.addCategory("Renderer details");
-			crashReportCategory2.setDetail("Location", xOffset + "," + yOffset + "," + zOffset);
-			crashReportCategory2.setDetail("Rotation", rotation);
-			crashReportCategory2.setDetail("Delta", delta);
+			CrashReportCategory category = crashReport.addCategory("Renderer details");
+			category.setDetail("Location", xOffset + "," + yOffset + "," + zOffset);
+			category.setDetail("Rotation", rotation);
+			category.setDetail("Delta", delta);
 			throw new ReportedException(crashReport);
 		}
 	}
 
 	private Vec3 getRenderOffset() {
 		return this.sneaking ? new Vec3(0.0D, -0.125D, 0.0D) : Vec3.ZERO;
-	}
-
-	// PlayerRenderer#render
-	private void drawFakePlayer(float rotation, float delta, PoseStack stack, MultiBufferSource bufferSource, int light) {
-		this.setModelProperties();
-		drawLivingEntity(rotation, delta, stack, bufferSource, light);
 	}
 
 	// PlayerRenderer#setModelProperties()
@@ -193,7 +193,7 @@ public final class FakePlayerRenderer {
 	}
 
 	// LivingEntityRenderer#render
-	private void drawLivingEntity(float rotation, float delta, PoseStack stack, MultiBufferSource bufferSource, int light) {
+	private void drawLivingEntity(FakePlayer player, Context context, float rotation, float delta, PoseStack stack, MultiBufferSource bufferSource, int light) {
 		stack.pushPose();
 		PlayerModel<AbstractClientPlayer> model = this.model;
 
@@ -209,10 +209,10 @@ public final class FakePlayerRenderer {
 		float xRot = this.xRot; //player.getXRot(delta);
 
 		// Upside Down
-//		if (player.getData().upsideDown()) {
-//			xRot *= -1.0F;
-//			yRotDiff *= -1.0F;
-//		}
+		if (this.upsideDown) {
+			xRot *= -1.0F;
+			yRotDiff *= -1.0F;
+		}
 
 		this.setupRotations(stack, bob, yRotBody, delta);
 
@@ -240,15 +240,27 @@ public final class FakePlayerRenderer {
 
 		// render layers
 
-		// TODO
-//		for (MenuRenderLayer layer : player.getLayers()) {
-//			layer.render(stack, bufferSource, light, player, animationPosition, animationSpeed, delta, bob, yRotDiff, xRot);
-//		}
+		// TODO optimise this; it's better to precompute the split between model and non-model.
+		Canvas canvas = new PoseCanvas(stack, Minecraft.getInstance(), context, delta);
+		List<Map.Entry<FakePlayer.Attachment, Object>> nonModel = new ArrayList<>();
+		Iterator<Map.Entry<FakePlayer.Attachment, Object>> iterator = (Iterator<Map.Entry<FakePlayer.Attachment, Object>>)(Object) player.getRenderingAttachments();
+
+		while (iterator.hasNext()) {
+			//layer.render(stack, bufferSource, light, player, animationPosition, animationSpeed, delta, bob, yRotDiff, xRot);
+			Map.Entry<FakePlayer.Attachment, Object> layer = iterator.next();
+
+			if (!layer.getKey().isNameTag()) {
+				layer.getKey().render(canvas, layer.getValue(), light);
+			} else {
+				nonModel.add(layer);
+			}
+		}
 
 		stack.popPose();
 
-		if (this.renderNametag) {
-			this.renderNameTag(stack, bufferSource, light);
+		// Render non-model attachments (nametag)
+		for (Map.Entry<FakePlayer.Attachment, Object> layer : nonModel) {
+			layer.getKey().render(canvas, layer.getValue(), light);
 		}
 	}
 
@@ -407,14 +419,13 @@ public final class FakePlayerRenderer {
 
 		ModelPart cloak = ((PlayerModelAccessor) model).getCloak();
 
-		// TODO
-		//if (player.isSneaking()) {
+		if (this.sneaking) {
 			cloak.z = 1.4F;
 			cloak.y = 1.85F;
-		//} else {
-		//	cloak.z = 0.0F;
-		//	cloak.y = 0.0F;
-		//}
+		} else {
+			cloak.z = 0.0F;
+			cloak.y = 0.0F;
+		}
 	}
 
 	private static void poseLeftArm(PlayerModel model) {
@@ -449,14 +460,14 @@ public final class FakePlayerRenderer {
 		}
 	}
 
-	private static void setupRotations(PoseStack stack, float f, float g, float h) {
+	private void setupRotations(PoseStack stack, float f, float g, float h) {
 		stack.mulPose(Vector3f.YP.rotationDegrees(180.0F - g));
 
 		// Upside Down
-//		if (player.getData().upsideDown()) {
-//			stack.translate(0.0D, EntityType.PLAYER.getDimensions().height + 0.1, 0.0D);
-//			stack.mulPose(Vector3f.ZP.rotationDegrees(180.0F));
-//		}
+		if (this.upsideDown) {
+			stack.translate(0.0D, EntityType.PLAYER.getDimensions().height + 0.1, 0.0D);
+			stack.mulPose(Vector3f.ZP.rotationDegrees(180.0F));
+		}
 	}
 
 	private static int getOverlayCoords(float u) {
@@ -501,11 +512,6 @@ public final class FakePlayerRenderer {
 		if (fullyRender) {
 			font.drawInBatch(name, h, (float)offsetForDeadmau5, -1, false, pose, bufferSource, false, 0, light);
 		}
-
-		// TODO add cosmetica icon
-//		if (player.getData().icon() != null) {
-//			Cosmetica.renderIcon(stack, bufferSource, player, font, light, name);
-//		}
 
 		stack.popPose();
 	}

@@ -16,6 +16,9 @@
 
 package cc.cosmetica.kupe.util;
 
+import cc.cosmetica.kupe.api.MatrixStack;
+import cc.cosmetica.kupe.api.maths.Matrix4;
+import cc.cosmetica.kupe.api.maths.Vec3;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Quaternion;
@@ -25,20 +28,11 @@ import com.mojang.math.Quaternion;
  * <a href="https://github.com/Cosmetica-cc/Cosmetica/blob/1.16.5/src/main/java/cc/cosmetica/cosmetica/utils/GlobalPoseStack.java">Source</a>.
  */
 @SuppressWarnings("deprecated")
-public final class GlobalPoseStack extends PoseStack {
-	private GlobalPoseStack() {
+public final class GlobalMatrixStack extends PoseStack implements MatrixStack {
+	private GlobalMatrixStack() {
 	}
 
-	@Override
-	public void pushPose() {
-		RenderSystem.pushMatrix();
-	}
-
-	@Override
-	public void popPose() {
-		RenderSystem.popMatrix();
-	}
-
+	// Shared
 	@Override
 	public void translate(double d, double e, double f) {
 		RenderSystem.translated(d, e, f);
@@ -47,6 +41,43 @@ public final class GlobalPoseStack extends PoseStack {
 	@Override
 	public void scale(float f, float g, float h) {
 		RenderSystem.scalef(f, g, h);
+	}
+
+	// MatrixStack
+	@Override
+	public void push() {
+		RenderSystem.pushMatrix();
+	}
+
+	@Override
+	public void pop() {
+		RenderSystem.popMatrix();
+	}
+
+	@Override
+	public PoseStack getMinecraftStack() {
+		return this;
+	}
+
+	@Override
+	public Matrix4 peek() {
+		throw new UnsupportedOperationException("Cannot peek at pose on the global matrix stack.");
+	}
+
+	@Override
+	public void rotate(Vec3 axis, float amount, boolean degrees) {
+		throw new UnsupportedOperationException("Cannot rotate the global matrix stack.");
+	}
+
+	// PoseStack
+	@Override
+	public void pushPose() {
+		RenderSystem.pushMatrix();
+	}
+
+	@Override
+	public void popPose() {
+		RenderSystem.popMatrix();
 	}
 
 	@Override
@@ -64,6 +95,6 @@ public final class GlobalPoseStack extends PoseStack {
 		throw new UnsupportedOperationException("Cannot clear the global pose stack.");
 	}
 
-	public static final GlobalPoseStack INSTANCE = new GlobalPoseStack();
+	public static final GlobalMatrixStack INSTANCE = new GlobalMatrixStack();
 }
 

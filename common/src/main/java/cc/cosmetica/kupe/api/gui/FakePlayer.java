@@ -82,6 +82,10 @@ public class FakePlayer extends Component {
 		return this;
 	}
 
+	public Iterator<Map.Entry<Attachment<?>, Object>> getRenderingAttachments() {
+		return this.configurations.entrySet().stream().filter(e -> this.shown.contains(e.getKey())).iterator();
+	}
+
 	/**
 	 * Show the given attachments on this FakePlayer.
 	 * @param attachments a list of attachments to show on this fake player. Leave blank to show all attachments.
@@ -113,7 +117,6 @@ public class FakePlayer extends Component {
 
 	@Override
 	public void render(Canvas canvas, Region region, int mouseX, int mouseY) {
-
 	}
 
 	public static Attachment<ResourceLocation> CAPE = registerAttachment(new CapeAttachment());
@@ -134,13 +137,22 @@ public class FakePlayer extends Component {
 		 * Render this attachment on the fake player.
 		 * @param canvas the canvas environment for rendering.
 		 * @param configuration the configuration.
+		 * @param packedLight packed light for rendering.
 		 */
-		void render(Canvas canvas, T configuration);
+		void render(Canvas canvas, T configuration, int packedLight);
 
 		/**
 		 * Get the user configuration. This is called every frame, so can change dynamically.
 		 * @return the configuration for the given user.
 		 */
 		T getUserConfiguration(UUID uuid);
+
+		/**
+		 * Whether this is a name tag attachment.
+		 * @return whether this attachment should render with nametag. Otherwise renders with model.
+		 */
+		default boolean isNameTag() {
+			return false;
+		}
 	}
 }

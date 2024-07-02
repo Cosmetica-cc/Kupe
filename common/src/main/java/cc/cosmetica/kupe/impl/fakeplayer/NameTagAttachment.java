@@ -24,12 +24,17 @@ import java.util.UUID;
 
 public class NameTagAttachment implements FakePlayer.Attachment<Text> {
 	@Override
-	public void render(Canvas canvas, Text configuration) {
+	public void render(Canvas canvas, Text configuration, int packedLight) {
 
 	}
 
 	@Override
 	public Text getUserConfiguration(UUID uuid) {
 		return null;
+	}
+
+	@Override
+	public boolean isNameTag() {
+		return true;
 	}
 }
