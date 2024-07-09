@@ -139,7 +139,7 @@ public final class FakePlayerRenderer {
 	}
 
 	// EntityRenderDispatcher#render
-	public void render(FakePlayer player, Context context, PoseStack stack, MultiBufferSource bufferSource, double xOffset, double yOffset, double zOffset, float rotation, float delta, int light) {
+	private void render(FakePlayer player, Context context, PoseStack stack, MultiBufferSource bufferSource, double xOffset, double yOffset, double zOffset, float rotation, float delta, int light) {
 		try {
 			Vec3 vec3 = getRenderOffset();
 			double x = xOffset + vec3.x();

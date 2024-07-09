@@ -20,10 +20,7 @@ import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.maths.Region;
 import cc.cosmetica.kupe.impl.LeavesSandbox;
-import cc.cosmetica.kupe.impl.fakeplayer.AttachmentsRegistry;
-import cc.cosmetica.kupe.impl.fakeplayer.CapeAttachment;
-import cc.cosmetica.kupe.impl.fakeplayer.ElytraAttachment;
-import cc.cosmetica.kupe.impl.fakeplayer.NameTagAttachment;
+import cc.cosmetica.kupe.impl.fakeplayer.*;
 import com.google.common.base.Preconditions;
 import com.mojang.math.Quaternion;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -64,6 +61,7 @@ public class FakePlayer extends Component {
 		this.hideAttachments(ELYTRA);
 	}
 
+	private final FakePlayerRenderer renderer = new FakePlayerRenderer();
 	private final @Nullable UUID uuid;
 	private final @Nullable ResourceLocation skin;
 	private final Map<Attachment<?>, Object> configurations = new HashMap<>();
@@ -120,6 +118,7 @@ public class FakePlayer extends Component {
 
 	@Override
 	public void render(Canvas canvas, Region region, int mouseX, int mouseY) {
+		this.renderer.render(this, canvas.getDrawingContext(), 0, 0, 1.0f, 0, 0);
 	}
 
 	public static Attachment<ResourceLocation> CAPE = registerAttachment(new CapeAttachment());
