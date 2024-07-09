@@ -18,9 +18,11 @@ package cc.cosmetica.kupe.api;
 
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.impl.LeavesSandbox;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.List;

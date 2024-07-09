@@ -150,7 +150,7 @@ public final class FakePlayerRenderer {
 
 			// PlayerRenderer#render
 			this.setModelProperties();
-			drawLivingEntity(player, context, rotation, delta, stack, bufferSource, light);
+			this.drawLivingEntity(player, context, rotation, delta, stack, bufferSource, light);
 			// </PlayerRenderer#render>
 
 			stack.popPose();
@@ -250,7 +250,7 @@ public final class FakePlayerRenderer {
 			Map.Entry<FakePlayer.Attachment, Object> layer = iterator.next();
 
 			if (!layer.getKey().isNameTag()) {
-				layer.getKey().render(canvas, layer.getValue(), light);
+				layer.getKey().render(canvas, layer.getValue(), cameraOrientation, bufferSource, light);
 			} else {
 				nonModel.add(layer);
 			}
@@ -258,10 +258,14 @@ public final class FakePlayerRenderer {
 
 		stack.popPose();
 
-		// Render non-model attachments (nametag)
+		// Render nametag attachments
+		stack.pushPose();
+
 		for (Map.Entry<FakePlayer.Attachment, Object> layer : nonModel) {
-			layer.getKey().render(canvas, layer.getValue(), light);
+			layer.getKey().render(canvas, layer.getValue(), cameraOrientation, bufferSource, light);
 		}
+
+		stack.popPose();
 	}
 
 	public enum PlayerRenderMode {
@@ -472,47 +476,5 @@ public final class FakePlayerRenderer {
 
 	private static int getOverlayCoords(float u) {
 		return OverlayTexture.pack(OverlayTexture.u(u), OverlayTexture.v(false));
-	}
-
-	private void renderNameTag(PoseStack stack, MultiBufferSource bufferSource, int light) {
-		Component name = new TextComponent("Player");// TODO player.getDisplayName();
-
-		boolean fullyRender = true; // TODO !player.renderDiscreteNametag();
-		float yPosition = EntityType.PLAYER.getDimensions().height + 0.5F;
-		int offsetForDeadmau5 = "deadmau5".equals(name.getString()) ? -10 : 0;
-
-		stack.pushPose();
-
-		// add lore
-//		Cosmetica.renderLore(
-//				stack,
-//				cameraOrientation,
-//				Minecraft.getInstance().font,
-//				bufferSource,
-//				player.getData().lore(),
-//				player.getData().hats(),
-//				false,
-//				true,
-//				player.renderDiscreteNametag(),
-//				player.getData().upsideDown(),
-//				EntityType.PLAYER.getDimensions().height,
-//				player.getModel().getHead().xRot,
-//				light);
-
-		stack.translate(0.0D, yPosition, 0.0D);
-		stack.mulPose(this.cameraOrientation);
-		stack.scale(-0.025F, -0.025F, 0.025F);
-		Matrix4f pose = stack.last().pose();
-		float backgroundOpacity = Minecraft.getInstance().options.getBackgroundOpacity(0.25F);
-		int k = (int)(backgroundOpacity * 255.0F) << 24;
-		Font font = Minecraft.getInstance().font;
-		float h = (float)(-font.width(name) / 2);
-		font.drawInBatch(name, h, (float)offsetForDeadmau5, 0x20FFFFFF, false, pose, bufferSource, fullyRender, k, light);
-
-		if (fullyRender) {
-			font.drawInBatch(name, h, (float)offsetForDeadmau5, -1, false, pose, bufferSource, false, 0, light);
-		}
-
-		stack.popPose();
 	}
 }

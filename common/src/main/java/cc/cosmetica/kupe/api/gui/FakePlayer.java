@@ -19,11 +19,14 @@ package cc.cosmetica.kupe.api.gui;
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.maths.Region;
+import cc.cosmetica.kupe.impl.LeavesSandbox;
 import cc.cosmetica.kupe.impl.fakeplayer.AttachmentsRegistry;
 import cc.cosmetica.kupe.impl.fakeplayer.CapeAttachment;
 import cc.cosmetica.kupe.impl.fakeplayer.ElytraAttachment;
 import cc.cosmetica.kupe.impl.fakeplayer.NameTagAttachment;
 import com.google.common.base.Preconditions;
+import com.mojang.math.Quaternion;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -135,11 +138,14 @@ public class FakePlayer extends Component {
 	public interface Attachment<T> {
 		/**
 		 * Render this attachment on the fake player.
+		 * Leaves sandbox due to MultiBufferSource and Quaternion parameter.
 		 * @param canvas the canvas environment for rendering.
 		 * @param configuration the configuration.
 		 * @param packedLight packed light for rendering.
 		 */
-		void render(Canvas canvas, T configuration, int packedLight);
+		@LeavesSandbox
+		// TODO refactor so it doesn't leave sandbox
+		void render(Canvas canvas, T configuration, Quaternion cameraOrientation, MultiBufferSource bufferSource, int packedLight);
 
 		/**
 		 * Get the user configuration. This is called every frame, so can change dynamically.

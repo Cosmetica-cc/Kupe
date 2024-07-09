@@ -18,13 +18,15 @@ package cc.cosmetica.kupe.impl.fakeplayer;
 
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.gui.FakePlayer;
+import com.mojang.math.Quaternion;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.UUID;
 
 public class ElytraAttachment implements FakePlayer.Attachment<ResourceLocation> {
 	@Override
-	public void render(Canvas canvas, ResourceLocation configuration, int packedLight) {
+	public void render(Canvas canvas, ResourceLocation configuration, Quaternion cameraOrientation, MultiBufferSource bufferSource, int packedLight) {
 
 	}
 
