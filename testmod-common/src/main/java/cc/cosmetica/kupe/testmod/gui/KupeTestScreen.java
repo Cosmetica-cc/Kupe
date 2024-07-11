@@ -30,14 +30,17 @@ public class KupeTestScreen extends Screen {
 	}
 
 	@Override
-	public Component[] build(Style rootStyle) {
+	public Component[] build(Style.MutableStyle rootStyle) {
 		// note the image may still be shrunk further due to FLEX_SHRINK.
 		// You can set minimum size or remove the flex shrink to handle this.
 
 		return new Component[] {
 				new Label(Text.literal("You can add some text like this!")),
 				new HelloHolaComponent(),
-				new Button(Text.literal("Say Ok, World!"), () -> System.out.println("Ok, World!")),
+				new Button(Text.literal("Fake Player Test"), () -> {
+					System.out.println("Ok, World!");
+					Screens.setScreen(FakePlayerTestScreen.ID);
+				}),
 				new Image(new ResourceLocation("kupe", "icon.png"))
 						.withStyle(
 								new Stylesheet()

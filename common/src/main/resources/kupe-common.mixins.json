@@ -4,6 +4,8 @@
   "compatibilityLevel": "JAVA_8",
   "minVersion": "0.8",
   "client": [
+    "fakeplayer.HumanoidModelAccessor",
+    "fakeplayer.PlayerModelAccessor",
     "Matrix4fMixin",
     "Vec3Mixin"
   ],

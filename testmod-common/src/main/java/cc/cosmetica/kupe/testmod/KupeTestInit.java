@@ -8,6 +8,7 @@
 package cc.cosmetica.kupe.testmod;
 
 import cc.cosmetica.kupe.api.Screens;
+import cc.cosmetica.kupe.testmod.gui.FakePlayerTestScreen;
 import cc.cosmetica.kupe.testmod.gui.KupeTestScreen;
 
 public final class KupeTestInit {
@@ -17,5 +18,6 @@ public final class KupeTestInit {
 	public static void init() {
 		Screens.enableDebug(); // enable debug on all kupe screens
 		Screens.registerScreen(KupeTestScreen.ID, new KupeTestScreen());
+		Screens.registerScreen(FakePlayerTestScreen.ID, new FakePlayerTestScreen());
 	}
 }

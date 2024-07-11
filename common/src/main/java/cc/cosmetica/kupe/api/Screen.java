@@ -46,7 +46,7 @@ public abstract class Screen extends Component {
 	@Override
 	public final List<Component> build() {
 		// default style
-		Style style = Style.create()
+		Style.MutableStyle style = Style.create()
 				.set(CommonProperties.WIDTH, FULL_WIDTH)
 				.set(CommonProperties.HEIGHT, (vw, vh) -> OptionalInt.of(vh))
 				.set(Div.JUSTIFY_CONTENT, Justify.CENTRE)
@@ -68,7 +68,7 @@ public abstract class Screen extends Component {
 	 *              The default properties are WIDTH: vw, HEIGHT: vh, JUSTIFY_CONTENT: centre, ALIGN_ITEMS: centre.
 	 * @return the child components of this screen.
 	 */
-	protected abstract Component[] build(Style rootStyle);
+	protected abstract Component[] build(Style.MutableStyle rootStyle);
 
 	private static final CommonProperties.DimensionsOperator<OptionalInt> FULL_WIDTH = (vw, vh) -> OptionalInt.of(vw);
 }
