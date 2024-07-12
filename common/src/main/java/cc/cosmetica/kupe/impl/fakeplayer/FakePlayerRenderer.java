@@ -82,7 +82,7 @@ public final class FakePlayerRenderer {
 	public boolean isMainArmRaised;
 	public ResourceLocation skin;
 	public PlayerRenderMode renderMode = PlayerRenderMode.NORMAL;
-	public HumanoidArm mainArm;
+	public HumanoidArm mainArm = HumanoidArm.RIGHT;
 	public float yRotBody, yRotHead, yRot, xRot;
 
 	private Quaternion cameraOrientation = Quaternion.ONE;
@@ -93,6 +93,8 @@ public final class FakePlayerRenderer {
 		if (!this.lazyLoadModel()) {
 			return;
 		}
+
+		Objects.requireNonNull(this.skin, "No skin provided to Fake Player renderer!");
 
 		float h = (float)Math.atan(lookX / 40.0F);
 		float l = (float)Math.atan(lookY / 40.0F);
