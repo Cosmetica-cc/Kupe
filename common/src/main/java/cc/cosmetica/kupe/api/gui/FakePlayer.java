@@ -24,6 +24,7 @@ import cc.cosmetica.kupe.impl.fakeplayer.*;
 import com.google.common.base.Preconditions;
 import com.mojang.math.Quaternion;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -43,7 +44,7 @@ public class FakePlayer extends Component {
 		Preconditions.checkNotNull(skin, "Cannot provide a null skin.");
 
 		this.uuid = null;
-		this.skin = skin;
+		this.renderer.skin = skin;
 	}
 
 	/**
@@ -55,15 +56,18 @@ public class FakePlayer extends Component {
 		Preconditions.checkNotNull(uuid, "Cannot provide a null UUID.");
 
 		this.uuid = uuid;
-		this.skin = null;
+		this.renderer.skin = DefaultPlayerSkin.getDefaultSkin(uuid); // todo get actual skin
 
 		this.showAttachments();
 		this.hideAttachments(ELYTRA);
+
+		for (Attachment attachment : AttachmentsRegistry.getAll()) {
+			this.configureAttachment(attachment, attachment.getUserConfiguration(uuid));
+		}
 	}
 
 	private final FakePlayerRenderer renderer = new FakePlayerRenderer();
 	private final @Nullable UUID uuid;
-	private final @Nullable ResourceLocation skin;
 	private final Map<Attachment<?>, Object> configurations = new HashMap<>();
 	private final Set<Attachment<?>> shown = new HashSet<>();
 
