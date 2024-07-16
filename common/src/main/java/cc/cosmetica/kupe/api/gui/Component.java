@@ -120,6 +120,43 @@ public abstract class Component {
 	}
 
 	/**
+	 * Used for components with a preferred size and ratio to determine an intrinsic size.
+	 * @param preferred the preferred dimensions, at the preferred ratio.
+	 * @param context the context we are rendering in.
+	 * @return the actual intrinsic dimensions in this context.
+	 */
+	protected Dimensions tryDimensionsWithPreferredRatio(Dimensions preferred, Context context) {
+		final int vw = context.getViewWidth();
+		final int vh = context.getViewHeight();
+
+		OptionalInt fixedWidth = this.getStyle().get(CommonProperties.WIDTH).apply(vw, vh);
+
+		if (fixedWidth.isPresent()) {
+			Dimensions maxDimensions = this.getStyle().get(CommonProperties.MAXIMUM_SIZE).apply(vw, vh);
+
+			int width = Math.min(fixedWidth.getAsInt(), maxDimensions.getWidth());
+
+			// size height respectfully
+			float aspectRatio = (float) preferred.getHeight() / preferred.getWidth();
+			return new Dimensions(width, (int) (width * aspectRatio));
+		}
+
+		OptionalInt fixedHeight = this.getStyle().get(CommonProperties.HEIGHT).apply(vw, vh);
+
+		if (fixedHeight.isPresent()) {
+			Dimensions maxDimensions = this.getStyle().get(CommonProperties.MAXIMUM_SIZE).apply(vw, vh);
+
+			int height = Math.min(fixedHeight.getAsInt(), maxDimensions.getHeight());
+
+			// size width respectfully
+			float aspectRatio = (float) preferred.getWidth() / preferred.getHeight();
+			return new Dimensions((int) (height * aspectRatio), height);
+		} else {
+			return preferred;
+		}
+	}
+
+	/**
 	 * Get a list of children of this component.
 	 * Will be called again if states acquired by this component or a parent component change.
 	 * @return the list of children of this component

@@ -17,7 +17,12 @@
 package cc.cosmetica.kupe.api.gui;
 
 import cc.cosmetica.kupe.api.Canvas;
+import cc.cosmetica.kupe.api.Context;
 import cc.cosmetica.kupe.api.Text;
+import cc.cosmetica.kupe.api.gui.style.CommonProperties;
+import cc.cosmetica.kupe.api.gui.style.RootStylesheet;
+import cc.cosmetica.kupe.api.gui.style.Style;
+import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Region;
 import cc.cosmetica.kupe.impl.LeavesSandbox;
 import cc.cosmetica.kupe.impl.fakeplayer.*;
@@ -71,6 +76,10 @@ public class FakePlayer extends Component {
 	private final Map<Attachment<?>, Object> configurations = new HashMap<>();
 	private final Set<Attachment<?>> shown = new HashSet<>();
 
+	// ============= //
+	//  API Methods  //
+	// ============= //
+
 	/**
 	 * Configure the given attachment on this FakePlayer.
 	 * @param attachment the attachment to configure on this FakePlayer.
@@ -115,14 +124,25 @@ public class FakePlayer extends Component {
 		}
 	}
 
+	// ======== //
+	// Internal //
+	// ======== //
+
 	@Override
 	public List<Component> build() {
 		return Collections.emptyList();
 	}
 
 	@Override
+	public Dimensions intrinsicSize(List<? extends SizedElement> children, Context context) {
+		return this.tryDimensionsWithPreferredRatio(DEFAULT_DIMENSIONS, context);
+	}
+
+	@Override
 	public void render(Canvas canvas, Region region, int mouseX, int mouseY) {
-		this.renderer.render(this, canvas.getDrawingContext(), region.getX(), region.getY(), 1.0f, 0, 0);
+//		canvas.drawRect(region, 0xFFFFFF);
+		int centreX = (region.getX() + region.getEndX())/2;
+		this.renderer.render(this, canvas.getDrawingContext(), centreX, region.getEndY(), region.getWidth() / 2.5f, 0, 0);
 	}
 
 	public static Attachment<ResourceLocation> CAPE = registerAttachment(new CapeAttachment());
@@ -133,6 +153,8 @@ public class FakePlayer extends Component {
 		AttachmentsRegistry.register(attachment);
 		return attachment;
 	}
+
+	private static final Dimensions DEFAULT_DIMENSIONS = new Dimensions(55, 100);
 
 	/**
 	 * An attachment for the FakePlayer.

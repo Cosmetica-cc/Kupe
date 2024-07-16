@@ -60,9 +60,6 @@ public class Image extends Component {
 	// TODO dont do io on the rendering thread
 	@Override
 	public Dimensions intrinsicSize(List<? extends SizedElement> children, Context context) {
-		final int vw = context.getViewWidth();
-		final int vh = context.getViewHeight();
-
 		try {
 			Optional<Dimensions> dimensionData = context.getImageDimensions(this.texture);
 
@@ -71,33 +68,7 @@ public class Image extends Component {
 			}
 
 			Dimensions dimensions = dimensionData.get();
-
-			OptionalInt fixedWidth = this.getStyle().get(CommonProperties.WIDTH).apply(vw, vh);
-
-
-			if (fixedWidth.isPresent()) {
-				Dimensions maxDimensions = this.getStyle().get(CommonProperties.MAXIMUM_SIZE).apply(vw, vh);
-
-				int width = Math.min(fixedWidth.getAsInt(), maxDimensions.getWidth());
-
-				// size height respectfully
-				float aspectRatio = (float) dimensions.getHeight() / dimensions.getWidth();
-				return new Dimensions(width, (int) (width * aspectRatio));
-			}
-
-			OptionalInt fixedHeight = this.getStyle().get(CommonProperties.HEIGHT).apply(vw, vh);
-
-			if (fixedHeight.isPresent()) {
-				Dimensions maxDimensions = this.getStyle().get(CommonProperties.MAXIMUM_SIZE).apply(vw, vh);
-
-				int height = Math.min(fixedHeight.getAsInt(), maxDimensions.getHeight());
-
-				// size width respectfully
-				float aspectRatio = (float) dimensions.getWidth() / dimensions.getHeight();
-				return new Dimensions((int) (height * aspectRatio), height);
-			} else {
-				return dimensions;
-			}
+			return this.tryDimensionsWithPreferredRatio(dimensions, context);
 		} catch (IOException e) {
 			// could not load image
 			return Dimensions.NONE;
