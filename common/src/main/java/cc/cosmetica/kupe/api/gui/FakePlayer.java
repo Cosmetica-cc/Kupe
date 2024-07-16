@@ -122,7 +122,7 @@ public class FakePlayer extends Component {
 
 	@Override
 	public void render(Canvas canvas, Region region, int mouseX, int mouseY) {
-		this.renderer.render(this, canvas.getDrawingContext(), 0, 0, 1.0f, 0, 0);
+		this.renderer.render(this, canvas.getDrawingContext(), region.getX(), region.getY(), 1.0f, 0, 0);
 	}
 
 	public static Attachment<ResourceLocation> CAPE = registerAttachment(new CapeAttachment());
