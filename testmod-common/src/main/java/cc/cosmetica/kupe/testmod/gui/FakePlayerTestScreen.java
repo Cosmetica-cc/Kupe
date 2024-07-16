@@ -32,7 +32,7 @@ public class FakePlayerTestScreen extends Screen {
 		rootStyle.set(Div.JUSTIFY_CONTENT, Justify.CENTRE);
 
 		return new Component[] {
-				new FakePlayer(UUID.fromString("8ea1da2f-0efa-4044-9e6f-4a3bf4e8a9a5")),
+				new FakePlayer(UUID.fromString("8ea1da2f-0efa-4044-9e6f-4a3bf4e8a9a5"), true),
 				new Button(Text.GUI_DONE, Screens::closeCurrentScreen)
 		};
 	}

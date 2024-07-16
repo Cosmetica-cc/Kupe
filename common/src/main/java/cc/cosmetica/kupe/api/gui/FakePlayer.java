@@ -45,9 +45,10 @@ public class FakePlayer extends Component {
 	 * Display a 'static' fake player with the given skin texture. No attachments by default.
 	 * @param skin the resource location of the skin texture.
 	 */
-	public FakePlayer(@NotNull ResourceLocation skin) {
+	public FakePlayer(@NotNull ResourceLocation skin, boolean followsMouse) {
 		Preconditions.checkNotNull(skin, "Cannot provide a null skin.");
 
+		this.followsMouse = followsMouse;
 		this.uuid = null;
 		this.renderer.skin = skin;
 	}
@@ -57,9 +58,10 @@ public class FakePlayer extends Component {
 	 * and dynamically configured by the provided UUID.
 	 * @param uuid the uuid of the player to render.
 	 */
-	public FakePlayer(@NotNull UUID uuid) {
+	public FakePlayer(@NotNull UUID uuid, boolean followsMouse) {
 		Preconditions.checkNotNull(uuid, "Cannot provide a null UUID.");
 
+		this.followsMouse = followsMouse;
 		this.uuid = uuid;
 		this.renderer.skin = DefaultPlayerSkin.getDefaultSkin(uuid); // todo get actual skin
 
@@ -71,6 +73,7 @@ public class FakePlayer extends Component {
 		}
 	}
 
+	private final boolean followsMouse;
 	private final FakePlayerRenderer renderer = new FakePlayerRenderer();
 	private final @Nullable UUID uuid;
 	private final Map<Attachment<?>, Object> configurations = new HashMap<>();
@@ -140,7 +143,6 @@ public class FakePlayer extends Component {
 
 	@Override
 	public void render(Canvas canvas, Region region, int mouseX, int mouseY) {
-//		canvas.drawRect(region, 0xFFFFFF);
 		int centreX = (region.getX() + region.getEndX())/2;
 		this.renderer.render(this, canvas.getDrawingContext(), centreX, region.getEndY(), region.getWidth() / 2.5f, 0, 0);
 	}
@@ -154,7 +156,7 @@ public class FakePlayer extends Component {
 		return attachment;
 	}
 
-	private static final Dimensions DEFAULT_DIMENSIONS = new Dimensions(55, 100);
+	private static final Dimensions DEFAULT_DIMENSIONS = new Dimensions(55, 90);
 
 	/**
 	 * An attachment for the FakePlayer.
