@@ -54,8 +54,8 @@ public class FakePlayer extends Component {
 	}
 
 	/**
-	 * Create a new, 'dynamic' FakePlayer with the given UUID. All attachments except ELYTRA will be enabled by default
-	 * and dynamically configured by the provided UUID.
+	 * Create a new, 'dynamic' FakePlayer with the given UUID. All attachments will be dynamically configured by the
+	 * provided UUID, and set to their default enable state.
 	 * @param uuid the uuid of the player to render.
 	 */
 	public FakePlayer(@NotNull UUID uuid, boolean followsMouse) {
@@ -65,8 +65,7 @@ public class FakePlayer extends Component {
 		this.uuid = uuid;
 		this.renderer.skin = DefaultPlayerSkin.getDefaultSkin(uuid); // todo get actual skin
 
-		this.showAttachments();
-		this.hideAttachments(ELYTRA);
+		this.showAttachments(AttachmentsRegistry.getAll().stream().filter(Attachment::defaultEnable).toArray(Attachment[]::new));
 
 		for (Attachment attachment : AttachmentsRegistry.getAll()) {
 			this.configureAttachment(attachment, attachment.getUserConfiguration(uuid));
@@ -175,7 +174,7 @@ public class FakePlayer extends Component {
 		void render(Canvas canvas, T configuration, Quaternion cameraOrientation, MultiBufferSource bufferSource, int packedLight);
 
 		/**
-		 * Get the user configuration. This is called every frame, so can change dynamically.
+		 * Get the user configuration. This is called every tick, so can change dynamically.
 		 * @return the configuration for the given user.
 		 */
 		T getUserConfiguration(UUID uuid);
@@ -186,6 +185,14 @@ public class FakePlayer extends Component {
 		 */
 		default boolean isNameTag() {
 			return false;
+		}
+
+		/**
+		 * Whether this attachment should be shown by default in UUID-configured fake players.
+		 * @return whether to enable this by default.
+		 */
+		default boolean defaultEnable() {
+			return true;
 		}
 	}
 }

@@ -60,11 +60,16 @@ public class NameTagAttachment implements FakePlayer.Attachment<Text> {
 
 	@Override
 	public Text getUserConfiguration(UUID uuid) {
-		return null;
+		return Text.literal("Player");
 	}
 
 	@Override
 	public boolean isNameTag() {
 		return true;
+	}
+
+	@Override
+	public boolean defaultEnable() {
+		return false;
 	}
 }
