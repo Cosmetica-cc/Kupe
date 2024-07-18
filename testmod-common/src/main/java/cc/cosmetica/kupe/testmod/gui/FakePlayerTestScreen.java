@@ -9,6 +9,7 @@ package cc.cosmetica.kupe.testmod.gui;
 
 import cc.cosmetica.kupe.api.Screen;
 import cc.cosmetica.kupe.api.Screens;
+import cc.cosmetica.kupe.api.State;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
@@ -16,23 +17,30 @@ import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.OptionalInt;
 import java.util.UUID;
 
 /**
- * Fake player test screen.
+ * Test screen for the {@link FakePlayer} component.
  */
 public class FakePlayerTestScreen extends Screen {
 	public FakePlayerTestScreen() {
 		super(ID);
 	}
 
+	private final State<Boolean> frozen = new State<>(false);
+
 	@Override
 	protected Component[] build(Style.MutableStyle rootStyle) {
 		rootStyle.set(Div.JUSTIFY_CONTENT, Justify.CENTRE);
+		boolean frozen = this.frozen.acquire(this);
 
 		return new Component[] {
-				new FakePlayer(UUID.fromString("8ea1da2f-0efa-4044-9e6f-4a3bf4e8a9a5"), true),
+				new FakePlayer(UUID.fromString("8ea1da2f-0efa-4044-9e6f-4a3bf4e8a9a5"), !frozen)
+						.withStyle(
+								new Stylesheet().self(Style.create()
+										.set(CommonProperties.BORDER_SIZE, 1))
+						),
+				new Button(Text.literal(frozen ? "Unfreeze Player" : "Freeze Player"), () -> this.frozen.set(!frozen)),
 				new Button(Text.GUI_DONE, Screens::closeCurrentScreen)
 		};
 	}

@@ -143,7 +143,22 @@ public class FakePlayer extends Component {
 	@Override
 	public void render(Canvas canvas, Region region, int mouseX, int mouseY) {
 		int centreX = (region.getX() + region.getEndX())/2;
-		this.renderer.render(this, canvas.getDrawingContext(), centreX, region.getEndY(), region.getWidth() / 2.5f, 0, 0);
+
+		int lookX, lookY;
+
+		if (this.followsMouse) {
+			lookX = centreX - mouseX;
+			// approximate eye height as 4/5 up the default bounding box that encapsulates the player
+			// actual rendering size is based off of width not height of the region
+			int defaultTop = region.getEndY() - (region.getWidth() * 90/55);
+			lookY = ((defaultTop * 4 + region.getEndY()) / 5) - mouseY;
+		} else {
+			lookX = 0;
+			lookY = 0;
+		}
+
+		int footY = region.getEndY() - 3; // players feet dip a bit lower when rotating to look up/down
+		this.renderer.render(this, canvas.getDrawingContext(), centreX, footY, region.getWidth() / 2.5f, lookX, lookY);
 	}
 
 	public static Attachment<ResourceLocation> CAPE = registerAttachment(new CapeAttachment());
