@@ -24,15 +24,20 @@ import cc.cosmetica.kupe.api.gui.style.RootStylesheet;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Region;
+import cc.cosmetica.kupe.impl.MinecraftBuiltinComponent;
 import com.google.common.collect.ImmutableList;
+import net.minecraft.client.gui.components.AbstractWidget;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 
-public class Button extends Component {
+/**
+ * A button in the menu, with text and an action.
+ */
+public class Button extends MinecraftBuiltinComponent {
 	/**
-	 * Create a new buttom with the given text.
+	 * Create a new button with the given text.
 	 * @param text the text to provide.
 	 */
 	public Button(Text text, Runnable onClicked) {
@@ -43,21 +48,14 @@ public class Button extends Component {
 	// properties
 	private final Text text;
 	public Runnable onClicked;
-	// internal
-	private net.minecraft.client.gui.components.Button minecraftButton;
 
 	public Text getText() {
 		return this.text;
 	}
 
 	@Override
-	public List<Component> build() {
-		return ImmutableList.of();
-	}
-
-	@Override
-	public void resize(Region region, SizedElement sizedElement, List<? extends ResizableElement> children, Context context) {
-		this.minecraftButton = new net.minecraft.client.gui.components.Button(
+	public AbstractWidget createMinecraftWidget(Region region, Context context) {
+		return new net.minecraft.client.gui.components.Button(
 				region.getX(),
 				region.getY(),
 				region.getWidth(),
@@ -65,17 +63,6 @@ public class Button extends Component {
 				this.text.toMinecraftComponent(),
 				bn -> this.onClicked.run()
 		);
-	}
-
-	@Override
-	public void render(Canvas canvas, Region region, int mouseX, int mouseY) {
-		canvas.renderMinecraftComponent(this.minecraftButton, mouseX, mouseY);
-	}
-
-	@Override
-	public boolean mouseClicked(double x, double y, int button) {
-		this.minecraftButton.mouseClicked(x, y, button);
-		return true;
 	}
 
 	@Override

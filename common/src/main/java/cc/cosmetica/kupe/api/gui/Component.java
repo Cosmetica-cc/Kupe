@@ -166,8 +166,8 @@ public abstract class Component {
 	/**
 	 * Resize this component's children.
 	 * @param region the region allocated to this component.
-	 * @param sizedElement this component's dimensions. These may differ from this component's actual allocated size
-	 *                     as provided in the region.
+	 * @param sizedElement this component's specified dimensions. These may differ from this component's actual
+	 *                     allocated size as provided in the region.
 	 * @param children a list of children of this component, including their preferred, minimum, and maximum sizes, and
 	 *                 a method with which to allocate their regions.
 	 * @param context provides information about the drawing context the component is being sized in.
