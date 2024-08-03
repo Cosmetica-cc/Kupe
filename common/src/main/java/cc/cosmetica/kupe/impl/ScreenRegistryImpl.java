@@ -23,6 +23,7 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * Implementation for {@link cc.cosmetica.kupe.api.Screens}.
@@ -30,7 +31,7 @@ import java.util.Map;
 public class ScreenRegistryImpl {
 	private static final Map<ResourceLocation, ScreenEntry> REGISTRY = new HashMap<>();
 
-	public static void registerScreen(ResourceLocation location, Component component) {
+	public static void registerScreen(ResourceLocation location, Supplier<Component> component) {
 		if (REGISTRY.containsKey(location)) {
 			throw new IllegalArgumentException("Screen already registered at " + location);
 		}
@@ -44,7 +45,7 @@ public class ScreenRegistryImpl {
 		}
 
 		ScreenEntry entry = REGISTRY.get(location);
-		Screen screen = new KupeScreen(location, entry.component, entry.defaultBackground);
+		Screen screen = new KupeScreen(location, entry.component.get(), entry.defaultBackground);
 		Minecraft.getInstance().setScreen(screen);
 	}
 
@@ -62,12 +63,12 @@ public class ScreenRegistryImpl {
 	}
 
 	private static class ScreenEntry {
-		ScreenEntry(Component component) {
+		ScreenEntry(Supplier<Component> component) {
 			this.component = component;
 			this.defaultBackground = true;
 		}
 
-		final Component component;
+		final Supplier<Component> component;
 		boolean defaultBackground;
 	}
 }

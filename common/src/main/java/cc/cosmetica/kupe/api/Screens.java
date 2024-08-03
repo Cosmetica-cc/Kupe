@@ -21,6 +21,8 @@ import cc.cosmetica.kupe.impl.KupeScreen;
 import cc.cosmetica.kupe.impl.ScreenRegistryImpl;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.function.Supplier;
+
 /**
  * For managing screens.
  */
@@ -33,6 +35,17 @@ public final class Screens {
 	 * @throws IllegalArgumentException if a screen is already registered at this location.
 	 */
 	public static void registerScreen(ResourceLocation location, Component component) {
+		ScreenRegistryImpl.registerScreen(location, () -> component);
+	}
+
+	/**
+	 * Register a component as a new screen.
+	 * @param location the location at which to register the screen.
+	 * @param component a factory for the component to use as the root of the screen. It is recommended to make this
+	 *                  extend {@link Screen}.
+	 * @throws IllegalArgumentException if a screen is already registered at this location.
+	 */
+	public static void registerScreen(ResourceLocation location, Supplier<Component> component) {
 		ScreenRegistryImpl.registerScreen(location, component);
 	}
 
