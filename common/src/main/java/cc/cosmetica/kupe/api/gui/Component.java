@@ -273,6 +273,26 @@ public abstract class Component {
 	// Non-Render Methods
 
 	/**
+	 * Called when a key is pressed on a screen containing this component.
+	 * @param keyCode the key code of the key pressed.
+	 * @param scanCode the scan code of the key pressed. This is independent of keyboard layout.
+	 * @param modifiers modifiers to the key being pressed, like control.
+	 */
+	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+		return false;
+	}
+
+	/**
+	 * Called when a key is released on a screen containing this component.
+	 * @param keyCode the key code of the key pressed.
+	 * @param scanCode the scan code of the key pressed. This is independent of keyboard layout.
+	 * @param modifiers modifiers to the key being pressed, like control.
+	 */
+	public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
+		return false;
+	}
+
+	/**
 	 * Called when the mouse is clicked on this component.
 	 * @param x the x position of the mouse on the screen.
 	 * @param y the y position of the mouse on the screen.

@@ -98,14 +98,19 @@ public final class KupeScreen extends Screen {
 	}
 
 	@Override
-	public boolean keyPressed(int keyCode, int j, int k) {
+	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
 		if (debug) {
 			if (this.tree.keyDebug(keyCode)) {
 				return true;
 			}
 		}
 
-		return false;
+		return this.tree.keyPressed(keyCode, scanCode, modifiers);
+	}
+
+	@Override
+	public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
+		return this.tree.keyReleased(keyCode, scanCode, modifiers);
 	}
 
 	/**

@@ -16,11 +16,13 @@
 
 package cc.cosmetica.kupe.api;
 
+import cc.cosmetica.kupe.Kupe;
 import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import net.minecraft.resources.ResourceLocation;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.Arrays;
 import java.util.List;
@@ -69,6 +71,15 @@ public abstract class Screen extends Component {
 	 * @return the child components of this screen.
 	 */
 	protected abstract Component[] build(Style.MutableStyle rootStyle);
+
+	@Override
+	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+		if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
+			Screens.closeCurrentScreen();
+		}
+
+		return false;
+	}
 
 	private static final CommonProperties.DimensionsOperator<OptionalInt> FULL_WIDTH = (vw, vh) -> OptionalInt.of(vw);
 }

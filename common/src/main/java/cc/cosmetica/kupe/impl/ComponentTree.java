@@ -33,6 +33,7 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 class ComponentTree {
 	public ComponentTree(Component root) {
@@ -162,6 +163,14 @@ class ComponentTree {
 		}
 
 		return consumedClick;
+	}
+
+	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+		return this.root.walkAndTest(node -> node.element.keyPressed(keyCode, scanCode, modifiers));
+	}
+
+	public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
+		return this.root.walkAndTest(node -> node.element.keyReleased(keyCode, scanCode, modifiers));
 	}
 
 	public void mouseMoved(double mouseX, double mouseY) {
@@ -424,6 +433,25 @@ class ComponentTree {
 				nodeConsumer.accept(node);
 				nodes.addAll(node.children);
 			}
+		}
+
+		/**
+		 * Recursively iterate (in a BFS manner) this node and its children, performing the provided operation on them.
+		 * @param nodePredicate the operation to perform on each node in the tree.
+		 * @return if the predicate returned true at least once.
+		 */
+		private boolean walkAndTest(Predicate<ComponentNode> nodePredicate) {
+			Deque<ComponentNode> nodes = new ArrayDeque<>();
+			nodes.add(this);
+			boolean result = false;
+
+			while (!nodes.isEmpty()) {
+				ComponentNode node = nodes.remove();
+				result |= nodePredicate.test(node);
+				nodes.addAll(node.children);
+			}
+
+			return result;
 		}
 
 		// ResizableElement
