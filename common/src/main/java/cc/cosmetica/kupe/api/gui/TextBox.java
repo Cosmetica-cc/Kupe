@@ -46,6 +46,7 @@ public class TextBox extends MinecraftBuiltinComponent {
 	 */
 	public TextBox(Text placeholder, State<String> value, boolean editable, int maxLength) {
 		this.placeholder = placeholder;
+		this.value = value;
 		this.editable = editable;
 		this.maxLength = maxLength;
 	}
@@ -62,6 +63,7 @@ public class TextBox extends MinecraftBuiltinComponent {
 
 	// properties
 	private final Text placeholder;
+	private final State<String> value;
 	private final boolean editable;
 	private final int maxLength;
 	private Consumer<String> onEnter;
@@ -79,7 +81,7 @@ public class TextBox extends MinecraftBuiltinComponent {
 		);
 		box.setEditable(this.editable);
 		box.setMaxLength(this.maxLength);
-		box.setResponder(box::setValue);
+		box.setResponder(this.value::set);
 		return box;
 	}
 
