@@ -35,10 +35,13 @@ public class WeirdEdgeCaseTestScreen extends Screen {
 	protected Component[] build(Style.MutableStyle rootStyle) {
 		return new Component[] {
 				// vertical div
-				new Div(new SubComponentIdk().withStyle(
-						Style.create()
-								.set(CommonProperties.BACKGROUND_COLOUR, OptionalInt.of(0x8800DD))
-								.setFixed(CommonProperties.MAXIMUM_SIZE, new Dimensions(Integer.MAX_VALUE, 40)))),
+				new Div(
+						new Div(new SubComponentIdk().withStyle(
+								Style.create()
+										.set(CommonProperties.BACKGROUND_COLOUR, OptionalInt.of(0x8800DD))
+										.setFixed(CommonProperties.MAXIMUM_SIZE, new Dimensions(Integer.MAX_VALUE, 40)))),
+						new Button(Text.literal("+"), () -> {})
+				),
 				new Button(Text.GUI_DONE, Screens::closeCurrentScreen)
 		};
 	}
