@@ -63,6 +63,16 @@ public abstract class Component {
 	}
 
 	/**
+	 * Set the style for just this instance of this component. Shortcut for withStyle(new StyleSheet().self( ... )).
+	 * @param style the style to apply to this component.
+	 * @return this component.
+	 */
+	public Component withStyle(Style style) {
+		this.stylesheet = new Stylesheet().self(style);
+		return this;
+	}
+
+	/**
 	 * Used internally to set the style of this component.
 	 * @param style the flattened style of the component.
 	 */

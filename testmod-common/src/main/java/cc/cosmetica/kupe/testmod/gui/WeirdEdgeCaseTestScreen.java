@@ -35,10 +35,10 @@ public class WeirdEdgeCaseTestScreen extends Screen {
 	protected Component[] build(Style.MutableStyle rootStyle) {
 		return new Component[] {
 				// vertical div
-				new Div(new SubComponentIdk())
-						.withStyle(new Stylesheet()
-						.self(Style.create()
-								.setFixed(CommonProperties.WIDTH, OptionalInt.of(128)))),
+				new Div(new SubComponentIdk().withStyle(
+						Style.create()
+								.set(CommonProperties.BACKGROUND_COLOUR, OptionalInt.of(0x8800DD))
+								.setFixed(CommonProperties.MAXIMUM_SIZE, new Dimensions(Integer.MAX_VALUE, 40)))),
 				new Button(Text.GUI_DONE, Screens::closeCurrentScreen)
 		};
 	}
@@ -53,10 +53,7 @@ public class WeirdEdgeCaseTestScreen extends Screen {
 					new Div(
 							new Label(Text.literal("Line 1")),
 							new Label(Text.literal("Line 2"))
-					).withStyle(new Stylesheet().self(Style.create()
-							.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
-							.set(CommonProperties.BACKGROUND_COLOUR, OptionalInt.of(0x8800DD))
-							.setFixed(CommonProperties.MAXIMUM_SIZE, new Dimensions(Integer.MAX_VALUE, 40))))
+					).withStyle(Style.create().set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X))
 			);
 		}
 	}
