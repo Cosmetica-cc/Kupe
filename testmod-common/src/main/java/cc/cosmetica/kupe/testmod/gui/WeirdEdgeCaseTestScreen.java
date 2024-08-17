@@ -35,14 +35,17 @@ public class WeirdEdgeCaseTestScreen extends Screen {
 	protected Component[] build(Style.MutableStyle rootStyle) {
 		return new Component[] {
 				// vertical div
-				new Div(new SubComponentThatCausesTheEdgeCase()),
+				new Div(new SubComponentIdk())
+						.withStyle(new Stylesheet()
+						.self(Style.create()
+								.setFixed(CommonProperties.WIDTH, OptionalInt.of(128)))),
 				new Button(Text.GUI_DONE, Screens::closeCurrentScreen)
 		};
 	}
 
 	public static final ResourceLocation ID = new ResourceLocation("kupe_test", "edge_case_1");
 
-	private static class SubComponentThatCausesTheEdgeCase extends Component {
+	private static class SubComponentIdk extends Component {
 		@Override
 		public List<Component> build() {
 			return ImmutableList.of(
