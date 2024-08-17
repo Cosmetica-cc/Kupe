@@ -12,44 +12,49 @@ import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.Button;
 import cc.cosmetica.kupe.api.gui.Component;
-import cc.cosmetica.kupe.api.gui.Image;
+import cc.cosmetica.kupe.api.gui.Div;
 import cc.cosmetica.kupe.api.gui.Label;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
+import cc.cosmetica.kupe.api.maths.Axis2D;
+import cc.cosmetica.kupe.api.maths.Dimensions;
+import com.google.common.collect.ImmutableList;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.List;
 import java.util.OptionalInt;
 
-/**
- * The example/test screen.
- */
-public class KupeTestScreen extends Screen {
-	public KupeTestScreen() {
+public class WeirdEdgeCaseTestScreen extends Screen {
+
+	public WeirdEdgeCaseTestScreen() {
 		super(ID);
 	}
 
 	@Override
-	public Component[] build(Style.MutableStyle rootStyle) {
-		// note the image may still be shrunk further due to FLEX_SHRINK.
-		// You can set minimum size or remove the flex shrink to handle this.
-
+	protected Component[] build(Style.MutableStyle rootStyle) {
 		return new Component[] {
-				new Label(Text.literal("You can add some text like this!")),
-				new HelloHolaComponent(),
-				new Button(Text.literal("Fake Player Test"), () -> {
-					System.out.println("Ok, World!");
-					Screens.setScreen(FakePlayerTestScreen.ID);
-				}),
-				new Image(new ResourceLocation("kupe", "icon.png"))
-						.withStyle(
-								new Stylesheet()
-										.self(Style.create().setFixed(CommonProperties.HEIGHT, OptionalInt.of(150)))
-						),
-				new Button(Text.literal("Say Goodbye, World!"), () -> System.out.println("Goodbye, World!")),
+				// vertical div
+				new Div(new SubComponentThatCausesTheEdgeCase()),
 				new Button(Text.GUI_DONE, Screens::closeCurrentScreen)
 		};
 	}
 
-	public static final ResourceLocation ID = new ResourceLocation("kupe_test", "screen");
+	public static final ResourceLocation ID = new ResourceLocation("kupe_test", "edge_case_1");
+
+	private static class SubComponentThatCausesTheEdgeCase extends Component {
+		@Override
+		public List<Component> build() {
+			return ImmutableList.of(
+					// horizontal div
+					new Div(
+							new Label(Text.literal("Line 1")),
+							new Label(Text.literal("Line 2"))
+					).withStyle(new Stylesheet().self(Style.create()
+							.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
+							.set(CommonProperties.BACKGROUND_COLOUR, OptionalInt.of(0x8800DD))
+							.setFixed(CommonProperties.MAXIMUM_SIZE, new Dimensions(Integer.MAX_VALUE, 40))))
+			);
+		}
+	}
 }

@@ -1,0 +1,33 @@
+/*
+ * Kupe Testmod - Test and Example code for usage of the Kupe Library.
+ * Written in 2024 by Cosmetica Contributors
+ * To the extent possible under law, the author(s) have dedicated all copyright and related and neighboring rights to this software to the public domain worldwide. This software is distributed without any warranty.
+ * You should have received a copy of the CC0 Public Domain Dedication along with this software. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
+ */
+
+package cc.cosmetica.kupe.testmod.gui;
+
+import cc.cosmetica.kupe.api.Screen;
+import cc.cosmetica.kupe.api.Screens;
+import cc.cosmetica.kupe.api.Text;
+import cc.cosmetica.kupe.api.gui.Button;
+import cc.cosmetica.kupe.api.gui.Component;
+import cc.cosmetica.kupe.api.gui.style.Style;
+import net.minecraft.resources.ResourceLocation;
+
+public class KupeTestsScreen extends Screen {
+	public KupeTestsScreen() {
+		super(ID);
+	}
+
+	@Override
+	protected Component[] build(Style.MutableStyle rootStyle) {
+		return new Component[] {
+				new Button(Text.literal("State Test"), () -> Screens.setScreen(StateTestScreen.ID)),
+				new Button(Text.literal("Fake Player Test"), () -> Screens.setScreen(FakePlayerTestScreen.ID)),
+				new Button(Text.literal("Resizing Edge Case"), () -> Screens.setScreen(WeirdEdgeCaseTestScreen.ID))
+		};
+	}
+
+	public static final ResourceLocation ID = new ResourceLocation("kupe_test", "root");
+}

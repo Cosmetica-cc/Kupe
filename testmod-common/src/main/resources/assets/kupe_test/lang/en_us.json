@@ -1,3 +1,5 @@
 {
-  "screens.kupe_test.screen": "Kupe Test Screen"
+  "screens.kupe_test.screen": "Kupe Test Screen",
+  "screens.kupe_test.root": "Select a Test",
+  "screens.kupe_test.edge_case_1": "Resizing Edge Case"
 }

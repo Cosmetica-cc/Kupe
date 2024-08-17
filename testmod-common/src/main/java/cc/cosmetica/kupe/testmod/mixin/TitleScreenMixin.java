@@ -8,7 +8,8 @@
 package cc.cosmetica.kupe.testmod.mixin;
 
 import cc.cosmetica.kupe.api.Screens;
-import cc.cosmetica.kupe.testmod.gui.KupeTestScreen;
+import cc.cosmetica.kupe.testmod.gui.KupeTestsScreen;
+import cc.cosmetica.kupe.testmod.gui.StateTestScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.TitleScreen;
 import org.spongepowered.asm.mixin.Mixin;
@@ -25,7 +26,7 @@ public class TitleScreenMixin {
 		{
 			System.out.println("Setting debug kupe screen");
 			kupe_testmod$firstTime = false;
-			Minecraft.getInstance().tell(() -> Screens.setScreen(KupeTestScreen.ID));
+			Minecraft.getInstance().tell(() -> Screens.setScreen(KupeTestsScreen.ID));
 		}
 	}
 

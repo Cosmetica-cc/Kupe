@@ -9,7 +9,9 @@ package cc.cosmetica.kupe.testmod;
 
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.testmod.gui.FakePlayerTestScreen;
-import cc.cosmetica.kupe.testmod.gui.KupeTestScreen;
+import cc.cosmetica.kupe.testmod.gui.KupeTestsScreen;
+import cc.cosmetica.kupe.testmod.gui.StateTestScreen;
+import cc.cosmetica.kupe.testmod.gui.WeirdEdgeCaseTestScreen;
 
 public final class KupeTestInit {
 	private KupeTestInit() {
@@ -17,7 +19,9 @@ public final class KupeTestInit {
 
 	public static void init() {
 		Screens.enableDebug(); // enable debug on all kupe screens
-		Screens.registerScreen(KupeTestScreen.ID, new KupeTestScreen());
+		Screens.registerScreen(KupeTestsScreen.ID, new KupeTestsScreen());
+		Screens.registerScreen(StateTestScreen.ID, new StateTestScreen());
 		Screens.registerScreen(FakePlayerTestScreen.ID, new FakePlayerTestScreen());
+		Screens.registerScreen(WeirdEdgeCaseTestScreen.ID, WeirdEdgeCaseTestScreen::new); // factory register
 	}
 }
