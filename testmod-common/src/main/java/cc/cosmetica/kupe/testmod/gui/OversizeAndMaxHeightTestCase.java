@@ -32,8 +32,11 @@ public class OversizeAndMaxHeightTestCase extends Screen {
 		return new Component[] {
 				// vertical div
 				new Div(
-						new SubComponent().withStyle(
-								Style.create()
+						// horizontal div
+						new Div(
+								new Image(new ResourceLocation("kupe", "icon.png")), // oversize by default. should be capped
+								new Label(Text.literal("Line 1"))
+						).withStyle(Style.create().set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
 										.set(CommonProperties.BACKGROUND_COLOUR, OptionalInt.of(0x8800DD))
 										.setFixed(CommonProperties.MAXIMUM_SIZE, new Dimensions(Integer.MAX_VALUE, 40)))
 				),
@@ -42,17 +45,4 @@ public class OversizeAndMaxHeightTestCase extends Screen {
 	}
 
 	public static final ResourceLocation ID = new ResourceLocation("kupe_test", "edge_case_1");
-
-	private static class SubComponent extends Component {
-		@Override
-		public List<Component> build() {
-			return ImmutableList.of(
-					// horizontal div
-					new Div(
-							new Image(new ResourceLocation("kupe", "icon.png")), // oversize by default. should be capped
-							new Label(Text.literal("Line 1"))
-					).withStyle(Style.create().set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X))
-			);
-		}
-	}
 }
