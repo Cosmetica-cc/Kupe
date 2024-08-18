@@ -25,7 +25,7 @@ public class KupeTestsScreen extends Screen {
 		return new Component[] {
 				new Button(Text.literal("State Test"), () -> Screens.setScreen(StateTestScreen.ID)),
 				new Button(Text.literal("Fake Player Test"), () -> Screens.setScreen(FakePlayerTestScreen.ID)),
-				new Button(Text.literal("Resizing Edge Case"), () -> Screens.setScreen(WeirdEdgeCaseTestScreen.ID))
+				new Button(Text.literal("Resizing Edge Case"), () -> Screens.setScreen(OversizeAndMaxHeightTestCase.ID))
 		};
 	}
 

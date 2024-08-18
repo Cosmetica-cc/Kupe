@@ -10,13 +10,9 @@ package cc.cosmetica.kupe.testmod.gui;
 import cc.cosmetica.kupe.api.Screen;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.Text;
-import cc.cosmetica.kupe.api.gui.Button;
-import cc.cosmetica.kupe.api.gui.Component;
-import cc.cosmetica.kupe.api.gui.Div;
-import cc.cosmetica.kupe.api.gui.Label;
+import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
-import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import com.google.common.collect.ImmutableList;
@@ -25,9 +21,9 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.List;
 import java.util.OptionalInt;
 
-public class WeirdEdgeCaseTestScreen extends Screen {
+public class OversizeAndMaxHeightTestCase extends Screen {
 
-	public WeirdEdgeCaseTestScreen() {
+	public OversizeAndMaxHeightTestCase() {
 		super(ID);
 	}
 
@@ -36,11 +32,10 @@ public class WeirdEdgeCaseTestScreen extends Screen {
 		return new Component[] {
 				// vertical div
 				new Div(
-						new Div(new SubComponentIdk().withStyle(
+						new SubComponent().withStyle(
 								Style.create()
 										.set(CommonProperties.BACKGROUND_COLOUR, OptionalInt.of(0x8800DD))
-										.setFixed(CommonProperties.MAXIMUM_SIZE, new Dimensions(Integer.MAX_VALUE, 40)))),
-						new Button(Text.literal("+"), () -> {})
+										.setFixed(CommonProperties.MAXIMUM_SIZE, new Dimensions(Integer.MAX_VALUE, 40)))
 				),
 				new Button(Text.GUI_DONE, Screens::closeCurrentScreen)
 		};
@@ -48,14 +43,14 @@ public class WeirdEdgeCaseTestScreen extends Screen {
 
 	public static final ResourceLocation ID = new ResourceLocation("kupe_test", "edge_case_1");
 
-	private static class SubComponentIdk extends Component {
+	private static class SubComponent extends Component {
 		@Override
 		public List<Component> build() {
 			return ImmutableList.of(
 					// horizontal div
 					new Div(
-							new Label(Text.literal("Line 1")),
-							new Label(Text.literal("Line 2"))
+							new Image(new ResourceLocation("kupe", "icon.png")), // oversize by default. should be capped
+							new Label(Text.literal("Line 1"))
 					).withStyle(Style.create().set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X))
 			);
 		}
