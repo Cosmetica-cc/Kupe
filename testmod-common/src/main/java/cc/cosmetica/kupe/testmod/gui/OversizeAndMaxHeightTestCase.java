@@ -39,7 +39,7 @@ public class OversizeAndMaxHeightTestCase extends Screen {
 						).withStyle(Style.create().set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
 										.set(CommonProperties.BACKGROUND_COLOUR, OptionalInt.of(0x8800DD))
 										.setFixed(CommonProperties.MAXIMUM_SIZE, new Dimensions(Integer.MAX_VALUE, 40)))
-				),
+				).withStyle(Style.create().set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)),
 				new Button(Text.GUI_DONE, Screens::closeCurrentScreen)
 		};
 	}
