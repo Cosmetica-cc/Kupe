@@ -138,12 +138,16 @@ public abstract class Component {
 	protected Dimensions tryDimensionsWithPreferredRatio(Dimensions preferred, Context context) {
 		final int vw = context.getViewWidth();
 		final int vh = context.getViewHeight();
+		Dimensions maxDimensions = this.getStyle().get(CommonProperties.MAXIMUM_SIZE).apply(vw, vh);
 
 		OptionalInt fixedWidth = this.getStyle().get(CommonProperties.WIDTH).apply(vw, vh);
 
-		if (fixedWidth.isPresent()) {
-			Dimensions maxDimensions = this.getStyle().get(CommonProperties.MAXIMUM_SIZE).apply(vw, vh);
+		// treat clamp like fixed width
+		if (!fixedWidth.isPresent() && maxDimensions.getWidth() < preferred.getWidth()) {
+			fixedWidth = OptionalInt.of(maxDimensions.getWidth());
+		}
 
+		if (fixedWidth.isPresent()) {
 			int width = Math.min(fixedWidth.getAsInt(), maxDimensions.getWidth());
 
 			// size height respectfully
@@ -153,17 +157,21 @@ public abstract class Component {
 
 		OptionalInt fixedHeight = this.getStyle().get(CommonProperties.HEIGHT).apply(vw, vh);
 
-		if (fixedHeight.isPresent()) {
-			Dimensions maxDimensions = this.getStyle().get(CommonProperties.MAXIMUM_SIZE).apply(vw, vh);
+		// treat clamp like fixed height
+		if (!fixedHeight.isPresent() && maxDimensions.getHeight() < preferred.getHeight()) {
+			fixedHeight = OptionalInt.of(maxDimensions.getHeight());
+		}
 
+		if (fixedHeight.isPresent()) {
 			int height = Math.min(fixedHeight.getAsInt(), maxDimensions.getHeight());
 
 			// size width respectfully
 			float aspectRatio = (float) preferred.getWidth() / preferred.getHeight();
 			return new Dimensions((int) (height * aspectRatio), height);
-		} else {
-			return preferred;
 		}
+
+		// no fixed width and height
+		return preferred;
 	}
 
 	/**
