@@ -368,6 +368,8 @@ class ComponentTree {
 			// intrinsic size is a property of the component only
 			// it will typically be used when combined with other properties to make 'preferred size'
 			this.intrinsicSize = this.element.intrinsicSize(this.children, context);
+			// clamp to min/max size of this element (if it can only go up to 30px we dont want it saying it wants 100px!)
+			this.intrinsicSize = Dimensions.clamp(this.intrinsicSize, this.minimumSize, this.maximumSize);
 
 			// width and height
 			this.width = this.element.getStyle().get(CommonProperties.WIDTH).apply(vw, vh);

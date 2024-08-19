@@ -62,4 +62,11 @@ public class Dimensions {
 				Math.max(first.height, second.height)
 		);
 	}
+
+	public static Dimensions clamp(Dimensions dimensions, Dimensions min, Dimensions max) {
+		return new Dimensions(
+				dimensions.width > max.width ? max.width : Math.max(dimensions.width, min.width),
+				dimensions.height > max.height ? max.height : Math.max(dimensions.height, min.height)
+		);
+	}
 }
