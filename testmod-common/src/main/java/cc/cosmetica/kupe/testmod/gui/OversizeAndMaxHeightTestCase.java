@@ -9,16 +9,15 @@ package cc.cosmetica.kupe.testmod.gui;
 
 import cc.cosmetica.kupe.api.Screen;
 import cc.cosmetica.kupe.api.Screens;
+import cc.cosmetica.kupe.api.State;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Dimensions;
-import com.google.common.collect.ImmutableList;
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.List;
 import java.util.OptionalInt;
 
 public class OversizeAndMaxHeightTestCase extends Screen {
@@ -27,8 +26,13 @@ public class OversizeAndMaxHeightTestCase extends Screen {
 		super(ID);
 	}
 
+	private final State<Axis2D> axis = new State<>(Axis2D.POSITIVE_X);
+
 	@Override
 	protected Component[] build(Style.MutableStyle rootStyle) {
+		Axis2D axis = this.axis.acquire(this);
+		System.out.println(axis);
+
 		return new Component[] {
 				// vertical div
 				new Div(
@@ -39,7 +43,16 @@ public class OversizeAndMaxHeightTestCase extends Screen {
 						).withStyle(Style.create().set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
 										.set(CommonProperties.BACKGROUND_COLOUR, OptionalInt.of(0x8800DD))
 										.setFixed(CommonProperties.MAXIMUM_SIZE, new Dimensions(Integer.MAX_VALUE, 40)))
-				).withStyle(Style.create().set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)),
+				).withStyle(Style.create().set(Div.FLOW_DIRECTION, axis)),
+
+				new Button(Text.literal("Change Flow of Wrapper"), () -> {
+					if (axis == Axis2D.POSITIVE_X) {
+						this.axis.set(Axis2D.POSITIVE_Y);
+					} else {
+						this.axis.set(Axis2D.POSITIVE_X);
+					}
+				}),
+
 				new Button(Text.GUI_DONE, Screens::closeCurrentScreen)
 		};
 	}

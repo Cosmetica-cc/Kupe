@@ -33,6 +33,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.util.FormattedCharSequence;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.*;
@@ -41,14 +42,16 @@ import java.util.*;
  * The screen that controls the Kupe gui rendering. This handles the rendering and event calls to the root component.
  */
 public final class KupeScreen extends Screen {
-	public KupeScreen(ResourceLocation location, Component rootComponent, boolean defaultBackground) {
+	public KupeScreen(@Nullable Screen parent, ResourceLocation location, Component rootComponent, boolean defaultBackground) {
 		super(new TranslatableComponent("screens." + location.getNamespace() + "." + location.getPath()));
 
+		this.parent = parent;
 		this.tree = new ComponentTree(rootComponent);
 		this.context = new KupeScreenContext();
 		this.defaultBackground = defaultBackground;
 	}
 
+	private final Screen parent;
 	private final ComponentTree tree;
 	private final Context context;
 	private final boolean defaultBackground;
@@ -129,7 +132,9 @@ public final class KupeScreen extends Screen {
 
 	@Override
 	public void onClose() {
-		super.onClose();
+		assert this.minecraft != null : "Minecraft should not be null";
+		// set parent screen
+		this.minecraft.setScreen(this.parent);
 		this.tree.dispose();
 	}
 

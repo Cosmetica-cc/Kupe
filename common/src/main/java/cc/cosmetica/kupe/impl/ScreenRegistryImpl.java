@@ -45,7 +45,7 @@ public class ScreenRegistryImpl {
 		}
 
 		ScreenEntry entry = REGISTRY.get(location);
-		Screen screen = new KupeScreen(location, entry.component.get(), entry.defaultBackground);
+		Screen screen = new KupeScreen(Minecraft.getInstance().screen, location, entry.component.get(), entry.defaultBackground);
 		Minecraft.getInstance().setScreen(screen);
 	}
 
