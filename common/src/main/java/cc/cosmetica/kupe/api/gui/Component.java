@@ -142,36 +142,53 @@ public abstract class Component {
 
 		OptionalInt fixedWidth = this.getStyle().get(CommonProperties.WIDTH).apply(vw, vh);
 
-		// treat clamp like fixed width
-		if (!fixedWidth.isPresent() && maxDimensions.getWidth() < preferred.getWidth()) {
-			fixedWidth = OptionalInt.of(maxDimensions.getWidth());
-		}
-
 		if (fixedWidth.isPresent()) {
 			int width = Math.min(fixedWidth.getAsInt(), maxDimensions.getWidth());
-
-			// size height respectfully
-			float aspectRatio = (float) preferred.getHeight() / preferred.getWidth();
-			return new Dimensions(width, (int) (width * aspectRatio));
+			return shrinkByWidth(width, preferred);
 		}
 
 		OptionalInt fixedHeight = this.getStyle().get(CommonProperties.HEIGHT).apply(vw, vh);
 
-		// treat clamp like fixed height
-		if (!fixedHeight.isPresent() && maxDimensions.getHeight() < preferred.getHeight()) {
-			fixedHeight = OptionalInt.of(maxDimensions.getHeight());
-		}
-
 		if (fixedHeight.isPresent()) {
 			int height = Math.min(fixedHeight.getAsInt(), maxDimensions.getHeight());
-
-			// size width respectfully
-			float aspectRatio = (float) preferred.getWidth() / preferred.getHeight();
-			return new Dimensions((int) (height * aspectRatio), height);
+			return shrinkByHeight(height, preferred);
 		}
 
-		// no fixed width and height
-		return preferred;
+		// treat clamp like fixed dimensions
+		Dimensions shrunkWidth = null, shrunkHeight = null;
+
+		if (maxDimensions.getWidth() < preferred.getWidth()) {
+			fixedWidth = OptionalInt.of(maxDimensions.getWidth());
+			shrunkWidth = shrinkByWidth(maxDimensions.getWidth(), preferred);
+		}
+		if (maxDimensions.getHeight() < preferred.getHeight()) {
+			fixedHeight = OptionalInt.of(maxDimensions.getHeight());
+			shrunkHeight = shrinkByHeight(maxDimensions.getHeight(), preferred);
+		}
+
+		if (fixedHeight.isPresent() && fixedWidth.isPresent()) {
+			// choose the smaller shrink so it respects both maximum dimensions
+			return shrunkHeight.getWidth() < shrunkWidth.getWidth() ? shrunkHeight : shrunkWidth;
+		} else if (fixedWidth.isPresent()) {
+			return shrunkWidth;
+		} else if (fixedHeight.isPresent()) {
+			return shrunkHeight;
+		} else {
+			// no fixed width and height
+			return preferred;
+		}
+	}
+
+	private static Dimensions shrinkByWidth(int width, Dimensions preferred) {
+		// size height respectfully
+		float aspectRatio = (float) preferred.getHeight() / preferred.getWidth();
+		return new Dimensions(width, (int) (width * aspectRatio));
+	}
+
+	private static Dimensions shrinkByHeight(int height, Dimensions preferred) {
+		// size width respectfully
+		float aspectRatio = (float) preferred.getWidth() / preferred.getHeight();
+		return new Dimensions((int) (height * aspectRatio), height);
 	}
 
 	/**
