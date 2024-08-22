@@ -51,7 +51,7 @@ public class OversizeAndMaxHeightTestCase extends Screen {
 					} else {
 						this.axis.set(Axis2D.POSITIVE_X);
 					}
-				}),
+				}).addHoverText(new Tooltip(Text.literal("This shouldn't change anything, visually"))),
 
 				new Button(Text.GUI_DONE, Screens::closeCurrentScreen)
 		};

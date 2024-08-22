@@ -46,6 +46,7 @@ public abstract class Component {
 
 	protected @Nullable Stylesheet stylesheet;
 
+
 	/**
 	 * The flattened style settings to apply to this component. These are inherited from this component's stylesheet and
 	 * parent stylesheets.
