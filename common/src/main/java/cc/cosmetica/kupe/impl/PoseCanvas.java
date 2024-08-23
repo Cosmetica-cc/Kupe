@@ -91,11 +91,11 @@ public class PoseCanvas implements Canvas {
 		float g = ((colour >> 8) & 0xFF) / 255.0f;
 		float b = (colour & 0xFF) / 255.0f;
 
-		this.drawRect(x0, y0, region.getWidth(), region.getHeight(), r, g, b);
+		this.drawRect(x0, y0, region.getWidth(), region.getHeight(), 0.0f, r, g, b);
 	}
 
 	@Override
-	public void drawRect(int x0, int y0, int width, int height, float r, float g, float b) {
+	public void drawRect(int x0, int y0, int width, int height, float z, float r, float g, float b) {
 		RenderSystem.disableTexture();
 		BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
 //		RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
@@ -105,10 +105,10 @@ public class PoseCanvas implements Canvas {
 		int y1 = y0 + height;
 
 		bufferBuilder.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_COLOR);
-		bufferBuilder.vertex(x0, y1, 1.0D).color(r, g, b, 1.0F).endVertex();
-		bufferBuilder.vertex(x1, y1, 1.0D).color(r, g, b, 1.0F).endVertex();
-		bufferBuilder.vertex(x1, y0, 1.0D).color(r, g, b, 1.0F).endVertex();
-		bufferBuilder.vertex(x0, y0, 1.0D).color(r, g, b, 1.0F).endVertex();
+		bufferBuilder.vertex(x0, y1, z).color(r, g, b, 1.0F).endVertex();
+		bufferBuilder.vertex(x1, y1, z).color(r, g, b, 1.0F).endVertex();
+		bufferBuilder.vertex(x1, y0, z).color(r, g, b, 1.0F).endVertex();
+		bufferBuilder.vertex(x0, y0, z).color(r, g, b, 1.0F).endVertex();
 
 		bufferBuilder.end();
 		BufferUploader.end(bufferBuilder);

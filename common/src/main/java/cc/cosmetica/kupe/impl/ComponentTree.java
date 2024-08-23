@@ -28,8 +28,10 @@ import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
+import com.mojang.blaze3d.systems.RenderSystem;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.opengl.GL11;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -408,6 +410,8 @@ class ComponentTree {
 
 		private void render(Canvas canvas, int mouseX, int mouseY) {
 			try {
+				RenderSystem.enableDepthTest();
+				GL11.glDepthFunc(GL11.GL_LEQUAL);
 				this.element.renderBackground(canvas, this.renderRegion, this.padding);
 				this.element.render(canvas, this.renderRegion, mouseX, mouseY);
 			} catch (NullPointerException e) {

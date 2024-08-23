@@ -79,11 +79,12 @@ public interface Canvas {
 	 * @param y0 the y coordinate of the top left corner
 	 * @param width the width of the rectangle in pixels.
 	 * @param height the height of the rectangle in pixels.
+	 * @param z the z coordinate to draw the texture at.
 	 * @param r the red value to use for the colour.
 	 * @param g the green value to use for the colour.
 	 * @param b the blue value to use for the colour.
 	 */
-	void drawRect(int x0, int y0, int width, int height, float r, float g, float b);
+	void drawRect(int x0, int y0, int width, int height, float z, float r, float g, float b);
 
 	/**
 	 * Draw a rectangle filled with the given texture.

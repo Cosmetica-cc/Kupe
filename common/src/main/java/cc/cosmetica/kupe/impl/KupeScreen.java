@@ -25,6 +25,7 @@ import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.impl.text.FormattedCharSeqRenderer;
 import cc.cosmetica.kupe.util.ImageUtilities;
 import cc.cosmetica.kupe.util.MultiCache;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -34,6 +35,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.util.FormattedCharSequence;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.opengl.GL11;
 
 import java.io.IOException;
 import java.util.*;
@@ -94,7 +96,7 @@ public final class KupeScreen extends Screen {
 
 		Canvas canvas = new PoseCanvas(poseStack, this.minecraft, this.context, tickDelta);
 		this.tree.render(canvas, mouseX, mouseY);
-
+		
 		if (debug) {
 			this.tree.renderDebug(canvas, this.height);
 		}

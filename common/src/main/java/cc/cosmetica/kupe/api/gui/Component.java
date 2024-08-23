@@ -276,21 +276,25 @@ public abstract class Component {
 			canvas.drawRect( // top
 					drawRegion.getX(), drawRegion.getY(),
 					drawRegion.getWidth(), borderSize,
+					-0.5f,
 					r, g, b);
 
 			canvas.drawRect( // bottom
 					drawRegion.getX(), drawRegion.getY() + drawRegion.getHeight() - borderSize,
 					drawRegion.getWidth(), borderSize,
+					-0.5f,
 					r, g, b);
 
 			canvas.drawRect( // left
 					drawRegion.getX(), drawRegion.getY() + borderSize,
 					borderSize, drawRegion.getHeight() - borderSize * 2,
+					-0.5f,
 					r, g, b);
 
 			canvas.drawRect( // right
 					drawRegion.getX() + drawRegion.getWidth() - borderSize, drawRegion.getY() + borderSize,
 					borderSize, drawRegion.getHeight() - borderSize * 2,
+					-0.5f,
 					r, g, b);
 		}
 	}
