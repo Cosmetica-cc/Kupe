@@ -41,7 +41,7 @@ public class ScreenRegistryImpl {
 
 	public static void setScreen(ResourceLocation location) {
 		if (!REGISTRY.containsKey(location)) {
-			throw new IllegalArgumentException("No screen at the given location");
+			throw new IllegalArgumentException("No screen registered at the given location");
 		}
 
 		ScreenEntry entry = REGISTRY.get(location);
@@ -51,7 +51,7 @@ public class ScreenRegistryImpl {
 
 	public static void setDefaultBackground(ResourceLocation location, boolean useDefault) {
 		if (!REGISTRY.containsKey(location)) {
-			throw new IllegalArgumentException("No screen at the given location");
+			throw new IllegalArgumentException("No screen registered at the given location");
 		}
 
 		// TODO more general configuration?
