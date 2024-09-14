@@ -56,7 +56,7 @@ public class Stylesheet {
 		for (String tag : tags) {
 			Style tagStyle = this.tagStyles.get(tag);
 
-			if (tag != null) {
+			if (tagStyle != null) {
 				styles.add(tagStyle);
 			}
 		}
