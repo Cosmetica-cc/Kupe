@@ -36,10 +36,8 @@ public class FakePlayerTestScreen extends Screen {
 
 		return new Component[] {
 				new FakePlayer(UUID.fromString("8ea1da2f-0efa-4044-9e6f-4a3bf4e8a9a5"), !frozen)
-						.withStyle(
-								new Stylesheet().self(Style.create()
-										.set(CommonProperties.BORDER_SIZE, 1))
-						),
+						.withStyle(Style.create()
+										.set(CommonProperties.BORDER_SIZE, 1)),
 				new Button(Text.literal(frozen ? "Unfreeze Player" : "Freeze Player"), () -> this.frozen.set(!frozen)),
 				new Button(Text.GUI_DONE, Screens::closeCurrentScreen)
 		};

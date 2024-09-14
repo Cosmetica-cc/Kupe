@@ -43,8 +43,7 @@ public class StateTestScreen extends Screen {
 				}),
 				new Image(new ResourceLocation("kupe", "icon.png"))
 						.withStyle(
-								new Stylesheet()
-										.self(Style.create().setFixed(CommonProperties.HEIGHT, OptionalInt.of(150)))
+								Style.create().setFixed(CommonProperties.HEIGHT, OptionalInt.of(150))
 						),
 				new Button(Text.literal("Say Goodbye, World!"), () -> System.out.println("Goodbye, World!")),
 				new Button(Text.GUI_DONE, Screens::closeCurrentScreen)

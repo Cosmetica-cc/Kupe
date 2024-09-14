@@ -18,6 +18,7 @@ import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Margins;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,16 +39,7 @@ public class HelloHolaComponent extends Component {
 				new Div(
 						new Button(Text.literal("Say " + messages[0] + ", World!"), () -> this.printMessage(messages[0])),
 						new Button(Text.literal("Say " + messages[1] + ", World!"), () -> this.printMessage(messages[1]))
-				).withStyle(new Stylesheet()
-						.self(Style.create()
-								.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
-								.set(Div.JUSTIFY_CONTENT, Justify.SPACE_BETWEEN)
-								.setFixed(CommonProperties.WIDTH, OptionalInt.of(200))
-								.setFixed(CommonProperties.MARGINS, new Margins(20, 0))
-								.setFixed(CommonProperties.PADDING, new Margins(1)) // need padding for the border to sit in
-								.set(CommonProperties.BORDER_SIZE, 1))
-						.component(Button.class, Style.create()
-								.setFixed(CommonProperties.WIDTH, OptionalInt.of(90))))
+				).tag("mainDiv")
 		);
 	}
 
@@ -56,6 +48,20 @@ public class HelloHolaComponent extends Component {
 
 		String[] newMessages = Arrays.stream(ALL_MESSAGES).filter(m -> !message.equals(m)).toArray(String[]::new);
 		this.messages.set(newMessages);
+	}
+
+	@Override
+	public @Nullable Stylesheet getStylesheet() {
+		return new Stylesheet()
+				.tag("mainDiv", Style.create()
+						.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
+						.set(Div.JUSTIFY_CONTENT, Justify.SPACE_BETWEEN)
+						.setFixed(CommonProperties.WIDTH, OptionalInt.of(200))
+						.setFixed(CommonProperties.MARGINS, new Margins(20, 0))
+						.setFixed(CommonProperties.PADDING, new Margins(1)) // need padding for the border to sit in
+						.set(CommonProperties.BORDER_SIZE, 1))
+				.component(Button.class, Style.create()
+						.setFixed(CommonProperties.WIDTH, OptionalInt.of(90)));
 	}
 
 	private static final String[] ALL_MESSAGES = {
