@@ -21,5 +21,6 @@ public final class KupeTestInit {
 		Screens.registerScreen(FakePlayerTestScreen.ID, new FakePlayerTestScreen());
 		Screens.registerScreen(OversizeAndMaxHeightTestCase.ID, OversizeAndMaxHeightTestCase::new); // factory register
 		Screens.registerScreen(ZLayeringTest.ID, new ZLayeringTest());
+		Screens.registerScreen(ScrollTestScreen.ID, new ScrollTestScreen());
 	}
 }

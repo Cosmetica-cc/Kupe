@@ -16,7 +16,7 @@ import cc.cosmetica.kupe.api.gui.Image;
 import cc.cosmetica.kupe.api.gui.Label;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
-import cc.cosmetica.kupe.api.gui.style.Stylesheet;
+import cc.cosmetica.kupe.testmod.gui.widget.HelloHolaComponent;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.OptionalInt;
