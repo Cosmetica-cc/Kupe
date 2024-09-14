@@ -106,10 +106,10 @@ public class Label extends Component {
 	/**
 	 * The text colour, as an RGB integer. Default value is #FFFFFF (0xFFFFFF)
 	 */
-	public static final Style.Property<Integer> TEXT_COLOUR = new Style.Property<>(0xFFFFFF);
+	public static final Style.Property<Integer> TEXT_COLOUR = new Style.Property<>(0xFFFFFF, true);
 
 	/**
 	 * The alignment of text in the label.
 	 */
-	public static final Style.Property<Align> ALIGN_TEXT = new Style.Property<>(Align.START);
+	public static final Style.Property<Align> ALIGN_TEXT = new Style.Property<>(Align.START, true);
 }

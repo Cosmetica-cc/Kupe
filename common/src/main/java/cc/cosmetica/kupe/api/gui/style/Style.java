@@ -103,14 +103,20 @@ public class Style {
 	 * A style property that can be configured.
 	 */
 	public static class Property<T> {
-		public Property(T defaultValue) {
+		public Property(T defaultValue, boolean inherits) {
 			this.defaultValue = defaultValue;
+			this.inherits = inherits;
 		}
 
 		private final T defaultValue;
+		private final boolean inherits;
 
 		public T getDefaultValue() {
 			return this.defaultValue;
+		}
+
+		public boolean inherits() {
+			return this.inherits;
 		}
 	}
 }
