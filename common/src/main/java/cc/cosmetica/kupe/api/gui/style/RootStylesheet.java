@@ -18,6 +18,7 @@ package cc.cosmetica.kupe.api.gui.style;
 
 import cc.cosmetica.kupe.api.gui.Button;
 import cc.cosmetica.kupe.api.gui.Component;
+import com.google.common.collect.ImmutableList;
 
 import java.util.List;
 
@@ -47,7 +48,7 @@ public final class RootStylesheet {
 	 * @param componentClass the component class to get default overrides for.
 	 */
 	public static void fillDefaultOverrides(List<Style> styles, Class<? extends Component> componentClass) {
-		STYLESHEET.fillOverrides(styles, componentClass, false);
+		STYLESHEET.fillOverrides(styles, componentClass, ImmutableList.of(), false);
 	}
 
 	/**

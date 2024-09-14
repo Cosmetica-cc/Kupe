@@ -25,8 +25,11 @@ import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Position;
 import cc.cosmetica.kupe.api.maths.Region;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.OptionalInt;
 import java.util.function.Function;
@@ -44,8 +47,8 @@ public abstract class Component {
 		// no-op
 	}
 
-	protected @Nullable Stylesheet stylesheet;
-
+	protected @Nullable Style declaredStyle;
+	private Collection<String> tags = ImmutableList.of();
 
 	/**
 	 * The flattened style settings to apply to this component. These are inherited from this component's stylesheet and
@@ -54,23 +57,27 @@ public abstract class Component {
 	private Style style;
 
 	/**
-	 * Set the style sheet of this component.
-	 * @param stylesheet the stylesheet to apply to this component.
-	 * @return this component.
-	 */
-	public Component withStyle(Stylesheet stylesheet) {
-		this.stylesheet = stylesheet;
-		return this;
-	}
-
-	/**
-	 * Set the style for just this instance of this component. Shortcut for withStyle(new StyleSheet().self( ... )).
+	 * Set the style for this component instance.
 	 * @param style the style to apply to this component.
 	 * @return this component.
 	 */
 	public Component withStyle(Style style) {
-		this.stylesheet = new Stylesheet().self(style);
+		this.declaredStyle = style;
 		return this;
+	}
+
+	/**
+	 * Apply tags to this component.
+	 * @param tags the tags to apply to this component. This overrides any existing tags.
+	 * @return this component.
+	 */
+	public Component tag(String ...tags) {
+		this.tags = ImmutableSet.copyOf(tags);
+		return this;
+	}
+
+	public Collection<String> getTags() {
+		return this.tags;
 	}
 
 	/**
@@ -90,11 +97,18 @@ public abstract class Component {
 	}
 
 	/**
-	 * Get the style sheet attached to this component.
-	 * @return the style sheet of this component.
+	 * Get the style attached to this component.
+	 * @return the style overrides declared for this component.
 	 */
-	public final @Nullable Stylesheet getStylesheet() {
-		return this.stylesheet;
+	public final @Nullable Style getDeclaredStyle() {
+		return this.declaredStyle;
+	}
+
+	/**
+	 * Override to declare a stylesheet for this component.
+	 */
+	public @Nullable Stylesheet getStylesheet() {
+		return null;
 	}
 
 	/**

@@ -16,6 +16,8 @@
 
 package cc.cosmetica.kupe.api.gui.style;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,10 +26,12 @@ import java.util.Map;
  * A collection of properties to apply to a specific component, or group of components.
  */
 public class Style {
-	private Style() {
+	private Style(boolean inheritance) {
+		this.inheritance = inheritance ? new Style(false) : null;
 	}
 
 	protected final Map<Property<?>, Object> properties = new HashMap<>();
+	public @Nullable Style inheritance;
 
 	/**
 	 * Get the value of a given property from this Style.
@@ -60,7 +64,7 @@ public class Style {
 	 * @return the new, flattened style object.
 	 */
 	public static Style merge(List<Style> styles) {
-		Style result = new Style();
+		Style result = new Style(true);
 
 		for (int i = styles.size() - 1; i >= 0; i--) {
 			result.properties.putAll(styles.get(i).properties);
@@ -72,6 +76,7 @@ public class Style {
 	public static class MutableStyle extends Style {
 		protected MutableStyle() {
 			// no-op; visibility change
+			super(true);
 		}
 
 		/**
@@ -83,6 +88,7 @@ public class Style {
 		 */
 		public <T> MutableStyle set(Property<T> property, T value) {
 			this.properties.put(property, value);
+			if (property.inherits) this.inheritance.properties.put(property, value);
 			return this;
 		}
 
@@ -94,7 +100,9 @@ public class Style {
 		 * @param <T> the type of data contained within the property.
 		 */
 		public <T> MutableStyle setFixed(Property<CommonProperties.DimensionsOperator<T>> property, T value) {
-			this.properties.put(property, (CommonProperties.DimensionsOperator<T>)((vw, vh) -> value));
+			final CommonProperties.DimensionsOperator<T> op = (vw, vh) -> value;
+			this.properties.put(property, op);
+			if (property.inherits) this.inheritance.properties.put(property, op);
 			return this;
 		}
 	}

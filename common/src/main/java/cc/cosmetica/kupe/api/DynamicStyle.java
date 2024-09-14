@@ -16,21 +16,22 @@
 
 package cc.cosmetica.kupe.api;
 
-import cc.cosmetica.kupe.api.gui.style.Stylesheet;
+import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.impl.StateManagerImpl;
 
 /**
- * Dynamic Stylesheet. This is similar to using a pure {@link State}&lt;{@link cc.cosmetica.kupe.api.gui.style.Stylesheet Stylesheet}&gt;,
+ * Dynamic Style. This is similar to using a pure {@link State}&lt;{@link cc.cosmetica.kupe.api.gui.style.Style}&gt;,
  * but will not rebuild the component when the stylesheet changes. Instead, it will just trigger a resize.
  * Use this when you want to modify the sizes of components at runtime.
+ // FIXME isn't style computed during build phase?
  */
-public class DynamicStylesheet extends State<Stylesheet> {
-	public DynamicStylesheet(Stylesheet initialValue) {
+public class DynamicStyle extends State<Style> {
+	public DynamicStyle(Style initialValue) {
 		super(initialValue);
 	}
 
 	@Override
-	public void set(Stylesheet value) {
+	public void set(Style value) {
 		this.value = value;
 
 		// resize root

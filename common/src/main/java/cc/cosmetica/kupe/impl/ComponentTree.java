@@ -322,6 +322,7 @@ class ComponentTree {
 
 		/**
 		 * Build just this node. Does not recursively build children.
+		 * Assumes that the style is computed for the parent node (that is, parent has been built).
 		 */
 		private void buildThis() {
 			// build component and add children to the tree
@@ -329,27 +330,51 @@ class ComponentTree {
 				this.children.add(new ComponentNode(this, component));
 			}
 
+			this.element.setFlattenedStyle(this.buildStyle());
+ 		}
+		
+		private Style buildStyle() {
 			// flatten style for component
 			List<Style> styles = new ArrayList<>();
-			ComponentNode visitingNode = this;
-			boolean self = true;
 
+			// declared style takes priority
+			@Nullable Style declaredStyle = this.element.getDeclaredStyle();
+
+			if (declaredStyle != null) {
+				// fill overrides for this element class
+				styles.add(declaredStyle);
+			}
+
+			// stylesheet for this component is next most important
+			@Nullable Stylesheet stylesheet = this.element.getStylesheet();
+
+			if (stylesheet != null) {
+				// fill overrides for this element class
+				stylesheet.fillOverrides(styles, this.element.getClass(), this.element.getTags(), true);
+			}
+
+			// Parent stylesheets, applied to us, are the next most important.
+			ComponentNode visitingNode = this.parent;
 			while (visitingNode != null) {
-				@Nullable Stylesheet stylesheet = visitingNode.element.getStylesheet();
+				stylesheet = visitingNode.element.getStylesheet();
 
 				if (stylesheet != null) {
 					// fill overrides for this element class
-					stylesheet.fillOverrides(styles, this.element.getClass(), self);
+					stylesheet.fillOverrides(styles, this.element.getClass(), this.element.getTags(), false);
 				}
-
-				visitingNode = visitingNode.parent;
-				self = false;
+				
+				visitingNode = visitingNode.parent; // each successive ancestor is lower priority
 			}
+			
+			// Then, inherited properties from the parent
+			// Only marked properties are inherited
+			if (this.parent != null) styles.add(this.parent.element.getStyle().inheritance);
 
+			// finally, the root stylesheet has lowest priority
 			RootStylesheet.fillDefaultOverrides(styles, this.element.getClass());
-
-			this.element.setFlattenedStyle(Style.merge(styles));
- 		}
+			
+			return Style.merge(styles);
+		}
 
 		private void computeMargins(int vw, int vh) {
 			this.padding = this.element.getStyle().get(CommonProperties.PADDING).apply(vw, vh);

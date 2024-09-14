@@ -19,6 +19,7 @@ package cc.cosmetica.kupe.api.gui.style;
 import cc.cosmetica.kupe.api.gui.Component;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,22 +32,36 @@ import java.util.Map;
 public class Stylesheet {
 	public Stylesheet() {
 		this.classStyles = new HashMap<>();
+		this.tagStyles = new HashMap<>();
 	}
 
 	private final Map<Class<? extends Component>, Style> classStyles;
+	private final Map<String, Style> tagStyles;
 	private Style self;
 
 	/**
 	 * Used internally when flattening styles. Adds relevant styles from this stylesheet to the provided list.
 	 * @param styles the list of style overrides, in order of most important to least.
 	 * @param component the component class to add styles for.
+	 * @param tags the tags to add styles for.
 	 * @param self whether to add self overrides.
 	 */
-	public void fillOverrides(List<Style> styles, Class<? extends Component> component, boolean self) {
+	public void fillOverrides(List<Style> styles, Class<? extends Component> component, Collection<String> tags, boolean self) {
+		// overrides set for self are most important: goes first
 		if (self && this.self != null) {
 			styles.add(this.self);
 		}
 
+		// overrides set for tags are next most important
+		for (String tag : tags) {
+			Style tagStyle = this.tagStyles.get(tag);
+
+			if (tag != null) {
+				styles.add(tagStyle);
+			}
+		}
+
+		// lastly, overrides for the component class are added
 		Style componentStyle = this.classStyles.get(component);
 
 		if (componentStyle != null) {
@@ -55,7 +70,23 @@ public class Stylesheet {
 	}
 
 	/**
-	 * Apply the given style overrides to components of the given class.
+	 * Apply the given style overrides to components with the given tag.
+	 * @param tag the tag components must have applied to inherit these style overrides.
+	 * @param style the style overrides.
+	 * @return this style sheet.
+	 * @throws IllegalArgumentException if the style overrides for the given tag have already been set.
+	 */
+	public Stylesheet tag(String tag, Style style) {
+		if (this.tagStyles.containsKey(tag)) {
+			throw new IllegalArgumentException("Cannot set style overrides for same tag (" + tag + ") twice.");
+		}
+
+		this.tagStyles.put(tag, style);
+		return this;
+	}
+
+	/**
+	 * Apply the given style overrides to components with the specific tag.
 	 * @param componentClass the class of components to apply the given style overrides to. This will match *exactly* this
 	 *                       class, and not subclasses.
 	 * @param style the style overrides.
