@@ -15,8 +15,8 @@ import cc.cosmetica.kupe.api.gui.Component;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import net.minecraft.resources.ResourceLocation;
 
-public class KupeTestsScreen extends Screen {
-	public KupeTestsScreen() {
+public class AllKupeTestsScreen extends Screen {
+	public AllKupeTestsScreen() {
 		super(ID);
 	}
 
@@ -27,6 +27,7 @@ public class KupeTestsScreen extends Screen {
 				new Button(Text.literal("Fake Player Test"), () -> Screens.setScreen(FakePlayerTestScreen.ID)),
 				new Button(Text.literal("Resizing Edge Case"), () -> Screens.setScreen(OversizeAndMaxHeightTestCase.ID)),
 				new Button(Text.literal("Z Layering Test"), () -> Screens.setScreen(ZLayeringTest.ID)),
+				new Button(Text.literal("Text Wrap Label Sizing Test"), () -> Screens.setScreen(TextWrapTextboxSizingTest.ID)),
 				new Button(Text.literal("Scroll Test"), () -> Screens.setScreen(ScrollTestScreen.ID))
 		};
 	}

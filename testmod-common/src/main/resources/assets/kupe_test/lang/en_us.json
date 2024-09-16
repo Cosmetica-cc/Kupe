@@ -4,5 +4,6 @@
   "screens.kupe_test.root": "Select a Test",
   "screens.kupe_test.screen": "Kupe Test Screen",
   "screens.kupe_test.scroll": "Scrollable Div Test",
+  "screens.kupe_test.text_wrapping": "Text Wrap Label Sizing Test",
   "screens.kupe_test.z_layering": "Z Layering Test"
 }

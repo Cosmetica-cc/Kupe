@@ -16,11 +16,12 @@ public final class KupeTestInit {
 
 	public static void init() {
 		Screens.enableDebug(); // enable debug on all kupe screens
-		Screens.registerScreen(KupeTestsScreen.ID, new KupeTestsScreen());
+		Screens.registerScreen(AllKupeTestsScreen.ID, new AllKupeTestsScreen());
 		Screens.registerScreen(StateTestScreen.ID, new StateTestScreen());
 		Screens.registerScreen(FakePlayerTestScreen.ID, new FakePlayerTestScreen());
 		Screens.registerScreen(OversizeAndMaxHeightTestCase.ID, OversizeAndMaxHeightTestCase::new); // factory register
 		Screens.registerScreen(ZLayeringTest.ID, new ZLayeringTest());
+		Screens.registerScreen(TextWrapTextboxSizingTest.ID, new TextWrapTextboxSizingTest());
 		Screens.registerScreen(ScrollTestScreen.ID, new ScrollTestScreen());
 	}
 }
