@@ -129,15 +129,20 @@ class ComponentTree {
 		List<Node> wrappingOverflowed = new ArrayList<>();
 		this._resize(nodes, context, wrappingOverflowed);
 
-		// Account for wrapping nodes to allocate additional height
-		boolean updateRequired = false;
-		// TODO how to only update sizings for required nodes
-		// The how to only update is collect parents (avoiding duplicates)
-		// We need depth information to sort by depth
+		// Don't bother if nothing needs to be handled
+		if (!wrappingOverflowed.isEmpty()) {
+			// Account for wrapping nodes to allocate additional height
+			boolean updateRequired = false;
+			wrappingOverflowed.sort((n, m) -> n.depth - m.depth);
+			// TODO how to only update sizings for required nodes
+			// The how to only update is collect parents (avoiding duplicates)
+			// We need depth information to sort by depth
+			// We may need a self sorting list -> RBT
 
-		// If anything changed, resize again
-		if (updateRequired) {
-			this._resize(nodes, context, null);
+			// If anything changed, resize again
+			if (updateRequired) {
+				this._resize(nodes, context, null);
+			}
 		}
 
 		// Update debug component
@@ -314,6 +319,8 @@ class ComponentTree {
 		Node(@Nullable ComponentTree.Node parent, Component element) {
 			this.parent = parent;
 			this.element = element;
+			// Track depth
+			this.depth = parent == null ? 0 : parent.depth + 1;
 		}
 
 		// content
@@ -321,6 +328,7 @@ class ComponentTree {
 		// hierarchy
 		final List<Node> children = new ArrayList<>();
 		final @Nullable ComponentTree.Node parent;
+		final int depth;
 		// extra data
 		Region renderRegion;
 		Dimensions minimumSize, maximumSize, intrinsicSize; // calculated and cached
