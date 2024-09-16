@@ -58,6 +58,11 @@ public class Label extends Component implements WrappingElement {
 	}
 
 	@Override
+	public int realHeight(int width, Context context) {
+		return context.getTextHeight(this.text, width);
+	}
+
+	@Override
 	public List<Component> build() {
 		return Collections.emptyList();
 	}

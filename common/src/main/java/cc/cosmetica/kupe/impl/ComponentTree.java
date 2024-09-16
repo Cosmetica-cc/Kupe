@@ -21,6 +21,7 @@ import cc.cosmetica.kupe.api.Context;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.Component;
 import cc.cosmetica.kupe.api.gui.ResizableElement;
+import cc.cosmetica.kupe.api.gui.WrappingElement;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.RootStylesheet;
 import cc.cosmetica.kupe.api.gui.style.Style;
@@ -106,7 +107,7 @@ class ComponentTree {
 		Deque<ComponentNode> nodes = new ArrayDeque<>();
 		nodes.push(this.root);
 
-		// Calculate preferred sizes down the tree
+		// Calculate preferred sizes up the tree
 		while (!nodes.isEmpty()) {
 			ComponentNode node = nodes.pop();
 
@@ -125,18 +126,45 @@ class ComponentTree {
 		}
 
 		// BFS for resizing (down the tree)
+		List<ComponentNode> wrappingOverflowed = new ArrayList<>();
+		this._resize(nodes, context, wrappingOverflowed);
 
+		// Account for wrapping nodes to allocate additional height
+		boolean updateRequired = false;
+		// TODO how to only update sizings for required nodes
+		// The how to only update is collect parents (avoiding duplicates)
+		// We need depth information to sort by depth
+
+		// If anything changed, resize again
+		if (updateRequired) {
+			this._resize(nodes, context, null);
+		}
+
+		// Update debug component
+		this.updateDebugComponent();
+	}
+
+	/**
+	 * BFS for resizing (down the tree)
+	 * @param nodes the queue to use for nodes.
+	 */
+	private void _resize(Queue<ComponentNode> nodes, Context context, @Nullable Collection<ComponentNode> wrappingOverflowed) {
 		nodes.add(this.root);
-		this.root.renderRegion = new Region(0, 0, vw, vh);
+		this.root.renderRegion = new Region(0, 0, context.getViewWidth(), context.getViewHeight());
 
 		// Resize down the tree
 		while (!nodes.isEmpty()) { // we have computed actual preferred sizes before resizing
 			ComponentNode node = nodes.remove(); // nb we also, upon resizing, need to set the children's actual render regions
 			node.resize(context);
 			nodes.addAll(node.children);
-		}
 
-		this.updateDebugComponent();
+			// check for wrapping overflow
+			if (wrappingOverflowed != null && node.element instanceof WrappingElement) {
+				if (node.renderRegion.getHeight() < ((WrappingElement)node.element).realHeight(node.renderRegion.getWidth(), context)) {
+					wrappingOverflowed.add(node);
+				}
+			}
+		}
 	}
 
 	public void render(Canvas canvas, int mouseX, int mouseY) {
