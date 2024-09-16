@@ -126,18 +126,38 @@ class ComponentTree {
 		}
 
 		// BFS for resizing (down the tree)
-		List<Node> wrappingOverflowed = new ArrayList<>();
+		Queue<Node> wrappingOverflowed = new PriorityQueue<>((n, m) -> m.depth - n.depth); // reverse sort
 		this._resize(nodes, context, wrappingOverflowed);
 
 		// Don't bother if nothing needs to be handled
 		if (!wrappingOverflowed.isEmpty()) {
 			// Account for wrapping nodes to allocate additional height
 			boolean updateRequired = false;
-			wrappingOverflowed.sort((n, m) -> n.depth - m.depth);
-			// TODO how to only update sizings for required nodes
-			// The how to only update is collect parents (avoiding duplicates)
-			// We need depth information to sort by depth
-			// We may need a self sorting list -> RBT
+			// Only update sizings for required nodes by collecting parents (avoiding duplicates)
+			// To avoid one branch racing ahead of the others we go from leaves to head
+			Collection<Node> visitedAtThisDepth = new HashSet<>();
+			int depth = wrappingOverflowed.peek().depth;
+
+			while (!wrappingOverflowed.isEmpty()) {
+				Node n = wrappingOverflowed.remove();
+
+				if (n.depth != depth) {
+					depth = n.depth;
+					visitedAtThisDepth = new HashSet<>(); // "memory efficiency" (might not actually be worth it. could save cycles by blocking on adding?)
+				} else if (visitedAtThisDepth.contains(n)) {
+					continue; // skip. already visited (avoid updating duplicates)
+				}
+
+				visitedAtThisDepth.add(n);
+
+				// Recalculate Sizing
+				// TODO change intrinsic size to be taller
+				n.computeSizes(context);
+
+				// Add parent
+				if (n.parent != null)
+					wrappingOverflowed.add(n.parent);
+			}
 
 			// If anything changed, resize again
 			if (updateRequired) {
