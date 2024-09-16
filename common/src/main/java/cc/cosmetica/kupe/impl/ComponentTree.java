@@ -40,17 +40,17 @@ import java.util.function.Predicate;
 
 class ComponentTree {
 	public ComponentTree(Component root) {
-		this.root = new ComponentNode(null, root);
+		this.root = new Node(null, root);
 		this.updateDebugComponent();
 	}
 
-	private final ComponentNode root;
+	private final Node root;
 
 	/**
 	 * Build the component tree from the root.
 	 */
 	public void buildAll() {
-		this.root.walk(ComponentNode::buildThis);
+		this.root.walk(Node::buildThis);
 	}
 
 	/**
@@ -66,11 +66,11 @@ class ComponentTree {
 		// find which component nodes actually need to be rebuilt
 		// we want to do this at the most basal points possible.
 		// That is, if a parent node and its child both need to be rebuilt, rebuild the parent.
-		Deque<ComponentNode> nodes = new ArrayDeque<>();
+		Deque<Node> nodes = new ArrayDeque<>();
 		nodes.add(this.root);
 
 		while (!nodes.isEmpty()) {
-			ComponentNode node = nodes.remove();
+			Node node = nodes.remove();
 
 			// if the node needs to be rebuilt, destroy its children and rebuild the node
 			if (toRebuild.contains(node.element)) {
@@ -78,12 +78,12 @@ class ComponentTree {
 				node.rebuildThis();
 
 				// build new children
-				for (ComponentNode child : node.children) {
-					child.walk(ComponentNode::buildThis);
+				for (Node child : node.children) {
+					child.walk(Node::buildThis);
 				}
 			}
 			// otherwise check its children to see if they need rebuilding
-			else for (ComponentNode child : node.children) {
+			else for (Node child : node.children) {
 				nodes.push(child);
 			}
 		}
@@ -104,12 +104,12 @@ class ComponentTree {
 		// We want the leaves to have preferred sizes calculated before their parents
 		// because it depends on the children's preferred sizes being calculated
 
-		Deque<ComponentNode> nodes = new ArrayDeque<>();
+		Deque<Node> nodes = new ArrayDeque<>();
 		nodes.push(this.root);
 
 		// Calculate preferred sizes up the tree
 		while (!nodes.isEmpty()) {
-			ComponentNode node = nodes.pop();
+			Node node = nodes.pop();
 
 			if (node.grey) {
 				node.grey = false; // we are done with this node
@@ -119,14 +119,14 @@ class ComponentTree {
 				nodes.push(node);
 
 				// all children need to be visited before this node
-				for (ComponentNode child : node.children) {
+				for (Node child : node.children) {
 					nodes.push(child);
 				}
 			}
 		}
 
 		// BFS for resizing (down the tree)
-		List<ComponentNode> wrappingOverflowed = new ArrayList<>();
+		List<Node> wrappingOverflowed = new ArrayList<>();
 		this._resize(nodes, context, wrappingOverflowed);
 
 		// Account for wrapping nodes to allocate additional height
@@ -148,13 +148,13 @@ class ComponentTree {
 	 * BFS for resizing (down the tree)
 	 * @param nodes the queue to use for nodes.
 	 */
-	private void _resize(Queue<ComponentNode> nodes, Context context, @Nullable Collection<ComponentNode> wrappingOverflowed) {
+	private void _resize(Queue<Node> nodes, Context context, @Nullable Collection<Node> wrappingOverflowed) {
 		nodes.add(this.root);
 		this.root.renderRegion = new Region(0, 0, context.getViewWidth(), context.getViewHeight());
 
 		// Resize down the tree
 		while (!nodes.isEmpty()) { // we have computed actual preferred sizes before resizing
-			ComponentNode node = nodes.remove(); // nb we also, upon resizing, need to set the children's actual render regions
+			Node node = nodes.remove(); // nb we also, upon resizing, need to set the children's actual render regions
 			node.resize(context);
 			nodes.addAll(node.children);
 
@@ -174,11 +174,11 @@ class ComponentTree {
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		boolean consumedClick = false;
 
-		Deque<ComponentNode> nodes = new ArrayDeque<>();
+		Deque<Node> nodes = new ArrayDeque<>();
 		nodes.add(this.root);
 
 		while (!nodes.isEmpty()) {
-			ComponentNode node = nodes.remove();
+			Node node = nodes.remove();
 
 			// only process clicks in this element's render region
 			if (node.renderRegion.contains((int)mouseX, (int)mouseY)) {
@@ -204,11 +204,11 @@ class ComponentTree {
 	}
 
 	public void mouseMoved(double mouseX, double mouseY) {
-		Deque<ComponentNode> nodes = new ArrayDeque<>();
+		Deque<Node> nodes = new ArrayDeque<>();
 		nodes.add(this.root);
 
 		while (!nodes.isEmpty()) {
-			ComponentNode node = nodes.remove();
+			Node node = nodes.remove();
 
 			if (node.renderRegion.contains((int)mouseX, (int)mouseY)) {
 				node.element.mouseMoved(mouseX, mouseY);
@@ -221,14 +221,14 @@ class ComponentTree {
 	 * Called when hooks referencing the components need to be cleared.
 	 */
 	public void dispose() {
-		this.root.walk(ComponentNode::dispose);
+		this.root.walk(Node::dispose);
 	}
 
 	// Debug
 
 	private Text debugParentText;
 	private Text debugChildText;
-	private ComponentNode debugParent;
+	private Node debugParent;
 	private int debugIndex = 0;
 
 	public void renderDebug(Canvas canvas, int vh) {
@@ -297,21 +297,21 @@ class ComponentTree {
 			if (this.debugParent.children.size() == 0) {
 				this.debugChildText = Text.literal("(No Children)");
 			} else {
-				ComponentNode child = this.debugParent.children.get(this.debugIndex);
+				Node child = this.debugParent.children.get(this.debugIndex);
 				this.debugChildText = componentDebugInfo(child);
 			}
 		}
 	}
 
-	private Text componentDebugInfo(ComponentNode node) {
+	private Text componentDebugInfo(Node node) {
 		return Text.literal(node.element.getClass().getSimpleName() + " " + node.renderRegion +
 				" (" + node.intrinsicSize.toString() + "i, " + node.minimumSize + "m, " + node.maximumSize + "M)");
 	}
 
 	private static final Text DEBUG_INSTRUCTIONS = Text.literal("[1] Back [2] Step In [3] Previous [4] Next");
 
-	private static class ComponentNode implements ResizableElement {
-		ComponentNode(@Nullable ComponentNode parent, Component element) {
+	private static class Node implements ResizableElement {
+		Node(@Nullable ComponentTree.Node parent, Component element) {
 			this.parent = parent;
 			this.element = element;
 		}
@@ -319,8 +319,8 @@ class ComponentTree {
 		// content
 		final Component element;
 		// hierarchy
-		final List<ComponentNode> children = new ArrayList<>();
-		final @Nullable ComponentNode parent;
+		final List<Node> children = new ArrayList<>();
+		final @Nullable ComponentTree.Node parent;
 		// extra data
 		Region renderRegion;
 		Dimensions minimumSize, maximumSize, intrinsicSize; // calculated and cached
@@ -334,8 +334,8 @@ class ComponentTree {
 		 */
 		private void rebuildThis() {
 			// clear any states used by children
-			for (ComponentNode child : this.children) {
-				child.walk(ComponentNode::dispose);
+			for (Node child : this.children) {
+				child.walk(Node::dispose);
 			}
 
 			// clear children
@@ -355,7 +355,7 @@ class ComponentTree {
 		private void buildThis() {
 			// build component and add children to the tree
 			for (Component component : this.element.build()) {
-				this.children.add(new ComponentNode(this, component));
+				this.children.add(new Node(this, component));
 			}
 
 			this.element.setFlattenedStyle(this.buildStyle());
@@ -382,7 +382,7 @@ class ComponentTree {
 			}
 
 			// Parent stylesheets, applied to us, are the next most important.
-			ComponentNode visitingNode = this.parent;
+			Node visitingNode = this.parent;
 			while (visitingNode != null) {
 				stylesheet = visitingNode.element.getStylesheet();
 
@@ -454,7 +454,7 @@ class ComponentTree {
 		private void resize(Context context) {
 			this.element.resize(this.renderRegion, this, this.children, context);
 
-			for (ComponentNode node : this.children) {
+			for (Node node : this.children) {
 				if (node.renderRegion == null) {
 					throw new IllegalStateException("Node " + this.element + " has not resized child " + node.element);
 				}
@@ -483,12 +483,12 @@ class ComponentTree {
 		 * Recursively iterate (in a BFS manner) this node and its children, performing the provided operation on them.
 		 * @param nodeConsumer the operation to perform on each node in the tree.
 		 */
-		private void walk(Consumer<ComponentNode> nodeConsumer) {
-			Deque<ComponentNode> nodes = new ArrayDeque<>();
+		private void walk(Consumer<Node> nodeConsumer) {
+			Deque<Node> nodes = new ArrayDeque<>();
 			nodes.add(this);
 
 			while (!nodes.isEmpty()) {
-				ComponentNode node = nodes.remove();
+				Node node = nodes.remove();
 				nodeConsumer.accept(node);
 				nodes.addAll(node.children);
 			}
@@ -499,13 +499,13 @@ class ComponentTree {
 		 * @param nodePredicate the operation to perform on each node in the tree.
 		 * @return if the predicate returned true at least once.
 		 */
-		private boolean walkAndTest(Predicate<ComponentNode> nodePredicate) {
-			Deque<ComponentNode> nodes = new ArrayDeque<>();
+		private boolean walkAndTest(Predicate<Node> nodePredicate) {
+			Deque<Node> nodes = new ArrayDeque<>();
 			nodes.add(this);
 			boolean result = false;
 
 			while (!nodes.isEmpty()) {
-				ComponentNode node = nodes.remove();
+				Node node = nodes.remove();
 				result |= nodePredicate.test(node);
 				nodes.addAll(node.children);
 			}
