@@ -151,8 +151,9 @@ class ComponentTree {
 				visitedAtThisDepth.add(n);
 
 				// Recalculate Sizing
-				// TODO change intrinsic size to be taller
+				Dimensions oldIntrinsic = n.intrinsicSize;
 				n.computeSizes(context);
+				if (oldIntrinsic != n.intrinsicSize) updateRequired = true;
 
 				// Add parent
 				if (n.parent != null)
@@ -184,9 +185,13 @@ class ComponentTree {
 			nodes.addAll(node.children);
 
 			// check for wrapping overflow
-			if (wrappingOverflowed != null && node.element instanceof WrappingElement) {
-				if (node.renderRegion.getHeight() < ((WrappingElement)node.element).realHeight(node.renderRegion.getWidth(), context)) {
-					wrappingOverflowed.add(node);
+			if (wrappingOverflowed != null && node.parent != null && node.element instanceof WrappingElement) {
+				int realHeight = ((WrappingElement)node.element).realHeight(node.renderRegion.getWidth(), context);
+
+				if (node.renderRegion.getHeight() < realHeight) {
+					// use REAL dimensions as the actual intrinsic size
+					node.intrinsicSize = new Dimensions(node.renderRegion.getWidth(), realHeight);
+					wrappingOverflowed.add(node.parent); // recalculate node parent
 				}
 			}
 		}

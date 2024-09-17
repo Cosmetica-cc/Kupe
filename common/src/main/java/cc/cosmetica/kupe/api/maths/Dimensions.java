@@ -46,6 +46,15 @@ public class Dimensions {
 		return this.width + "x" + this.height;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == this) return true;
+		if (obj == null) return false;
+		if (obj instanceof Dimensions)
+			return this.width == ((Dimensions) obj).width;
+		return false;
+	}
+
 	/**
 	 * A constant representing the dimensions (0, 0).
 	 */
