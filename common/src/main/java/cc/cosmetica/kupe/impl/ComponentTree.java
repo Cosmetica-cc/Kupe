@@ -127,7 +127,8 @@ class ComponentTree {
 
 		// BFS for resizing (down the tree)
 		Queue<Node> wrappingOverflowed = new PriorityQueue<>((n, m) -> m.depth - n.depth); // reverse sort
-		this._resize(nodes, context, wrappingOverflowed);
+		List<Node> immediateOverflowed = new ArrayList<>();
+		this._resize(nodes, context, wrappingOverflowed, immediateOverflowed);
 
 		// Don't bother if nothing needs to be handled
 		if (!wrappingOverflowed.isEmpty()) {
@@ -162,7 +163,12 @@ class ComponentTree {
 
 			// If anything changed, resize again
 			if (updateRequired) {
-				this._resize(nodes, context, null);
+				// set real size as minimum size
+				for (Node n : immediateOverflowed) {
+					// Math.max may not be necessary as it shouldnt overflow if min height is so
+					n.minimumSize = new Dimensions(n.minimumSize.getWidth(), Math.max(n.minimumSize.getHeight(), n.intrinsicSize.getHeight()));
+				}
+				this._resize(nodes, context, null, null);
 			}
 		}
 
@@ -174,7 +180,7 @@ class ComponentTree {
 	 * BFS for resizing (down the tree)
 	 * @param nodes the queue to use for nodes.
 	 */
-	private void _resize(Queue<Node> nodes, Context context, @Nullable Collection<Node> wrappingOverflowed) {
+	private void _resize(Queue<Node> nodes, Context context, @Nullable Collection<Node> wrappingOverflowed, @Nullable Collection<Node> immediateOverflowed) {
 		nodes.add(this.root);
 		this.root.renderRegion = new Region(0, 0, context.getViewWidth(), context.getViewHeight());
 
@@ -192,6 +198,8 @@ class ComponentTree {
 					// use REAL dimensions as the actual intrinsic size
 					node.intrinsicSize = new Dimensions(node.renderRegion.getWidth(), realHeight);
 					wrappingOverflowed.add(node.parent); // recalculate node parent
+					assert immediateOverflowed != null;
+					immediateOverflowed.add(node);
 				}
 			}
 		}
