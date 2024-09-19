@@ -163,11 +163,6 @@ class ComponentTree {
 
 			// If anything changed, resize again
 			if (updateRequired) {
-				// set real size as minimum size
-				for (Node n : immediateOverflowed) {
-					// Math.max may not be necessary as it shouldnt overflow if min height is so
-					n.minimumSize = new Dimensions(n.minimumSize.getWidth(), Math.max(n.minimumSize.getHeight(), n.intrinsicSize.getHeight()));
-				}
 				this._resize(nodes, context, null, null);
 			}
 		}
@@ -197,7 +192,12 @@ class ComponentTree {
 				if (node.renderRegion.getHeight() < realHeight) {
 					// use REAL dimensions as the actual intrinsic size
 					node.intrinsicSize = new Dimensions(node.renderRegion.getWidth(), realHeight);
+					// set real height as minimum height too
+					// Math.max may not be necessary as it shouldnt overflow to begin with if min height is enough
+					node.minimumSize = new Dimensions(node.minimumSize.getWidth(), Math.max(node.minimumSize.getHeight(), node.intrinsicSize.getHeight()));
+
 					wrappingOverflowed.add(node.parent); // recalculate node parent
+
 					assert immediateOverflowed != null;
 					immediateOverflowed.add(node);
 				}
