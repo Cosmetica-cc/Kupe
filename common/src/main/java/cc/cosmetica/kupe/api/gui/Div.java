@@ -16,6 +16,7 @@
 
 package cc.cosmetica.kupe.api.gui;
 
+import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.Context;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
@@ -31,12 +32,17 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * A section of the page that lays out multiple elements in a row or column.
+ * All divs, if the sum of the components exceed the allocated size, will scroll.
+ */
 public class Div extends Component {
 	public Div(Component... children) {
 		this.children = Arrays.asList(children);
 	}
 
 	private final List<Component> children;
+	private boolean overflow = false;
 
 	@Override
 	public List<Component> build() {
@@ -47,7 +53,7 @@ public class Div extends Component {
 
 	@Override
 	public Dimensions minimumSize(List<? extends SizedElement> children, int vw, int vh) {
-		return this.size(children, SizedElement::getMinimumSize);
+		return this.getStyle().get(FIXED_CONTAINER) ? this.size(children, SizedElement::getMinimumSize) : Dimensions.NONE;
 	}
 
 	@Override
@@ -439,6 +445,9 @@ public class Div extends Component {
 				break;
 			}
 		}
+
+		// set overflow flag
+		this.overflow = (int)x > region.getEndX();// TODO do we need int cast?
 	}
 
 	@Override
@@ -459,6 +468,16 @@ public class Div extends Component {
 		return sb.toString();
 	}
 
+	@Override
+	public void render(Canvas canvas, Region region, int mouseX, int mouseY) {
+		if (overflow) {
+			// stencil
+
+			// scrollbar
+		}
+		super.render(canvas, region, mouseX, mouseY);
+	}
+
 	/**
 	 * The primary axis of this Div. Components will be laid out in this direction.
 	 */
@@ -475,6 +494,12 @@ public class Div extends Component {
 	 * The secondary axis is the direction perpendicular to the direction components are laid out.
 	 */
 	public static final Style.Property<Align> ALIGN_ITEMS = new Style.Property<>(Align.STRETCH_START, false);
+
+	/**
+	 * Whether this div must expand to fit all components. If this is false, the div will ignore the minimum size of
+	 * its children when determining its own minimum size. This promotes overflowing and scrolling behaviour.
+	 */
+	public static final Style.Property<Boolean> FIXED_CONTAINER = new Style.Property<>(true, false);
 
 	/**
 	 * Flips the axis of operations. Y <-> X. Essentially mirrors along a line from top left corner down and right, 45 degrees.
