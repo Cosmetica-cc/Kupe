@@ -19,9 +19,6 @@ package cc.cosmetica.kupe.api.gui;
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.Context;
 import cc.cosmetica.kupe.api.Text;
-import cc.cosmetica.kupe.api.gui.style.CommonProperties;
-import cc.cosmetica.kupe.api.gui.style.RootStylesheet;
-import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Region;
 import cc.cosmetica.kupe.impl.LeavesSandbox;
@@ -66,10 +63,6 @@ public class FakePlayer extends Component {
 		this.renderer.skin = DefaultPlayerSkin.getDefaultSkin(uuid); // todo get actual skin
 
 		this.showAttachments(AttachmentsRegistry.getAll().stream().filter(Attachment::defaultEnable).toArray(Attachment[]::new));
-
-		for (Attachment attachment : AttachmentsRegistry.getAll()) {
-			this.configureAttachment(attachment, attachment.getUserConfiguration(uuid));
-		}
 	}
 
 	private final boolean followsMouse;
@@ -98,32 +91,53 @@ public class FakePlayer extends Component {
 		return this;
 	}
 
-	public Iterator<Map.Entry<Attachment<?>, Object>> getRenderingAttachments() {
-		return this.configurations.entrySet().stream().filter(e -> this.shown.contains(e.getKey())).iterator();
+	public Iterator<Attachment<?>> getRenderingAttachments() {
+		return this.shown.iterator();
+	}
+
+	@Nullable
+	public <T> T getConfiguration(Attachment<T> attachment) {
+		T config = (T) this.configurations.get(attachment);
+		if (config == null) {
+			if (this.uuid == null) {
+				return null;
+			}
+			return attachment.getDynamicConfiguration(this.uuid);
+		}
+		return config;
 	}
 
 	/**
 	 * Show the given attachments on this FakePlayer.
 	 * @param attachments a list of attachments to show on this fake player. Leave blank to show all attachments.
 	 */
-	public void showAttachments(Attachment<?>... attachments) {
+	public FakePlayer showAttachments(Attachment<?>... attachments) {
 		if (attachments.length == 0) {
 			this.shown.addAll(AttachmentsRegistry.getAll());
 		} else {
 			Collections.addAll(this.shown, attachments);
 		}
+
+		return this;
 	}
 
 	/**
 	 * Hide the given attachments on this FakePlayer.
 	 * @param attachments a list of attachments to hide on this fake player. Leave blank to hide all attachments.
 	 */
-	public void hideAttachments(Attachment<?>... attachments) {
+	public FakePlayer hideAttachments(Attachment<?>... attachments) {
 		if (attachments.length == 0) {
 			this.shown.clear();
 		} else for (Attachment<?> attachment : attachments) {
 			this.shown.remove(attachment);
 		}
+
+		return this;
+	}
+
+	public FakePlayer setSneaking(boolean sneaking) {
+		this.renderer.sneaking = sneaking;
+		return this;
 	}
 
 	// ======== //
@@ -189,10 +203,10 @@ public class FakePlayer extends Component {
 		void render(Canvas canvas, T configuration, Quaternion cameraOrientation, MultiBufferSource bufferSource, int packedLight);
 
 		/**
-		 * Get the user configuration. This is called every tick, so can change dynamically.
+		 * Get the dynamic user configuration. This is called every tick.
 		 * @return the configuration for the given user.
 		 */
-		T getUserConfiguration(UUID uuid);
+		T getDynamicConfiguration(UUID uuid);
 
 		/**
 		 * Whether this is a name tag attachment.

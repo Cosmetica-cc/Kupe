@@ -59,7 +59,7 @@ public class NameTagAttachment implements FakePlayer.Attachment<Text> {
 	}
 
 	@Override
-	public Text getUserConfiguration(UUID uuid) {
+	public Text getDynamicConfiguration(UUID uuid) {
 		return Text.literal("Player");
 	}
 

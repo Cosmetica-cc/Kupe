@@ -244,15 +244,17 @@ public final class FakePlayerRenderer {
 
 		// TODO optimise this; it's better to precompute the split between model and non-model.
 		Canvas canvas = new PoseCanvas(stack, Minecraft.getInstance(), context, delta);
-		List<Map.Entry<FakePlayer.Attachment, Object>> nonModel = new ArrayList<>();
-		Iterator<Map.Entry<FakePlayer.Attachment, Object>> iterator = (Iterator<Map.Entry<FakePlayer.Attachment, Object>>)(Object) player.getRenderingAttachments();
+		List<FakePlayer.Attachment<?>> nonModel = new ArrayList<>();
+		Iterator<FakePlayer.Attachment<?>> iterator = player.getRenderingAttachments();
 
 		while (iterator.hasNext()) {
-			//layer.render(stack, bufferSource, light, player, animationPosition, animationSpeed, delta, bob, yRotDiff, xRot);
-			Map.Entry<FakePlayer.Attachment, Object> layer = iterator.next();
+			FakePlayer.Attachment<?> layer = iterator.next();
 
-			if (!layer.getKey().isNameTag()) {
-				layer.getKey().render(canvas, layer.getValue(), cameraOrientation, bufferSource, light);
+			if (!layer.isNameTag()) {
+				Object configuration = player.getConfiguration(layer);
+				if (configuration != null) {
+					((FakePlayer.Attachment)layer).render(canvas, configuration, cameraOrientation, bufferSource, light);
+				}
 			} else {
 				nonModel.add(layer);
 			}
@@ -263,8 +265,11 @@ public final class FakePlayerRenderer {
 		// Render nametag attachments
 		stack.pushPose();
 
-		for (Map.Entry<FakePlayer.Attachment, Object> layer : nonModel) {
-			layer.getKey().render(canvas, layer.getValue(), cameraOrientation, bufferSource, light);
+		for (FakePlayer.Attachment<?> layer : nonModel) {
+			Object configuration = player.getConfiguration(layer);
+			if (configuration != null) {
+				((FakePlayer.Attachment)layer).render(canvas, configuration, cameraOrientation, bufferSource, light);
+			}
 		}
 
 		stack.popPose();

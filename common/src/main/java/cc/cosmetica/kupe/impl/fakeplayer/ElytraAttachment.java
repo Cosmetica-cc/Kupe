@@ -31,7 +31,7 @@ public class ElytraAttachment implements FakePlayer.Attachment<ResourceLocation>
 	}
 
 	@Override
-	public ResourceLocation getUserConfiguration(UUID uuid) {
+	public ResourceLocation getDynamicConfiguration(UUID uuid) {
 		return null;
 	}
 
