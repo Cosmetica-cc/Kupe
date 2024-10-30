@@ -19,11 +19,13 @@ package cc.cosmetica.kupe.impl.fakeplayer;
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.FakePlayer;
+import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Quaternion;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EntityType;
@@ -56,11 +58,18 @@ public class NameTagAttachment implements FakePlayer.Attachment<Text> {
 		if (fullyRender) {
 			font.drawInBatch(name, h, (float)offsetForDeadmau5, -1, false, pose, bufferSource, false, 0, packedLight);
 		}
+		//todo additional name tags
 	}
 
 	@Override
 	public Text getDynamicConfiguration(UUID uuid) {
-		return Text.literal("Player");
+		PlayerInfo loadedProfile = Minecraft.getInstance().getConnection().getPlayerInfo(uuid);
+
+		if (loadedProfile == null) {
+			return Text.literal("Player");
+		} else {
+			return null;//todo
+		}
 	}
 
 	@Override
