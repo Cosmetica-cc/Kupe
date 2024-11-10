@@ -450,7 +450,10 @@ public class Div extends Component {
 		}
 
 		// set overflow flag
-		this.overflow = (int)x > region.getEndX();// TODO do we need int cast?
+		this.overflow = (int)x > region.getEndX() + 1;// TODO do we need int cast?
+//		if (this.overflow) {
+//			System.out.println(super.toString() + " Overflow = " + region.getEndX() + " <= " + x);
+//		}
 	}
 
 	@Override
@@ -474,7 +477,7 @@ public class Div extends Component {
 	@Override
 	public void render(Canvas canvas, Region region, int mouseX, int mouseY) {
 		if (overflow) {
-			System.out.println("overflow");
+			//System.out.println("overflow");
 			// stencil
 /*double guiScale = Minecraft.getInstance().getWindow().getGuiScale();
 			RenderSystem.enableScissor(
