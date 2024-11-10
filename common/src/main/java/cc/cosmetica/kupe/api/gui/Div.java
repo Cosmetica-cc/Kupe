@@ -25,8 +25,11 @@ import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
 import cc.cosmetica.kupe.util.ReverseIterator;
+import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import net.minecraft.client.Minecraft;
+import org.lwjgl.opengl.GL11;
 
 import java.util.*;
 import java.util.function.Function;
@@ -471,11 +474,26 @@ public class Div extends Component {
 	@Override
 	public void render(Canvas canvas, Region region, int mouseX, int mouseY) {
 		if (overflow) {
+			System.out.println("overflow");
 			// stencil
-
+/*double guiScale = Minecraft.getInstance().getWindow().getGuiScale();
+			RenderSystem.enableScissor(
+					(int) (region.getX() * guiScale),
+					(int) (region.getY() * guiScale),
+					(int) (region.getWidth() * guiScale),
+					(int) (region.getHeight() * guiScale)
+			);*/
+			//RenderSystem.stencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
+			//RenderSystem.stencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
+			// draw
+			super.render(canvas, region, mouseX, mouseY);
 			// scrollbar
+			// disable stencil
+			RenderSystem.disableScissor();
 		}
-		super.render(canvas, region, mouseX, mouseY);
+		else {
+			super.render(canvas, region, mouseX, mouseY);
+		}
 	}
 
 	/**
