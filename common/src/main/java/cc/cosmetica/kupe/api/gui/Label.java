@@ -101,7 +101,7 @@ public class Label extends Component implements WrappingElement {
 		case END:
 		case STRETCH_END:
 			for (Renderable renderable : this.label) {
-				renderable.render(canvas, region.getEndX() - renderable.width(), y, tint);
+				renderable.render(canvas, region.getFinalX() - renderable.width(), y, tint);
 				y += lineHeight;
 			}
 			break;

@@ -235,8 +235,8 @@ public abstract class Component {
 
 			// default size is preferred size, which accounts for a few properties already.
 			// shrink child region so it doesn't extend beyond the borders of the parent region
-			int endX = Math.min(position.x + preferred.getWidth() - 1, region.getEndX());
-			int endY = Math.min(position.y + preferred.getHeight() - 1, region.getEndY());
+			int endX = Math.min(position.x + preferred.getWidth() - 1, region.getFinalX());
+			int endY = Math.min(position.y + preferred.getHeight() - 1, region.getFinalY());
 			// - 1 is required to match endX() and endY()
 
 			// apply min and max restrictions to find actual width

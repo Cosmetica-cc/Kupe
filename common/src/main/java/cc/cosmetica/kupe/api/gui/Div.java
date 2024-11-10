@@ -28,8 +28,6 @@ import cc.cosmetica.kupe.util.ReverseIterator;
 import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import net.minecraft.client.Minecraft;
-import org.lwjgl.opengl.GL11;
 
 import java.util.*;
 import java.util.function.Function;
@@ -450,7 +448,7 @@ public class Div extends Component {
 		}
 
 		// set overflow flag
-		this.overflow = (int)x > region.getEndX() + 1;// TODO do we need int cast?
+		this.overflow = (int)x > region.getFinalX() + 1;// TODO do we need int cast?
 //		if (this.overflow) {
 //			System.out.println(super.toString() + " Overflow = " + region.getEndX() + " <= " + x);
 //		}

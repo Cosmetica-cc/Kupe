@@ -60,17 +60,17 @@ public class Region {
 	}
 
 	/**
-	 * Get the inclusive end x of this region.
+	 * Get the x of the final pixel in this region.
 	 * @return
 	 */
-	public int getEndX() {
+	public int getFinalX() {
 		return this.x + this.width - 1;
 	}
 
 	/**
-	 * Get the inclusive end y of this region.
+	 * Get the y the final pixel in this region.
 	 */
-	public int getEndY() {
+	public int getFinalY() {
 		return this.y + this.height - 1;
 	}
 
