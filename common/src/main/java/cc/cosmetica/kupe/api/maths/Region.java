@@ -61,10 +61,16 @@ public class Region {
 
 	/**
 	 * Get the x of the final pixel in this region.
-	 * @return
 	 */
 	public int getFinalX() {
 		return this.x + this.width - 1;
+	}
+
+	/**
+	 * Get the x of the edge of this region. This pixel is not included in the region.
+	 */
+	public int getEndX() {
+		return this.x + this.width;
 	}
 
 	/**
@@ -72,6 +78,13 @@ public class Region {
 	 */
 	public int getFinalY() {
 		return this.y + this.height - 1;
+	}
+
+	/**
+	 * Get the y of the edge of this region. This pixel is not included in the region.
+	 */
+	public int getEndY() {
+		return this.y + this.height;
 	}
 
 	public int getWidth() {
