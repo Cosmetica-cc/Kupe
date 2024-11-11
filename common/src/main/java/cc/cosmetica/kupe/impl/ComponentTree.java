@@ -205,8 +205,48 @@ class ComponentTree {
 		}
 	}
 
-	public void render(Canvas canvas, int mouseX, int mouseY) {
-		this.root.walk(node -> node.render(canvas, mouseX, mouseY));
+	public void render(PoseCanvas canvas, int mouseX, int mouseY) {
+		//this.root.walk(node -> node.render(canvas, mouseX, mouseY));
+		// DFS
+		Deque<Node> nodes = new ArrayDeque();
+		nodes.add(this.root);
+		Set<Node> grey = new HashSet<>(); // nodes that have rendered background but not rendered
+		// this ultimately makes renderBackground occur before child components are considered, and render after.
+
+		while (!nodes.isEmpty()) {
+			Node n = nodes.pop();
+			if (grey.contains(n)) {
+				n.render(canvas, mouseX, mouseY);
+				grey.remove(n);
+
+				// pop scissors
+				canvas.popScissor();
+			} else if (n.children.isEmpty()) {
+				// optimisation: do both renderBackground and render for leaf nodes without touching stack
+
+				// push scissors
+				canvas.pushScissor();
+				// render
+				n.renderBackground(canvas);
+				n.render(canvas, mouseX, mouseY);
+				// pop scissors
+				canvas.popScissor();
+			} else {
+				// non-grey item with children: put item on the stack then its children
+				nodes.push(n);
+				for (Node child : n.children)
+					nodes.push(child);
+
+				// mark as grey so when it is revisited, it is rendered
+				grey.add(n);
+
+				// push scissors
+				canvas.pushScissor();
+
+				// render background
+				n.renderBackground(canvas);
+			}
+		}
 	}
 
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
@@ -502,11 +542,20 @@ class ComponentTree {
 			}
 		}
 
-		private void render(Canvas canvas, int mouseX, int mouseY) {
+		private void renderBackground(Canvas canvas) {
 			try {
 				RenderSystem.enableDepthTest();
 				GL11.glDepthFunc(GL11.GL_LEQUAL);
 				this.element.renderBackground(canvas, this.renderRegion, this.padding);
+			} catch (NullPointerException e) {
+				throw new RuntimeException("Rendering " + this.element, e);
+			}
+		}
+
+		private void render(Canvas canvas, int mouseX, int mouseY) {
+			try {
+				RenderSystem.enableDepthTest();
+				GL11.glDepthFunc(GL11.GL_LEQUAL);
 				this.element.render(canvas, this.renderRegion, mouseX, mouseY);
 			} catch (NullPointerException e) {
 				throw new RuntimeException("Rendering " + this.element, e);

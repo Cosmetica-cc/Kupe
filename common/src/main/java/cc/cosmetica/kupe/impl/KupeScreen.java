@@ -94,7 +94,7 @@ public final class KupeScreen extends Screen {
 			this.renderBackground(poseStack);
 		}
 
-		Canvas canvas = new PoseCanvas(poseStack, this.minecraft, this.context, tickDelta);
+		PoseCanvas canvas = new PoseCanvas(poseStack, this.minecraft, this.context, tickDelta);
 		this.tree.render(canvas, mouseX, mouseY);
 		
 		if (debug) {

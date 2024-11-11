@@ -38,6 +38,13 @@ public interface Canvas {
 	MatrixStack getStack();
 
 	/**
+	 * Enable scissor for this component and its children. This restricts them to the bounds of this region.
+	 * @apiNote Call this in renderBackground!
+	 * @implNote If you call this in render() it will only affect this component's render.
+	 */
+	void useScissor(Region region);
+
+	/**
 	 * Disable transparent textures being drawn.
 	 */
 	void disableTransparency();

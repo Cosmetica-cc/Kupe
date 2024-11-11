@@ -29,7 +29,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Widget;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
+
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.LinkedList;
 
 /**
  * Implementation of Canvas.
@@ -43,6 +48,9 @@ public class PoseCanvas implements Canvas {
 		this.minecraft = minecraft;
 		this.context = context;
 		this.tickDelta = tickDelta;
+
+		// set up scissor stack
+		this.scissorStack = new ScissorStack();
 	}
 
 	private final PoseStack stack;
@@ -50,6 +58,8 @@ public class PoseCanvas implements Canvas {
 	private final Minecraft minecraft;
 	private final Context context;
 	private final float tickDelta;
+	//scissor
+	private ScissorStack scissorStack;
 
 	@Override
 	public Context getDrawingContext() {
@@ -70,6 +80,39 @@ public class PoseCanvas implements Canvas {
 	public void setTransparency(float transparency) {
 		RenderSystem.enableBlend();
 		RenderSystem.color4f(1.0f, 1.0f, 1.0f, transparency);
+	}
+
+	@Override
+	public void useScissor(Region region) {
+		// set current region
+		this.scissorStack.region = region;
+
+		// update region minecraft rendering engine is using
+		if (region == null) {
+			RenderSystem.disableScissor();
+		} else {
+			double guiScale = Minecraft.getInstance().getWindow().getGuiScale();
+			RenderSystem.enableScissor(
+					(int) (region.getX() * guiScale),
+					(int) (region.getY() * guiScale),
+					(int) (region.getWidth() * guiScale),
+					(int) (region.getHeight() * guiScale)
+			);
+		}
+	}
+
+	public void pushScissor() {
+		this.scissorStack = new ScissorStack(this.scissorStack); // push
+	}
+
+	public void popScissor() {
+		Region oldRegion = this.scissorStack.region;
+		this.scissorStack = this.scissorStack.prevNode; // pop
+
+		// use new region if it changed
+		if (this.scissorStack.region != oldRegion) {
+			this.useScissor(this.scissorStack.region);
+		}
 	}
 
 	@Override
@@ -144,5 +187,19 @@ public class PoseCanvas implements Canvas {
 	@Override
 	public void renderMinecraftComponent(Widget component, int mouseX, int mouseY) {
 		component.render(this.stack, mouseX, mouseY, this.tickDelta);
+	}
+
+	// Allows us to easily change current region without wasting time/memory
+	// Probably a premature optimisation
+	private static class ScissorStack {
+		ScissorStack() {
+			// tail
+		}
+		ScissorStack(ScissorStack prevNode) {
+			this.prevNode = prevNode;
+			this.region = prevNode.region;
+		}
+		private @Nullable Region region;
+		private ScissorStack prevNode;
 	}
 }

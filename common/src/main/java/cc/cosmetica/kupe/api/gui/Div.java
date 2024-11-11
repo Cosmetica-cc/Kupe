@@ -448,7 +448,7 @@ public class Div extends Component {
 		}
 
 		// set overflow flag
-		this.overflow = (int)x > region.getEndX();// TODO do we need int cast?
+		this.overflow = (int)x > region.getEndX();// TODO should we have int cast?
 //		if (this.overflow) {
 //			System.out.println(super.toString() + " Overflow = " + region.getEndX() + " <= " + x);
 //		}
