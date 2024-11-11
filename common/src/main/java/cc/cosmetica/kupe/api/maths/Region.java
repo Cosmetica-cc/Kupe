@@ -106,6 +106,21 @@ public class Region {
 		return x >= this.x && x < this.x + this.width && y >= this.y && y < this.y + this.height;
 	}
 
+	public boolean overlaps(Region other) {
+		// Check if one rectangle is to the left of the other
+		if (this.getEndX() <= other.getX() || other.getEndX() <= this.getX()) {
+			return false;
+		}
+
+		// Check if one rectangle is above the other
+		if (this.getEndY() <= other.getY() || other.getEndY() <= this.getY()) {
+			return false;
+		}
+
+		// If none of the above, the rectangles overlap
+		return true;
+	}
+
 	public Region addMargins(Margins margins) {
 		// i am speed
 		if (margins == Margins.NONE) {

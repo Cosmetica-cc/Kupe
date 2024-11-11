@@ -45,6 +45,13 @@ public interface Canvas {
 	void useScissor(Region region);
 
 	/**
+	 * Set whether to use 'fast scissor'. This trims child branches that do not fall within a component's scissor.
+	 * That is, said children will not get rendered. This is on by default.
+	 * @param fastScissor whether to use fast scissor.
+	 */
+	void setFastScissor(boolean fastScissor);
+
+	/**
 	 * Disable transparent textures being drawn.
 	 */
 	void disableTransparency();
@@ -87,9 +94,9 @@ public interface Canvas {
 	 * @param width the width of the rectangle in pixels.
 	 * @param height the height of the rectangle in pixels.
 	 * @param z the z coordinate to draw the texture at.
-	 * @param r the red value to use for the colour.
-	 * @param g the green value to use for the colour.
-	 * @param b the blue value to use for the colour.
+	 * @param r the red value to use for the colour, on a scale of 0-1.
+	 * @param g the green value to use for the colour, on a scale of 0-1.
+	 * @param b the blue value to use for the colour, on a scale of 0-1.
 	 */
 	void drawRect(int x0, int y0, int width, int height, float z, float r, float g, float b);
 

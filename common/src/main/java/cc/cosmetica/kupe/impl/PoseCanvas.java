@@ -17,24 +17,16 @@
 package cc.cosmetica.kupe.impl;
 
 import cc.cosmetica.kupe.api.*;
-import cc.cosmetica.kupe.api.maths.Matrix4;
 import cc.cosmetica.kupe.api.maths.Region;
-import cc.cosmetica.kupe.api.maths.Vec3;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Matrix4f;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Widget;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
-
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.LinkedList;
 
 /**
  * Implementation of Canvas.
@@ -51,6 +43,7 @@ public class PoseCanvas implements Canvas {
 
 		// set up scissor stack
 		this.scissorStack = new ScissorStack();
+		this.fastScissor = true;
 	}
 
 	private final PoseStack stack;
@@ -60,6 +53,7 @@ public class PoseCanvas implements Canvas {
 	private final float tickDelta;
 	//scissor
 	private ScissorStack scissorStack;
+	private boolean fastScissor;
 
 	@Override
 	public Context getDrawingContext() {
@@ -101,6 +95,15 @@ public class PoseCanvas implements Canvas {
 					(int) (region.getHeight() * guiScale)
 			);
 		}
+	}
+
+	@Override
+	public void setFastScissor(boolean fastScissor) {
+		this.fastScissor = fastScissor;
+	}
+
+	public boolean isOutOfBounds(Region region) {
+		return fastScissor && this.scissorStack.region != null && (region.overlaps(this.scissorStack.region));
 	}
 
 	public void pushScissor() {

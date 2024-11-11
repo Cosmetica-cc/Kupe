@@ -232,19 +232,21 @@ class ComponentTree {
 				// pop scissors
 				canvas.popScissor();
 			} else {
-				// non-grey item with children: put item on the stack then its children
-				nodes.push(n);
-				for (Node child : n.children)
-					nodes.push(child);
-
-				// mark as grey so when it is revisited, it is rendered
-				grey.add(n);
-
 				// push scissors
 				canvas.pushScissor();
 
 				// render background
 				n.renderBackground(canvas);
+
+				// non-grey item with children: put item on the stack then its children
+				nodes.push(n);
+				for (Node child : n.children)
+					if (!canvas.isOutOfBounds(child.renderRegion)) {
+						nodes.push(child);
+					}
+
+				// mark as grey so when it is revisited, it is rendered
+				grey.add(n);
 			}
 		}
 	}
