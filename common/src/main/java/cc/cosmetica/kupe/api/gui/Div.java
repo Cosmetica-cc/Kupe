@@ -449,9 +449,9 @@ public class Div extends Component {
 
 		// set overflow flag
 		this.overflow = (int)x > region.getEndX();// TODO should we have int cast?
-//		if (this.overflow) {
-//			System.out.println(super.toString() + " Overflow = " + region.getEndX() + " <= " + x);
-//		}
+		if (this.overflow) {
+			System.out.println(super.toString() + " Overflow = " + region.getEndX() + " < " + x);
+		}
 	}
 
 	@Override
@@ -473,27 +473,21 @@ public class Div extends Component {
 	}
 
 	@Override
-	public void render(Canvas canvas, Region region, int mouseX, int mouseY) {
+	public void renderBackground(Canvas canvas, Region region, Margins padding) {
 		if (overflow) {
-			//System.out.println("overflow");
 			// stencil
-/*double guiScale = Minecraft.getInstance().getWindow().getGuiScale();
-			RenderSystem.enableScissor(
-					(int) (region.getX() * guiScale),
-					(int) (region.getY() * guiScale),
-					(int) (region.getWidth() * guiScale),
-					(int) (region.getHeight() * guiScale)
-			);*/
-			//RenderSystem.stencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
-			//RenderSystem.stencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
-			// draw
-			super.render(canvas, region, mouseX, mouseY);
-			// scrollbar
-			// disable stencil
-			RenderSystem.disableScissor();
+			canvas.useScissor(region);
 		}
-		else {
-			super.render(canvas, region, mouseX, mouseY);
+
+		super.renderBackground(canvas, region, padding);
+	}
+
+	@Override
+	public void render(Canvas canvas, Region region, int mouseX, int mouseY) {
+		super.render(canvas, region, mouseX, mouseY);
+
+		if (overflow) {
+			// scrollbar
 		}
 	}
 
