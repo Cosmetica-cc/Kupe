@@ -128,6 +128,16 @@ public final class KupeScreen extends Screen {
 	}
 
 	@Override
+	public boolean mouseReleased(double mouseX, double mouseY, int button) {
+		return this.tree.mouseReleased(mouseX, mouseY, button);
+	}
+
+	@Override
+	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+		return this.tree.mouseScrolled(mouseX, mouseY, delta);
+	}
+
+	@Override
 	public void mouseMoved(double mouseX, double mouseY) {
 		this.tree.mouseMoved(mouseX, mouseY);
 	}

@@ -208,7 +208,7 @@ class ComponentTree {
 	public void render(PoseCanvas canvas, int mouseX, int mouseY) {
 		//this.root.walk(node -> node.render(canvas, mouseX, mouseY));
 		// DFS
-		Deque<Node> nodes = new ArrayDeque();
+		Deque<Node> nodes = new ArrayDeque<>();
 		nodes.add(this.root);
 		Set<Node> grey = new HashSet<>(); // nodes that have rendered background but not rendered
 		// this ultimately makes renderBackground occur before child components are considered, and render after.
@@ -275,26 +275,39 @@ class ComponentTree {
 		return consumedClick;
 	}
 
-	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-		return this.root.walkAndTest(node -> node.element.keyPressed(keyCode, scanCode, modifiers));
+	public boolean mouseReleased(double mouseX, double mouseY, int button) {
+		return this.root.walkAndTest(node -> node.element.mouseReleased(mouseX, mouseY, button));
 	}
 
-	public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
-		return this.root.walkAndTest(node -> node.element.keyReleased(keyCode, scanCode, modifiers));
+	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+		walkWithRegionalRestriction((int)mouseX, (int)mouseY, node -> node.element.mouseScrolled(mouseX, mouseY, delta));
+		return false;
 	}
 
 	public void mouseMoved(double mouseX, double mouseY) {
+		walkWithRegionalRestriction((int)mouseX, (int)mouseY, node -> node.element.mouseMoved(mouseX, mouseY));
+	}
+
+	private void walkWithRegionalRestriction(int mouseX, int mouseY, Consumer<Node> action) {
 		Deque<Node> nodes = new ArrayDeque<>();
 		nodes.add(this.root);
 
 		while (!nodes.isEmpty()) {
 			Node node = nodes.remove();
 
-			if (node.renderRegion.contains((int)mouseX, (int)mouseY)) {
-				node.element.mouseMoved(mouseX, mouseY);
+			if (node.renderRegion.contains(mouseX, mouseY)) {
+				action.accept(node);
 				nodes.addAll(node.children); // children should be within parent's region!
 			}
 		}
+	}
+
+	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+		return this.root.walkAndTest(node -> node.element.keyPressed(keyCode, scanCode, modifiers));
+	}
+
+	public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
+		return this.root.walkAndTest(node -> node.element.keyReleased(keyCode, scanCode, modifiers));
 	}
 
 	/**

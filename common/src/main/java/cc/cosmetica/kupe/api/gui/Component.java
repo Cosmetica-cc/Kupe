@@ -359,11 +359,31 @@ public abstract class Component {
 	}
 
 	/**
+	 * Called when the mouse button is released on a screen containing this component.
+	 * @param x the x position of the mouse on the screen.
+	 * @param y the y position of the mouse on the screen.
+	 * @param button the button released.
+	 */
+	public boolean mouseReleased(double x, double y, int button) {
+		return false;
+	}
+
+	/**
 	 * Called when the mouse is moved on this component.
 	 * @param x the x position of the mouse on the screen.
 	 * @param y the y position of the mouse on the screen.
 	 */
 	public void mouseMoved(double x, double y) {
+		// No default implementation
+	}
+
+	/**
+	 * Called when the mouse is moved on this component.
+	 * @param x the x position of the mouse on the screen.
+	 * @param y the y position of the mouse on the screen.
+	 * @param delta the amount the mouse scrolled.
+	 */
+	public void mouseScrolled(double x, double y, double delta) {
 		// No default implementation
 	}
 
