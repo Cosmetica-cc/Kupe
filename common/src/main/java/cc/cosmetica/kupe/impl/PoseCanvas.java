@@ -92,9 +92,11 @@ public class PoseCanvas implements Canvas {
 			RenderSystem.disableScissor();
 		} else {
 			double guiScale = Minecraft.getInstance().getWindow().getGuiScale();
+			double windowHeight = Minecraft.getInstance().getWindow().getGuiScaledHeight();
+
 			RenderSystem.enableScissor(
 					(int) (region.getX() * guiScale),
-					(int) (region.getY() * guiScale),
+					(int) ((windowHeight - (region.getY()+region.getHeight())) * guiScale), // lower left corner in opengl coordinate system
 					(int) (region.getWidth() * guiScale),
 					(int) (region.getHeight() * guiScale)
 			);
