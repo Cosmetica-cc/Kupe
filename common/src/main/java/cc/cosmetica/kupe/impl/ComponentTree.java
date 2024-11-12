@@ -285,24 +285,55 @@ class ComponentTree {
 	}
 
 	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-		walkWithRegionalRestriction((int)mouseX, (int)mouseY, node -> node.element.mouseScrolled(mouseX - node.scrollX(), mouseY - node.scrollY(), delta));
-		return false;
+		// DFS walk() with regional restriction. children override parents.
+		// this handles two divs from different trees that can scroll in 2 regions (the overlapping case)
+		// we can simplify and return early instead of using a black set if we only care about scrolling one.
+		Deque<Node> nodes = new ArrayDeque<>();
+		Set<Node> grey = new HashSet<>();
+		Set<Node> black = new HashSet<>();
+		nodes.add(this.root);
+		boolean gConsumed = false;
+
+		while (!nodes.isEmpty()) {
+			Node node = nodes.poll();
+
+			if (black.remove(node)) {
+				grey.remove(node);
+			}
+			else if (grey.remove(node)) {
+				boolean consumed = node.element.mouseScrolled(mouseX - node.scrollX(), mouseY - node.scrollY(), delta);
+				gConsumed |= consumed;
+
+				if (consumed) {
+					Node parent = node.parent;
+					while (parent != null) {
+						black.add(parent);
+						parent = parent.parent;
+					}
+				}
+			}
+			else if (node.trueRenderRegion().contains((int) mouseX, (int) mouseY)) {
+				nodes.push(node);
+				grey.add(node);
+				// children should be within parent's region! Safe to treat it this way
+				for(Node child : node.children)
+					nodes.push(child);
+			}
+		}
+
+		return gConsumed;
 	}
 
 	public void mouseMoved(double mouseX, double mouseY) {
-		walkWithRegionalRestriction((int)mouseX, (int)mouseY, node -> node.element.mouseMoved(mouseX - node.scrollX(), mouseY - node.scrollY()));
-	}
-
-	// don't use for render; uses true render region
-	private void walkWithRegionalRestriction(int mouseX, int mouseY, Consumer<Node> action) {
+		// walk() with regional restriction
 		Deque<Node> nodes = new ArrayDeque<>();
 		nodes.add(this.root);
 
 		while (!nodes.isEmpty()) {
 			Node node = nodes.remove();
 
-			if (node.trueRenderRegion().contains(mouseX, mouseY)) {
-				action.accept(node);
+			if (node.trueRenderRegion().contains((int) mouseX, (int) mouseY)) {
+				node.element.mouseMoved(mouseX - node.scrollX(), mouseY - node.scrollY());
 				nodes.addAll(node.children); // children should be within parent's region!
 			}
 		}

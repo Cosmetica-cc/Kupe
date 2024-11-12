@@ -476,7 +476,7 @@ public class Div extends Component {
 	}
 
 	@Override
-	public void mouseScrolled(double x, double y, double delta) {
+	public boolean mouseScrolled(double x, double y, double delta) {
 		// scroll% = amount Scrolled / maxScroll
 		// add to exising scroll%
 		float newScroll = this.scrollPercent - (float) ((delta * PX_PER_SCROLL) / this.maxScroll);
@@ -484,7 +484,9 @@ public class Div extends Component {
 		if (newScroll > 1) newScroll = 1;
 		else if (newScroll < 0) newScroll = 0;
 
+		boolean scrollChanged = this.scrollPercent != newScroll;
 		this.scrollPercent = newScroll;
+		return scrollChanged;
 	}
 
 	private boolean grabbed;

@@ -382,10 +382,12 @@ public abstract class Component {
 	 * @param x the x position of the mouse on the screen.
 	 * @param y the y position of the mouse on the screen.
 	 * @param delta the amount the mouse scrolled.
+	 * @returns whether to consume the mouse scroll. Children have priority over parents.
 	 */
-	public void mouseScrolled(double x, double y, double delta) {
+	public boolean mouseScrolled(double x, double y, double delta) {
 		// No default implementation
-	}// TODO boolean.
+		return false;
+	}
 
 	/**
 	 * Compute the dimensions of the largest total width and largest total height, when the sizes, margins, and padding
