@@ -219,6 +219,7 @@ class ComponentTree {
 		while (!nodes.isEmpty()) {
 			Node n = nodes.pop();
 			if (grey.contains(n)) {
+				canvas.popScissorTranslation();
 				n.render(canvas, mouseX, mouseY);// mouseX/mouseY adjusted for scroll by render()
 				grey.remove(n);
 
@@ -231,6 +232,7 @@ class ComponentTree {
 				canvas.pushScissor();
 				// render
 				n.renderBackground(canvas);
+				canvas.popScissorTranslation();
 				n.render(canvas, mouseX, mouseY);// mouseX/mouseY adjusted for scroll by render()
 				// pop scissors
 				canvas.popScissor();
@@ -244,7 +246,7 @@ class ComponentTree {
 				// non-grey item with children: put item on the stack then its children
 				nodes.push(n);
 				for (Node child : n.children)
-					if (!canvas.isOutOfBounds(child.renderRegion)) {
+					if (!canvas.isOutOfBounds(child.trueRenderRegion())) {
 						nodes.push(child);
 					}
 
@@ -267,7 +269,7 @@ class ComponentTree {
 			if (node.trueRenderRegion().contains((int)mouseX, (int)mouseY)) {
 				// if this element consumes the click, do not pass to its children, and mark as consumed click.
 				// it can be passed to overlapping siblings, however.
-				if (node.element.mouseClicked(mouseX + node.scrollX, mouseY + node.scrollY, button)) {
+				if (node.element.mouseClicked(mouseX - node.scrollX(), mouseY - node.scrollY(), button)) {
 					consumedClick = true;
 				} else {
 					nodes.addAll(node.children); // children should be within parent's region!
@@ -279,16 +281,16 @@ class ComponentTree {
 	}
 
 	public boolean mouseReleased(double mouseX, double mouseY, int button) {
-		return this.root.walkAndTest(node -> node.element.mouseReleased(mouseX + node.scrollX, mouseY + node.scrollY, button));
+		return this.root.walkAndTest(node -> node.element.mouseReleased(mouseX - node.scrollX(), mouseY - node.scrollY(), button));
 	}
 
 	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-		walkWithRegionalRestriction((int)mouseX, (int)mouseY, node -> node.element.mouseScrolled(mouseX + node.scrollX, mouseY + node.scrollY, delta));
+		walkWithRegionalRestriction((int)mouseX, (int)mouseY, node -> node.element.mouseScrolled(mouseX - node.scrollX(), mouseY - node.scrollY(), delta));
 		return false;
 	}
 
 	public void mouseMoved(double mouseX, double mouseY) {
-		walkWithRegionalRestriction((int)mouseX, (int)mouseY, node -> node.element.mouseMoved(mouseX + node.scrollX, mouseY + node.scrollY));
+		walkWithRegionalRestriction((int)mouseX, (int)mouseY, node -> node.element.mouseMoved(mouseX - node.scrollX(), mouseY - node.scrollY()));
 	}
 
 	// don't use for render; uses true render region
@@ -423,18 +425,24 @@ class ComponentTree {
 		final int depth;
 		// extra data
 		Region renderRegion;
-		float scrollX, scrollY = 0;
+		float innerScrollX, innerScrollY = 0;
 		Dimensions minimumSize, maximumSize, intrinsicSize; // calculated and cached
 		OptionalInt width, height;
 		Margins padding, margins; // as above
 		boolean grey; // grey if visited in resizing stage for adding children
 		              // but not for actual preferred size calculation
 
+		float scrollX() {
+			return parent == null?0:parent.innerScrollX;
+		}
+		float scrollY() {
+			return parent == null?0:parent.innerScrollY;
+		}
 		/**
 		 * Get the render region adjusted for scroll.
 		 */
 		Region trueRenderRegion() {
-			return this.renderRegion.translate((int)this.scrollX, (int)this.scrollY);
+			return this.renderRegion.translate((int)this.scrollX(), (int)this.scrollY());
 		}
 
 		/**
@@ -575,8 +583,8 @@ class ComponentTree {
 				GL11.glDepthFunc(GL11.GL_LEQUAL);
 				this.element.renderBackground(canvas, this.renderRegion, this.padding);
 				// set scroll
-				this.scrollY = canvas.getScrollY();
-				this.scrollX = canvas.getScrollX();
+				this.innerScrollY = canvas.getScrollY();
+				this.innerScrollX = canvas.getScrollX();
 			} catch (NullPointerException e) {
 				throw new RuntimeException("Rendering " + this.element, e);
 			}
@@ -588,7 +596,7 @@ class ComponentTree {
 				GL11.glDepthFunc(GL11.GL_LEQUAL);
 				// render still thinks it's at the original position
 				// so if it's moved up, move mouse positions accordingly
-				this.element.render(canvas, this.renderRegion, mouseX + (int)this.scrollX, mouseY + (int)this.scrollY);
+				this.element.render(canvas, this.renderRegion, mouseX - (int)this.scrollX(), mouseY - (int)this.scrollY());
 			} catch (NullPointerException e) {
 				throw new RuntimeException("Rendering " + this.element, e);
 			}

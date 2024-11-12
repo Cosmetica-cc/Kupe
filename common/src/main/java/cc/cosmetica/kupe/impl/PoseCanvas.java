@@ -106,9 +106,9 @@ public class PoseCanvas implements Canvas {
 	public void scroll(float amountX, float amountY) {
 		if (!this.scissorStack.hasActiveTranslation) {
 			this.stack.pushPose(); // SCROLL_PUSH
-			this.stack.translate(-amountX, -amountY, 0);
+			this.stack.translate(amountX, amountY, 0);
+			this.scissorStack.scroll(amountX, amountY);
 		}
-		this.scissorStack.scroll(amountX, amountY);
 	}
 
 	float getScrollX() {
@@ -120,17 +120,26 @@ public class PoseCanvas implements Canvas {
 	}
 
 	public boolean isOutOfBounds(Region region) {
-		return fastScissor && this.scissorStack.region != null && (region.overlaps(this.scissorStack.region));
+		return fastScissor && this.scissorStack.region != null && !region.overlaps(this.scissorStack.region);
 	}
 
 	public void pushScissor() {
 		this.scissorStack = new ScissorStack(this.scissorStack); // push
 	}
 
-	public void popScissor() {
+	// pop the scissor translation. we don't scroll the component itself. Only its contents!
+	// perhaps push/pop translation for cleaner code, or 'undoing' the translation to allow others to do persistent stack operations is better
+	public void popScissorTranslation() {
 		if (this.scissorStack.hasActiveTranslation) {
 			this.stack.popPose(); // SCROLL_POP
 		}
+
+		this.scissorStack.hasActiveTranslation = false;
+	}
+
+	public void popScissor() {
+		if (this.scissorStack.hasActiveTranslation)
+			throw new IllegalStateException("Kupe Error: Did not pop scissor translation before scissor");
 
 		Region oldRegion = this.scissorStack.region;
 		this.scissorStack = this.scissorStack.prevNode; // pop

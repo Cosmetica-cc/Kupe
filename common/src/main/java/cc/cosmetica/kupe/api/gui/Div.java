@@ -521,6 +521,8 @@ public class Div extends Component {
 
 	@Override
 	public void renderBackground(Canvas canvas, Region region, Margins padding) {
+		super.renderBackground(canvas, region, padding);
+
 		if (overflow) {
 			// stencil
 			canvas.useScissor(region);
@@ -537,8 +539,6 @@ public class Div extends Component {
 			//	canvas.getStack().translate(-this.scrollPercent * this.maxScroll, 0, 0);
 			}
 		}
-
-		super.renderBackground(canvas, region, padding);
 	}
 
 	@Override
@@ -575,14 +575,14 @@ public class Div extends Component {
 				);
 				canvas.drawRect(
 						region.getEndX() - DEFAULT_SCROLLBAR_THICKNESS, (int)scrollbarTopY,
-						DEFAULT_SCROLLBAR_THICKNESS, (int)scrollbarSize,
+						DEFAULT_SCROLLBAR_THICKNESS, scrollbarSize,
 						50.0f, 0.5f, 0.5f, 0.5f
 				);
 
 				final float scrollBarColour = 192.0f/255.0f;
 				canvas.drawRect(
 						region.getEndX() - DEFAULT_SCROLLBAR_THICKNESS, (int)scrollbarTopY,
-						DEFAULT_SCROLLBAR_THICKNESS - 1, (int)scrollbarSize - 1,
+						DEFAULT_SCROLLBAR_THICKNESS - 1, scrollbarSize - 1,
 						50.0f, scrollBarColour, scrollBarColour, scrollBarColour
 				);
 			}

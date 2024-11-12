@@ -47,7 +47,7 @@ public interface Canvas {
 	/**
 	 * Scroll the view the given amount for this component and its children. This is not just equivalent to translating
 	 * the matrix as it also adjusts mouse position in children and mouse position in child render().
-	 * @apiNote Call this in renderBackground!
+	 * @apiNote Call this at the end of renderBackground!
 	 * @param amountX the amount to scroll in X, in pixels.
 	 * @param amountY the amount to scroll in Y, in pixels.
 	 */
