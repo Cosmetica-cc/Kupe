@@ -25,7 +25,6 @@ import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
 import cc.cosmetica.kupe.util.ReverseIterator;
-import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 
@@ -451,7 +450,8 @@ public class Div extends Component {
 
 		// set overflow flag
 		this.overflow = (int)x > region.getEndX();// TODO should we have int cast?
-		this.maxScroll = region.getEndX() - (float)x;
+		this.maxScroll = (float)x - region.getEndX();
+		this.grabbed = false;
 //		if (this.overflow) {
 //			System.out.println(super.toString() + " Overflow = " + region.getEndX() + " < " + x);
 //		}
@@ -484,13 +484,58 @@ public class Div extends Component {
 			//shift contents by scroll amount
 			canvas.getStack().push();
 
-			if (this.getStyle().get(FLOW_DIRECTION) == Axis2D.POSITIVE_Y ||
-					this.getStyle().get(FLOW_DIRECTION) == Axis2D.NEGATIVE_Y) {
+			if (this.isVerticalFlow()) {
 				canvas.getStack().translate(0, -this.scrollPercent * this.maxScroll, 0);
+			} else {
+				canvas.getStack().translate(-this.scrollPercent * this.maxScroll, 0, 0);
 			}
 		}
 
 		super.renderBackground(canvas, region, padding);
+	}
+
+	@Override
+	public void mouseScrolled(double x, double y, double delta) {
+		// scroll% = amount Scrolled / maxScroll
+		// add to exising scroll%
+		float newScroll = this.scrollPercent - (float) ((delta * PX_PER_SCROLL) / this.maxScroll);
+		// clamp
+		if (newScroll > 1) newScroll = 1;
+		else if (newScroll < 0) newScroll = 0;
+
+		this.scrollPercent = newScroll;
+	}
+
+	private boolean grabbed;
+	private float grabOffset;
+	private float scrollbarTopY, scrollbarLeftX, scrollbarSize; // passed from render to click
+
+	@Override
+	public boolean mouseClicked(double x, double y, int button) {
+		if (overflow) {
+			if (this.isVerticalFlow()) {
+				if (
+						y >= this.scrollbarTopY && y < (this.scrollbarTopY + this.scrollbarSize)
+						&& x >= this.scrollbarLeftX && x < (this.scrollbarLeftX + DEFAULT_SCROLLBAR_THICKNESS)
+				) {
+					this.grabbed = true;
+					this.grabOffset = (float) y - this.scrollbarTopY;
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	@Override
+	public boolean mouseReleased(double x, double y, int button) {
+		if (this.grabbed) {
+			this.grabbed = false;
+			return true;
+		}
+
+		return false;
 	}
 
 	@Override
@@ -499,33 +544,51 @@ public class Div extends Component {
 			canvas.getStack().pop();
 
 			// scrollbar
-			if (this.getStyle().get(FLOW_DIRECTION) == Axis2D.POSITIVE_Y ||
-					this.getStyle().get(FLOW_DIRECTION) == Axis2D.NEGATIVE_Y) {
+			if (this.isVerticalFlow()) {
+				// height of the div's 'view'. But not of all its contents.
 				final float divVH = region.getHeight();
 
 				float pageCover = divVH / (divVH + this.maxScroll);
-				float scrollbarSize = Math.max(10, pageCover * divVH);// minimum height of 10 pixels
+				int scrollbarSize = (int)Math.max(10, pageCover * divVH);// minimum height of 10 pixels
+
+				// update scroll position for drag
+				if (this.grabbed) {
+					this.scrollPercent = (mouseY - this.grabOffset - region.getY()) / (divVH - scrollbarSize);
+					// clamp
+					if (this.scrollPercent > 1) this.scrollPercent = 1;
+					else if (this.scrollPercent < 0) this.scrollPercent = 0;
+				}
+
 				float scrollbarTopY = region.getY() + this.scrollPercent * (divVH - scrollbarSize);
+				// pass to click
+				this.scrollbarLeftX = region.getEndX() - DEFAULT_SCROLLBAR_THICKNESS;
+				this.scrollbarSize = scrollbarSize;
+				this.scrollbarTopY = scrollbarTopY;
 
 				canvas.drawRect(
-						region.getEndX() - DEFAULT_SCROLLBAR_WIDTH, region.getY(),
-						DEFAULT_SCROLLBAR_WIDTH, region.getHeight(),
+						region.getEndX() - DEFAULT_SCROLLBAR_THICKNESS, region.getY(),
+						DEFAULT_SCROLLBAR_THICKNESS, region.getHeight(),
 						50.0f, 0, 0, 0
 				);
 				canvas.drawRect(
-						region.getEndX() - DEFAULT_SCROLLBAR_WIDTH, (int)scrollbarTopY,
-						DEFAULT_SCROLLBAR_WIDTH, (int)scrollbarTopY + (int)scrollbarSize,
+						region.getEndX() - DEFAULT_SCROLLBAR_THICKNESS, (int)scrollbarTopY,
+						DEFAULT_SCROLLBAR_THICKNESS, (int)scrollbarSize,
 						50.0f, 0.5f, 0.5f, 0.5f
 				);
 
 				final float scrollBarColour = 192.0f/255.0f;
 				canvas.drawRect(
-						region.getEndX() - DEFAULT_SCROLLBAR_WIDTH, (int)scrollbarTopY,
-						DEFAULT_SCROLLBAR_WIDTH - 1, (int)scrollbarTopY + (int)scrollbarSize - 1,
+						region.getEndX() - DEFAULT_SCROLLBAR_THICKNESS, (int)scrollbarTopY,
+						DEFAULT_SCROLLBAR_THICKNESS - 1, (int)scrollbarSize - 1,
 						50.0f, scrollBarColour, scrollBarColour, scrollBarColour
 				);
 			}
 		}
+	}
+
+	public boolean isVerticalFlow() {
+		return this.getStyle().get(FLOW_DIRECTION) == Axis2D.POSITIVE_Y ||
+				this.getStyle().get(FLOW_DIRECTION) == Axis2D.NEGATIVE_Y;
 	}
 
 	/**
@@ -551,7 +614,8 @@ public class Div extends Component {
 	 */
 	public static final Style.Property<Boolean> FIXED_CONTAINER = new Style.Property<>(true, false);
 
-	private static final int DEFAULT_SCROLLBAR_WIDTH = 6;
+	private static final int DEFAULT_SCROLLBAR_THICKNESS = 6;
+	private static final int PX_PER_SCROLL = 10;
 
 	/**
 	 * Flips the axis of operations. Y <-> X. Essentially mirrors along a line from top left corner down and right, 45 degrees.

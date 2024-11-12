@@ -378,7 +378,7 @@ public abstract class Component {
 	}
 
 	/**
-	 * Called when the mouse is moved on this component.
+	 * Called when the mouse is scrolled on this component.
 	 * @param x the x position of the mouse on the screen.
 	 * @param y the y position of the mouse on the screen.
 	 * @param delta the amount the mouse scrolled.
