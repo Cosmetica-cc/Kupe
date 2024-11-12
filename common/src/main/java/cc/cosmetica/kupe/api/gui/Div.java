@@ -443,7 +443,8 @@ public class Div extends Component {
 				x += 2.0 * availableWidth / children.size();
 				break;
 			case SPACE_BETWEEN:
-				x += availableWidth / (children.size() - 1.0);
+				if (childIterator.hasNext())
+					x += availableWidth / (children.size() - 1.0);
 				break;
 			}
 		}
