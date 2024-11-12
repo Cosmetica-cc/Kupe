@@ -529,17 +529,12 @@ public class Div extends Component {
 		if (overflow) {
 			// stencil
 			canvas.useScissor(region);
-			//canvas.setFastScissor(false);
+
 			//shift contents by scroll amount
-			//canvas.getStack().push(); OLD scroll system
-
-
 			if (this.isVerticalFlow()) {
 				canvas.scroll(0, -this.scrollPercent * this.maxScroll);
-			//	canvas.getStack().translate(0, -this.scrollPercent * this.maxScroll, 0);
 			} else {
 				canvas.scroll(-this.scrollPercent * this.maxScroll, 0);
-			//	canvas.getStack().translate(-this.scrollPercent * this.maxScroll, 0, 0);
 			}
 		}
 	}
@@ -547,7 +542,6 @@ public class Div extends Component {
 	@Override
 	public void render(Canvas canvas, Region region, int mouseX, int mouseY) {
 		if (overflow) {
-			//canvas.getStack().pop(); OLD scroll system
 
 			// scrollbar
 			if (this.isVerticalFlow()) {
