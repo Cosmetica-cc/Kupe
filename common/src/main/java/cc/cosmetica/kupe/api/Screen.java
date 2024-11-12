@@ -21,7 +21,9 @@ import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
+import cc.cosmetica.kupe.api.maths.Margins;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.Arrays;
@@ -64,6 +66,12 @@ public abstract class Screen extends Component {
 		);
 	}
 
+	@Override
+	public @Nullable Stylesheet getStylesheet() {
+		return new Stylesheet()
+				.self(Style.create().setFixed(CommonProperties.PADDING, DEFAULT_SCREEN_BORDERS));
+	}
+
 	/**
 	 * Build the child components of this screen. These will be placed in the div.
 	 * @param rootStyle the style used for the root div of the component. Can be modified.
@@ -82,4 +90,10 @@ public abstract class Screen extends Component {
 	}
 
 	private static final CommonProperties.DimensionsOperator<OptionalInt> FULL_WIDTH = (vw, vh) -> OptionalInt.of(vw);
+
+	/**
+	 * Margins for the contents of the whole screen. Used to keep the title label from while keeping everything else
+	 * properly centered. You can override these by overriding getStylesheet().
+	 */
+	protected static final Margins DEFAULT_SCREEN_BORDERS = new Margins(15, 0);
 }

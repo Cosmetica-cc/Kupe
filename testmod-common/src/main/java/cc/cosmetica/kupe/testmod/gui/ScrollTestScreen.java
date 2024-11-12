@@ -16,8 +16,11 @@ import cc.cosmetica.kupe.api.gui.Div;
 import cc.cosmetica.kupe.api.gui.Label;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
+import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Dimensions;
+import cc.cosmetica.kupe.api.maths.Margins;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Nullable;
 
 public class ScrollTestScreen extends Screen {
 	public ScrollTestScreen() {
@@ -40,6 +43,12 @@ public class ScrollTestScreen extends Screen {
 				})),
 				new Button(Text.GUI_DONE, Screens::closeCurrentScreen)
 		};
+	}
+
+	@Override
+	public @Nullable Stylesheet getStylesheet() {
+		return new Stylesheet()
+				.self(Style.create().setFixed(CommonProperties.PADDING, new Margins(5, 0)));
 	}
 
 	public static final ResourceLocation ID = new ResourceLocation("kupe_test", "scroll");

@@ -126,6 +126,7 @@ class ComponentTree {
 		}
 
 		// BFS for resizing (down the tree)
+		// queue for wrapping like text if it overflows
 		Queue<Node> wrappingOverflowed = new PriorityQueue<>((n, m) -> m.depth - n.depth); // reverse sort
 		List<Node> immediateOverflowed = new ArrayList<>();
 		this._resize(nodes, context, wrappingOverflowed, immediateOverflowed);
@@ -177,7 +178,9 @@ class ComponentTree {
 	 */
 	private void _resize(Queue<Node> nodes, Context context, @Nullable Collection<Node> wrappingOverflowed, @Nullable Collection<Node> immediateOverflowed) {
 		nodes.add(this.root);
-		this.root.renderRegion = new Region(0, 0, context.getViewWidth(), context.getViewHeight());
+		// I designed Kupe with renderRegion as the content region. So we gotta subtract padding manually here.
+		final Margins rootPadding = this.root.padding;
+		this.root.renderRegion = new Region(rootPadding.left, rootPadding.top, context.getViewWidth() - rootPadding.horizontal(), context.getViewHeight() - rootPadding.vertical());
 
 		// Resize down the tree
 		while (!nodes.isEmpty()) { // we have computed actual preferred sizes before resizing
