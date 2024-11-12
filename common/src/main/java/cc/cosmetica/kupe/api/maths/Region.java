@@ -121,6 +121,15 @@ public class Region {
 		return true;
 	}
 
+	public Region translate(int scrollX, int scrollY) {
+		return new Region(
+				this.x + scrollX,
+				this.y + scrollY,
+				this.width,
+				this.height
+		);
+	}
+
 	public Region addMargins(Margins margins) {
 		// i am speed
 		if (margins == Margins.NONE) {

@@ -476,25 +476,6 @@ public class Div extends Component {
 	}
 
 	@Override
-	public void renderBackground(Canvas canvas, Region region, Margins padding) {
-		if (overflow) {
-			// stencil
-			canvas.useScissor(region);
-			canvas.setFastScissor(false);
-			//shift contents by scroll amount
-			canvas.getStack().push();
-
-			if (this.isVerticalFlow()) {
-				canvas.getStack().translate(0, -this.scrollPercent * this.maxScroll, 0);
-			} else {
-				canvas.getStack().translate(-this.scrollPercent * this.maxScroll, 0, 0);
-			}
-		}
-
-		super.renderBackground(canvas, region, padding);
-	}
-
-	@Override
 	public void mouseScrolled(double x, double y, double delta) {
 		// scroll% = amount Scrolled / maxScroll
 		// add to exising scroll%
@@ -539,9 +520,31 @@ public class Div extends Component {
 	}
 
 	@Override
+	public void renderBackground(Canvas canvas, Region region, Margins padding) {
+		if (overflow) {
+			// stencil
+			canvas.useScissor(region);
+			//canvas.setFastScissor(false);
+			//shift contents by scroll amount
+			//canvas.getStack().push(); OLD scroll system
+
+
+			if (this.isVerticalFlow()) {
+				canvas.scroll(0, -this.scrollPercent * this.maxScroll);
+			//	canvas.getStack().translate(0, -this.scrollPercent * this.maxScroll, 0);
+			} else {
+				canvas.scroll(-this.scrollPercent * this.maxScroll, 0);
+			//	canvas.getStack().translate(-this.scrollPercent * this.maxScroll, 0, 0);
+			}
+		}
+
+		super.renderBackground(canvas, region, padding);
+	}
+
+	@Override
 	public void render(Canvas canvas, Region region, int mouseX, int mouseY) {
 		if (overflow) {
-			canvas.getStack().pop();
+			//canvas.getStack().pop(); OLD scroll system
 
 			// scrollbar
 			if (this.isVerticalFlow()) {

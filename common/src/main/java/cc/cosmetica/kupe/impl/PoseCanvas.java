@@ -102,6 +102,23 @@ public class PoseCanvas implements Canvas {
 		this.fastScissor = fastScissor;
 	}
 
+	@Override
+	public void scroll(float amountX, float amountY) {
+		if (!this.scissorStack.hasActiveTranslation) {
+			this.stack.pushPose(); // SCROLL_PUSH
+			this.stack.translate(-amountX, -amountY, 0);
+		}
+		this.scissorStack.scroll(amountX, amountY);
+	}
+
+	float getScrollX() {
+		return this.scissorStack.scrollX;
+	}
+
+	float getScrollY() {
+		return this.scissorStack.scrollY;
+	}
+
 	public boolean isOutOfBounds(Region region) {
 		return fastScissor && this.scissorStack.region != null && (region.overlaps(this.scissorStack.region));
 	}
@@ -111,6 +128,10 @@ public class PoseCanvas implements Canvas {
 	}
 
 	public void popScissor() {
+		if (this.scissorStack.hasActiveTranslation) {
+			this.stack.popPose(); // SCROLL_POP
+		}
+
 		Region oldRegion = this.scissorStack.region;
 		this.scissorStack = this.scissorStack.prevNode; // pop
 
@@ -203,8 +224,18 @@ public class PoseCanvas implements Canvas {
 		ScissorStack(ScissorStack prevNode) {
 			this.prevNode = prevNode;
 			this.region = prevNode.region;
+			this.scrollX = prevNode.scrollX;
+			this.scrollY = prevNode.scrollY;
 		}
+		void scroll(float scrollX, float scrollY) {
+			this.scrollX += scrollX;
+			this.scrollY += scrollY;
+			this.hasActiveTranslation = true;
+		}
+
 		private @Nullable Region region;
+		private boolean hasActiveTranslation = false; // set if scrollX or scrollY changes.
+		private float scrollX, scrollY = 0;
 		private ScissorStack prevNode;
 	}
 }

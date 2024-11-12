@@ -385,7 +385,7 @@ public abstract class Component {
 	 */
 	public void mouseScrolled(double x, double y, double delta) {
 		// No default implementation
-	}
+	}// TODO boolean.
 
 	/**
 	 * Compute the dimensions of the largest total width and largest total height, when the sizes, margins, and padding
