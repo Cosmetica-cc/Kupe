@@ -226,30 +226,64 @@ public abstract class Component {
 		final Position start = new Position(region.getX(), region.getY());
 
 		// By default, lay out children in specified positions.
-		for (ResizableElement child : children) {
+
+		// Single child component: just pass down the size given this component.
+		// this component has acted as ambassador anyway.
+		// Considerations: Fixed width/height; (Maximum Size: accounted for already);
+		// Aspect ratios in intrinsic sizes (already effectively forwards intrinsic size in case of 1 component)
+		if (children.size() == 1) {
+			ResizableElement child = children.get(0);
+
 			final Margins margins = child.getMargins();
 			final Margins padding = child.getPadding();
+			System.out.println(margins);
+			System.out.println(padding);
 
-			Position position = start.add(margins.left + padding.left, margins.top + padding.top);
-			Dimensions preferred = child.getPreferredSize();
+			OptionalInt fixedWidth = child.getComponent().getStyle().get(CommonProperties.WIDTH).apply(context.getViewWidth(), context.getViewHeight());
+			OptionalInt fixedHeight = child.getComponent().getStyle().get(CommonProperties.HEIGHT).apply(context.getViewWidth(), context.getViewHeight());
 
-			// default size is preferred size, which accounts for a few properties already.
-			// shrink child region so it doesn't extend beyond the borders of the parent region
-			int endX = Math.min(position.x + preferred.getWidth() - 1, region.getFinalX());
-			int endY = Math.min(position.y + preferred.getHeight() - 1, region.getFinalY());
-			// - 1 is required to match endX() and endY()
+			int availableWidth = region.getWidth() - margins.horizontal() - padding.horizontal();
+			int availableHeight = region.getHeight() - margins.vertical() - padding.vertical();
 
-			// apply min and max restrictions to find actual width
-			Dimensions max = child.getMaximumSize();
-			Dimensions min = child.getMinimumSize();
+			Dimensions attempting = new Dimensions(
+					fixedWidth.orElse(availableWidth),
+					fixedHeight.orElse(availableHeight)
+			);
 
-			// + 1 compensates for - 1 earlier.
-			int width = Math.min(max.getWidth(), Math.max(min.getWidth(), endX + 1 - position.x));
-			int height = Math.min(max.getHeight(), Math.max(min.getHeight(), endY + 1 - position.y));
-
-			Region childRegion = new Region(position, new Dimensions(width, height));
+			Region childRegion = layChildToPreferredSize(region, start, attempting, child);
 			child.setRenderRegion(childRegion);
 		}
+		// otherwise use the actual preferred sizes
+		// TODO consistent system, or toggle?
+		else for (ResizableElement child : children) {
+			Dimensions preferred = child.getPreferredSize();
+			Region childRegion = layChildToPreferredSize(region, start, preferred, child);
+			child.setRenderRegion(childRegion);
+		}
+	}
+
+	protected static Region layChildToPreferredSize(Region region, Position start, Dimensions preferred, ResizableElement child) {
+		final Margins margins = child.getMargins();
+		final Margins padding = child.getPadding();
+
+		Position position = start.add(margins.left + padding.left, margins.top + padding.top);
+
+		// default size is preferred size, which accounts for a few properties already.
+		// shrink child region so it doesn't extend beyond the borders of the parent region
+		int endX = Math.min(position.x + preferred.getWidth() - 1, region.getFinalX());
+		int endY = Math.min(position.y + preferred.getHeight() - 1, region.getFinalY());
+		// - 1 is required to match finalX() and finalY()
+
+		// apply min and max restrictions to find actual width
+		Dimensions max = child.getMaximumSize();
+		Dimensions min = child.getMinimumSize();
+
+		// + 1 compensates for - 1 earlier.
+		int width = Math.min(max.getWidth(), Math.max(min.getWidth(), endX + 1 - position.x));
+		int height = Math.min(max.getHeight(), Math.max(min.getHeight(), endY + 1 - position.y));
+
+		// child region
+		return new Region(position, new Dimensions(width, height));
 	}
 
 	/**
