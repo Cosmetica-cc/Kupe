@@ -412,6 +412,24 @@ class ComponentTree {
 				this.updateDebugComponent();
 			}
 			return true;
+		case GLFW.GLFW_KEY_5: // Print debug info
+			{
+				Node active;
+
+				if (this.debugParent == null) {
+					active = this.root;
+				} else {
+					active = this.root.children.size() == 0 ? null : this.root.children.get(this.debugIndex);
+				}
+
+				if (active == null) {
+					System.out.println("[Kupe Inspect] No Component Selected.");
+				} else {
+					System.out.println("[Kupe Inspect] Component: " + active.element);
+					System.out.println("[Kupe Inspect] Style: " + active.element.getStyle());
+				}
+			}
+			return false;
 		}
 
 		return false;
@@ -438,7 +456,7 @@ class ComponentTree {
 				" (" + node.intrinsicSize.toString() + "i, " + node.minimumSize + "m, " + node.maximumSize + "M)");
 	}
 
-	private static final Text DEBUG_INSTRUCTIONS = Text.literal("[1] Back [2] Step In [3] Previous [4] Next");
+	private static final Text DEBUG_INSTRUCTIONS = Text.literal("[1] Back [2] Step In [3] Previous [4] Next [5] Print Debug");
 
 	private static class Node implements ResizableElement {
 		Node(@Nullable ComponentTree.Node parent, Component element) {
