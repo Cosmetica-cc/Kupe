@@ -16,6 +16,7 @@
 
 package cc.cosmetica.kupe.api.gui.style;
 
+import cc.cosmetica.kupe.impl.FixedDimensions;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -100,7 +101,7 @@ public class Style {
 		 * @param <T> the type of data contained within the property.
 		 */
 		public <T> MutableStyle setFixed(Property<CommonProperties.DimensionsOperator<T>> property, T value) {
-			final CommonProperties.DimensionsOperator<T> op = (vw, vh) -> value;
+			final CommonProperties.DimensionsOperator<T> op = new FixedDimensions(value);
 			this.properties.put(property, op);
 			if (property.inherits) this.inheritance.properties.put(property, op);
 			return this;
@@ -111,11 +112,13 @@ public class Style {
 	 * A style property that can be configured.
 	 */
 	public static class Property<T> {
-		public Property(T defaultValue, boolean inherits) {
+		public Property(String debugName, T defaultValue, boolean inherits) {
+			this.debugName = debugName;
 			this.defaultValue = defaultValue;
 			this.inherits = inherits;
 		}
 
+		private final String debugName;
 		private final T defaultValue;
 		private final boolean inherits;
 
@@ -125,6 +128,11 @@ public class Style {
 
 		public boolean inherits() {
 			return this.inherits;
+		}
+
+		@Override
+		public String toString() {
+			return this.debugName;
 		}
 	}
 }

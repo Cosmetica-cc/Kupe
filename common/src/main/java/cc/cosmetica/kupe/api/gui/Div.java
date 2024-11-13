@@ -594,25 +594,25 @@ public class Div extends Component {
 	/**
 	 * The primary axis of this Div. Components will be laid out in this direction.
 	 */
-	public static final Style.Property<Axis2D> FLOW_DIRECTION = new Style.Property<>(Axis2D.POSITIVE_Y, false);
+	public static final Style.Property<Axis2D> FLOW_DIRECTION = new Style.Property<>("flowDirection", Axis2D.POSITIVE_Y, false);
 
 	/**
 	 * The alignment of components in this div along the primary axis.
 	 * The primary axis is the direction in which components are laid out.
 	 */
-	public static final Style.Property<Justify> JUSTIFY_CONTENT = new Style.Property<>(Justify.START, false);
+	public static final Style.Property<Justify> JUSTIFY_CONTENT = new Style.Property<>("justifyContent", Justify.START, false);
 
 	/**
 	 * The alignment of components in this div along the secondary axis.
 	 * The secondary axis is the direction perpendicular to the direction components are laid out.
 	 */
-	public static final Style.Property<Align> ALIGN_ITEMS = new Style.Property<>(Align.STRETCH_START, false);
+	public static final Style.Property<Align> ALIGN_ITEMS = new Style.Property<>("alignItems", Align.STRETCH_START, false);
 
 	/**
 	 * Whether this div must expand to fit all components. If this is false, the div will ignore the minimum size of
 	 * its children when determining its own minimum size. This promotes overflowing and scrolling behaviour.
 	 */
-	public static final Style.Property<Boolean> FIXED_CONTAINER = new Style.Property<>(true, false);
+	public static final Style.Property<Boolean> FIXED_CONTAINER = new Style.Property<>("fixedContainer", true, false);
 
 	private static final int DEFAULT_SCROLLBAR_THICKNESS = 6;
 	private static final int PX_PER_SCROLL = 10;

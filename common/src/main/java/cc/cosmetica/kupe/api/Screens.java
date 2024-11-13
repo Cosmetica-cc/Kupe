@@ -86,6 +86,6 @@ public final class Screens {
 	 * Enabled Kupe debug inspect (can also be triggered with Ctrl+Shift+I). Cannot be enabled while allowDebug is false.
 	 */
 	public static void setDebugInspect(boolean allowDebug) {
-		KupeScreen.setAllowDebug(allowDebug);
+		KupeScreen.setDebug(allowDebug);
 	}
 }
