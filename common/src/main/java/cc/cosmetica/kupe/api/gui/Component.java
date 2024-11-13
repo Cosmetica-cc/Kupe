@@ -236,8 +236,6 @@ public abstract class Component {
 
 			final Margins margins = child.getMargins();
 			final Margins padding = child.getPadding();
-			System.out.println(margins);
-			System.out.println(padding);
 
 			OptionalInt fixedWidth = child.getComponent().getStyle().get(CommonProperties.WIDTH).apply(context.getViewWidth(), context.getViewHeight());
 			OptionalInt fixedHeight = child.getComponent().getStyle().get(CommonProperties.HEIGHT).apply(context.getViewWidth(), context.getViewHeight());
