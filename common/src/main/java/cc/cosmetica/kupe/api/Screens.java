@@ -76,9 +76,16 @@ public final class Screens {
 	}
 
 	/**
-	 * Enables debug on all Kupe screens.
+	 * Controls the ability to enable debug inspect with Ctrl+Shift+I. This is on by default.
 	 */
-	public static void enableDebug() {
-		KupeScreen.setDebug(true);
+	public static void setAllowDebug(boolean allowDebug) {
+		KupeScreen.setAllowDebug(allowDebug);
+	}
+
+	/**
+	 * Enabled Kupe debug inspect (can also be triggered with Ctrl+Shift+I). Cannot be enabled while allowDebug is false.
+	 */
+	public static void setDebugInspect(boolean allowDebug) {
+		KupeScreen.setAllowDebug(allowDebug);
 	}
 }

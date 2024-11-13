@@ -16,7 +16,6 @@
 
 package cc.cosmetica.kupe.impl;
 
-import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.Context;
 import cc.cosmetica.kupe.api.Renderable;
 import cc.cosmetica.kupe.api.Text;
@@ -25,7 +24,6 @@ import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.impl.text.FormattedCharSeqRenderer;
 import cc.cosmetica.kupe.util.ImageUtilities;
 import cc.cosmetica.kupe.util.MultiCache;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -35,7 +33,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.util.FormattedCharSequence;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.opengl.GL11;
+import org.lwjgl.glfw.GLFW;
 
 import java.io.IOException;
 import java.util.*;
@@ -110,6 +108,12 @@ public final class KupeScreen extends Screen {
 			}
 		}
 
+		if (allowDebug) {
+			if (keyCode == GLFW.GLFW_KEY_I && modifiers == (GLFW.GLFW_MOD_CONTROL|GLFW.GLFW_MOD_SHIFT)) {
+				debug = !debug;
+			}
+		}
+
 		return this.tree.keyPressed(keyCode, scanCode, modifiers);
 	}
 
@@ -151,9 +155,16 @@ public final class KupeScreen extends Screen {
 	}
 
 	private static boolean debug;
+	private static boolean allowDebug = true;
+
+	public static void setAllowDebug(boolean enabled) {
+		allowDebug = enabled;
+		if (!enabled) debug = false;
+	}
 
 	public static void setDebug(boolean enabled) {
-		debug = enabled;
+		if (allowDebug)
+			debug = enabled;
 	}
 
 	class KupeScreenContext implements Context {

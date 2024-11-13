@@ -15,7 +15,7 @@ public final class KupeTestInit {
 	}
 
 	public static void init() {
-		Screens.enableDebug(); // enable debug on all kupe screens
+		Screens.setDebugInspect(true); // have it on by default. this is a testmod after all
 		Screens.registerScreen(AllKupeTestsScreen.ID, new AllKupeTestsScreen());
 		Screens.registerScreen(StateTestScreen.ID, new StateTestScreen());
 		Screens.registerScreen(FakePlayerTestScreen.ID, new FakePlayerTestScreen());
