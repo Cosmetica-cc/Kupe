@@ -30,8 +30,7 @@ public class FakePlayerTestScreen extends Screen {
 	private final State<Boolean> frozen = new State<>(false);
 
 	@Override
-	protected Component[] build(Style.MutableStyle rootStyle) {
-		rootStyle.set(Div.JUSTIFY_CONTENT, Justify.CENTRE);
+	protected Component[] buildScreen() {
 		boolean frozen = this.frozen.acquire(this);
 
 		return new Component[] {

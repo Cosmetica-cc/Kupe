@@ -26,7 +26,7 @@ public class ZLayeringTest extends Screen {
 	}
 
 	@Override
-	protected Component[] build(Style.MutableStyle rootStyle) {
+	protected Component[] buildScreen() {
 		return new Component[] {
 				new Div(
 						new Label(Text.literal("Green")),

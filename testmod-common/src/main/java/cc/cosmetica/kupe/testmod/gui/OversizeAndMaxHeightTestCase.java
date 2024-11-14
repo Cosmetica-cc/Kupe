@@ -29,7 +29,7 @@ public class OversizeAndMaxHeightTestCase extends Screen {
 	private final State<Axis2D> axis = new State<>(Axis2D.POSITIVE_X);
 
 	@Override
-	protected Component[] build(Style.MutableStyle rootStyle) {
+	protected Component[] buildScreen() {
 		Axis2D axis = this.axis.acquire(this);
 		System.out.println(axis);
 

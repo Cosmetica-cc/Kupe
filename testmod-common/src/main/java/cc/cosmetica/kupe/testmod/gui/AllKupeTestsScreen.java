@@ -21,7 +21,7 @@ public class AllKupeTestsScreen extends Screen {
 	}
 
 	@Override
-	protected Component[] build(Style.MutableStyle rootStyle) {
+	protected Component[] buildScreen() {
 		return new Component[] {
 				new Button(Text.literal("State Test"), () -> Screens.setScreen(StateTestScreen.ID)),
 				new Button(Text.literal("Fake Player Test"), () -> Screens.setScreen(FakePlayerTestScreen.ID)),

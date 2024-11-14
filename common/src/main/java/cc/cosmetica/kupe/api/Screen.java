@@ -16,7 +16,6 @@
 
 package cc.cosmetica.kupe.api;
 
-import cc.cosmetica.kupe.Kupe;
 import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
@@ -33,7 +32,7 @@ import java.util.OptionalInt;
 /**
  * An extension to Component that implements common behaviour for screens.
  * <br>
- * Children are provided through build(Style rootStyle), and are placed in a div that encompasses the screen space, with
+ * Children are provided through buildScreen(), and are placed in a div that encompasses the screen space, with
  * {@linkplain Justify justify} and {@linkplain Align align} both set to CENTRE by default.
  */
 public abstract class Screen extends Component {
@@ -50,35 +49,35 @@ public abstract class Screen extends Component {
 	@Override
 	public final List<Component> build() {
 		// default style
-		Style.MutableStyle style = Style.create()
-				.set(CommonProperties.WIDTH, FULL_WIDTH)
-				.set(CommonProperties.HEIGHT, (vw, vh) -> OptionalInt.of(vh))
-				.set(Div.JUSTIFY_CONTENT, Justify.CENTRE)
-				.set(Div.ALIGN_ITEMS, Align.CENTRE);
-
 		return Arrays.asList(
-				new Div(this.build(style)) // when building components the child screen may want to override the style
-						.withStyle(style), // TODO is there a better way to allow overriding these properties for screen?
+				new Div(this.buildScreen())
+						.tag("root"),
 				new Label(this.key)
-						.withStyle(Style.create()
-								.set(CommonProperties.WIDTH, FULL_WIDTH)
-								.set(Label.ALIGN_TEXT, Align.CENTRE))
+						.tag("title")
 		);
 	}
 
 	@Override
 	public @Nullable Stylesheet getStylesheet() {
+		// the child screen may want to override the style
+		// they can do that with this stylesheet
 		return new Stylesheet()
-				.self(Style.create().setFixed(CommonProperties.PADDING, DEFAULT_SCREEN_BORDERS));
+				.tag("root", Style.create()
+						.set(CommonProperties.WIDTH, FULL_WIDTH)
+						.set(CommonProperties.HEIGHT, (vw, vh) -> OptionalInt.of(vh))
+						.set(Div.JUSTIFY_CONTENT, Justify.CENTRE)
+						.set(Div.ALIGN_ITEMS, Align.CENTRE))
+				.tag("title", Style.create()
+						.set(CommonProperties.WIDTH, FULL_WIDTH)
+						.set(Label.ALIGN_TEXT, Align.CENTRE)
+						.setFixed(CommonProperties.MARGINS, new Margins(15, 0,0,0)));
 	}
 
 	/**
 	 * Build the child components of this screen. These will be placed in the div.
-	 * @param rootStyle the style used for the root div of the component. Can be modified.
-	 *              The default properties are WIDTH: vw, HEIGHT: vh, JUSTIFY_CONTENT: centre, ALIGN_ITEMS: centre.
 	 * @return the child components of this screen.
 	 */
-	protected abstract Component[] build(Style.MutableStyle rootStyle);
+	protected abstract Component[] buildScreen();
 
 	@Override
 	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
@@ -90,10 +89,4 @@ public abstract class Screen extends Component {
 	}
 
 	private static final CommonProperties.DimensionsOperator<OptionalInt> FULL_WIDTH = (vw, vh) -> OptionalInt.of(vw);
-
-	/**
-	 * Margins for the contents of the whole screen. Used to keep the title label from while keeping everything else
-	 * properly centered. You can override these by overriding getStylesheet().
-	 */
-	protected static final Margins DEFAULT_SCREEN_BORDERS = new Margins(15, 0);
 }
