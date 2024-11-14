@@ -27,6 +27,7 @@ import java.util.OptionalInt;
 public class StateTestScreen extends Screen {
 	public StateTestScreen() {
 		super(ID);
+		this.setShowDefaultTitle(false);
 	}
 
 	@Override

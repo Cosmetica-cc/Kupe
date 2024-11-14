@@ -32,7 +32,10 @@ public class Style {
 	}
 
 	protected final Map<Property<?>, Object> properties = new HashMap<>();
-	public @Nullable Style inheritance;
+	/**
+	 * Properties that will be passed on to children.
+	 */
+	public final @Nullable Style inheritance;
 
 	/**
 	 * Get the value of a given property from this Style.

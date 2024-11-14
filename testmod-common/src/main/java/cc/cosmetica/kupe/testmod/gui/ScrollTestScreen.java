@@ -47,7 +47,7 @@ public class ScrollTestScreen extends Screen {
 
 	@Override
 	public @Nullable Stylesheet getStylesheet() {
-		return new Stylesheet()
+		return super.getStylesheet() // default styles
 				.self(Style.create().setFixed(CommonProperties.PADDING, new Margins(5, 0)));
 	}
 
