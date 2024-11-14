@@ -155,7 +155,7 @@ public class FakePlayer extends Component {
 	}
 
 	@Override
-	public void render(Canvas canvas, Region region, int mouseX, int mouseY) {
+	public void paint(Canvas canvas, Region region, int mouseX, int mouseY) {
 		int centreX = (region.getX() + region.getFinalX())/2;
 
 		int lookX, lookY;

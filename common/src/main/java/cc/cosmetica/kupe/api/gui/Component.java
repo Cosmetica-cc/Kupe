@@ -227,13 +227,11 @@ public abstract class Component {
 
 		// By default, lay out children in specified positions.
 
-		// Single child component: just pass down the size given this component.
+		// Pass down the size given this component: components will try fill this component's space.
 		// this component has acted as ambassador anyway.
 		// Considerations: Fixed width/height; (Maximum Size: accounted for already);
 		// Aspect ratios in intrinsic sizes (already effectively forwards intrinsic size in case of 1 component)
-		if (children.size() == 1) {
-			ResizableElement child = children.get(0);
-
+		for (ResizableElement child : children) {
 			final Margins margins = child.getMargins();
 			final Margins padding = child.getPadding();
 
@@ -249,13 +247,6 @@ public abstract class Component {
 			);
 
 			Region childRegion = layChildToPreferredSize(region, start, attempting, child);
-			child.setRenderRegion(childRegion);
-		}
-		// otherwise use the actual preferred sizes
-		// TODO consistent system, or toggle?
-		else for (ResizableElement child : children) {
-			Dimensions preferred = child.getPreferredSize();
-			Region childRegion = layChildToPreferredSize(region, start, preferred, child);
 			child.setRenderRegion(childRegion);
 		}
 	}
@@ -285,10 +276,23 @@ public abstract class Component {
 	}
 
 	/**
-	 * Render this component's background. This includes things like borders.
+	 * Render this component. This does not handle rendering children.
+	 * @param canvas the canvas for drawing on the screen.
+	 * @param region the region of the screen this component has been placed in.
+	 * @param padding the padding around this component's content region.
+	 * @param mouseX the x position of the mouse on the screen.
+	 * @param mouseY the y position of the mosue on the screen.
+	 */
+	public void render(Canvas canvas, Region region, Margins padding, int mouseX, int mouseY) {
+		this.paintBackground(canvas, region, padding);
+		this.paint(canvas, region, mouseX, mouseY);
+	}
+
+	/**
+	 * Paint this component's background. This includes things like borders.
 	 * The border is placed within the padding.
 	 */
-	public void renderBackground(Canvas canvas, Region region, Margins padding) {
+	protected void paintBackground(Canvas canvas, Region region, Margins padding) {
 		// we want to draw within the padded region
 		Region drawRegion = region.addMargins(padding);
 
@@ -346,13 +350,13 @@ public abstract class Component {
 	}
 
 	/**
-	 * Render this component. This does not have to handle rendering children.
+	 * Paint the contents of this component. This does not handle rendering children.
 	 * @param canvas the canvas for drawing on the screen.
 	 * @param region the region of the screen this component has been placed in.
 	 * @param mouseX the x position of the mouse on the screen.
 	 * @param mouseY the y position of the mosue on the screen.
 	 */
-	public void render(Canvas canvas, Region region, int mouseX, int mouseY) {
+	protected void paint(Canvas canvas, Region region, int mouseX, int mouseY) {
 		// By default, do nothing
 	}
 

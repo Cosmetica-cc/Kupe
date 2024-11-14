@@ -523,8 +523,8 @@ public class Div extends Component {
 	}
 
 	@Override
-	public void renderBackground(Canvas canvas, Region region, Margins padding) {
-		super.renderBackground(canvas, region, padding);
+	public void paintBackground(Canvas canvas, Region region, Margins padding) {
+		super.paintBackground(canvas, region, padding);
 
 		if (overflow) {
 			// stencil
@@ -540,7 +540,7 @@ public class Div extends Component {
 	}
 
 	@Override
-	public void render(Canvas canvas, Region region, int mouseX, int mouseY) {
+	public void paint(Canvas canvas, Region region, int mouseX, int mouseY) {
 		if (overflow) {
 
 			// scrollbar

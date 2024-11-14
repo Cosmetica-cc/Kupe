@@ -25,12 +25,8 @@ import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Region;
 import cc.cosmetica.kupe.impl.MinecraftBuiltinComponent;
-import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.components.AbstractWidget;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.OptionalInt;
 
 /**
@@ -73,8 +69,8 @@ public class Button extends MinecraftBuiltinComponent {
 	}
 
 	@Override
-	public void render(Canvas canvas, Region region, int mouseX, int mouseY) {
-		super.render(canvas, region, mouseX, mouseY);
+	public void paint(Canvas canvas, Region region, int mouseX, int mouseY) {
+		super.paint(canvas, region, mouseX, mouseY);
 		if (this.onHover != null && region.contains(mouseX, mouseY)) {
 			this.onHover.render(canvas, mouseX, mouseY);
 		}

@@ -57,12 +57,12 @@ public abstract class Screen extends Component {
 				.set(Div.ALIGN_ITEMS, Align.CENTRE);
 
 		return Arrays.asList(
+				new Div(this.build(style)) // when building components the child screen may want to override the style
+						.withStyle(style), // TODO is there a better way to allow overriding these properties for screen?
 				new Label(this.key)
 						.withStyle(Style.create()
 								.set(CommonProperties.WIDTH, FULL_WIDTH)
-								.set(Label.ALIGN_TEXT, Align.CENTRE)),
-				new Div(this.build(style)) // when building components the child screen may want to override the style
-						.withStyle(style) // TODO is there a better way to allow overriding these properties for screen?
+								.set(Label.ALIGN_TEXT, Align.CENTRE))
 		);
 	}
 

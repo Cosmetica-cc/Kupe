@@ -29,10 +29,8 @@ import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
-import com.mojang.blaze3d.systems.RenderSystem;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
-import org.lwjgl.opengl.GL11;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -51,6 +49,8 @@ class ComponentTree {
 	 */
 	public void buildAll() {
 		this.root.walk(Node::buildThis);
+		// sort by z
+		this.root.sortChildrenRecursive();
 	}
 
 	/**
@@ -81,6 +81,9 @@ class ComponentTree {
 				for (Node child : node.children) {
 					child.walk(Node::buildThis);
 				}
+
+				// sort by z
+				node.sortChildrenRecursive();
 			}
 			// otherwise check its children to see if they need rebuilding
 			else for (Node child : node.children) {
@@ -219,20 +222,14 @@ class ComponentTree {
 		while (!nodes.isEmpty()) {
 			Node n = nodes.pop();
 			if (grey.contains(n)) {
-				canvas.popScissorTranslation();
-				n.render(canvas, mouseX, mouseY);// mouseX/mouseY adjusted for scroll by render()
-				grey.remove(n);
-
-				// pop scissors
 				canvas.popScissor();
+				grey.remove(n);
 			} else if (n.children.isEmpty()) {
 				// optimisation: do both renderBackground and render for leaf nodes without touching stack
 
 				// push scissors
 				canvas.pushScissor();
 				// render
-				n.renderBackground(canvas);
-				canvas.popScissorTranslation();
 				n.render(canvas, mouseX, mouseY);// mouseX/mouseY adjusted for scroll by render()
 				// pop scissors
 				canvas.popScissor();
@@ -240,15 +237,16 @@ class ComponentTree {
 				// push scissors
 				canvas.pushScissor();
 
-				// render background
-				n.renderBackground(canvas);
+				// render
+				n.render(canvas, mouseX, mouseY);// mouseX/mouseY adjusted for scroll by render()
 
 				// non-grey item with children: put item on the stack then its children
 				nodes.push(n);
-				for (Node child : n.children)
+				for (Node child : n.children) { // push front to back so back is done before front
 					if (!canvas.isOutOfBounds(child.trueRenderRegion())) {
 						nodes.push(child);
 					}
+				}
 
 				// mark as grey so when it is revisited, it is rendered
 				grey.add(n);
@@ -256,6 +254,7 @@ class ComponentTree {
 		}
 	}
 
+	// TODO: have children have priority for mouse click, not parents.
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		boolean consumedClick = false;
 
@@ -272,6 +271,8 @@ class ComponentTree {
 				if (node.element.mouseClicked(mouseX - node.scrollX(), mouseY - node.scrollY(), button)) {
 					consumedClick = true;
 				} else {
+					// clear nodes. only frontmost, visible element can process click
+					nodes.clear();
 					nodes.addAll(node.children); // children should be within parent's region!
 				}
 			}
@@ -284,44 +285,38 @@ class ComponentTree {
 		return this.root.walkAndTest(node -> node.element.mouseReleased(mouseX - node.scrollX(), mouseY - node.scrollY(), button));
 	}
 
+	// Idea: potentially some 'flag' that a component sets to receive events even when occluded
 	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
 		// DFS walk() with regional restriction. children override parents.
-		// this handles two divs from different trees that can scroll in 2 regions (the overlapping case)
-		// we can simplify and return early instead of using a black set if we only care about scrolling one.
+		// only the frontmost div will scroll.
 		Deque<Node> nodes = new ArrayDeque<>();
 		Set<Node> grey = new HashSet<>();
-		Set<Node> black = new HashSet<>();
 		nodes.add(this.root);
-		boolean gConsumed = false;
 
 		while (!nodes.isEmpty()) {
 			Node node = nodes.poll();
 
-			if (black.remove(node)) {
-				grey.remove(node);
-			}
-			else if (grey.remove(node)) {
+			if (grey.remove(node)) {
 				boolean consumed = node.element.mouseScrolled(mouseX - node.scrollX(), mouseY - node.scrollY(), delta);
-				gConsumed |= consumed;
 
 				if (consumed) {
-					Node parent = node.parent;
-					while (parent != null) {
-						black.add(parent);
-						parent = parent.parent;
-					}
+					return true;
 				}
 			}
 			else if (node.trueRenderRegion().contains((int) mouseX, (int) mouseY)) {
 				nodes.push(node);
 				grey.add(node);
+
 				// children should be within parent's region! Safe to treat it this way
-				for(Node child : node.children)
+				// We want back to front, so iterate in reverse order
+				for (int i = node.children.size() - 1; i >= 0; i--) {
+					Node child = node.children.get(i);
 					nodes.push(child);
+				}
 			}
 		}
 
-		return gConsumed;
+		return false;
 	}
 
 	public void mouseMoved(double mouseX, double mouseY) {
@@ -468,7 +463,7 @@ class ComponentTree {
 
 		// content
 		final Component element;
-		// hierarchy
+		// hierarchy. sorted front to back
 		final List<Node> children = new ArrayList<>();
 		final @Nullable ComponentTree.Node parent;
 		final int depth;
@@ -569,6 +564,13 @@ class ComponentTree {
 			return Style.merge(styles);
 		}
 
+		void sortChildrenRecursive() {
+			// sort high z index (front) to lowest (back)
+			this.walk(n -> n.children.sort(
+					Comparator.<Node>comparingInt(n_ -> n_.element.getStyle().get(CommonProperties.Z_INDEX)).reversed()
+			));
+		}
+
 		private void computeMargins(int vw, int vh) {
 			this.padding = this.element.getStyle().get(CommonProperties.PADDING).apply(vw, vh);
 			this.margins = this.element.getStyle().get(CommonProperties.MARGINS).apply(vw, vh);
@@ -626,26 +628,14 @@ class ComponentTree {
 			}
 		}
 
-		private void renderBackground(PoseCanvas canvas) {
+		private void render(PoseCanvas canvas, int mouseX, int mouseY) {
 			try {
-				RenderSystem.enableDepthTest();
-				GL11.glDepthFunc(GL11.GL_LEQUAL);
-				this.element.renderBackground(canvas, this.renderRegion, this.padding);
-				// set scroll
-				this.innerScrollY = canvas.getScrollY();
-				this.innerScrollX = canvas.getScrollX();
-			} catch (NullPointerException e) {
-				throw new RuntimeException("Rendering " + this.element, e);
-			}
-		}
-
-		private void render(Canvas canvas, int mouseX, int mouseY) {
-			try {
-				RenderSystem.enableDepthTest();
-				GL11.glDepthFunc(GL11.GL_LEQUAL);
 				// render still thinks it's at the original position
 				// so if it's moved up, move mouse positions accordingly
-				this.element.render(canvas, this.renderRegion, mouseX - (int)this.scrollX(), mouseY - (int)this.scrollY());
+				this.element.render(canvas, this.renderRegion, this.padding, mouseX - (int)this.scrollX(), mouseY - (int)this.scrollY());
+
+				this.innerScrollY = canvas.getScrollY();
+				this.innerScrollX = canvas.getScrollX();
 			} catch (NullPointerException e) {
 				throw new RuntimeException("Rendering " + this.element, e);
 			}

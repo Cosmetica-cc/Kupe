@@ -72,6 +72,11 @@ public final class CommonProperties {
 	public static final Style.Property<DimensionsOperator<Optional<Dimensions>>> MINIMUM_SIZE = new Style.Property<>("minimumSize", (vw, vh) -> Optional.empty(), false);
 
 	/**
+	 * Controls the component draw order at this level. Lower numbers are drawn first (behind) other components.
+	 */
+	public static final Style.Property<Integer> Z_INDEX = new Style.Property<>("zIndex", 0, false);
+
+	/**
 	 * Get the amount this object flexes in divisions. That is, when objects are being made to fill the space of the
 	 * division, allocate this proportion to this component. If 0, this component will not flex.
 	 */

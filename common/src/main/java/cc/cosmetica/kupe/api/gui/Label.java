@@ -76,7 +76,7 @@ public class Label extends Component implements WrappingElement {
 	}
 
 	@Override
-	public void render(Canvas canvas, Region region, int mouseX, int mouseY) {
+	public void paint(Canvas canvas, Region region, int mouseX, int mouseY) {
 		int y = region.getY();
 		final int lineHeight = canvas.getDrawingContext().getLineHeight();
 		final int tint = this.getStyle().get(TEXT_COLOUR);

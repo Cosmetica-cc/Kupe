@@ -39,15 +39,12 @@ public interface Canvas {
 
 	/**
 	 * Enable scissor for this component and its children. This restricts them to the bounds of this region.
-	 * @apiNote Call this in renderBackground!
-	 * @implNote If you call this in render() it will only affect this component's render.
 	 */
 	void useScissor(Region region);
 
 	/**
 	 * Scroll the view the given amount for this component and its children. This is not just equivalent to translating
 	 * the matrix as it also adjusts mouse position in children and mouse position in child render().
-	 * @apiNote Call this at the end of renderBackground!
 	 * @param amountX the amount to scroll in X, in pixels.
 	 * @param amountY the amount to scroll in Y, in pixels.
 	 */
