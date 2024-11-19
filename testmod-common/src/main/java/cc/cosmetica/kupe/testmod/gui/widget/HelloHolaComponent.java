@@ -67,6 +67,6 @@ public class HelloHolaComponent extends Component {
 	private static final String[] ALL_MESSAGES = {
 			"Hello",
 			"Hola",
-			"Guten Tag"
+			Math.random() < 0.001 ? "Gluten Tag" : "Guten Tag"
 	};
 }
