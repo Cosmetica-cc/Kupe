@@ -176,6 +176,7 @@ public class PoseCanvas implements Canvas {
 	public void drawRect(int x0, int y0, int width, int height, float z, float r, float g, float b) {
 		RenderSystem.disableTexture();
 		BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
+		Matrix4f matrix4f = this.stack.last().pose();
 //		RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
 
 		// x1, y1 exclusive because for some reason minecraft works this way
@@ -183,10 +184,10 @@ public class PoseCanvas implements Canvas {
 		int y1 = y0 + height;
 
 		bufferBuilder.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_COLOR);
-		bufferBuilder.vertex(x0, y1, z).color(r, g, b, 1.0F).endVertex();
-		bufferBuilder.vertex(x1, y1, z).color(r, g, b, 1.0F).endVertex();
-		bufferBuilder.vertex(x1, y0, z).color(r, g, b, 1.0F).endVertex();
-		bufferBuilder.vertex(x0, y0, z).color(r, g, b, 1.0F).endVertex();
+		bufferBuilder.vertex(matrix4f, x0, y1, z).color(r, g, b, 1.0F).endVertex();
+		bufferBuilder.vertex(matrix4f, x1, y1, z).color(r, g, b, 1.0F).endVertex();
+		bufferBuilder.vertex(matrix4f, x1, y0, z).color(r, g, b, 1.0F).endVertex();
+		bufferBuilder.vertex(matrix4f, x0, y0, z).color(r, g, b, 1.0F).endVertex();
 
 		bufferBuilder.end();
 		BufferUploader.end(bufferBuilder);
