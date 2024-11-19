@@ -194,6 +194,34 @@ public abstract class Component {
 		}
 	}
 
+	/**
+	 * Try fixed dimensions for an intrinsic size. Limited by style-set sizes. No ratio is preserved.
+	 * @param preferred the preferred sizing.
+	 * @return the intrinsic size.
+	 */
+	protected Dimensions tryFixed(Dimensions preferred, Context context) {
+		final int vw = context.getViewWidth();
+		final int vh = context.getViewHeight();
+		int width = preferred.getWidth();
+		int height = preferred.getHeight();
+		Dimensions maxDimensions = this.getStyle().get(CommonProperties.MAXIMUM_SIZE).apply(vw, vh);
+		Dimensions minDimensions = this.getStyle().get(CommonProperties.MINIMUM_SIZE).apply(vw, vh).orElse(Dimensions.NONE);
+
+		OptionalInt fixedWidth = this.getStyle().get(CommonProperties.WIDTH).apply(vw, vh);
+
+		if (fixedWidth.isPresent()) {
+			width = Math.max(Math.min(fixedWidth.getAsInt(), maxDimensions.getWidth()), minDimensions.getWidth());
+		}
+
+		OptionalInt fixedHeight = this.getStyle().get(CommonProperties.HEIGHT).apply(vw, vh);
+
+		if (fixedHeight.isPresent()) {
+			height = Math.max(Math.min(fixedHeight.getAsInt(), maxDimensions.getHeight()), minDimensions.getWidth());
+		}
+
+		return new Dimensions(width, height);
+	}
+
 	private static Dimensions shrinkByWidth(int width, Dimensions preferred) {
 		// size height respectfully
 		float aspectRatio = (float) preferred.getHeight() / preferred.getWidth();

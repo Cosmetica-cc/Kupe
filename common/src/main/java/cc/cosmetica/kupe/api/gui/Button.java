@@ -27,6 +27,7 @@ import cc.cosmetica.kupe.api.maths.Region;
 import cc.cosmetica.kupe.impl.MinecraftBuiltinComponent;
 import net.minecraft.client.gui.components.AbstractWidget;
 
+import java.util.List;
 import java.util.OptionalInt;
 
 /**
@@ -51,6 +52,11 @@ public class Button extends MinecraftBuiltinComponent {
 	private final Text text;
 	public Runnable onClicked;
 	public Tooltip onHover;
+
+	@Override
+	public Dimensions intrinsicSize(List<? extends SizedElement> children, Context context) {
+		return this.tryFixed(DEFAULT_DIMENSIONS, context);
+	}
 
 	public Text getText() {
 		return this.text;
@@ -82,11 +88,11 @@ public class Button extends MinecraftBuiltinComponent {
 	}
 
 	private static final Dimensions DEFAULT_DIMENSIONS = new Dimensions(200, 20);
-	private static final Style DEFAULT_STYLE = Style.create()
-			.set(CommonProperties.WIDTH, (vw, vh) -> OptionalInt.of(DEFAULT_DIMENSIONS.getWidth()))
-			.set(CommonProperties.HEIGHT, (vw, vh) -> OptionalInt.of(DEFAULT_DIMENSIONS.getHeight()));
+//	private static final Style DEFAULT_STYLE = Style.create()
+//			.set(CommonProperties.WIDTH, (vw, vh) -> OptionalInt.of(DEFAULT_DIMENSIONS.getWidth()))
+//			.set(CommonProperties.HEIGHT, (vw, vh) -> OptionalInt.of(DEFAULT_DIMENSIONS.getHeight()));
 
-	static {
-		RootStylesheet.setDefaultOverrides(Button.class, DEFAULT_STYLE);
-	}
+//	static {
+//		RootStylesheet.setDefaultOverrides(Button.class, DEFAULT_STYLE);
+//	}
 }
