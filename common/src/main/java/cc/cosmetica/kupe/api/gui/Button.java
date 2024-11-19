@@ -88,11 +88,4 @@ public class Button extends MinecraftBuiltinComponent {
 	}
 
 	private static final Dimensions DEFAULT_DIMENSIONS = new Dimensions(200, 20);
-//	private static final Style DEFAULT_STYLE = Style.create()
-//			.set(CommonProperties.WIDTH, (vw, vh) -> OptionalInt.of(DEFAULT_DIMENSIONS.getWidth()))
-//			.set(CommonProperties.HEIGHT, (vw, vh) -> OptionalInt.of(DEFAULT_DIMENSIONS.getHeight()));
-
-//	static {
-//		RootStylesheet.setDefaultOverrides(Button.class, DEFAULT_STYLE);
-//	}
 }

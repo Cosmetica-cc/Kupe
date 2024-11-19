@@ -30,6 +30,7 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.EditBox;
 import org.lwjgl.glfw.GLFW;
 
+import java.util.List;
 import java.util.OptionalInt;
 import java.util.function.Consumer;
 
@@ -69,6 +70,11 @@ public class TextBox extends MinecraftBuiltinComponent {
 	private Consumer<String> onEnter;
 
 	@Override
+	public Dimensions intrinsicSize(List<? extends SizedElement> children, Context context) {
+		return this.tryFixed(DEFAULT_DIMENSIONS, context);
+	}
+
+	@Override
 	public AbstractWidget createMinecraftWidget(Region region, Context context) {
 		/* NB this.minecraft.keyboardHandler.setSendRepeatsToGui(true); */
 		EditBox box = new net.minecraft.client.gui.components.EditBox(
@@ -104,11 +110,4 @@ public class TextBox extends MinecraftBuiltinComponent {
 	}
 
 	private static final Dimensions DEFAULT_DIMENSIONS = new Dimensions(200, 20);
-	private static final Style DEFAULT_STYLE = Style.create()
-			.set(CommonProperties.WIDTH, (vw, vh) -> OptionalInt.of(DEFAULT_DIMENSIONS.getWidth()))
-			.set(CommonProperties.HEIGHT, (vw, vh) -> OptionalInt.of(DEFAULT_DIMENSIONS.getHeight()));
-
-	static {
-		RootStylesheet.setDefaultOverrides(TextBox.class, DEFAULT_STYLE);
-	}
 }

@@ -529,20 +529,12 @@ public class Div extends Component {
 		if (overflow) {
 			// stencil
 			canvas.useScissor(region);
-
-			//shift contents by scroll amount
-			if (this.isVerticalFlow()) {
-				canvas.scroll(0, -this.scrollPercent * this.maxScroll);
-			} else {
-				canvas.scroll(-this.scrollPercent * this.maxScroll, 0);
-			}
 		}
 	}
 
 	@Override
 	public void paint(Canvas canvas, Region region, int mouseX, int mouseY) {
 		if (overflow) {
-
 			// scrollbar
 			if (this.isVerticalFlow()) {
 				// height of the div's 'view'. But not of all its contents.
@@ -582,6 +574,13 @@ public class Div extends Component {
 						DEFAULT_SCROLLBAR_THICKNESS - 1, scrollbarSize - 1,
 						50.0f, scrollBarColour, scrollBarColour, scrollBarColour
 				);
+			}
+
+			//shift contents by scroll amount
+			if (this.isVerticalFlow()) {
+				canvas.scroll(0, -this.scrollPercent * this.maxScroll);
+			} else {
+				canvas.scroll(-this.scrollPercent * this.maxScroll, 0);
 			}
 		}
 	}
