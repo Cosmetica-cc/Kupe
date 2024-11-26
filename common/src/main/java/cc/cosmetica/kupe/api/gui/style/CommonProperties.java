@@ -17,6 +17,7 @@
 package cc.cosmetica.kupe.api.gui.style;
 
 import cc.cosmetica.kupe.api.gui.Align;
+import cc.cosmetica.kupe.api.gui.PointerEvents;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 
@@ -75,6 +76,11 @@ public final class CommonProperties {
 	 * Controls the component draw order at this level. Lower numbers are drawn first (behind) other components.
 	 */
 	public static final Style.Property<Integer> Z_INDEX = new Style.Property<>("zIndex", 0, false);
+
+	/**
+	 * Controls when to receive pointer events. Parent components must be passed pointer events for this to be considered.
+	 */
+	public static final Style.Property<PointerEvents> POINTER_EVENTS = new Style.Property<>("pointerEvents", PointerEvents.VISIBLE, false);
 
 	/**
 	 * Get the amount this object flexes in divisions. That is, when objects are being made to fill the space of the

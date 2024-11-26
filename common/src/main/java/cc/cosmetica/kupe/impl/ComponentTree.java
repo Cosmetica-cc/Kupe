@@ -20,6 +20,7 @@ import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.Context;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.Component;
+import cc.cosmetica.kupe.api.gui.PointerEvents;
 import cc.cosmetica.kupe.api.gui.ResizableElement;
 import cc.cosmetica.kupe.api.gui.WrappingElement;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
@@ -264,7 +265,6 @@ class ComponentTree {
 		return this.root.walkAndTest(node -> node.element.mouseReleased(mouseX - node.scrollX(), mouseY - node.scrollY(), button));
 	}
 
-	// Idea: potentially some 'flag' that a component sets to receive events even when occluded
 	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
 		// only the frontmost div will scroll.
 		return this.walkConsumableEvent(mouseX, mouseY, n -> n.element.mouseScrolled(mouseX - n.scrollX(), mouseY - n.scrollY(), delta));
@@ -287,14 +287,27 @@ class ComponentTree {
 					return true;
 				}
 			}
-			else if (node.trueRenderRegion().contains((int) x, (int) y)) {
+			else {
+				// visit again as grey
 				nodes.push(node);
 				grey.add(node);
 
 				// children should be within parent's region! Safe to treat it this way
-				// We want back to front, so iterate in order
-				for (Node child : node.childrenByZ) {
-					nodes.push(child);
+				// We also only want the frontmost visible item to respond (by default). Don't touch what's occluded.
+				boolean occluded = false;
+
+				// We want front to back so we can find when it occludes, so iterate in reverse
+				for (int i = node.childrenByZ.size() - 1; i >= 0; i--) {
+					Node child = node.childrenByZ.get(i);
+					PointerEvents eventHandling = child.element.getStyle().get(CommonProperties.POINTER_EVENTS);
+
+					if (child.trueRenderRegion().contains((int) x, (int) y)) {
+						if (eventHandling == PointerEvents.ALL || (!occluded && eventHandling == PointerEvents.VISIBLE)) {
+							nodes.push(child);
+						}
+
+						occluded = true;
+					}
 				}
 			}
 		}
