@@ -16,7 +16,7 @@
 
 package cc.cosmetica.kupe.api.gui.style;
 
-import cc.cosmetica.kupe.impl.FixedDimensions;
+import cc.cosmetica.kupe.impl.dim.FixedDimensions;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -93,20 +93,6 @@ public class Style {
 		public <T> MutableStyle set(Property<T> property, T value) {
 			this.properties.put(property, value);
 			if (property.inherits) this.inheritance.properties.put(property, value);
-			return this;
-		}
-
-		/**
-		 * Set the given property in this {@linkplain Style style} to a fixed value independent of screen size.
-		 * @param property the property to set.
-		 * @param value the value to give to the property.
-		 * @return this mutable style object.
-		 * @param <T> the type of data contained within the property.
-		 */
-		public <T> MutableStyle setFixed(Property<CommonProperties.DimensionsOperator<T>> property, T value) {
-			final CommonProperties.DimensionsOperator<T> op = new FixedDimensions(value);
-			this.properties.put(property, op);
-			if (property.inherits) this.inheritance.properties.put(property, op);
 			return this;
 		}
 	}

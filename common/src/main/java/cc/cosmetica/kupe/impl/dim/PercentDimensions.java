@@ -14,27 +14,33 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.kupe.impl;
+package cc.cosmetica.kupe.impl.dim;
 
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 
-/**
- * Fixed value of a dimension operator. Makes debug easier by allowing debug print of such 'functions'.
- */
-public final class FixedDimensions<T> implements CommonProperties.DimensionsOperator<T> {
-	public FixedDimensions(T t) {
-		this.t = t;
+import java.util.OptionalInt;
+
+public class PercentDimensions implements CommonProperties.DimensionsOperator<OptionalInt> {
+	public PercentDimensions(float widthPercent, float heightPercent) {
+		this.w = widthPercent;
+		this.h = heightPercent;
 	}
 
-	private final T t;
+	private final float w, h;
 
 	@Override
-	public T apply(int vw, int vh) {
-		return this.t;
+	public OptionalInt apply(int vw, int vh, int pw, int ph) {
+		return OptionalInt.of((int)(this.w * pw + this.h * ph));
 	}
 
 	@Override
 	public String toString() {
-		return String.valueOf(this.t);
+		if (this.h == 0) {
+			return String.format("%.3f%% w", this.w);
+		} else if (this.w == 0) {
+			return String.format("%.3f%% h", this.h);
+		} else {
+			return String.format("%.3f%% w + %.3f%% h", this.w, this.h);
+		}
 	}
 }

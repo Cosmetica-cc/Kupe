@@ -102,7 +102,7 @@ class ComponentTree {
 		final int vh = context.getViewHeight();
 
 		// Compute all paddings and margins
-		this.root.walk(node -> node.computeMargins(vw, vh));
+		this.root.walk(node -> node.computeMargins(vw, vh, 0, 0));
 
 		// DFS for preferred size calculation
 		// We want the leaves to have preferred sizes calculated before their parents
@@ -117,7 +117,7 @@ class ComponentTree {
 
 			if (node.grey) {
 				node.grey = false; // we are done with this node
-				node.computeSizes(context);
+				node.computeSizes(context, 0, 0);
 			} else {
 				node.grey = true; // we need to visit it one more time, after children are done
 				nodes.push(node);
@@ -158,7 +158,7 @@ class ComponentTree {
 
 				// Recalculate Sizing
 				Dimensions oldIntrinsic = n.intrinsicSize;
-				n.computeSizes(context);
+				n.computeSizes(context, 0, 0);
 				if (oldIntrinsic != n.intrinsicSize) updateRequired = true;
 
 				// Add parent
@@ -184,13 +184,24 @@ class ComponentTree {
 		nodes.add(this.root);
 		// I designed Kupe with renderRegion as the content region. So we gotta subtract padding manually here.
 		final Margins rootPadding = this.root.padding;
+		final int vw = context.getViewWidth();
+		final int vh = context.getViewHeight();
 		this.root.renderRegion = new Region(rootPadding.left, rootPadding.top, context.getViewWidth() - rootPadding.horizontal(), context.getViewHeight() - rootPadding.vertical());
 
 		// Resize down the tree
 		while (!nodes.isEmpty()) { // we have computed actual preferred sizes before resizing
 			Node node = nodes.remove(); // nb we also, upon resizing, need to set the children's actual render regions
+			// for dynamic (%) sizes
+			final int pw = node.renderRegion.getWidth();
+			final int ph = node.renderRegion.getHeight();
+
+			for (Node child : node.children) {
+				child.computeMargins(vw, vh, pw, ph);
+				child.computeSizes(context, pw, ph);
+			}
+			// resize
 			node.resize(context);
-			nodes.addAll(node.children);
+			nodes.addAll(node.children);//can we skip adding leaf nodes
 
 			// check for wrapping overflow
 			if (wrappingOverflowed != null && node.parent != null && node.element instanceof WrappingElement) {
@@ -575,22 +586,22 @@ class ComponentTree {
 			});
 		}
 
-		private void computeMargins(int vw, int vh) {
-			this.padding = this.element.getStyle().get(CommonProperties.PADDING).apply(vw, vh);
-			this.margins = this.element.getStyle().get(CommonProperties.MARGINS).apply(vw, vh);
+		private void computeMargins(int vw, int vh, int pw, int ph) {
+			this.padding = this.element.getStyle().get(CommonProperties.PADDING).apply(vw, vh, pw, ph);
+			this.margins = this.element.getStyle().get(CommonProperties.MARGINS).apply(vw, vh, pw, ph);
 		}
 
-		private void computeSizes(Context context) {
+		private void computeSizes(Context context, int pw, int ph) {
 			final int vw = context.getViewWidth();
 			final int vh = context.getViewHeight();
 
 			this.minimumSize = Dimensions.max(
 					this.element.minimumSize(this.children, vw, vh),
-					this.element.getStyle().get(CommonProperties.MINIMUM_SIZE).apply(vw, vh).orElse(Dimensions.NONE)
+					this.element.getStyle().get(CommonProperties.MINIMUM_SIZE).apply(vw, vh, pw, ph).orElse(Dimensions.NONE)
 			);
 
 			// max size is specified in the style only
-			this.maximumSize = this.element.getStyle().get(CommonProperties.MAXIMUM_SIZE).apply(vw, vh);
+			this.maximumSize = this.element.getStyle().get(CommonProperties.MAXIMUM_SIZE).apply(vw, vh, pw, ph);
 			// intrinsic size is a property of the component only
 			// it will typically be used when combined with other properties to make 'preferred size'
 			this.intrinsicSize = this.element.intrinsicSize(this.children, context);
@@ -598,7 +609,7 @@ class ComponentTree {
 			this.intrinsicSize = Dimensions.clamp(this.intrinsicSize, this.minimumSize, this.maximumSize);
 
 			// width and height
-			this.width = this.element.getStyle().get(CommonProperties.WIDTH).apply(vw, vh);
+			this.width = this.element.getStyle().get(CommonProperties.WIDTH).apply(vw, vh, pw, ph);
 
 			if (this.width.isPresent()) {
 				int n = this.width.getAsInt();
@@ -608,7 +619,7 @@ class ComponentTree {
 				);
 			}
 
-			this.height = this.element.getStyle().get(CommonProperties.HEIGHT).apply(vw, vh);
+			this.height = this.element.getStyle().get(CommonProperties.HEIGHT).apply(vw, vh, pw, ph);
 
 			if (this.height.isPresent()) {
 				int n = this.height.getAsInt();

@@ -153,16 +153,16 @@ public abstract class Component {
 	protected Dimensions tryDimensionsWithPreferredRatio(Dimensions preferred, Context context) {
 		final int vw = context.getViewWidth();
 		final int vh = context.getViewHeight();
-		Dimensions maxDimensions = this.getStyle().get(CommonProperties.MAXIMUM_SIZE).apply(vw, vh);
+		Dimensions maxDimensions = this.getStyle().get(CommonProperties.MAXIMUM_SIZE).apply(vw, vh, 0, 0);
 
-		OptionalInt fixedWidth = this.getStyle().get(CommonProperties.WIDTH).apply(vw, vh);
+		OptionalInt fixedWidth = this.getStyle().get(CommonProperties.WIDTH).apply(vw, vh, 0, 0);
 
 		if (fixedWidth.isPresent()) {
 			int width = Math.min(fixedWidth.getAsInt(), maxDimensions.getWidth());
 			return shrinkByWidth(width, preferred);
 		}
 
-		OptionalInt fixedHeight = this.getStyle().get(CommonProperties.HEIGHT).apply(vw, vh);
+		OptionalInt fixedHeight = this.getStyle().get(CommonProperties.HEIGHT).apply(vw, vh, 0, 0);
 
 		if (fixedHeight.isPresent()) {
 			int height = Math.min(fixedHeight.getAsInt(), maxDimensions.getHeight());
@@ -204,16 +204,16 @@ public abstract class Component {
 		final int vh = context.getViewHeight();
 		int width = preferred.getWidth();
 		int height = preferred.getHeight();
-		Dimensions maxDimensions = this.getStyle().get(CommonProperties.MAXIMUM_SIZE).apply(vw, vh);
-		Dimensions minDimensions = this.getStyle().get(CommonProperties.MINIMUM_SIZE).apply(vw, vh).orElse(Dimensions.NONE);
+		Dimensions maxDimensions = this.getStyle().get(CommonProperties.MAXIMUM_SIZE).apply(vw, vh, 0, 0);
+		Dimensions minDimensions = this.getStyle().get(CommonProperties.MINIMUM_SIZE).apply(vw, vh, 0, 0).orElse(Dimensions.NONE);
 
-		OptionalInt fixedWidth = this.getStyle().get(CommonProperties.WIDTH).apply(vw, vh);
+		OptionalInt fixedWidth = this.getStyle().get(CommonProperties.WIDTH).apply(vw, vh, 0, 0);
 
 		if (fixedWidth.isPresent()) {
 			width = Math.max(Math.min(fixedWidth.getAsInt(), maxDimensions.getWidth()), minDimensions.getWidth());
 		}
 
-		OptionalInt fixedHeight = this.getStyle().get(CommonProperties.HEIGHT).apply(vw, vh);
+		OptionalInt fixedHeight = this.getStyle().get(CommonProperties.HEIGHT).apply(vw, vh, 0, 0);
 
 		if (fixedHeight.isPresent()) {
 			height = Math.max(Math.min(fixedHeight.getAsInt(), maxDimensions.getHeight()), minDimensions.getWidth());
@@ -263,8 +263,8 @@ public abstract class Component {
 			final Margins margins = child.getMargins();
 			final Margins padding = child.getPadding();
 
-			OptionalInt fixedWidth = child.getComponent().getStyle().get(CommonProperties.WIDTH).apply(context.getViewWidth(), context.getViewHeight());
-			OptionalInt fixedHeight = child.getComponent().getStyle().get(CommonProperties.HEIGHT).apply(context.getViewWidth(), context.getViewHeight());
+			OptionalInt fixedWidth = child.getComponent().getStyle().get(CommonProperties.WIDTH).apply(context.getViewWidth(), context.getViewHeight(), region.getWidth(), region.getHeight());
+			OptionalInt fixedHeight = child.getComponent().getStyle().get(CommonProperties.HEIGHT).apply(context.getViewWidth(), context.getViewHeight(), region.getWidth(), region.getHeight());
 
 			int availableWidth = region.getWidth() - margins.horizontal() - padding.horizontal();
 			int availableHeight = region.getHeight() - margins.vertical() - padding.vertical();

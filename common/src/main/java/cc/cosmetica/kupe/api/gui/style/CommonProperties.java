@@ -20,6 +20,7 @@ import cc.cosmetica.kupe.api.gui.Align;
 import cc.cosmetica.kupe.api.gui.PointerEvents;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
+import cc.cosmetica.kupe.impl.dim.*;
 
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -30,13 +31,17 @@ public final class CommonProperties {
 		// No Instantiation
 	}
 
+	public static final CommonProperties.DimensionsOperator<OptionalInt> NO_SIZE = (vw, vh, pw, ph) -> OptionalInt.empty();
+	public static final CommonProperties.DimensionsOperator<Margins> NO_MARGINS = (vw, vh, pw, ph) -> Margins.NONE;
+	public static final CommonProperties.DimensionsOperator<Optional<Dimensions>> NO_DIMENSIONS = (vw, vh, pw, ph) -> Optional.empty();
+
 	/**
 	 * The margins of the component. These are the boundaries around the component.
 	 * @param vw the screen width.
 	 * @param vh the screen height.
 	 * @return the margins of this component.
 	 */
-	public static final Style.Property<DimensionsOperator<Margins>> MARGINS = new Style.Property<>("margins", (vw, vh) -> Margins.NONE, false);
+	public static final Style.Property<DimensionsOperator<Margins>> MARGINS = new Style.Property<>("margins", NO_MARGINS, false);
 
 	/**
 	 * The padding of the component. These are the boundaries within this component.
@@ -44,33 +49,33 @@ public final class CommonProperties {
 	 * @param vh the screen height.
 	 * @return the padding of this component.
 	 */
-	public static final Style.Property<DimensionsOperator<Margins>> PADDING = new Style.Property<>("padding", (vw, vh) -> Margins.NONE, false);
+	public static final Style.Property<DimensionsOperator<Margins>> PADDING = new Style.Property<>("padding", NO_MARGINS, false);
 
 	/**
 	 * The maximum size of the component. This does not include padding or margins.
 	 */
-	public static final Style.Property<DimensionsOperator<Dimensions>> MAXIMUM_SIZE = new Style.Property<>("maximumSize", (vw, vh) -> Dimensions.MAX, false);
+	public static final Style.Property<DimensionsOperator<Dimensions>> MAXIMUM_SIZE = new Style.Property<>("maximumSize", fixed(Dimensions.MAX), false);
 
 	/**
 	 * The fixed width of the component. This is bounded by the {@linkplain CommonProperties#MAXIMUM_SIZE maximum} and
 	 * {@linkplain CommonProperties#MINIMUM_SIZE minimum} sizes.
 	 * This may still resize due to flex attributes.
 	 */
-	public static final Style.Property<DimensionsOperator<OptionalInt>> WIDTH = new Style.Property<>("width", (vw, vh) -> OptionalInt.empty(), false);
+	public static final Style.Property<DimensionsOperator<OptionalInt>> WIDTH = new Style.Property<>("width", NO_SIZE, false);
 
 	/**
 	 * The fixed height of the component. This is bounded by the {@linkplain CommonProperties#MAXIMUM_SIZE maximum} and
 	 * {@linkplain CommonProperties#MINIMUM_SIZE minimum} sizes.
 	 * This may still resize due to flex attributes.
 	 */
-	public static final Style.Property<DimensionsOperator<OptionalInt>> HEIGHT = new Style.Property<>("height", (vw, vh) -> OptionalInt.empty(), false);
+	public static final Style.Property<DimensionsOperator<OptionalInt>> HEIGHT = new Style.Property<>("height", NO_SIZE, false);
 
 	/**
 	 * The minimum size of the component. This does not include padding or margins.
 	 * The actual minimum size of the component is the maximum, per-axis, of this and the minimum size due to its
 	 * children.
 	 */
-	public static final Style.Property<DimensionsOperator<Optional<Dimensions>>> MINIMUM_SIZE = new Style.Property<>("minimumSize", (vw, vh) -> Optional.empty(), false);
+	public static final Style.Property<DimensionsOperator<Optional<Dimensions>>> MINIMUM_SIZE = new Style.Property<>("minimumSize", NO_DIMENSIONS, false);
 
 	/**
 	 * Controls the component draw order at this level. Lower numbers are drawn first (behind) other components.
@@ -117,13 +122,48 @@ public final class CommonProperties {
 	 */
 	public static final Style.Property<Integer> BORDER_SIZE = new Style.Property<>("borderSize",  0, false);
 
+	// Utility Dimension Operator and Dimension Operator constructors for common use cases.
+
+	public static final CommonProperties.DimensionsOperator<OptionalInt> SCREEN_WIDTH = (vw, vh, pw, ph) -> OptionalInt.of(vw);
+	public static final CommonProperties.DimensionsOperator<OptionalInt> SCREEN_HEIGHT = (vw, vh, pw, ph) -> OptionalInt.of(vh);
+	public static final CommonProperties.DimensionsOperator<OptionalInt> FULL_WIDTH = (vw, vh, pw, ph) -> OptionalInt.of(pw);
+	public static final CommonProperties.DimensionsOperator<OptionalInt> FULL_HEIGHT = (vw, vh, pw, ph) -> OptionalInt.of(ph);
+
+	/**
+	 * Provide a fixed value independent of screen size.
+	 * @param value the value to give to the property.
+	 * @return this mutable style object.
+	 * @param <T> the type of data contained within the property.
+	 */
+	public static <T> DimensionsOperator<T> fixed(T value) {
+		return new FixedDimensions<>(value);
+	}
+
+	public static DimensionsOperator<OptionalInt> percent(float widthPercent, float heightPercent) {
+		return new PercentDimensions(widthPercent, heightPercent);
+	}
+
+	public static DimensionsOperator<Dimensions> percentDimensions(float widthPercent, float heightPercent) {
+		return new PercentDimensionsDimensions(widthPercent, heightPercent);
+	}
+
+	public static DimensionsOperator<OptionalInt> screen(float widthPercent, float heightPercent) {
+		return new ScreenDimensions(widthPercent, heightPercent);
+	}
+
+	public static DimensionsOperator<Dimensions> screenDimensions(float widthPercent, float heightPercent) {
+		return new ScreenDimensionsDimensions(widthPercent, heightPercent);
+	}
+
 	public interface DimensionsOperator<T> {
 		/**
 		 * Apply the given screen dimensions to get the value.
 		 * @param vw the screen width.
 		 * @param vh the screen height.
+		 * @param pw the parent width. Provide 0 if unknown.
+		 * @param vh the parent height. Provide 0 if unknown.
 		 * @return the value provided from the given dimensions.
 		 */
-		T apply(int vw, int vh);
+		T apply(int vw, int vh, int pw, int ph);
 	}
 }

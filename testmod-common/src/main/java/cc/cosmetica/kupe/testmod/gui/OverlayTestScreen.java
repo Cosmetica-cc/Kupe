@@ -20,6 +20,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.OptionalInt;
 
+import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
+
 /**
  * Test screen for an overlay that can pop up and hide.
  */
@@ -33,9 +35,9 @@ public class OverlayTestScreen extends Screen {
 		return new Component[] {
 				new Div()
 						.withStyle(Style.create()
-							.setFixed(CommonProperties.PADDING, new Margins(1))
+							.set(CommonProperties.PADDING, fixed(new Margins(1)))
 							.set(CommonProperties.BORDER_SIZE, 1)
-							.set(CommonProperties.WIDTH, (vw,vh)->OptionalInt.of(2*vw/3))
+							.set(CommonProperties.WIDTH, screen(2/3f, 0))
 							.set(CommonProperties.FLEX, 1)),
 				new Button(Text.GUI_DONE, Screens::closeCurrentScreen)
 		};
@@ -46,12 +48,12 @@ public class OverlayTestScreen extends Screen {
 		return new Stylesheet()
 				.tag("body", Style.create()
 						// default
-						.set(CommonProperties.WIDTH, FULL_WIDTH)
-						.set(CommonProperties.HEIGHT, (vw, vh) -> OptionalInt.of(vh))
+						.set(CommonProperties.WIDTH, SCREEN_WIDTH)
+						.set(CommonProperties.HEIGHT, SCREEN_HEIGHT)
 						.set(Div.JUSTIFY_CONTENT, Justify.CENTRE)
 						.set(Div.ALIGN_ITEMS, Align.CENTRE)
 						// added
-						.setFixed(CommonProperties.MARGINS, new Margins(15, 0)))
+						.set(CommonProperties.MARGINS, fixed(new Margins(15, 0))))
 				.tag("title", TITLE_DEFAULT_STYLE);
 	}
 

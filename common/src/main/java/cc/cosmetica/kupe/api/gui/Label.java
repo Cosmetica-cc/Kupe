@@ -44,10 +44,10 @@ public class Label extends Component implements WrappingElement {
 		final int vw = context.getViewWidth();
 		final int vh = context.getViewHeight();
 
-		OptionalInt fixedWidth = this.getStyle().get(CommonProperties.WIDTH).apply(vw, vh);
+		OptionalInt fixedWidth = this.getStyle().get(CommonProperties.WIDTH).apply(vw, vh, 0, 0);
 
 		if (fixedWidth.isPresent()) {
-			Dimensions maxDimensions = this.getStyle().get(CommonProperties.MAXIMUM_SIZE).apply(vw, vh);
+			Dimensions maxDimensions = this.getStyle().get(CommonProperties.MAXIMUM_SIZE).apply(vw, vh, 0, 0);
 
 			int width = Math.min(fixedWidth.getAsInt(), maxDimensions.getWidth());
 

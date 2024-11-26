@@ -27,6 +27,8 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.*;
 
+import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
+
 /**
  * An extension to Component that implements common behaviour for screens.
  * <br>
@@ -91,20 +93,19 @@ public abstract class Screen extends Component {
 		return false;
 	}
 
-	protected static final CommonProperties.DimensionsOperator<OptionalInt> FULL_WIDTH = (vw, vh) -> OptionalInt.of(vw);
 
 	// make immutable with Style.merge. Default styles shouldn't be modifiable. Override stylesheet instead.
 	protected static final Style BODY_DEFAULT_STYLE = Style.merge(
 			Collections.singletonList(Style.create()
-					.set(CommonProperties.WIDTH, FULL_WIDTH)
-					.set(CommonProperties.HEIGHT, (vw, vh) -> OptionalInt.of(vh))
+					.set(CommonProperties.WIDTH, SCREEN_WIDTH)
+					.set(CommonProperties.HEIGHT, SCREEN_HEIGHT)
 					.set(Div.JUSTIFY_CONTENT, Justify.CENTRE)
 					.set(Div.ALIGN_ITEMS, Align.CENTRE))
 	);
 	protected static final Style TITLE_DEFAULT_STYLE = Style.merge(
 			Collections.singletonList(Style.create()
-					.set(CommonProperties.WIDTH, FULL_WIDTH)
+					.set(CommonProperties.WIDTH, SCREEN_WIDTH)
 					.set(Label.ALIGN_TEXT, Align.CENTRE)
-					.setFixed(CommonProperties.MARGINS, new Margins(15, 0, 0, 0)))
+					.set(CommonProperties.MARGINS, fixed(new Margins(15, 0, 0, 0))))
 	);
 }
