@@ -53,15 +53,16 @@ public abstract class Screen extends Component {
 	public final List<Component> build() {
 		// default style
 		List<Component> components = new ArrayList<>();
-		components.add(
-				new Div(this.buildScreen()).tag("body")
-		);
 
 		if (this.showTitle) {
 			components.add(
 					new Label(this.key).tag("title")
 			);
 		}
+
+		components.add(
+				new Div(this.buildScreen()).tag("body")
+		);
 
 		return components;
 	}
@@ -71,8 +72,8 @@ public abstract class Screen extends Component {
 		// the child screen may want to override the style
 		// they can do that with this stylesheet
 		return new Stylesheet()
-				.tag("body", BODY_DEFAULT_STYLE)
-				.tag("title", TITLE_DEFAULT_STYLE);
+				.tag("title", TITLE_DEFAULT_STYLE)
+				.tag("body", BODY_DEFAULT_STYLE);
 	}
 
 	/**
