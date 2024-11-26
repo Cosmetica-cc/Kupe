@@ -21,6 +21,8 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.util.OptionalInt;
 
+import static cc.cosmetica.kupe.api.gui.style.CommonProperties.fixed;
+
 /**
  * The example/test screen.
  */
@@ -44,7 +46,7 @@ public class StateTestScreen extends Screen {
 				}),
 				new Image(new ResourceLocation("kupe", "icon.png"))
 						.withStyle(
-								Style.create().setFixed(CommonProperties.HEIGHT, OptionalInt.of(150))
+								Style.create().set(CommonProperties.HEIGHT, fixed(OptionalInt.of(150)))
 						),
 				new Button(Text.literal("Say Goodbye, World!"), () -> System.out.println("Goodbye, World!")),
 				new Button(Text.GUI_DONE, Screens::closeCurrentScreen)

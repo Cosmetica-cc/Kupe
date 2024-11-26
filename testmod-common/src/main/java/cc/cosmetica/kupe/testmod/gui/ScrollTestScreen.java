@@ -22,6 +22,8 @@ import cc.cosmetica.kupe.api.maths.Margins;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
+import static cc.cosmetica.kupe.api.gui.style.CommonProperties.fixed;
+
 public class ScrollTestScreen extends Screen {
 	public ScrollTestScreen() {
 		super(ID);
@@ -48,7 +50,7 @@ public class ScrollTestScreen extends Screen {
 	@Override
 	public @Nullable Stylesheet getStylesheet() {
 		return super.getStylesheet() // default styles
-				.self(Style.create().setFixed(CommonProperties.PADDING, new Margins(5, 0)));
+				.self(Style.create().set(CommonProperties.PADDING, fixed(new Margins(5, 0))));
 	}
 
 	public static final ResourceLocation ID = new ResourceLocation("kupe_test", "scroll");
