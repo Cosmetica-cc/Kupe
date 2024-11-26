@@ -224,7 +224,7 @@ class ComponentTree {
 			if (grey.contains(n)) {
 				canvas.popScissor();
 				grey.remove(n);
-			} else if (n.children.isEmpty()) {
+			} else if (n.childrenByZ.isEmpty()) {
 				// optimisation: do both renderBackground and render for leaf nodes without touching stack
 
 				// push scissors
@@ -242,7 +242,9 @@ class ComponentTree {
 
 				// non-grey item with children: put item on the stack then its children
 				nodes.push(n);
-				for (Node child : n.children) { // push front to back so back is done before front
+				for (int i = n.childrenByZ.size()-1; i >=0;i--) { // push front to back so back is done before front
+					Node child = n.childrenByZ.get(i);
+
 					if (!canvas.isOutOfBounds(child.trueRenderRegion())) {
 						nodes.push(child);
 					}
@@ -254,31 +256,8 @@ class ComponentTree {
 		}
 	}
 
-	// TODO: have children have priority for mouse click, not parents.
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		boolean consumedClick = false;
-
-		Deque<Node> nodes = new ArrayDeque<>();
-		nodes.add(this.root);
-
-		while (!nodes.isEmpty()) {
-			Node node = nodes.remove();
-
-			// only process clicks in this element's render region
-			if (node.trueRenderRegion().contains((int)mouseX, (int)mouseY)) {
-				// if this element consumes the click, do not pass to its children, and mark as consumed click.
-				// it can be passed to overlapping siblings, however.
-				if (node.element.mouseClicked(mouseX - node.scrollX(), mouseY - node.scrollY(), button)) {
-					consumedClick = true;
-				} else {
-					// clear nodes. only frontmost, visible element can process click
-					nodes.clear();
-					nodes.addAll(node.children); // children should be within parent's region!
-				}
-			}
-		}
-
-		return consumedClick;
+		return this.walkConsumableEvent(mouseX, mouseY, n -> n.element.mouseClicked(mouseX - n.scrollX(), mouseY - n.scrollY(), button));
 	}
 
 	public boolean mouseReleased(double mouseX, double mouseY, int button) {
@@ -287,8 +266,13 @@ class ComponentTree {
 
 	// Idea: potentially some 'flag' that a component sets to receive events even when occluded
 	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-		// DFS walk() with regional restriction. children override parents.
 		// only the frontmost div will scroll.
+		return this.walkConsumableEvent(mouseX, mouseY, n -> n.element.mouseScrolled(mouseX - n.scrollX(), mouseY - n.scrollY(), delta));
+	}
+
+	private boolean walkConsumableEvent(double x, double y, Predicate<Node> callback) {
+		// DFS walk() with regional restriction. children override parents.
+		// front prioritised over back
 		Deque<Node> nodes = new ArrayDeque<>();
 		Set<Node> grey = new HashSet<>();
 		nodes.add(this.root);
@@ -297,20 +281,19 @@ class ComponentTree {
 			Node node = nodes.poll();
 
 			if (grey.remove(node)) {
-				boolean consumed = node.element.mouseScrolled(mouseX - node.scrollX(), mouseY - node.scrollY(), delta);
+				boolean consumed = callback.test(node);
 
 				if (consumed) {
 					return true;
 				}
 			}
-			else if (node.trueRenderRegion().contains((int) mouseX, (int) mouseY)) {
+			else if (node.trueRenderRegion().contains((int) x, (int) y)) {
 				nodes.push(node);
 				grey.add(node);
 
 				// children should be within parent's region! Safe to treat it this way
-				// We want back to front, so iterate in reverse order
-				for (int i = node.children.size() - 1; i >= 0; i--) {
-					Node child = node.children.get(i);
+				// We want back to front, so iterate in order
+				for (Node child : node.childrenByZ) {
 					nodes.push(child);
 				}
 			}
@@ -463,8 +446,10 @@ class ComponentTree {
 
 		// content
 		final Component element;
-		// hierarchy. sorted front to back
+		// hierarchy.
 		final List<Node> children = new ArrayList<>();
+		/** sorted back to front */
+		final List<Node> childrenByZ = new ArrayList<>();
 		final @Nullable ComponentTree.Node parent;
 		final int depth;
 		// extra data
@@ -500,6 +485,7 @@ class ComponentTree {
 
 			// clear children
 			this.children.clear();
+			this.childrenByZ.clear();
 
 			// clear extractions as we want to re-generate these.
 			StateManagerImpl.clearConfig(this.element);
@@ -565,10 +551,15 @@ class ComponentTree {
 		}
 
 		void sortChildrenRecursive() {
-			// sort high z index (front) to lowest (back)
-			this.walk(n -> n.children.sort(
-					Comparator.<Node>comparingInt(n_ -> n_.element.getStyle().get(CommonProperties.Z_INDEX)).reversed()
-			));
+			// sort low z index (back) to highest (front)
+			// this way items added later are towards the front side: intuitive natural priority
+			Comparator<Node> c = Comparator.<Node>comparingInt(n_ -> n_.element.getStyle().get(CommonProperties.Z_INDEX));
+
+			this.walk(n -> {
+				n.childrenByZ.clear();
+				n.childrenByZ.addAll(n.children);
+				n.childrenByZ.sort(c);
+			});
 		}
 
 		private void computeMargins(int vw, int vh) {
