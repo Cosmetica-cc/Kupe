@@ -20,6 +20,8 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.util.OptionalInt;
 
+import static cc.cosmetica.kupe.api.gui.style.CommonProperties.fixed;
+
 public class OversizeAndMaxHeightTestCase extends Screen {
 
 	public OversizeAndMaxHeightTestCase() {
@@ -42,7 +44,7 @@ public class OversizeAndMaxHeightTestCase extends Screen {
 								new Label(Text.literal("Line 1"))
 						).withStyle(Style.create().set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
 										.set(CommonProperties.BACKGROUND_COLOUR, OptionalInt.of(0x8800DD))
-										.setFixed(CommonProperties.MAXIMUM_SIZE, new Dimensions(Integer.MAX_VALUE, 40)))
+										.set(CommonProperties.MAXIMUM_SIZE, fixed(new Dimensions(Integer.MAX_VALUE, 40))))
 				).withStyle(Style.create().set(Div.FLOW_DIRECTION, axis)),
 
 				new Button(Text.literal("Change Flow of Wrapper"), () -> {
