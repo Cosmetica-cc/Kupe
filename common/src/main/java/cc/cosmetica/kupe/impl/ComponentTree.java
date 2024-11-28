@@ -119,7 +119,7 @@ class ComponentTree {
 				node.grey = false; // we are done with this node
 				node.computeSizes(context, 0, 0);
 			} else {
-				node.grey = true; // we need to visit it one more time, after children are done
+				node.grey = true; // we need to visit it one more time, after children are done, to actually compute
 				nodes.push(node);
 
 				// all children need to be visited before this node
@@ -154,7 +154,7 @@ class ComponentTree {
 					continue; // skip. already visited (avoid updating duplicates)
 				}
 
-				visitedAtThisDepth.add(n);
+				visitedAtThisDepth.add(n);//priority queue based on depzth.
 
 				// Recalculate Sizing
 				Dimensions oldIntrinsic = n.intrinsicSize;
@@ -180,7 +180,7 @@ class ComponentTree {
 	 * BFS for resizing (down the tree)
 	 * @param nodes the queue to use for nodes.
 	 */
-	private void _resize(Queue<Node> nodes, Context context, @Nullable Collection<Node> wrappingOverflowed, @Nullable Collection<Node> immediateOverflowed) {
+	private void _resize(Queue<Node> nodes, Context context, @Nullable Collection<Node> wrappingOverflowed, @Nullable Collection<Node> immediateOverflowed, boolean recomputeSizes) {
 		nodes.add(this.root);
 		// I designed Kupe with renderRegion as the content region. So we gotta subtract padding manually here.
 		final Margins rootPadding = this.root.padding;
@@ -195,10 +195,14 @@ class ComponentTree {
 			final int pw = node.renderRegion.getWidth();
 			final int ph = node.renderRegion.getHeight();
 
-			for (Node child : node.children) {
-				child.computeMargins(vw, vh, pw, ph);
-				child.computeSizes(context, pw, ph);
-			}
+			// now that we have parent size determined, recompute child sizes
+			// todo how to properly reconcile this with overflow. (wrapping elements)
+			if (recomputeSizes)
+				for (Node child : node.children) {
+					child.computeMargins(vw, vh, pw, ph);
+					child.computeSizes(context, pw, ph);
+				}
+
 			// resize
 			node.resize(context);
 			nodes.addAll(node.children);//can we skip adding leaf nodes
