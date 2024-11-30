@@ -180,7 +180,7 @@ class ComponentTree {
 	 * BFS for resizing (down the tree)
 	 * @param nodes the queue to use for nodes.
 	 */
-	private void _resize(Queue<Node> nodes, Context context, @Nullable Collection<Node> wrappingOverflowed, @Nullable Collection<Node> immediateOverflowed, boolean recomputeSizes) {
+	private void _resize(Queue<Node> nodes, Context context, @Nullable Collection<Node> wrappingOverflowed, @Nullable Collection<Node> immediateOverflowed) {
 		nodes.add(this.root);
 		// I designed Kupe with renderRegion as the content region. So we gotta subtract padding manually here.
 		final Margins rootPadding = this.root.padding;
@@ -196,12 +196,14 @@ class ComponentTree {
 			final int ph = node.renderRegion.getHeight();
 
 			// now that we have parent size determined, recompute child sizes
-			// todo how to properly reconcile this with overflow. (wrapping elements)
-			if (recomputeSizes)
-				for (Node child : node.children) {
-					child.computeMargins(vw, vh, pw, ph);
+			// wrapping elements, due to having sizes re-fixed, will not have sizes recomputed.
+			for (Node child : node.children) {
+				child.computeMargins(vw, vh, pw, ph);
+
+				if (!(child.element instanceof WrappingElement)) {
 					child.computeSizes(context, pw, ph);
 				}
+			}
 
 			// resize
 			node.resize(context);
