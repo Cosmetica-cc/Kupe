@@ -47,6 +47,19 @@ resized in `resize()`, and rendered in `render()`. There are a few more addition
 - `mouseMoved`
 - `mouseClicked`
 
+### Element Size
+
+Element size is treated as a modified border-box. Margin is space outside the component and padding is space within the
+component. Thus if you specify a height of 50 pixels and padding of 2 on all sides, the content size will have a height
+of 46 pixels. Border is not separated from padding, and will extend into the component region from the padding, in.
+
+- I can modify the current setup to do this by changing
+1. Sizing Methods
+- Add own padding when determining a dimension with calculations, but not when determining it from a "size" parameter like specified size.
+- This applies to both minimum size and intrinsic size methods.
+2. Resizing Methods
+- Subtract child padding when giving them their content region, rather than adding it.
+
 ### Creating a Screen
 
 A screen in Kupe is just a top level component. However, the `Screen` class implements a common component layout for you,
@@ -99,12 +112,7 @@ Call `Screens.enableDebug()` to enable the debugger on all screens.
 ### Leaf Components
 
 
-
 ## Reactive States
-
-
-### DynamicStylesheet
-
 
 ## Further Examples
 

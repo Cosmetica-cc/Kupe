@@ -25,6 +25,7 @@ import cc.cosmetica.kupe.impl.StateManagerImpl;
  * Use this when you want to modify the sizes of components at runtime.
  // FIXME isn't style computed during build phase?
  */
+@Deprecated
 public class DynamicStyle extends State<Style> {
 	public DynamicStyle(Style initialValue) {
 		super(initialValue);
