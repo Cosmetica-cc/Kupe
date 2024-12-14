@@ -20,6 +20,7 @@ import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.Context;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.maths.Dimensions;
+import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
 import cc.cosmetica.kupe.impl.LeavesSandbox;
 import cc.cosmetica.kupe.impl.fakeplayer.*;
@@ -150,8 +151,8 @@ public class FakePlayer extends Component {
 	}
 
 	@Override
-	public Dimensions intrinsicSize(List<? extends SizedElement> children, Context context) {
-		return this.tryDimensionsWithPreferredRatio(DEFAULT_DIMENSIONS, context);
+	public Dimensions intrinsicSize(List<? extends SizedElement> children, Margins padding, Context context) {
+		return this.tryDimensionsWithPreferredRatio(DEFAULT_DIMENSIONS, padding, context);
 	}
 
 	@Override

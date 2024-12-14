@@ -112,36 +112,36 @@ public abstract class Component {
 	}
 
 	/**
-	 * Calculate the minimum size given the component's children. This should be consistent with how the component
-	 * positions its children.
+	 * Calculate the minimum size given the component's children, inclusive of the component's padding.
+	 * This should be consistent with how the component positions its children.
 	 * @param children a list of the children of this component and their sizes.
 	 * @param vw view width, the width of the window.
 	 * @param vh view height, the height of the window.
 	 */
-	public Dimensions minimumSize(List<? extends SizedElement> children, int vw, int vh) {
+	public Dimensions minimumSize(List<? extends SizedElement> children, Margins padding, int vw, int vh) {
 		if (children.isEmpty()) { // leaf components
 			return Dimensions.NONE;
 		}
 
-		// by default all components are positioned at top left (including margins and padding)
-		return largestSizeWithMargins(children, SizedElement::getMinimumSize);
+		// by default all components are positioned at top left (including margins)
+		return largestSizeWithMargins(children, padding, SizedElement::getMinimumSize);
 	}
 
 	/**
-	 * Calculate the default size of this component, given its children. This should be consistent with how the component
-	 * positions its children. If more than a container, this should also take into account its contents and their
-	 * preferred sizing, should infinite space be available.
+	 * Calculate the default size of this component, given its children, inclusive of the component's padding.
+	 * This should be consistent with how the component positions its children. If more than a container,
+	 * this should also take into account its contents and their preferred sizing, should infinite space be available.
 	 * @param children a list of the children of this component and their sizes.
 	 * @param context provides information about the drawing context the component is being sized in.
 	 * @return the intrinsic size of this component.
 	 */
-	public Dimensions intrinsicSize(List<? extends SizedElement> children, Context context) {
+	public Dimensions intrinsicSize(List<? extends SizedElement> children, Margins padding, Context context) {
 		if (children.isEmpty()) { // leaf components
 			return Dimensions.NONE;
 		}
 
 		// by default all components are positioned at top left (including margins and padding)
-		return largestSizeWithMargins(children, SizedElement::getPreferredSize);
+		return largestSizeWithMargins(children, padding, SizedElement::getPreferredSize);
 	}
 
 	/**
@@ -150,9 +150,10 @@ public abstract class Component {
 	 * @param context the context we are rendering in.
 	 * @return the actual intrinsic dimensions in this context.
 	 */
-	protected Dimensions tryDimensionsWithPreferredRatio(Dimensions preferred, Context context) {
+	protected Dimensions tryDimensionsWithPreferredRatio(Dimensions preferred, Margins padding, Context context) {
 		final int vw = context.getViewWidth();
 		final int vh = context.getViewHeight();
+		//TODO account for padding when shrinking by height or width
 		Dimensions maxDimensions = this.getStyle().get(CommonProperties.MAXIMUM_SIZE).apply(vw, vh, 0, 0);
 
 		OptionalInt fixedWidth = this.getStyle().get(CommonProperties.WIDTH).apply(vw, vh, 0, 0);
@@ -199,11 +200,11 @@ public abstract class Component {
 	 * @param preferred the preferred sizing.
 	 * @return the intrinsic size.
 	 */
-	protected Dimensions tryFixed(Dimensions preferred, Context context) {
+	protected Dimensions tryFixed(Dimensions preferred, Margins padding, Context context) {
 		final int vw = context.getViewWidth();
 		final int vh = context.getViewHeight();
-		int width = preferred.getWidth();
-		int height = preferred.getHeight();
+		int width = preferred.getWidth() + padding.horizontal();
+		int height = preferred.getHeight() + padding.vertical(); // style-specified dimensions (min,max,fixed) include padding
 		Dimensions maxDimensions = this.getStyle().get(CommonProperties.MAXIMUM_SIZE).apply(vw, vh, 0, 0);
 		Dimensions minDimensions = this.getStyle().get(CommonProperties.MINIMUM_SIZE).apply(vw, vh, 0, 0).orElse(Dimensions.NONE);
 
@@ -219,7 +220,7 @@ public abstract class Component {
 			height = Math.max(Math.min(fixedHeight.getAsInt(), maxDimensions.getHeight()), minDimensions.getWidth());
 		}
 
-		return new Dimensions(width, height);
+		return new Dimensions(width, height);//we aren't clamping preferred dimensions to max/min because we know the system will do that
 	}
 
 	private static Dimensions shrinkByWidth(int width, Dimensions preferred) {
@@ -243,7 +244,7 @@ public abstract class Component {
 
 	/**
 	 * Resize this component's children.
-	 * @param region the region allocated to this component.
+	 * @param region the region allocated to this component. This is solely content size and does not include padding.
 	 * @param sizedElement this component's specified dimensions. These may differ from this component's actual
 	 *                     allocated size as provided in the region.
 	 * @param children a list of children of this component, including their preferred, minimum, and maximum sizes, and
@@ -460,7 +461,7 @@ public abstract class Component {
 	 * @param childDimensionGetter the function to get the dimensions for this calculation.
 	 * @return a Dimensions object containing the largest total width and largest total height, including margins and padding of the children.
 	 */
-	private static Dimensions largestSizeWithMargins(List<? extends SizedElement> children, Function<SizedElement, Dimensions> childDimensionGetter) {
+	private static Dimensions largestSizeWithMargins(List<? extends SizedElement> children, Margins padding, Function<SizedElement, Dimensions> childDimensionGetter) {
 		// calculate the largest total width of all children
 		// assume the top left corner of all (with margins and padding added) is top-left corner
 		int width = 0;
@@ -471,19 +472,23 @@ public abstract class Component {
 
 			// check if we need to expand the region for the new widget
 			// width
-			int childTotalWidth = dimensions.getWidth() + child.getMargins().horizontal() + child.getPadding().horizontal();
+			int childTotalWidth = dimensions.getWidth() + child.getMargins().horizontal();
 
 			if (childTotalWidth > width) {
 				width = childTotalWidth;
 			}
 
 			// height
-			int childTotalHeight = dimensions.getHeight() + child.getMargins().vertical() + child.getPadding().vertical();
+			int childTotalHeight = dimensions.getHeight() + child.getMargins().vertical();
 
 			if (childTotalHeight > height) {
 				height = childTotalHeight;
 			}
 		}
+
+		// add own padding
+		width += padding.horizontal();
+		height += padding.vertical();
 
 		return new Dimensions(width, height);
 	}

@@ -23,6 +23,7 @@ import cc.cosmetica.kupe.api.gui.ResizableElement;
 import cc.cosmetica.kupe.api.gui.SizedElement;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.maths.Dimensions;
+import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -60,7 +61,7 @@ public class Image extends Component {
 
 	// TODO dont do io on the rendering thread
 	@Override
-	public Dimensions intrinsicSize(List<? extends SizedElement> children, Context context) {
+	public Dimensions intrinsicSize(List<? extends SizedElement> children, Margins padding, Context context) {
 		try {
 			Optional<Dimensions> dimensionData = context.getImageDimensions(this.texture);
 
@@ -69,7 +70,7 @@ public class Image extends Component {
 			}
 
 			Dimensions dimensions = dimensionData.get();
-			return this.tryDimensionsWithPreferredRatio(dimensions, context);
+			return this.tryDimensionsWithPreferredRatio(dimensions, padding, context);
 		} catch (IOException e) {
 			// could not load image
 			return Dimensions.NONE;

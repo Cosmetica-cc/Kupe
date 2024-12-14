@@ -602,7 +602,7 @@ class ComponentTree {
 			final int vh = context.getViewHeight();
 
 			this.minimumSize = Dimensions.max(
-					this.element.minimumSize(this.children, vw, vh),
+					this.element.minimumSize(this.children, this.padding, vw, vh),
 					this.element.getStyle().get(CommonProperties.MINIMUM_SIZE).apply(vw, vh, pw, ph).orElse(Dimensions.NONE)
 			);
 
@@ -610,7 +610,7 @@ class ComponentTree {
 			this.maximumSize = this.element.getStyle().get(CommonProperties.MAXIMUM_SIZE).apply(vw, vh, pw, ph);
 			// intrinsic size is a property of the component only
 			// it will typically be used when combined with other properties to make 'preferred size'
-			this.intrinsicSize = this.element.intrinsicSize(this.children, context);
+			this.intrinsicSize = this.element.intrinsicSize(this.children, this.padding, context);
 			// clamp to min/max size of this element (if it can only go up to 30px we dont want it saying it wants 100px!)
 			this.intrinsicSize = Dimensions.clamp(this.intrinsicSize, this.minimumSize, this.maximumSize);
 

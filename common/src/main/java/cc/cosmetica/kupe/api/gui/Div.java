@@ -54,13 +54,13 @@ public class Div extends Component {
 	// Div Layout Logic
 
 	@Override
-	public Dimensions minimumSize(List<? extends SizedElement> children, int vw, int vh) {
-		return this.getStyle().get(FIXED_CONTAINER) ? this.size(children, SizedElement::getMinimumSize) : Dimensions.NONE;
+	public Dimensions minimumSize(List<? extends SizedElement> children, Margins padding, int vw, int vh) {
+		return this.getStyle().get(FIXED_CONTAINER) ? this.size(children, padding, SizedElement::getMinimumSize) : Dimensions.NONE;
 	}
 
 	@Override
-	public Dimensions intrinsicSize(List<? extends SizedElement> children, Context context) {
-		return this.size(children, SizedElement::getPreferredSize);
+	public Dimensions intrinsicSize(List<? extends SizedElement> children, Margins padding, Context context) {
+		return this.size(children, padding, SizedElement::getPreferredSize);
 	}
 
 	/**
@@ -68,7 +68,7 @@ public class Div extends Component {
 	 * @param children the children of the div.
 	 * @return the theoretical size of the div, given its children.
 	 */
-	private Dimensions size(List<? extends SizedElement> children, Function<SizedElement, Dimensions> dimensionGetter) {
+	private Dimensions size(List<? extends SizedElement> children, Margins thisPadding, Function<SizedElement, Dimensions> dimensionGetter) {
 		int width = 0;
 		int height = 0;
 
@@ -82,19 +82,18 @@ public class Div extends Component {
 				Dimensions size = dimensionGetter.apply(child);
 
 				Margins margins = child.getMargins();
-				Margins padding = child.getPadding();
 
 				// x
 				// direct width
 				width += size.getWidth();
 				// padding and margin
-				width += margins.left + padding.left + padding.right + margins.right;
+				width += margins.left + margins.right;
 
 				// y
 				// direct height
 				int childHeight = size.getHeight();
 				// padding and margin
-				childHeight += margins.bottom + padding.bottom + padding.top + margins.top;
+				childHeight += margins.bottom + margins.top;
 
 				if (childHeight > height) {
 					height = childHeight;
@@ -109,13 +108,12 @@ public class Div extends Component {
 				Dimensions size = dimensionGetter.apply(child);
 
 				Margins margins = child.getMargins();
-				Margins padding = child.getPadding();
 
 				// x
 				// direct width
 				int childWidth = size.getWidth();
 				// padding and margin
-				childWidth += margins.left + padding.left + padding.right + margins.right;
+				childWidth += margins.left + margins.right;
 
 				if (childWidth > width) {
 					width = childWidth;
@@ -125,12 +123,12 @@ public class Div extends Component {
 				// direct height
 				height += size.getHeight();
 				// padding and margin
-				height += margins.bottom + padding.bottom + padding.top + margins.top;
+				height += margins.bottom + margins.top;
 			}
 			break;
 		}
 
-		return new Dimensions(width, height);
+		return new Dimensions(width + thisPadding.horizontal(), height + thisPadding.vertical());
 	}
 
 	@Override

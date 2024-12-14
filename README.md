@@ -105,7 +105,7 @@ Screens.setScreen(MyScreen.ID);
 ### Debugging Screens
 
 Kupe provides a simple screen debugger that lets you browse the component hierarchy with your keyboard.
-Call `Screens.enableDebug()` to enable the debugger on all screens.
+Call `Screens.setAllowDebug(true)` to enable using the debugger, then hit Ctrl+Shift+I while in a Kupe screen.
 
 ### Compound Components
 

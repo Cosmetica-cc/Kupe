@@ -23,6 +23,7 @@ import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.RootStylesheet;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.maths.Dimensions;
+import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
 import cc.cosmetica.kupe.impl.MinecraftBuiltinComponent;
 import net.minecraft.client.Minecraft;
@@ -70,8 +71,8 @@ public class TextBox extends MinecraftBuiltinComponent {
 	private Consumer<String> onEnter;
 
 	@Override
-	public Dimensions intrinsicSize(List<? extends SizedElement> children, Context context) {
-		return this.tryFixed(DEFAULT_DIMENSIONS, context);
+	public Dimensions intrinsicSize(List<? extends SizedElement> children, Margins padding, Context context) {
+		return this.tryFixed(DEFAULT_DIMENSIONS, padding, context);
 	}
 
 	@Override
