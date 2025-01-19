@@ -262,14 +262,14 @@ public abstract class Component {
 		// Aspect ratios in intrinsic sizes (already effectively forwards intrinsic size in case of 1 component)
 		for (ResizableElement child : children) {
 			final Margins margins = child.getMargins();
-			final Margins padding = child.getPadding();
 
 			OptionalInt fixedWidth = child.getComponent().getStyle().get(CommonProperties.WIDTH).apply(context.getViewWidth(), context.getViewHeight(), region.getWidth(), region.getHeight());
 			OptionalInt fixedHeight = child.getComponent().getStyle().get(CommonProperties.HEIGHT).apply(context.getViewWidth(), context.getViewHeight(), region.getWidth(), region.getHeight());
 
-			int availableWidth = region.getWidth() - margins.horizontal() - padding.horizontal();
-			int availableHeight = region.getHeight() - margins.vertical() - padding.vertical();
+			int availableWidth = region.getWidth() - margins.horizontal();
+			int availableHeight = region.getHeight() - margins.vertical();
 
+			// dimensions including padding
 			Dimensions attempting = new Dimensions(
 					fixedWidth.orElse(availableWidth),
 					fixedHeight.orElse(availableHeight)
@@ -280,16 +280,23 @@ public abstract class Component {
 		}
 	}
 
-	protected static Region layChildToPreferredSize(Region region, Position start, Dimensions preferred, ResizableElement child) {
+	/**
+	 * Lay the child to a given preferred size it should take.
+	 * @param region the content region of the parent element.
+	 * @param start the start position from which to position the element.
+	 * @param preferred the preferred size for the element (including padding). This doesn't have to be the <i>child's</i> preferred size.
+	 * @param child the child element itself.
+	 * @return the content region of the child element.
+	 */
+	protected static Region layChildToPreferredSize(Region region, Position start, Dimensions preferred, SizedElement child) {
 		final Margins margins = child.getMargins();
-		final Margins padding = child.getPadding();
 
-		Position position = start.add(margins.left + padding.left, margins.top + padding.top);
+		Position position = start.add(margins.left, margins.top);
 
 		// default size is preferred size, which accounts for a few properties already.
-		// shrink child region so it doesn't extend beyond the borders of the parent region
-		int endX = Math.min(position.x + preferred.getWidth() - 1 - margins.horizontal() - padding.horizontal(), region.getFinalX());
-		int endY = Math.min(position.y + preferred.getHeight() - 1 - margins.vertical() - padding.vertical(), region.getFinalY());
+		// shrink child region so it doesn't extend beyond the borders of the parent
+		int endX = Math.min(position.x + preferred.getWidth() - 1, region.getFinalX());
+		int endY = Math.min(position.y + preferred.getHeight() - 1, region.getFinalY());
 		// - 1 is required to match finalX() and finalY()
 
 		// apply min and max restrictions to find actual width
@@ -301,7 +308,9 @@ public abstract class Component {
 		int height = Math.min(max.getHeight(), Math.max(min.getHeight(), endY + 1 - position.y));
 
 		// child region
-		return new Region(position, new Dimensions(width, height));
+		// subtract padding to get content region
+		final Margins padding = child.getPadding();
+		return new Region(position, new Dimensions(width, height)).shrinkMargins(padding);
 	}
 
 	/**

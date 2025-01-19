@@ -24,7 +24,7 @@ import cc.cosmetica.kupe.api.maths.Region;
  */
 public interface ResizableElement extends SizedElement {
 	/**
-	 * Set the render region of this resizable element.
+	 * Set the render region (content region) of this resizable element.
 	 * @param region the region on the screen at which to render this resizable element.
 	 */
 	void setRenderRegion(Region region);

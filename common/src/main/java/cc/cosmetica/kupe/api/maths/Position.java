@@ -39,8 +39,8 @@ public class Position {
 
 	/**
 	 * Get a new position with the given coordinates added.
-	 * @param dx the change in x to add.
-	 * @param dy the change in y to add.
+	 * @param dx the x to add.
+	 * @param dy the y to add.
 	 * @return the newly created position.
 	 */
 	public Position add(int dx, int dy) {
