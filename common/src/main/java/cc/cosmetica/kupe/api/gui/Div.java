@@ -180,9 +180,8 @@ public class Div extends Component {
 		// 1.1, remove margins from available width
 		for (ResizableElement element : children) {
 			Margins margins = element.getMargins();
-			Margins padding = element.getPadding();
 
-			availableWidth -= margins.left + padding.left + padding.right + margins.right;
+			availableWidth -= margins.left + margins.right;
 		}
 
 		// 1.2 calculate fixed widths first
@@ -309,7 +308,7 @@ public class Div extends Component {
 				case END:
 					// preferred intrinsic size, capped to the height of this container available for the component
 					// TODO some way to adapt instrinsic height after squishing width?
-					int availableHeight = region.getHeight() - element.getMargins().vertical() - element.getPadding().vertical();
+					int availableHeight = region.getHeight() - element.getMargins().vertical();
 					heights.put(element, Math.min(availableHeight, element.getPreferredSize().getHeight()));
 					break;
 				case STRETCH_START:
@@ -317,8 +316,7 @@ public class Div extends Component {
 				case STRETCH_END:
 					// as much space as possible (if stretch)
 					Margins margins = element.getMargins();
-					Margins padding = element.getPadding();
-					int theoreticalSpace = region.getHeight() - margins.top - padding.top - padding.bottom - margins.bottom;
+					int theoreticalSpace = region.getHeight() - margins.top - margins.bottom;
 
 					if (theoreticalSpace < element.getMinimumSize().getHeight()) {
 						// perhaps if align start, just care about top margins. if end just care about end
@@ -333,11 +331,11 @@ public class Div extends Component {
 			}
 
 			// constrain heights to height of div
-			int paddingMarginSecondary = element.getMargins().vertical() + element.getPadding().vertical();
-			int totalOccupiedHeight = heights.getInt(element) + paddingMarginSecondary;
+			int marginSecondary = element.getMargins().vertical();
+			int totalOccupiedHeight = heights.getInt(element) + marginSecondary;
 
 			if (totalOccupiedHeight > region.getHeight()) {
-				int constrainedHeight = region.getHeight() - paddingMarginSecondary;
+				int constrainedHeight = region.getHeight() - marginSecondary;
 
 				// but not at the expense of the element's minimum height
 				heights.put(element,
@@ -397,10 +395,9 @@ public class Div extends Component {
 		while (childIterator.hasNext()) {
 			ResizableElement element = childIterator.next();
 			final Margins margins = element.getMargins();
-			final Margins padding = element.getPadding();
 
-			// add left padding and margin
-			x += margins.left + padding.left;
+			// add left margin
+			x += margins.left;
 
 			// place child
 
@@ -408,7 +405,7 @@ public class Div extends Component {
 			final int height = heights.getInt(element);
 			final Align align = element.getComponent().getStyle().get(CommonProperties.ALIGN_SELF).orElse(alignItems);
 
-			int space = region.getHeight() - height - margins.top - padding.top - padding.bottom - margins.bottom;
+			int space = region.getHeight() - height - margins.top - margins.bottom;
 			int y = region.getY();
 
 			// align at start, middle, or end on secondary axis
@@ -427,13 +424,15 @@ public class Div extends Component {
 				break;
 			}
 
-			// account for padding and margins offsetting y start
-			y += margins.top + padding.top;
+			// account for margins offsetting y start
+			y += margins.top;
 
-			element.setRenderRegion(new Region((int)x, y, width, height));
+			element.setRenderRegion(
+					new Region((int)x, y, width, height).shrinkMargins(element.getPadding())
+			);
 
-			// offset child width and right margin/padding
-			x += width + padding.right + margins.right;
+			// offset child width and right margin
+			x += width + margins.right;
 
 			// post-child space
 			switch (justifyContent) {
