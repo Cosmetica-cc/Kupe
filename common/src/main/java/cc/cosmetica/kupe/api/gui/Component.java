@@ -146,40 +146,40 @@ public abstract class Component {
 
 	/**
 	 * Used for components with a preferred size and ratio to determine an intrinsic size.
-	 * @param preferred the preferred dimensions, at the preferred ratio.
+	 * @param preferred the preferred dimensions, at the preferred ratio. Excluding padding.
 	 * @param context the context we are rendering in.
-	 * @return the actual intrinsic dimensions in this context.
+	 * @return the actual intrinsic dimensions in this context. With padding included.
 	 */
 	protected Dimensions tryDimensionsWithPreferredRatio(Dimensions preferred, Margins padding, Context context) {
 		final int vw = context.getViewWidth();
 		final int vh = context.getViewHeight();
-		//TODO account for padding when shrinking by height or width
+
 		Dimensions maxDimensions = this.getStyle().get(CommonProperties.MAXIMUM_SIZE).apply(vw, vh, 0, 0);
 
 		OptionalInt fixedWidth = this.getStyle().get(CommonProperties.WIDTH).apply(vw, vh, 0, 0);
 
 		if (fixedWidth.isPresent()) {
 			int width = Math.min(fixedWidth.getAsInt(), maxDimensions.getWidth());
-			return shrinkByWidth(width, preferred);
+			return shrinkByWidth(width - padding.horizontal(), preferred, padding);
 		}
 
 		OptionalInt fixedHeight = this.getStyle().get(CommonProperties.HEIGHT).apply(vw, vh, 0, 0);
 
 		if (fixedHeight.isPresent()) {
 			int height = Math.min(fixedHeight.getAsInt(), maxDimensions.getHeight());
-			return shrinkByHeight(height, preferred);
+			return shrinkByHeight(height - padding.vertical(), preferred, padding);
 		}
 
 		// treat clamp like fixed dimensions
 		Dimensions shrunkWidth = null, shrunkHeight = null;
 
-		if (maxDimensions.getWidth() < preferred.getWidth()) {
+		if (maxDimensions.getWidth() < preferred.getWidth() + padding.horizontal()) {
 			fixedWidth = OptionalInt.of(maxDimensions.getWidth());
-			shrunkWidth = shrinkByWidth(maxDimensions.getWidth(), preferred);
+			shrunkWidth = shrinkByWidth(maxDimensions.getWidth() - padding.horizontal(), preferred, padding);
 		}
-		if (maxDimensions.getHeight() < preferred.getHeight()) {
+		if (maxDimensions.getHeight() < preferred.getHeight() + padding.vertical()) {
 			fixedHeight = OptionalInt.of(maxDimensions.getHeight());
-			shrunkHeight = shrinkByHeight(maxDimensions.getHeight(), preferred);
+			shrunkHeight = shrinkByHeight(maxDimensions.getHeight() - padding.vertical(), preferred, padding);
 		}
 
 		if (fixedHeight.isPresent() && fixedWidth.isPresent()) {
@@ -191,7 +191,7 @@ public abstract class Component {
 			return shrunkHeight;
 		} else {
 			// no fixed width and height
-			return preferred;
+			return new Dimensions(preferred.getWidth() + padding.horizontal(), preferred.getHeight() + padding.vertical());
 		}
 	}
 
@@ -223,16 +223,30 @@ public abstract class Component {
 		return new Dimensions(width, height);//we aren't clamping preferred dimensions to max/min because we know the system will do that
 	}
 
-	private static Dimensions shrinkByWidth(int width, Dimensions preferred) {
+	/**
+	 * Adjust given dimensions to match a fixed width, and add padding.
+	 * @param width the fixed width to target, excluding padding.
+	 * @param preferred the preferred dimensions, excluding padding.
+	 * @param padding padding to add to the final dimensions.
+	 * @return the shrunk dimensions.
+	 */
+	private static Dimensions shrinkByWidth(int width, Dimensions preferred, Margins padding) {
 		// size height respectfully
 		float aspectRatio = (float) preferred.getHeight() / preferred.getWidth();
-		return new Dimensions(width, (int) (width * aspectRatio));
+		return new Dimensions(width + padding.horizontal(), (int) (width * aspectRatio) + padding.vertical());
 	}
 
-	private static Dimensions shrinkByHeight(int height, Dimensions preferred) {
+	/**
+	 * Adjust given dimensions to match a fixed height, and add padding.
+	 * @param height the fixed height to target, excluding padding.
+	 * @param preferred the preferred dimensions, excluding padding.
+	 * @param padding padding to add to the final dimensions.
+	 * @return the shrunk dimensions.
+	 */
+	private static Dimensions shrinkByHeight(int height, Dimensions preferred, Margins padding) {
 		// size width respectfully
 		float aspectRatio = (float) preferred.getWidth() / preferred.getHeight();
-		return new Dimensions((int) (height * aspectRatio), height);
+		return new Dimensions((int) (height * aspectRatio) + padding.horizontal(), height + padding.vertical());
 	}
 
 	/**
