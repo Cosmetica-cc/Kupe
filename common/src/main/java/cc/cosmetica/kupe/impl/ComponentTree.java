@@ -371,11 +371,15 @@ class ComponentTree {
 	private int debugIndex = 0;
 
 	public void renderDebug(Canvas canvas, int vh) {
-		int lineHeight = canvas.getDrawingContext().getLineHeight();
+		int lineHeight = (int)Math.ceil(canvas.getDrawingContext().getLineHeight() * 0.75f);
+		vh = (int) (vh / 0.75f);
 
-		canvas.drawText(debugParentText, 0, vh - lineHeight * 3, 0xAAAAAA); // grey to show it's not selected
-		canvas.drawText(debugChildText, 0, vh - lineHeight * 2, 0xFFFFFF);
-		canvas.drawText(DEBUG_INSTRUCTIONS, 0, vh - lineHeight, 0xFFFFFF);
+		canvas.getStack().push();
+		canvas.getStack().scale(0.75f, 0.75f, 1);
+		canvas.drawText(debugParentText, 0, vh - lineHeight * 3 - 6, 0xAAAAAA); // grey to show it's not selected
+		canvas.drawText(debugChildText, 0, vh - lineHeight * 2 - 4, 0xFFFFFF);
+		canvas.drawText(debugInstructions, 0, vh - lineHeight - 2, 0xFFFFFF);
+		canvas.getStack().pop();
 	}
 
 	public boolean keyDebug(int keyCode) {
@@ -439,6 +443,15 @@ class ComponentTree {
 				}
 			}
 			return false;
+		case GLFW.GLFW_KEY_6: // Switch Padding <-> Content Region
+			{
+				if (debugInstructions == DEBUG_INSTRUCTIONS_C) {
+					debugInstructions = DEBUG_INSTRUCTIONS_P;
+				} else {
+					debugInstructions = DEBUG_INSTRUCTIONS_C;
+				}
+				this.updateDebugComponent();
+			}
 		}
 
 		return false;
@@ -461,11 +474,13 @@ class ComponentTree {
 	}
 
 	private Text componentDebugInfo(Node node) {
-		return Text.literal(node.element.getClass().getSimpleName() + " " + node.renderRegion +
+		return Text.literal(node.element.getClass().getSimpleName() + " " + (debugInstructions == DEBUG_INSTRUCTIONS_C ? node.renderRegion : node.renderRegion.addMargins(node.getPadding())) +
 				" (" + node.intrinsicSize.toString() + "i, " + node.minimumSize + "m, " + node.maximumSize + "M)");
 	}
 
-	private static final Text DEBUG_INSTRUCTIONS = Text.literal("[1] Back [2] Step In [3] Previous [4] Next [5] Print Debug");
+	private static final Text DEBUG_INSTRUCTIONS_C = Text.literal("[1] Back [2] Step In [3] Previous [4] Next [5] Print Debug [6] Show Padded Region  - (Content Region)");
+	private static final Text DEBUG_INSTRUCTIONS_P = Text.literal("[1] Back [2] Step In [3] Previous [4] Next [5] Print Debug [6] Show Content Region - (Padded Region)");
+	private static Text debugInstructions = DEBUG_INSTRUCTIONS_C;
 
 	private static class Node implements ResizableElement {
 		Node(@Nullable ComponentTree.Node parent, Component element) {
