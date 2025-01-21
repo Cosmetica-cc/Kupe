@@ -10,10 +10,7 @@ package cc.cosmetica.kupe.testmod.gui;
 import cc.cosmetica.kupe.api.Screen;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.Text;
-import cc.cosmetica.kupe.api.gui.Button;
-import cc.cosmetica.kupe.api.gui.Component;
-import cc.cosmetica.kupe.api.gui.Div;
-import cc.cosmetica.kupe.api.gui.Label;
+import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
@@ -34,7 +31,12 @@ public class BorderBoxTest extends Screen {
 	protected Component[] buildScreen() {
 		return new Component[] {
 				new Div(
-						new Div().tag("inner")
+						new Div(
+								new Image(new ResourceLocation("kupe", "icon.png"))
+										.withStyle(Style.create()
+												.set(PADDING, fixed(new Margins(5, 5, 5, 5)))
+												.set(BACKGROUND_COLOUR, OptionalInt.of(0x00AAAA)))
+						).tag("inner")
 				).tag("outer")
 		};
 	}
