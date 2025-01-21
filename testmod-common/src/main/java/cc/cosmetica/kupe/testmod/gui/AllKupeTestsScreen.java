@@ -29,7 +29,8 @@ public class AllKupeTestsScreen extends Screen {
 				new Button(Text.literal("Z Layering Test"), () -> Screens.setScreen(ZLayeringTest.ID)),
 				new Button(Text.literal("Text Wrap Label Sizing Test"), () -> Screens.setScreen(TextWrapTextboxSizingTest.ID)),
 				new Button(Text.literal("Scroll Test"), () -> Screens.setScreen(ScrollTestScreen.ID)),
-				new Button(Text.literal("Overlay Test"), () -> Screens.setScreen(OverlayTestScreen.ID))
+				new Button(Text.literal("Overlay Test"), () -> Screens.setScreen(OverlayTestScreen.ID)),
+				new Button(Text.literal("Border Box Test"), () -> Screens.setScreen(BorderBoxTest.ID))
 		};
 	}
 

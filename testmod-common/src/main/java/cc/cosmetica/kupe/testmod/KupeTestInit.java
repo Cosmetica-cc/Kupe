@@ -24,5 +24,6 @@ public final class KupeTestInit {
 		Screens.registerScreen(TextWrapTextboxSizingTest.ID, new TextWrapTextboxSizingTest());
 		Screens.registerScreen(ScrollTestScreen.ID, new ScrollTestScreen());
 		Screens.registerScreen(OverlayTestScreen.ID, new OverlayTestScreen());
+		Screens.registerScreen(BorderBoxTest.ID, new BorderBoxTest());
 	}
 }
