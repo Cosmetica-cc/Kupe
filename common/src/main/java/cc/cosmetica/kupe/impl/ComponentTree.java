@@ -183,6 +183,7 @@ class ComponentTree {
 	private void _resize(Queue<Node> nodes, Context context, @Nullable Collection<Node> wrappingOverflowed, @Nullable Collection<Node> immediateOverflowed) {
 		nodes.add(this.root);
 		// I designed Kupe with renderRegion as the content region. So we gotta subtract padding manually here.
+		// Even though we use border-box sizing.
 		final Margins rootPadding = this.root.padding;
 		final int vw = context.getViewWidth();
 		final int vh = context.getViewHeight();
