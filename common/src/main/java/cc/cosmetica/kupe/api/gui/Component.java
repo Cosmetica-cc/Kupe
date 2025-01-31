@@ -57,6 +57,23 @@ public abstract class Component {
 	private Style style;
 
 	/**
+         * Shrink the width and get the new preferred height.
+	 * Doesn't need to account for min/max.
+	 * @return the new preferred height.
+	 */
+	protected int shrinkWidth(int newWidth, int height) {
+		return height;
+	}
+
+	/**
+         * Shrink the height and get the new preferred width.
+	 * @return the new preferred width.
+	 */
+	protected int shrinkHeight(int newHeight, int width) {
+		return width;
+	}
+
+	/**
 	 * Set the style for this component instance.
 	 * @param style the style to apply to this component.
 	 * @return this component.
