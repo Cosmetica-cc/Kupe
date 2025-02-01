@@ -14,6 +14,8 @@ import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
+import cc.cosmetica.kupe.api.maths.Axis;
+import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Margins;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
@@ -52,6 +54,7 @@ public class BorderBoxTest extends Screen {
 				.tag("inner", Style.create()
 						.set(CommonProperties.WIDTH, percent(100, 0))
 						.set(HEIGHT, percent(0, 100))
+						.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
 						.set(BACKGROUND_COLOUR, OptionalInt.of(0x0088FF)));
 	}
 

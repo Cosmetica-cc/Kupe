@@ -652,6 +652,16 @@ class ComponentTree {
 			}
 		}
 
+		@Override
+		public int shrinkHeight(int newWidth, int height, Context context) {
+			return this.element.shrinkHeight(newWidth, height, context);
+		}
+
+		@Override
+		public int shrinkWidth(int newHeight, int width, Context context) {
+			return this.element.shrinkWidth(newHeight, width, context);
+		}
+
 		/**
 		 * Resize the component
 		 */

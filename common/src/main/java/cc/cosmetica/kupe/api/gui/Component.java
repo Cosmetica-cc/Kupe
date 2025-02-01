@@ -57,19 +57,23 @@ public abstract class Component {
 	private Style style;
 
 	/**
-         * Shrink the width and get the new preferred height.
+	 * Get the new preferred height after shrinking width.
 	 * Doesn't need to account for min/max.
+	 * @param newWidth the new width.
+	 * @param height the current height.
 	 * @return the new preferred height.
 	 */
-	protected int shrinkWidth(int newWidth, int height) {
+	public int shrinkHeight(int newWidth, int height, Context context) {
 		return height;
 	}
 
 	/**
-         * Shrink the height and get the new preferred width.
+	 * Get the new preferred width after shrinking height
+	 * @param newHeight the new height.
+	 * @param width the current width.
 	 * @return the new preferred width.
 	 */
-	protected int shrinkHeight(int newHeight, int width) {
+	public int shrinkWidth(int newHeight, int width, Context context) {
 		return width;
 	}
 
