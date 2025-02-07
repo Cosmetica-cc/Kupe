@@ -54,13 +54,13 @@ public class Div extends Component {
 	// Div Layout Logic
 
 	@Override
-	public Dimensions minimumSize(List<? extends SizedElement> children, int vw, int vh) {
-		return this.getStyle().get(FIXED_CONTAINER) ? this.size(children, SizedElement::getMinimumSize) : Dimensions.NONE;
+	public Dimensions minimumSize(List<? extends SizedElement> children, Margins padding, int vw, int vh) {
+		return this.getStyle().get(FIXED_CONTAINER) ? this.size(children, padding, SizedElement::getMinimumSize) : Dimensions.NONE;
 	}
 
 	@Override
-	public Dimensions intrinsicSize(List<? extends SizedElement> children, Context context) {
-		return this.size(children, SizedElement::getPreferredSize);
+	public Dimensions intrinsicSize(List<? extends SizedElement> children, Margins padding, Context context) {
+		return this.size(children, padding, SizedElement::getPreferredSize);
 	}
 
 	/**
@@ -68,7 +68,7 @@ public class Div extends Component {
 	 * @param children the children of the div.
 	 * @return the theoretical size of the div, given its children.
 	 */
-	private Dimensions size(List<? extends SizedElement> children, Function<SizedElement, Dimensions> dimensionGetter) {
+	private Dimensions size(List<? extends SizedElement> children, Margins thisPadding, Function<SizedElement, Dimensions> dimensionGetter) {
 		int width = 0;
 		int height = 0;
 
@@ -82,19 +82,18 @@ public class Div extends Component {
 				Dimensions size = dimensionGetter.apply(child);
 
 				Margins margins = child.getMargins();
-				Margins padding = child.getPadding();
 
 				// x
 				// direct width
 				width += size.getWidth();
 				// padding and margin
-				width += margins.left + padding.left + padding.right + margins.right;
+				width += margins.left + margins.right;
 
 				// y
 				// direct height
 				int childHeight = size.getHeight();
 				// padding and margin
-				childHeight += margins.bottom + padding.bottom + padding.top + margins.top;
+				childHeight += margins.bottom + margins.top;
 
 				if (childHeight > height) {
 					height = childHeight;
@@ -109,13 +108,12 @@ public class Div extends Component {
 				Dimensions size = dimensionGetter.apply(child);
 
 				Margins margins = child.getMargins();
-				Margins padding = child.getPadding();
 
 				// x
 				// direct width
 				int childWidth = size.getWidth();
 				// padding and margin
-				childWidth += margins.left + padding.left + padding.right + margins.right;
+				childWidth += margins.left + margins.right;
 
 				if (childWidth > width) {
 					width = childWidth;
@@ -125,12 +123,12 @@ public class Div extends Component {
 				// direct height
 				height += size.getHeight();
 				// padding and margin
-				height += margins.bottom + padding.bottom + padding.top + margins.top;
+				height += margins.bottom + margins.top;
 			}
 			break;
 		}
 
-		return new Dimensions(width, height);
+		return new Dimensions(width + thisPadding.horizontal(), height + thisPadding.vertical());
 	}
 
 	@Override
@@ -182,9 +180,8 @@ public class Div extends Component {
 		// 1.1, remove margins from available width
 		for (ResizableElement element : children) {
 			Margins margins = element.getMargins();
-			Margins padding = element.getPadding();
 
-			availableWidth -= margins.left + padding.left + padding.right + margins.right;
+			availableWidth -= margins.left + margins.right;
 		}
 
 		// 1.2 calculate fixed widths first
@@ -311,7 +308,7 @@ public class Div extends Component {
 				case END:
 					// preferred intrinsic size, capped to the height of this container available for the component
 					// TODO some way to adapt instrinsic height after squishing width?
-					int availableHeight = region.getHeight() - element.getMargins().vertical() - element.getPadding().vertical();
+					int availableHeight = region.getHeight() - element.getMargins().vertical();
 					heights.put(element, Math.min(availableHeight, element.getPreferredSize().getHeight()));
 					break;
 				case STRETCH_START:
@@ -319,8 +316,7 @@ public class Div extends Component {
 				case STRETCH_END:
 					// as much space as possible (if stretch)
 					Margins margins = element.getMargins();
-					Margins padding = element.getPadding();
-					int theoreticalSpace = region.getHeight() - margins.top - padding.top - padding.bottom - margins.bottom;
+					int theoreticalSpace = region.getHeight() - margins.top - margins.bottom;
 
 					if (theoreticalSpace < element.getMinimumSize().getHeight()) {
 						// perhaps if align start, just care about top margins. if end just care about end
@@ -335,11 +331,11 @@ public class Div extends Component {
 			}
 
 			// constrain heights to height of div
-			int paddingMarginSecondary = element.getMargins().vertical() + element.getPadding().vertical();
-			int totalOccupiedHeight = heights.getInt(element) + paddingMarginSecondary;
+			int marginSecondary = element.getMargins().vertical();
+			int totalOccupiedHeight = heights.getInt(element) + marginSecondary;
 
 			if (totalOccupiedHeight > region.getHeight()) {
-				int constrainedHeight = region.getHeight() - paddingMarginSecondary;
+				int constrainedHeight = region.getHeight() - marginSecondary;
 
 				// but not at the expense of the element's minimum height
 				heights.put(element,
@@ -399,10 +395,9 @@ public class Div extends Component {
 		while (childIterator.hasNext()) {
 			ResizableElement element = childIterator.next();
 			final Margins margins = element.getMargins();
-			final Margins padding = element.getPadding();
 
-			// add left padding and margin
-			x += margins.left + padding.left;
+			// add left margin
+			x += margins.left;
 
 			// place child
 
@@ -410,7 +405,7 @@ public class Div extends Component {
 			final int height = heights.getInt(element);
 			final Align align = element.getComponent().getStyle().get(CommonProperties.ALIGN_SELF).orElse(alignItems);
 
-			int space = region.getHeight() - height - margins.top - padding.top - padding.bottom - margins.bottom;
+			int space = region.getHeight() - height - margins.top - margins.bottom;
 			int y = region.getY();
 
 			// align at start, middle, or end on secondary axis
@@ -429,13 +424,15 @@ public class Div extends Component {
 				break;
 			}
 
-			// account for padding and margins offsetting y start
-			y += margins.top + padding.top;
+			// account for margins offsetting y start
+			y += margins.top;
 
-			element.setRenderRegion(new Region((int)x, y, width, height));
+			element.setRenderRegion(
+					new Region((int)x, y, width, height).shrinkMargins(element.getPadding())
+			);
 
-			// offset child width and right margin/padding
-			x += width + padding.right + margins.right;
+			// offset child width and right margin
+			x += width + margins.right;
 
 			// post-child space
 			switch (justifyContent) {

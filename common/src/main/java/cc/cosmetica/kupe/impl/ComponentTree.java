@@ -183,6 +183,7 @@ class ComponentTree {
 	private void _resize(Queue<Node> nodes, Context context, @Nullable Collection<Node> wrappingOverflowed, @Nullable Collection<Node> immediateOverflowed) {
 		nodes.add(this.root);
 		// I designed Kupe with renderRegion as the content region. So we gotta subtract padding manually here.
+		// Even though we use border-box sizing.
 		final Margins rootPadding = this.root.padding;
 		final int vw = context.getViewWidth();
 		final int vh = context.getViewHeight();
@@ -370,11 +371,15 @@ class ComponentTree {
 	private int debugIndex = 0;
 
 	public void renderDebug(Canvas canvas, int vh) {
-		int lineHeight = canvas.getDrawingContext().getLineHeight();
+		int lineHeight = (int)Math.ceil(canvas.getDrawingContext().getLineHeight() * 0.75f);
+		vh = (int) (vh / 0.75f);
 
-		canvas.drawText(debugParentText, 0, vh - lineHeight * 3, 0xAAAAAA); // grey to show it's not selected
-		canvas.drawText(debugChildText, 0, vh - lineHeight * 2, 0xFFFFFF);
-		canvas.drawText(DEBUG_INSTRUCTIONS, 0, vh - lineHeight, 0xFFFFFF);
+		canvas.getStack().push();
+		canvas.getStack().scale(0.75f, 0.75f, 1);
+		canvas.drawText(debugParentText, 0, vh - lineHeight * 3 - 6, 0xAAAAAA); // grey to show it's not selected
+		canvas.drawText(debugChildText, 0, vh - lineHeight * 2 - 4, 0xFFFFFF);
+		canvas.drawText(debugInstructions, 0, vh - lineHeight - 2, 0xFFFFFF);
+		canvas.getStack().pop();
 	}
 
 	public boolean keyDebug(int keyCode) {
@@ -438,6 +443,15 @@ class ComponentTree {
 				}
 			}
 			return false;
+		case GLFW.GLFW_KEY_6: // Switch Padding <-> Content Region
+			{
+				if (debugInstructions == DEBUG_INSTRUCTIONS_C) {
+					debugInstructions = DEBUG_INSTRUCTIONS_P;
+				} else {
+					debugInstructions = DEBUG_INSTRUCTIONS_C;
+				}
+				this.updateDebugComponent();
+			}
 		}
 
 		return false;
@@ -460,11 +474,13 @@ class ComponentTree {
 	}
 
 	private Text componentDebugInfo(Node node) {
-		return Text.literal(node.element.getClass().getSimpleName() + " " + node.renderRegion +
+		return Text.literal(node.element.getClass().getSimpleName() + " " + (debugInstructions == DEBUG_INSTRUCTIONS_C ? node.renderRegion : node.renderRegion.addMargins(node.getPadding())) +
 				" (" + node.intrinsicSize.toString() + "i, " + node.minimumSize + "m, " + node.maximumSize + "M)");
 	}
 
-	private static final Text DEBUG_INSTRUCTIONS = Text.literal("[1] Back [2] Step In [3] Previous [4] Next [5] Print Debug");
+	private static final Text DEBUG_INSTRUCTIONS_C = Text.literal("[1] Back [2] Step In [3] Previous [4] Next [5] Print Debug [6] Show Padded Region  - (Content Region)");
+	private static final Text DEBUG_INSTRUCTIONS_P = Text.literal("[1] Back [2] Step In [3] Previous [4] Next [5] Print Debug [6] Show Content Region - (Padded Region)");
+	private static Text debugInstructions = DEBUG_INSTRUCTIONS_C;
 
 	private static class Node implements ResizableElement {
 		Node(@Nullable ComponentTree.Node parent, Component element) {
@@ -602,7 +618,7 @@ class ComponentTree {
 			final int vh = context.getViewHeight();
 
 			this.minimumSize = Dimensions.max(
-					this.element.minimumSize(this.children, vw, vh),
+					this.element.minimumSize(this.children, this.padding, vw, vh),
 					this.element.getStyle().get(CommonProperties.MINIMUM_SIZE).apply(vw, vh, pw, ph).orElse(Dimensions.NONE)
 			);
 
@@ -610,7 +626,7 @@ class ComponentTree {
 			this.maximumSize = this.element.getStyle().get(CommonProperties.MAXIMUM_SIZE).apply(vw, vh, pw, ph);
 			// intrinsic size is a property of the component only
 			// it will typically be used when combined with other properties to make 'preferred size'
-			this.intrinsicSize = this.element.intrinsicSize(this.children, context);
+			this.intrinsicSize = this.element.intrinsicSize(this.children, this.padding, context);
 			// clamp to min/max size of this element (if it can only go up to 30px we dont want it saying it wants 100px!)
 			this.intrinsicSize = Dimensions.clamp(this.intrinsicSize, this.minimumSize, this.maximumSize);
 

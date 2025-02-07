@@ -23,6 +23,7 @@ import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.maths.Dimensions;
+import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
 
 import java.util.Collections;
@@ -40,7 +41,7 @@ public class Label extends Component implements WrappingElement {
 	private final Text text;
 
 	@Override
-	public Dimensions intrinsicSize(List<? extends SizedElement> children, Context context) {
+	public Dimensions intrinsicSize(List<? extends SizedElement> children, Margins padding, Context context) {
 		final int vw = context.getViewWidth();
 		final int vh = context.getViewHeight();
 
@@ -50,10 +51,11 @@ public class Label extends Component implements WrappingElement {
 			Dimensions maxDimensions = this.getStyle().get(CommonProperties.MAXIMUM_SIZE).apply(vw, vh, 0, 0);
 
 			int width = Math.min(fixedWidth.getAsInt(), maxDimensions.getWidth());
+			// specified width in fixed/max INCLUDES padding
 
-			return new Dimensions(width, context.getTextHeight(this.text, width));
+			return new Dimensions(width, context.getTextHeight(this.text, width - padding.horizontal()/*get content width*/) + padding.vertical());
 		} else {
-			return new Dimensions(context.getWidth(this.text), context.getLineHeight());
+			return new Dimensions(context.getWidth(this.text) + padding.horizontal(), context.getLineHeight() + padding.vertical());
 		}
 	}
 

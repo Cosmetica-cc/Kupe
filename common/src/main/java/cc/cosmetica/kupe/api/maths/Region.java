@@ -130,6 +130,20 @@ public class Region {
 		);
 	}
 
+	public Region shrinkMargins(Margins margins) {
+		// i am speed
+		if (margins == Margins.NONE) {
+			return this;
+		}
+
+		return new Region(
+				this.x + margins.left,
+				this.y + margins.top,
+				this.width - margins.left - margins.right,
+				this.height - margins.top - margins.bottom
+		);
+	}
+
 	public Region addMargins(Margins margins) {
 		// i am speed
 		if (margins == Margins.NONE) {
