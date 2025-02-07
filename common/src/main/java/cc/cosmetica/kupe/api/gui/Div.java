@@ -149,12 +149,13 @@ public class Div extends Component {
 			this.resize(
 					new Region(region.getX(), region.getY(), region.getHeight(), region.getWidth()), // w <-> h
 					children.stream().map(element -> new AxisFlipAdapter(region, element)).collect(Collectors.toList()),
-					primaryAxis == Axis2D.NEGATIVE_Y);
+					primaryAxis == Axis2D.NEGATIVE_Y,
+					context);
 			break;
 		case NEGATIVE_X:
 		case POSITIVE_X:
 			// perform normal operation
-			this.resize(region, children, primaryAxis == Axis2D.NEGATIVE_X);
+			this.resize(region, children, primaryAxis == Axis2D.NEGATIVE_X, context);
 			break;
 		}
 	}
@@ -164,8 +165,9 @@ public class Div extends Component {
 	 * @param region the region which this div has been allocated.
 	 * @param children the children of this div.
 	 * @param reverse whether to order elements from right to left, instead of left to right.
+	 * @param context the rendering context. Use for methods that take a context.
 	 */
-	private void resize(Region region, List<? extends ResizableElement> children, boolean reverse) {
+	private void resize(Region region, List<? extends ResizableElement> children, boolean reverse, Context context) {
 		// This method is written for a div with components flowing in the X direction.
 		// width will be primary axis, height will be secondary axis
 		//System.out.println("Resizing " + this + " to region "+  region);
@@ -196,8 +198,31 @@ public class Div extends Component {
 				availableWidth -= eWidth.getAsInt();
 				widths.put(element, eWidth.getAsInt());
 			} else if (element.getComponent().getStyle().get(CommonProperties.FLEX) == 0) {
-				availableWidth -= element.getPreferredSize().getWidth();
-				widths.put(element, element.getPreferredSize().getWidth());
+				int width = element.getPreferredSize().getWidth();
+
+				// default sizes: for images they might need to shrink proportionally
+				int height = element.getHeight().orElse(element.getPreferredSize().getHeight());
+				int boundedHeight = region.getHeight() - element.getMargins().vertical();
+
+				if (height > boundedHeight) {
+					// see if shrinking height does anything
+					height = Math.max(boundedHeight, element.getMinimumSize().getHeight());
+					int shrunkWidth = element.shrinkWidth(height, width, context);
+					int mw = element.getMinimumSize().getWidth();
+					int Mw = element.getMaximumSize().getWidth();
+
+					if (shrunkWidth < mw) shrunkWidth = mw;
+					else if (shrunkWidth > Mw) shrunkWidth = Mw;
+
+					//if (shrunkWidth != width) {
+					width = shrunkWidth;
+						// how to set height?
+						// I assume this height will be automatically taken
+					//}
+				}
+
+				availableWidth -= width;
+				widths.put(element, width);
 			}
 		}
 
@@ -289,7 +314,7 @@ public class Div extends Component {
 					}
 				}
 			}
-		} // TODO remove elements if they go outside the size(?) (sed future Scroll region element)
+		}
 
 		// 1.4 Calculate heights.
 		final Align alignItems = this.getStyle().get(ALIGN_ITEMS);
@@ -680,6 +705,16 @@ public class Div extends Component {
 		@Override
 		public Component getComponent() {
 			return this.wrapped.getComponent();
+		}
+
+		@Override
+		public int shrinkHeight(int newWidth, int height, Context context) {
+			return this.wrapped.shrinkWidth(newWidth, height, context);
+		}
+
+		@Override
+		public int shrinkWidth(int newHeight, int width, Context context) {
+			return this.wrapped.shrinkHeight(newHeight, width, context);
 		}
 
 		@Override

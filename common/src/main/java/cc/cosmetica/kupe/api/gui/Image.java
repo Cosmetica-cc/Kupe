@@ -22,6 +22,8 @@ import cc.cosmetica.kupe.api.gui.Component;
 import cc.cosmetica.kupe.api.gui.ResizableElement;
 import cc.cosmetica.kupe.api.gui.SizedElement;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
+import cc.cosmetica.kupe.api.gui.style.RootStylesheet;
+import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
@@ -60,6 +62,7 @@ public class Image extends Component {
 	private final ImageDimensionLoader dimensionFetcher;
 
 	// TODO dont do io on the rendering thread
+	// could make a way to prefetch data and have it available
 	@Override
 	public Dimensions intrinsicSize(List<? extends SizedElement> children, Margins padding, Context context) {
 		try {
@@ -74,6 +77,32 @@ public class Image extends Component {
 		} catch (IOException e) {
 			// could not load image
 			return Dimensions.NONE;
+		}
+	}
+
+	@Override
+	public int shrinkHeight(int newWidth, int height, Context context) {
+		try {
+			Optional<Dimensions> dimensionData = context.getImageDimensions(this.texture);
+			if (!dimensionData.isPresent()) return height;
+
+			float aspectRatio = (float) dimensionData.get().getHeight() / dimensionData.get().getWidth();
+			return (int) (aspectRatio * newWidth);
+		} catch (IOException e) {
+			return height;
+		}
+	}
+
+	@Override
+	public int shrinkWidth(int newHeight, int width, Context context) {
+		try {
+			Optional<Dimensions> dimensionData = context.getImageDimensions(this.texture);
+			if (!dimensionData.isPresent()) return width;
+
+			float aspectRatio = (float) dimensionData.get().getWidth() / dimensionData.get().getHeight();
+			return (int) (aspectRatio * newHeight);
+		} catch (IOException e) {
+			return width;
 		}
 	}
 
@@ -107,5 +136,9 @@ public class Image extends Component {
 		 * @throws IOException if an I/O exception occurs while fetching dimensions.
 		 */
 		Optional<Dimensions> getDimensions(Context context, ResourceLocation image) throws IOException;
+	}
+
+	static {
+		RootStylesheet.setDefaultOverrides(Image.class, Style.create().set(CommonProperties.FLEX_SHRINK, 0));
 	}
 }

@@ -16,6 +16,7 @@
 
 package cc.cosmetica.kupe.api.gui;
 
+import cc.cosmetica.kupe.api.Context;
 import cc.cosmetica.kupe.api.maths.Region;
 
 /**
@@ -28,4 +29,23 @@ public interface ResizableElement extends SizedElement {
 	 * @param region the region on the screen at which to render this resizable element.
 	 */
 	void setRenderRegion(Region region);
+
+	/**
+	 * Get the new preferred height after shrinking width.
+	 * Doesn't need to account for min/max.
+	 * @param newWidth the new width.
+	 * @param height the current height.
+	 * @param context the rendering context.
+	 * @return the new preferred height.
+	 */
+	int shrinkHeight(int newWidth, int height, Context context);
+
+	/**
+	 * Get the new preferred width after shrinking height
+	 * @param newHeight the new height.
+	 * @param width the current width.
+	 * @param c
+	 * @return the new preferred width.
+	 */
+	int shrinkWidth(int newHeight, int width, Context context);
 }
