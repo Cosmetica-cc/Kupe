@@ -62,6 +62,7 @@ public class FakePlayer extends Component {
 		this.followsMouse = followsMouse;
 		this.uuid = uuid;
 		this.renderer.skin = DefaultPlayerSkin.getDefaultSkin(uuid); // todo get actual skin
+		this.renderer.slim = "slim".equals(DefaultPlayerSkin.getSkinModelName(uuid));
 
 		this.showAttachments(AttachmentsRegistry.getAll().stream().filter(Attachment::defaultEnable).toArray(Attachment[]::new));
 	}
