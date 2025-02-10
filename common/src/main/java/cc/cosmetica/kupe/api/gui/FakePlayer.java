@@ -43,12 +43,13 @@ public class FakePlayer extends Component {
 	 * Display a 'static' fake player with the given skin texture. No attachments by default.
 	 * @param skin the resource location of the skin texture.
 	 */
-	public FakePlayer(@NotNull ResourceLocation skin, boolean followsMouse) {
+	public FakePlayer(@NotNull ResourceLocation skin, boolean slim, boolean followsMouse) {
 		Preconditions.checkNotNull(skin, "Cannot provide a null skin.");
 
 		this.followsMouse = followsMouse;
 		this.uuid = null;
 		this.renderer.skin = skin;
+		this.renderer.slim = slim;
 	}
 
 	/**
