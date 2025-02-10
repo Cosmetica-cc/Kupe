@@ -144,6 +144,12 @@ public class Region {
 		);
 	}
 
+	/**
+	 * Get a region representing this region with the provided margins expanded around the outside.
+	 * The original region is guaranteed not to be modified.
+	 * @param margins the margins to add.
+	 * @return a region with expanded left, right, top, bottom as specified by the given margins.
+	 */
 	public Region addMargins(Margins margins) {
 		// i am speed
 		if (margins == Margins.NONE) {
@@ -159,9 +165,10 @@ public class Region {
 	}
 
 	/**
-	 * Shrink this region by the given amount on all sides.
-	 * @param by
-	 * @return
+	 * Shrink this region by the given amount on all sides. The original region is guaranteed to not be
+	 * modified.
+	 * @param by the amount, in pixels, to shrink the region by.
+	 * @return a region representing the shrunk region.
 	 */
 	public Region shrink(int by) {
 		// i am speed
@@ -171,8 +178,8 @@ public class Region {
 
 		int x = this.x + by;
 		int y = this.y + by;
-		int width = this.width + by * 2;
-		int height = this.height + by * 2;
+		int width = this.width - by * 2;
+		int height = this.height - by * 2;
 
 		// ensure no negative width and height
 		if (width < 0) {
