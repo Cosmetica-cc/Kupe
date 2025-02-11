@@ -127,10 +127,50 @@ public final class CommonProperties {
 
 	// Utility Dimension Operator and Dimension Operator constructors for common use cases.
 
-	public static final CommonProperties.DimensionsOperator<OptionalInt> SCREEN_WIDTH = (vw, vh, pw, ph) -> OptionalInt.of(vw);
-	public static final CommonProperties.DimensionsOperator<OptionalInt> SCREEN_HEIGHT = (vw, vh, pw, ph) -> OptionalInt.of(vh);
-	public static final CommonProperties.DimensionsOperator<OptionalInt> FULL_WIDTH = (vw, vh, pw, ph) -> OptionalInt.of(pw);
-	public static final CommonProperties.DimensionsOperator<OptionalInt> FULL_HEIGHT = (vw, vh, pw, ph) -> OptionalInt.of(ph);
+	public static final CommonProperties.DimensionsOperator<OptionalInt> SCREEN_WIDTH = new DimensionsOperator<OptionalInt>() {
+		@Override
+		public OptionalInt apply(int vw, int vh, int pw, int ph) {
+			return OptionalInt.of(vw);
+		}
+
+		@Override
+		public String toString() {
+			return "100vw";
+		}
+	};
+	public static final CommonProperties.DimensionsOperator<OptionalInt> SCREEN_HEIGHT = new DimensionsOperator<OptionalInt>() {
+		@Override
+		public OptionalInt apply(int vw, int vh, int pw, int ph) {
+			return OptionalInt.of(vh);
+		}
+
+		@Override
+		public String toString() {
+			return "100vh";
+		}
+	};
+	public static final CommonProperties.DimensionsOperator<OptionalInt> FULL_WIDTH = new DimensionsOperator<OptionalInt>() {
+		@Override
+		public OptionalInt apply(int vw, int vh, int pw, int ph) {
+			return OptionalInt.of(pw);
+		}
+
+		@Override
+		public String toString() {
+			return "100% width";
+		}
+	};
+	public static final CommonProperties.DimensionsOperator<OptionalInt> FULL_HEIGHT = new DimensionsOperator<OptionalInt>() {
+		@Override
+		public OptionalInt apply(int vw, int vh, int pw, int ph) {
+			return OptionalInt.of(ph);
+		}
+
+		@Override
+		public String toString() {
+			return "100% height";
+		}
+	};
 
 	/**
 	 * Provide a fixed value independent of screen size.
