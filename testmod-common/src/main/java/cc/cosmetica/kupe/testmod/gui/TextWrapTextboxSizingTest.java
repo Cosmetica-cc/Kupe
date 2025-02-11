@@ -19,7 +19,7 @@ import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import net.minecraft.resources.ResourceLocation;
 
-import static cc.cosmetica.kupe.api.gui.style.CommonProperties.screenDimensions;
+import static cc.cosmetica.kupe.api.gui.style.CommonProperties.screen;
 
 public class TextWrapTextboxSizingTest extends Screen {
 	public TextWrapTextboxSizingTest() {
@@ -31,7 +31,7 @@ public class TextWrapTextboxSizingTest extends Screen {
 		return new Component[] {
 				new Div(
 						new Label(Text.literal("Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?"))
-				).withStyle(Style.create().set(CommonProperties.MAXIMUM_SIZE, screenDimensions(100, 75))),
+				).withStyle(Style.create().set(CommonProperties.MAXIMUM_SIZE, screen(100, 75, Dimensions::new))),
 				new Button(Text.GUI_DONE, Screens::closeCurrentScreen)
 		};
 	}

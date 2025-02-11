@@ -25,8 +25,6 @@ import cc.cosmetica.kupe.util.IntBiFunction;
 
 import java.util.Optional;
 import java.util.OptionalInt;
-import java.util.function.Function;
-import java.util.function.IntFunction;
 
 
 public final class CommonProperties {
@@ -199,7 +197,7 @@ public final class CommonProperties {
 	 * @param factory a factory that takes the given percentage of width and height (as ints) and produces an object.
 	 * @return a dimension operator to create a generic object from w% and h%.
 	 */
-	public static <T> DimensionsOperator<T> percentGeneric(float widthPercent, float heightPercent, IntBiFunction<T> factory) {
+	public static <T> DimensionsOperator<T> percent(float widthPercent, float heightPercent, IntBiFunction<T> factory) {
 		return new PercentGenericDimensions<>(widthPercent, heightPercent, factory);
 	}
 
@@ -214,14 +212,16 @@ public final class CommonProperties {
 	}
 
 	/**
-	 * Provide dimensions a percentage of the screen width and height.
+	 * Provide an object from a percentage of the screen width and height.
 	 * @param widthPercent the percentage (out of 100) of width.
 	 * @param heightPercent the percentage (out of 100) of height.
-	 * @return a dimension operator for (width vw x height vh).
+	 * @return a dimension operator to create an object from (vw, vh).
 	 */
-	public static DimensionsOperator<Dimensions> screenDimensions(float widthPercent, float heightPercent) {
-		return new ScreenDimensionsDimensions(widthPercent, heightPercent);
+	public static <T> DimensionsOperator<T> screen(float widthPercent, float heightPercent, IntBiFunction<T> factory) {
+		return new ScreenGenericDimensions<>(widthPercent, heightPercent, factory);
 	}
+
+	public static final IntBiFunction<Margins> MARGINS_FACTORY = (w, h) -> new Margins(h, w);
 
 	public interface DimensionsOperator<T> {
 		/**

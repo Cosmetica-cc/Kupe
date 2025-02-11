@@ -18,20 +18,21 @@ package cc.cosmetica.kupe.impl.dim;
 
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.maths.Dimensions;
+import cc.cosmetica.kupe.util.IntBiFunction;
 
-import java.util.OptionalInt;
-
-public class ScreenDimensionsDimensions implements CommonProperties.DimensionsOperator<Dimensions> {
-	public ScreenDimensionsDimensions(float widthPercent, float heightPercent) {
+public class ScreenGenericDimensions<T> implements CommonProperties.DimensionsOperator<T> {
+	public ScreenGenericDimensions(float widthPercent, float heightPercent, IntBiFunction<T> factory) {
+		this.factory = factory;
 		this.w = widthPercent / 100.0f;
 		this.h = heightPercent / 100.0f;
 	}
 
+	private final IntBiFunction<T> factory;
 	private final float w, h;
 
 	@Override
-	public Dimensions apply(int vw, int vh, int pw, int ph) {
-		return new Dimensions((int)(this.w * vw), (int)(this.h * vh));
+	public T apply(int vw, int vh, int pw, int ph) {
+		return this.factory.apply((int)(this.w * vw), (int)(this.h * vh));
 	}
 
 	@Override

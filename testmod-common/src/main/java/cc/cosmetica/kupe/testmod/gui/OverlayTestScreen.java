@@ -37,7 +37,7 @@ public class OverlayTestScreen extends Screen {
 						.withStyle(Style.create()
 							.set(CommonProperties.PADDING, fixed(new Margins(1)))
 							.set(CommonProperties.BORDER_SIZE, 1)
-							.set(CommonProperties.WIDTH, screen(2/3f, 0))
+							.set(CommonProperties.WIDTH, screen(200/3f, 0))
 							.set(CommonProperties.FLEX, 1)),
 				new Button(Text.GUI_DONE, Screens::closeCurrentScreen)
 		};
