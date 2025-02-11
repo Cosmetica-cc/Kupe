@@ -38,6 +38,6 @@ public class PercentGenericDimensions<T> implements CommonProperties.DimensionsO
 
 	@Override
 	public String toString() {
-		return String.format("%.3f%% w, %.3f%% h", this.w * 100.0f, this.h * 100.0f);
+		return String.format("%.3f%% x %.3f%%", this.w * 100.0f, this.h * 100.0f);
 	}
 }

@@ -193,16 +193,6 @@ public final class CommonProperties {
 	}
 
 	/**
-	 * Provide dimensions a percentage of the width and height.
-	 * @param widthPercent the percentage (out of 100) of width.
-	 * @param heightPercent the percentage (out of 100) of height.
-	 * @return a dimension operator for (w% x h%).
-	 */
-	public static DimensionsOperator<Dimensions> percentDimensions(float widthPercent, float heightPercent) {
-		return new PercentDimensionsDimensions(widthPercent, heightPercent);
-	}
-
-	/**
 	 * Provide an object from a percentage of the width and height.
 	 * @param widthPercent the percentage (out of 100) of width.
 	 * @param heightPercent the percentage (out of 100) of height.
