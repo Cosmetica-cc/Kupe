@@ -21,6 +21,7 @@ import cc.cosmetica.kupe.api.gui.PointerEvents;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.impl.dim.*;
+import cc.cosmetica.kupe.util.FloatBiFunction;
 import cc.cosmetica.kupe.util.IntBiFunction;
 
 import java.util.Optional;
@@ -199,6 +200,17 @@ public final class CommonProperties {
 	 */
 	public static <T> DimensionsOperator<T> percent(float widthPercent, float heightPercent, IntBiFunction<T> factory) {
 		return new PercentGenericDimensions<>(widthPercent, heightPercent, factory);
+	}
+
+	/**
+	 * Provide an object from a percentage of the width and height.
+	 * @param widthPercent the percentage (out of 100) of width.
+	 * @param heightPercent the percentage (out of 100) of height.
+	 * @param factory a factory that takes the given percentage of width and height (as ints) and produces an object.
+	 * @return a dimension operator to create a generic object from w% and h%.
+	 */
+	public static <T> DimensionsOperator<T> percent(float widthPercent, float heightPercent, FloatBiFunction<T> factory) {
+		return new PercentGenericFloatDimensions<>(widthPercent, heightPercent, factory);
 	}
 
 	/**
