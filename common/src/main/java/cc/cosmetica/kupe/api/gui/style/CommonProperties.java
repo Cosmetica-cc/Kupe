@@ -206,8 +206,7 @@ public final class CommonProperties {
 	 * Provide an object from a percentage of the width and height.
 	 * @param widthPercent the percentage (out of 100) of width.
 	 * @param heightPercent the percentage (out of 100) of height.
-	 * @param factory a factory that takes the given percentage of height and width (as ints) and produces an object.
-	 *                N.B. height is given first, to match {@link Margins#Margins(int, int)}.
+	 * @param factory a factory that takes the given percentage of width and height (as ints) and produces an object.
 	 * @return a dimension operator to create a generic object from w% and h%.
 	 */
 	public static <T> DimensionsOperator<T> percentGeneric(float widthPercent, float heightPercent, IntBiFunction<T> factory) {

@@ -33,7 +33,7 @@ public class PercentGenericDimensions<T> implements CommonProperties.DimensionsO
 
 	@Override
 	public T apply(int vw, int vh, int pw, int ph) {
-		return this.factory.apply((int)(this.h * ph), (int)(this.w * pw));
+		return this.factory.apply((int)(this.w * pw), (int)(this.h * ph));
 	}
 
 	@Override
