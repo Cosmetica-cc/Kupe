@@ -607,8 +607,8 @@ public class Div extends Component {
 		}
 	}
 
-	public boolean isVisible(Region region, int x, int y) {
-		return this.getStyle().get(CommonProperties.BACKGROUND_COLOUR).isPresent() && super.isVisible(region, x, y);
+	public boolean isOccluding(Region region, int x, int y) {
+		return this.getStyle().get(CommonProperties.BACKGROUND_COLOUR).isPresent();
 	}
 
 	protected boolean isVerticalFlow() {
