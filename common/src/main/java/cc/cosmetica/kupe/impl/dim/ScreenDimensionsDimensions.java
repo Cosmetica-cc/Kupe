@@ -23,8 +23,8 @@ import java.util.OptionalInt;
 
 public class ScreenDimensionsDimensions implements CommonProperties.DimensionsOperator<Dimensions> {
 	public ScreenDimensionsDimensions(float widthPercent, float heightPercent) {
-		this.w = widthPercent;
-		this.h = heightPercent;
+		this.w = widthPercent / 100.0f;
+		this.h = heightPercent / 100.0f;
 	}
 
 	private final float w, h;
@@ -36,6 +36,6 @@ public class ScreenDimensionsDimensions implements CommonProperties.DimensionsOp
 
 	@Override
 	public String toString() {
-		return String.format("%.3f%% vw, %.3f%% vh", this.w, this.h);
+		return String.format("%.3f%% vw, %.3f%% vh", this.w * 100.0f, this.h * 100.0f);
 	}
 }

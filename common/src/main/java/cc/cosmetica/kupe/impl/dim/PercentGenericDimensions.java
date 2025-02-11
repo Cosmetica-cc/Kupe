@@ -17,30 +17,27 @@
 package cc.cosmetica.kupe.impl.dim;
 
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
+import cc.cosmetica.kupe.util.IntBiFunction;
 
 import java.util.OptionalInt;
 
-public class PercentDimensions implements CommonProperties.DimensionsOperator<OptionalInt> {
-	public PercentDimensions(float widthPercent, float heightPercent) {
+public class PercentGenericDimensions<T> implements CommonProperties.DimensionsOperator<T> {
+	public PercentGenericDimensions(float widthPercent, float heightPercent, IntBiFunction<T> factory) {
+		this.factory = factory;
 		this.w = widthPercent / 100.0f;
 		this.h = heightPercent / 100.0f;
 	}
 
+	private final IntBiFunction<T> factory;
 	private final float w, h;
 
 	@Override
-	public OptionalInt apply(int vw, int vh, int pw, int ph) {
-		return OptionalInt.of((int)(this.w * pw + this.h * ph));
+	public T apply(int vw, int vh, int pw, int ph) {
+		return this.factory.apply((int)(this.w * pw), (int)(this.h * ph));
 	}
 
 	@Override
 	public String toString() {
-		if (this.h == 0) {
-			return String.format("%.3f%% w", this.w * 100.0f);
-		} else if (this.w == 0) {
-			return String.format("%.3f%% h", this.h * 100.0f);
-		} else {
-			return String.format("%.3f%% w + %.3f%% h", this.w * 100.0f, this.h * 100.0f);
-		}
+		return String.format("%.3f%% w, %.3f%% h", this.w * 100.0f, this.h * 100.0f);
 	}
 }

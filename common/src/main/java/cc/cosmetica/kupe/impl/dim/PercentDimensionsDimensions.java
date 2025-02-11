@@ -21,8 +21,8 @@ import cc.cosmetica.kupe.api.maths.Dimensions;
 
 public class PercentDimensionsDimensions implements CommonProperties.DimensionsOperator<Dimensions> {
 	public PercentDimensionsDimensions(float widthPercent, float heightPercent) {
-		this.w = widthPercent;
-		this.h = heightPercent;
+		this.w = widthPercent / 100.0f;
+		this.h = heightPercent / 100.0f;
 	}
 
 	private final float w, h;
@@ -34,6 +34,6 @@ public class PercentDimensionsDimensions implements CommonProperties.DimensionsO
 
 	@Override
 	public String toString() {
-		return String.format("%.3f%% w, %.3f%% h", this.w, this.h);
+		return String.format("%.3f%% w, %.3f%% h", this.w * 100.0f, this.h * 100.0f);
 	}
 }

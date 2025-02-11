@@ -21,9 +21,12 @@ import cc.cosmetica.kupe.api.gui.PointerEvents;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.impl.dim.*;
+import cc.cosmetica.kupe.util.IntBiFunction;
 
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.function.Function;
+import java.util.function.IntFunction;
 
 
 public final class CommonProperties {
@@ -132,25 +135,60 @@ public final class CommonProperties {
 	/**
 	 * Provide a fixed value independent of screen size.
 	 * @param value the value to give to the property.
-	 * @return this mutable style object.
+	 * @return a dimension operator for this fixed value.
 	 * @param <T> the type of data contained within the property.
 	 */
 	public static <T> DimensionsOperator<T> fixed(T value) {
 		return new FixedDimensions<>(value);
 	}
 
+	/**
+	 * Provide a percentage of the width and height.
+	 * @param widthPercent the percentage (out of 100) of width.
+	 * @param heightPercent the percentage (out of 100) of height.
+	 * @return a dimension operator for w% + h%.
+	 */
 	public static DimensionsOperator<OptionalInt> percent(float widthPercent, float heightPercent) {
 		return new PercentDimensions(widthPercent, heightPercent);
 	}
 
+	/**
+	 * Provide dimensions a percentage of the width and height.
+	 * @param widthPercent the percentage (out of 100) of width.
+	 * @param heightPercent the percentage (out of 100) of height.
+	 * @return a dimension operator for (w% x h%).
+	 */
 	public static DimensionsOperator<Dimensions> percentDimensions(float widthPercent, float heightPercent) {
 		return new PercentDimensionsDimensions(widthPercent, heightPercent);
 	}
 
+	/**
+	 * Provide an object from a percentage of the width and height.
+	 * @param widthPercent the percentage (out of 100) of width.
+	 * @param heightPercent the percentage (out of 100) of height.
+	 * @param factory a factory that takes the given percentage of width and height (as ints) and produces an object.
+	 * @return a dimension operator to create a generic object from w% and h%.
+	 */
+	public static <T> DimensionsOperator<T> percentGeneric(float widthPercent, float heightPercent, IntBiFunction<T> factory) {
+		return new PercentGenericDimensions<>(widthPercent, heightPercent, factory);
+	}
+
+	/**
+	 * Provide a percentage of the screen width and height.
+	 * @param widthPercent the percentage (out of 100) of width.
+	 * @param heightPercent the percentage (out of 100) of height.
+	 * @return a dimension operator for width vw + height vh.
+	 */
 	public static DimensionsOperator<OptionalInt> screen(float widthPercent, float heightPercent) {
 		return new ScreenDimensions(widthPercent, heightPercent);
 	}
 
+	/**
+	 * Provide dimensions a percentage of the screen width and height.
+	 * @param widthPercent the percentage (out of 100) of width.
+	 * @param heightPercent the percentage (out of 100) of height.
+	 * @return a dimension operator for (width vw x height vh).
+	 */
 	public static DimensionsOperator<Dimensions> screenDimensions(float widthPercent, float heightPercent) {
 		return new ScreenDimensionsDimensions(widthPercent, heightPercent);
 	}
@@ -161,7 +199,7 @@ public final class CommonProperties {
 		 * @param vw the screen width.
 		 * @param vh the screen height.
 		 * @param pw the parent width. Provide 0 if unknown.
-		 * @param vh the parent height. Provide 0 if unknown.
+		 * @param ph the parent height. Provide 0 if unknown.
 		 * @return the value provided from the given dimensions.
 		 */
 		T apply(int vw, int vh, int pw, int ph);
