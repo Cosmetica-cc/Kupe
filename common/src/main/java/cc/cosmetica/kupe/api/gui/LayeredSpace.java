@@ -17,6 +17,7 @@
 package cc.cosmetica.kupe.api.gui;
 
 import cc.cosmetica.kupe.api.Context;
+import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Position;
 import cc.cosmetica.kupe.api.maths.Region;
@@ -56,5 +57,9 @@ public class LayeredSpace extends Component {
 	@Override
 	public List<Component> build() {
 		return this.children;
+	}
+
+	public boolean isVisible(Region region, int x, int y) {
+		return this.getStyle().get(CommonProperties.BACKGROUND_COLOUR).isPresent() && super.isVisible(region, x, y);
 	}
 }

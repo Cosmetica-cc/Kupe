@@ -108,9 +108,14 @@ Kupe provides a simple screen debugger that lets you browse the component hierar
 Call `Screens.setAllowDebug(true)` to enable using the debugger, then hit Ctrl+Shift+I while in a Kupe screen.
 
 ### Compound Components
+You may want to extend `Component` yourself, or extend `Div` or `LayeredSpace`, and override `build()` to specify your children.
+
+Extending `Component` and returning a `Div` or `LayeredSpace` from `build()` will īncur slightly different behaviour to
+extending one of these, as each component in Kupe is added to the tree. Unlike in, for example, React, where returning a div
+from a component simply puts the div in the DOM. The default sizing and resize behaviour however has been designed such
+that returning a `Div` from a component should have minimal difference to extending `Div` in your custom component.
 
 ### Leaf Components
-
 
 ## Reactive States
 

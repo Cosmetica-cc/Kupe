@@ -491,11 +491,23 @@ public abstract class Component {
 	 * @param x the x position of the mouse on the screen.
 	 * @param y the y position of the mouse on the screen.
 	 * @param delta the amount the mouse scrolled.
-	 * @returns whether to consume the mouse scroll. Children have priority over parents.
+	 * @return whether to consume the mouse scroll. Children have priority over parents.
 	 */
 	public boolean mouseScrolled(double x, double y, double delta) {
 		// No default implementation
 		return false;
+	}
+
+	/**
+	 * Get whether this component (not including children) is visible.
+	 * @param region the true render region of this component.
+	 * @param x the x position at which the mouse clicked.
+	 * @param y the y position at which the mouse clicked.
+	 * @return whether this component is visible at the given position.
+	 * @apiNote used to determine obstruction for {@linkplain PointerEvents pointer events}.
+	 */
+	public boolean isVisible(Region region, int x, int y) {
+		return region.contains(x, y);
 	}
 
 	/**

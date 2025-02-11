@@ -607,7 +607,11 @@ public class Div extends Component {
 		}
 	}
 
-	public boolean isVerticalFlow() {
+	public boolean isVisible(Region region, int x, int y) {
+		return this.getStyle().get(CommonProperties.BACKGROUND_COLOUR).isPresent() && super.isVisible(region, x, y);
+	}
+
+	protected boolean isVerticalFlow() {
 		return this.getStyle().get(FLOW_DIRECTION) == Axis2D.POSITIVE_Y ||
 				this.getStyle().get(FLOW_DIRECTION) == Axis2D.NEGATIVE_Y;
 	}
