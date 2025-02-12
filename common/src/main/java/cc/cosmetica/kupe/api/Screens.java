@@ -18,7 +18,9 @@ package cc.cosmetica.kupe.api;
 
 import cc.cosmetica.kupe.api.gui.Component;
 import cc.cosmetica.kupe.impl.KupeScreen;
+import cc.cosmetica.kupe.impl.LeavesSandbox;
 import cc.cosmetica.kupe.impl.ScreenRegistryImpl;
+import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.Supplier;
@@ -55,7 +57,19 @@ public final class Screens {
 	 * @throws IllegalArgumentException if the provided location has no registered screen.
 	 */
 	public static void setScreen(ResourceLocation location) {
-		ScreenRegistryImpl.setScreen(location);
+		net.minecraft.client.gui.screens.Screen screen = ScreenRegistryImpl.getMinecraftScreen(location, Minecraft.getInstance().screen);
+		Minecraft.getInstance().setScreen(screen);
+	}
+
+	/**
+	 * Get a new minecraft screen for the given Kupe screen resource location.
+	 * @param location the resource key for the screen to use.
+	 * @param parent the parent minecraft screen.
+	 * @throws IllegalArgumentException if the provided location has no registered screen.
+	 */
+	@LeavesSandbox
+	public static net.minecraft.client.gui.screens.Screen getMinecraftScreen(ResourceLocation location, net.minecraft.client.gui.screens.Screen parent) {
+		return ScreenRegistryImpl.getMinecraftScreen(location, parent);
 	}
 
 	/**

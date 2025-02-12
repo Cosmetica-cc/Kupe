@@ -39,14 +39,13 @@ public class ScreenRegistryImpl {
 		REGISTRY.put(location, new ScreenEntry(component));
 	}
 
-	public static void setScreen(ResourceLocation location) {
+	public static Screen getMinecraftScreen(ResourceLocation location, Screen parent) {
 		if (!REGISTRY.containsKey(location)) {
 			throw new IllegalArgumentException("No screen registered at the given location");
 		}
 
 		ScreenEntry entry = REGISTRY.get(location);
-		Screen screen = new KupeScreen(Minecraft.getInstance().screen, location, entry.component.get(), entry.defaultBackground);
-		Minecraft.getInstance().setScreen(screen);
+		return new KupeScreen(parent, location, entry.component.get(), entry.defaultBackground);
 	}
 
 	public static void setDefaultBackground(ResourceLocation location, boolean useDefault) {
