@@ -21,11 +21,12 @@ import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Margins;
-import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
@@ -36,8 +37,8 @@ import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
  * {@linkplain Justify justify} and {@linkplain Align align} both set to CENTRE by default.
  */
 public abstract class Screen extends Component {
-	protected Screen(ResourceLocation location) {
-		this.key = Text.translatable("screens." + location.getNamespace() + "." + location.getPath());
+	protected Screen(ResourceKey id) {
+		this.key = Text.translatable("screens." + id.getNamespace() + "." + id.getPath());
 	}
 
 	protected Screen(Text title) {

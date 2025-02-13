@@ -24,7 +24,6 @@ import com.mojang.math.Matrix4f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Widget;
-import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 
@@ -195,9 +194,9 @@ public class PoseCanvas implements Canvas {
 	}
 
 	@Override
-	public void drawTexture(int x0, int y0, int width, int height, float z, ResourceLocation texture) {
+	public void drawTexture(int x0, int y0, int width, int height, float z, ResourceKey texture) {
 		RenderSystem.enableTexture();
-		Minecraft.getInstance().getTextureManager().bind(texture);
+		Minecraft.getInstance().getTextureManager().bind(texture.toResourceLocation());
 		BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
 		Matrix4f matrix4f = this.stack.last().pose();
 

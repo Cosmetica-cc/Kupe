@@ -7,15 +7,12 @@
 
 package cc.cosmetica.kupe.testmod.gui;
 
-import cc.cosmetica.kupe.api.Screen;
-import cc.cosmetica.kupe.api.Screens;
-import cc.cosmetica.kupe.api.State;
-import cc.cosmetica.kupe.api.Text;
-import cc.cosmetica.kupe.api.gui.*;
+import cc.cosmetica.kupe.api.*;
+import cc.cosmetica.kupe.api.gui.Button;
+import cc.cosmetica.kupe.api.gui.Component;
+import cc.cosmetica.kupe.api.gui.FakePlayer;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
-import cc.cosmetica.kupe.api.gui.style.Stylesheet;
-import net.minecraft.resources.ResourceLocation;
 
 import java.util.UUID;
 
@@ -42,5 +39,5 @@ public class FakePlayerTestScreen extends Screen {
 		};
 	}
 
-	public static final ResourceLocation ID = new ResourceLocation("kupe_test", "fakeplayer");
+	public static final ResourceKey ID = new ResourceKey("kupe_test", "fakeplayer");
 }

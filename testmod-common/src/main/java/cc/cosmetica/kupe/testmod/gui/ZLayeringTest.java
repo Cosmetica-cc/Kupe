@@ -7,6 +7,7 @@
 
 package cc.cosmetica.kupe.testmod.gui;
 
+import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Screen;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.Text;
@@ -16,7 +17,6 @@ import cc.cosmetica.kupe.api.gui.Div;
 import cc.cosmetica.kupe.api.gui.Label;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
-import net.minecraft.resources.ResourceLocation;
 
 import java.util.OptionalInt;
 
@@ -43,5 +43,5 @@ public class ZLayeringTest extends Screen {
 		};
 	}
 
-	public static final ResourceLocation ID = new ResourceLocation("kupe_test", "z_layering");
+	public static final ResourceKey ID = new ResourceKey("kupe_test", "z_layering");
 }

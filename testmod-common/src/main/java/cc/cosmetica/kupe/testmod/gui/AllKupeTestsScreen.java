@@ -7,13 +7,12 @@
 
 package cc.cosmetica.kupe.testmod.gui;
 
+import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Screen;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.Button;
 import cc.cosmetica.kupe.api.gui.Component;
-import cc.cosmetica.kupe.api.gui.style.Style;
-import net.minecraft.resources.ResourceLocation;
 
 public class AllKupeTestsScreen extends Screen {
 	public AllKupeTestsScreen() {
@@ -34,5 +33,5 @@ public class AllKupeTestsScreen extends Screen {
 		};
 	}
 
-	public static final ResourceLocation ID = new ResourceLocation("kupe_test", "root");
+	public static final ResourceKey ID = new ResourceKey("kupe_test", "root");
 }

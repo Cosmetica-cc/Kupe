@@ -14,8 +14,6 @@ In addition, a few api methods are marked as `@LeavesSandbox` and return minecra
 These are not guaranteed to be completely stable across environments, but will be kept stable where possible. They are provided in case
 a modder wishes to have greater flexibility than the library itself provides without referencing implementation classes.
 
-`ResourceLocation` is considered a stable vanilla class, so methods that use it are not marked as `@LeavesSandbox`.
-
 Test mod code is in a fourth, `testmod` package.
 
 ## Setting Up
@@ -74,6 +72,7 @@ manipulating the `rootStyle` passed.
 
 ```java
 import cc.cosmetica.kupe.api.Screen;
+import cc.cosmetica.kupe.api.ResourceKey;
 
 public class MyScreen extends Screen {
 	public MyScreen() {
@@ -86,21 +85,30 @@ public class MyScreen extends Screen {
 		};
 	}
 	
-	public static final ResourceLocation ID = new ResourceLocation("examplemod", "example");
+	public static final ResourceKey ID = new ResourceKey("examplemod", "example");
 }
 ```
 
+Registering a screen is not required, however it allows you to set the screen using just an ID.
 The screen can be registered at init by using `Screens.registerScreen`:
 
 ```java
+// constant class
 Screens.registerScreen(MyScreen.ID, new MyScreen());
+// factory
+Screens.registerScreen(MyScreen.ID, MyScreen::new)
 ```
 
 You can set the screen using `Screens.setScreen`:
 
 ```java
+// if registered
 Screens.setScreen(MyScreen.ID);
+// if not registered
+Screens.setScreen(new MyScreen(), MyScreen.ID);
 ```
+
+You can also get a Minecraft Screen by using `Screens.getMinecraftScreen()`.
 
 ### Debugging Screens
 

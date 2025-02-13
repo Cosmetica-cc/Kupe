@@ -7,18 +7,16 @@
 
 package cc.cosmetica.kupe.testmod.gui;
 
+import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Screen;
-import cc.cosmetica.kupe.api.Screens;
-import cc.cosmetica.kupe.api.Text;
-import cc.cosmetica.kupe.api.gui.*;
+import cc.cosmetica.kupe.api.gui.Component;
+import cc.cosmetica.kupe.api.gui.Div;
+import cc.cosmetica.kupe.api.gui.Image;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
-import cc.cosmetica.kupe.api.maths.Axis;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Margins;
-import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.OptionalInt;
 
@@ -34,7 +32,7 @@ public class BorderBoxTest extends Screen {
 		return new Component[] {
 				new Div(
 						new Div(
-								new Image(new ResourceLocation("kupe", "icon.png"))
+								new Image(new ResourceKey("kupe", "icon.png"))
 										.withStyle(Style.create()
 												.set(PADDING, fixed(new Margins(5, 5, 5, 5)))
 												.set(BACKGROUND_COLOUR, OptionalInt.of(0x00AAAA)))
@@ -58,5 +56,5 @@ public class BorderBoxTest extends Screen {
 						.set(BACKGROUND_COLOUR, OptionalInt.of(0x0088FF)));
 	}
 
-	public static final ResourceLocation ID = new ResourceLocation("kupe_test", "border_box");
+	public static final ResourceKey ID = new ResourceKey("kupe_test", "border_box");
 }

@@ -7,16 +7,12 @@
 
 package cc.cosmetica.kupe.testmod.gui;
 
-import cc.cosmetica.kupe.api.Screen;
-import cc.cosmetica.kupe.api.Screens;
-import cc.cosmetica.kupe.api.State;
-import cc.cosmetica.kupe.api.Text;
+import cc.cosmetica.kupe.api.*;
 import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Dimensions;
-import net.minecraft.resources.ResourceLocation;
 
 import java.util.OptionalInt;
 
@@ -40,7 +36,7 @@ public class OversizeAndMaxHeightTestCase extends Screen {
 				new Div(
 						// horizontal div
 						new Div(
-								new Image(new ResourceLocation("kupe", "icon.png")), // oversize by default. should be capped
+								new Image(new ResourceKey("kupe", "icon.png")), // oversize by default. should be capped
 								new Label(Text.literal("Line 1"))
 						).withStyle(Style.create().set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
 										.set(CommonProperties.BACKGROUND_COLOUR, OptionalInt.of(0x8800DD))
@@ -59,5 +55,5 @@ public class OversizeAndMaxHeightTestCase extends Screen {
 		};
 	}
 
-	public static final ResourceLocation ID = new ResourceLocation("kupe_test", "edge_case_1");
+	public static final ResourceKey ID = new ResourceKey("kupe_test", "edge_case_1");
 }

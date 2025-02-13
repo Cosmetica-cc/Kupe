@@ -16,10 +16,11 @@
 
 package cc.cosmetica.kupe.impl;
 
+import cc.cosmetica.kupe.api.ResourceKey;
+import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.Component;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.resources.ResourceLocation;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,9 +30,9 @@ import java.util.function.Supplier;
  * Implementation for {@link cc.cosmetica.kupe.api.Screens}.
  */
 public class ScreenRegistryImpl {
-	private static final Map<ResourceLocation, ScreenEntry> REGISTRY = new HashMap<>();
+	private static final Map<ResourceKey, ScreenEntry> REGISTRY = new HashMap<>();
 
-	public static void registerScreen(ResourceLocation location, Supplier<Component> component) {
+	public static <T> void registerScreen(ResourceKey location, Supplier<Component> component) {
 		if (REGISTRY.containsKey(location)) {
 			throw new IllegalArgumentException("Screen already registered at " + location);
 		}
@@ -39,22 +40,27 @@ public class ScreenRegistryImpl {
 		REGISTRY.put(location, new ScreenEntry(component));
 	}
 
-	public static Screen getMinecraftScreen(ResourceLocation location, Screen parent) {
+	public static Screen getMinecraftScreen(ResourceKey location, Screen parent) {
 		if (!REGISTRY.containsKey(location)) {
 			throw new IllegalArgumentException("No screen registered at the given location");
 		}
 
 		ScreenEntry entry = REGISTRY.get(location);
-		return new KupeScreen(parent, location, entry.component.get(), entry.defaultBackground);
+
+		return new KupeScreen(parent, location.translationKey("screens").toMinecraftComponent(), entry.component.get(), entry.defaultBackground);
 	}
 
-	public static void setDefaultBackground(ResourceLocation location, boolean useDefault) {
-		if (!REGISTRY.containsKey(location)) {
+	public static Screen getMinecraftScreen(Component component, Text title, Screen parent, boolean defaultBackground) {
+		return new KupeScreen(parent, title.toMinecraftComponent(), component, defaultBackground);
+	}
+
+	public static void setDefaultBackground(ResourceKey id, boolean useDefault) {
+		if (!REGISTRY.containsKey(id)) {
 			throw new IllegalArgumentException("No screen registered at the given location");
 		}
 
 		// TODO more general configuration?
-		REGISTRY.get(location).defaultBackground = useDefault;
+		REGISTRY.get(id).defaultBackground = useDefault;
 	}
 
 	public static void closeCurrentScreen() {

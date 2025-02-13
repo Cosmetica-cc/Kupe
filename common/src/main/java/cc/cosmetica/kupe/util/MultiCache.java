@@ -16,7 +16,7 @@
 
 package cc.cosmetica.kupe.util;
 
-import net.minecraft.resources.ResourceLocation;
+import cc.cosmetica.kupe.api.ResourceKey;
 
 import java.io.IOException;
 
@@ -41,7 +41,7 @@ public class MultiCache<T> {
 	private final Metadata[] keys;
 	private final long duration;
 
-	public T compute(ResourceLocation location, ResourceAcquisition<T> generator) throws IOException {
+	public T compute(ResourceKey location, ResourceAcquisition<T> generator) throws IOException {
 		final long access = System.currentTimeMillis();
 
 		int hash = location.getNamespace().hashCode();
@@ -55,6 +55,7 @@ public class MultiCache<T> {
 				|| (access - metadata.expiry > 0) // expiry
 				|| (!location.equals(metadata.location)) // different key
 		) {
+			keys[hash] = new Metadata(location, duration);
 			return items[hash] = generator.apply(location);
 		}
 		else {
@@ -63,17 +64,17 @@ public class MultiCache<T> {
 	}
 
 	private static class Metadata {
-		Metadata(ResourceLocation location, long expiry) {
+		Metadata(ResourceKey location, long expiry) {
 			this.location = location;
 			this.expiry = expiry;
 		}
 
-		final ResourceLocation location;
+		final ResourceKey location;
 		final long expiry;
 	}
 
 	@FunctionalInterface
 	public interface ResourceAcquisition<T> {
-		T apply(ResourceLocation location) throws IOException;
+		T apply(ResourceKey location) throws IOException;
 	}
 }

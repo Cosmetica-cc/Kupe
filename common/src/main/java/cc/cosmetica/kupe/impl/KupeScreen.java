@@ -18,6 +18,7 @@ package cc.cosmetica.kupe.impl;
 
 import cc.cosmetica.kupe.api.Context;
 import cc.cosmetica.kupe.api.Renderable;
+import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.Component;
 import cc.cosmetica.kupe.api.maths.Dimensions;
@@ -28,22 +29,22 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.texture.AbstractTexture;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.util.FormattedCharSequence;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * The screen that controls the Kupe gui rendering. This handles the rendering and event calls to the root component.
  */
 public final class KupeScreen extends Screen {
-	public KupeScreen(@Nullable Screen parent, ResourceLocation location, Component rootComponent, boolean defaultBackground) {
-		super(new TranslatableComponent("screens." + location.getNamespace() + "." + location.getPath()));
+	public KupeScreen(@Nullable Screen parent, net.minecraft.network.chat.Component title, Component rootComponent, boolean defaultBackground) {
+		super(title);
 
 		this.parent = parent;
 		this.tree = new ComponentTree(rootComponent);
@@ -188,18 +189,18 @@ public final class KupeScreen extends Screen {
 		}
 
 		@Override
-		public AbstractTexture getTexture(ResourceLocation location) {
+		public AbstractTexture getTexture(ResourceKey location) {
 			assert KupeScreen.this.minecraft != null;
-			return KupeScreen.this.minecraft.getTextureManager().getTexture(location);
+			return KupeScreen.this.minecraft.getTextureManager().getTexture(location.toResourceLocation());
 		}
 
 		@Override
-		public Optional<Dimensions> getImageDimensions(ResourceLocation location) throws IOException {
+		public Optional<Dimensions> getImageDimensions(ResourceKey location) throws IOException {
 			return this.dimensionCache.compute(location, this::computeImageDimensions);
 		}
 
-		private Optional<Dimensions> computeImageDimensions(ResourceLocation location) throws IOException {
-			Resource resource = Minecraft.getInstance().getResourceManager().getResource(location);
+		private Optional<Dimensions> computeImageDimensions(ResourceKey location) throws IOException {
+			Resource resource = Minecraft.getInstance().getResourceManager().getResource(location.toResourceLocation());
 			return ImageUtilities.getImageDimensions(resource.getInputStream());
 		}
 

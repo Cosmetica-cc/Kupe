@@ -18,11 +18,7 @@ package cc.cosmetica.kupe.api;
 
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.impl.LeavesSandbox;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.AbstractTexture;
-import net.minecraft.network.chat.FormattedText;
-import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.List;
@@ -54,7 +50,7 @@ public interface Context {
 	int getTextHeight(Text text, int maxWidth);
 
 	@LeavesSandbox
-	AbstractTexture getTexture(ResourceLocation location);
+	AbstractTexture getTexture(ResourceKey location);
 
 	/**
 	 * Get the dimensions of an image in the resource manager at the given location. This will purely read the headers,
@@ -64,7 +60,7 @@ public interface Context {
 	 * @return the dimensions found.
 	 * @throws IOException if an IOException happened reading the image.
 	 */
-	Optional<Dimensions> getImageDimensions(ResourceLocation location) throws IOException;
+	Optional<Dimensions> getImageDimensions(ResourceKey location) throws IOException;
 
 	/**
 	 * Split the given text into chunks with the given maximum width. That is, word wrap.

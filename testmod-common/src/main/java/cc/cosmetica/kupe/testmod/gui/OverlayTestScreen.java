@@ -7,6 +7,7 @@
 
 package cc.cosmetica.kupe.testmod.gui;
 
+import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Screen;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.Text;
@@ -15,10 +16,7 @@ import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Margins;
-import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.OptionalInt;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
@@ -57,5 +55,5 @@ public class OverlayTestScreen extends Screen {
 				.tag("title", TITLE_DEFAULT_STYLE);
 	}
 
-	public static final ResourceLocation ID = new ResourceLocation("kupe_test", "overlay");
+	public static final ResourceKey ID = new ResourceKey("kupe_test", "overlay");
 }

@@ -18,7 +18,6 @@ package cc.cosmetica.kupe.api;
 
 import cc.cosmetica.kupe.api.maths.Region;
 import cc.cosmetica.kupe.impl.LeavesSandbox;
-import net.minecraft.resources.ResourceLocation;
 
 /**
  * Tool for drawing on the screen without needing to use Mojang code directly.
@@ -116,7 +115,7 @@ public interface Canvas {
 	 * @param z the z coordinate to draw the texture at. Write 0 if you do not need to use this parameter.
 	 * @param texture the location at which the texture can be found.
 	 */
-	void drawTexture(int x0, int y0, int width, int height, float z, ResourceLocation texture);
+	void drawTexture(int x0, int y0, int width, int height, float z, ResourceKey texture);
 
 	/**
 	 * Start drawing quads.

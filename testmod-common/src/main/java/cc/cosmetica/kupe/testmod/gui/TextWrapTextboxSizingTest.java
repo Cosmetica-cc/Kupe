@@ -7,6 +7,7 @@
 
 package cc.cosmetica.kupe.testmod.gui;
 
+import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Screen;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.Text;
@@ -17,7 +18,6 @@ import cc.cosmetica.kupe.api.gui.Label;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.maths.Dimensions;
-import net.minecraft.resources.ResourceLocation;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.screen;
 
@@ -36,5 +36,5 @@ public class TextWrapTextboxSizingTest extends Screen {
 		};
 	}
 
-	public static final ResourceLocation ID = new ResourceLocation("kupe_test", "text_wrapping");
+	public static final ResourceKey ID = new ResourceKey("kupe_test", "text_wrapping");
 }

@@ -7,6 +7,7 @@
 
 package cc.cosmetica.kupe.testmod.gui;
 
+import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Screen;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.Text;
@@ -17,7 +18,6 @@ import cc.cosmetica.kupe.api.gui.Label;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.testmod.gui.widget.HelloHolaComponent;
-import net.minecraft.resources.ResourceLocation;
 
 import java.util.OptionalInt;
 
@@ -44,7 +44,7 @@ public class StateTestScreen extends Screen {
 					System.out.println("Ok, World!");
 					Screens.setScreen(FakePlayerTestScreen.ID);
 				}),
-				new Image(new ResourceLocation("kupe", "icon.png"))
+				new Image(new ResourceKey("kupe", "icon.png"))
 						.withStyle(
 								Style.create().set(CommonProperties.HEIGHT, fixed(OptionalInt.of(150)))
 						),
@@ -53,5 +53,5 @@ public class StateTestScreen extends Screen {
 		};
 	}
 
-	public static final ResourceLocation ID = new ResourceLocation("kupe_test", "screen");
+	public static final ResourceKey ID = new ResourceKey("kupe_test", "screen");
 }

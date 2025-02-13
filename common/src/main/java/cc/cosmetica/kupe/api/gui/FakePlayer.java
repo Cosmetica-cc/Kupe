@@ -18,6 +18,7 @@ package cc.cosmetica.kupe.api.gui;
 
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.Context;
+import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
@@ -43,12 +44,12 @@ public class FakePlayer extends Component {
 	 * Display a 'static' fake player with the given skin texture. No attachments by default.
 	 * @param skin the resource location of the skin texture.
 	 */
-	public FakePlayer(@NotNull ResourceLocation skin, boolean slim, boolean followsMouse) {
+	public FakePlayer(@NotNull ResourceKey skin, boolean slim, boolean followsMouse) {
 		Preconditions.checkNotNull(skin, "Cannot provide a null skin.");
 
 		this.followsMouse = followsMouse;
 		this.uuid = null;
-		this.renderer.skin = skin;
+		this.renderer.skin = skin.toResourceLocation();
 		this.renderer.slim = slim;
 	}
 
