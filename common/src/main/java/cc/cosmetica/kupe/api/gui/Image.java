@@ -53,6 +53,17 @@ public class Image extends Component {
 		this.dimensionFetcher = dimensionFetcher;
 	}
 
+	/**
+	 * Enable transparency on the image and set the opacity.
+	 * @param opacity a value between 0.0f and 1.0f which gives the opacity of the image.
+	 * @return this object.
+	 */
+	public Image setTransparent(float opacity) {
+		this.opacity = opacity;
+		return this;
+	}
+
+	private float opacity = -1.0f;
 	private final ResourceKey texture;
 	private final ImageDimensionLoader dimensionFetcher;
 
@@ -61,7 +72,7 @@ public class Image extends Component {
 	@Override
 	public Dimensions intrinsicSize(List<? extends SizedElement> children, Margins padding, Context context) {
 		try {
-			Optional<Dimensions> dimensionData = context.getImageDimensions(this.texture);
+			Optional<Dimensions> dimensionData = this.dimensionFetcher.getDimensions(context, this.texture);
 
 			if (!dimensionData.isPresent()) {
 				return Dimensions.NONE;
@@ -78,7 +89,7 @@ public class Image extends Component {
 	@Override
 	public int shrinkHeight(int newWidth, int height, Context context) {
 		try {
-			Optional<Dimensions> dimensionData = context.getImageDimensions(this.texture);
+			Optional<Dimensions> dimensionData = this.dimensionFetcher.getDimensions(context, this.texture);
 			if (!dimensionData.isPresent()) return height;
 
 			float aspectRatio = (float) dimensionData.get().getHeight() / dimensionData.get().getWidth();
@@ -91,7 +102,7 @@ public class Image extends Component {
 	@Override
 	public int shrinkWidth(int newHeight, int width, Context context) {
 		try {
-			Optional<Dimensions> dimensionData = context.getImageDimensions(this.texture);
+			Optional<Dimensions> dimensionData = this.dimensionFetcher.getDimensions(context, this.texture);
 			if (!dimensionData.isPresent()) return width;
 
 			float aspectRatio = (float) dimensionData.get().getWidth() / dimensionData.get().getHeight();
@@ -113,7 +124,13 @@ public class Image extends Component {
 
 	@Override
 	public void paint(Canvas canvas, Region region, int mouseX, int mouseY) {
-		canvas.drawTexture(region.getX(), region.getY(), region.getWidth(), region.getHeight(), 0.0f, this.texture);
+		if (this.opacity == -1.0f) {
+			canvas.drawTexture(region.getX(), region.getY(), region.getWidth(), region.getHeight(), 0.0f, this.texture);
+		} else {
+			canvas.setTransparency(this.opacity);
+			canvas.drawTexture(region.getX(), region.getY(), region.getWidth(), region.getHeight(), 0.0f, this.texture);
+			canvas.disableTransparency();
+		}
 	}
 
 	/**

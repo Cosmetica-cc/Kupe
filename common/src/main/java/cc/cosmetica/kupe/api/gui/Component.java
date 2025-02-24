@@ -31,6 +31,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.function.Function;
 
@@ -370,55 +371,16 @@ public abstract class Component {
 		Region drawRegion = region.addMargins(padding);
 
 		OptionalInt backgroundColour = this.getStyle().get(CommonProperties.BACKGROUND_COLOUR);
-		int borderSize = this.getStyle().get(CommonProperties.BORDER_SIZE);
 
 		if (backgroundColour.isPresent()) {
-			if (borderSize > 0) {
-				int borderColour = this.getStyle().get(CommonProperties.BORDER_COLOUR);
-				canvas.drawRect(drawRegion, borderColour);
-
-				// draw background colour in the shrunk area
-				drawRegion = drawRegion.shrink(borderSize);
-			}
-
 			// Draw background Colour
 			canvas.drawRect(drawRegion, backgroundColour.getAsInt());
 		}
-		else if (borderSize > 0) {
-			int borderColour = this.getStyle().get(CommonProperties.BORDER_COLOUR);
 
-			float r = ((borderColour >> 16) & 0xFF) / 255.0f;
-			float g = ((borderColour >> 8) & 0xFF) / 255.0f;
-			float b = (borderColour & 0xFF) / 255.0f;
+		Optional<Border> border = this.getStyle().get(CommonProperties.BORDER);
 
-			// ======
-			// |    |
-			// ======
-
-			// border with transparent centre
-			canvas.drawRect( // top
-					drawRegion.getX(), drawRegion.getY(),
-					drawRegion.getWidth(), borderSize,
-					-0.5f,
-					r, g, b);
-
-			canvas.drawRect( // bottom
-					drawRegion.getX(), drawRegion.getY() + drawRegion.getHeight() - borderSize,
-					drawRegion.getWidth(), borderSize,
-					-0.5f,
-					r, g, b);
-
-			canvas.drawRect( // left
-					drawRegion.getX(), drawRegion.getY() + borderSize,
-					borderSize, drawRegion.getHeight() - borderSize * 2,
-					-0.5f,
-					r, g, b);
-
-			canvas.drawRect( // right
-					drawRegion.getX() + drawRegion.getWidth() - borderSize, drawRegion.getY() + borderSize,
-					borderSize, drawRegion.getHeight() - borderSize * 2,
-					-0.5f,
-					r, g, b);
+		if (border.isPresent()) {
+			border.get().paint(canvas, region, this.getStyle());
 		}
 	}
 

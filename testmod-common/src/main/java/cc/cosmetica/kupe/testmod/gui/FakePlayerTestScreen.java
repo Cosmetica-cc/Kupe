@@ -8,6 +8,7 @@
 package cc.cosmetica.kupe.testmod.gui;
 
 import cc.cosmetica.kupe.api.*;
+import cc.cosmetica.kupe.api.gui.Border;
 import cc.cosmetica.kupe.api.gui.Button;
 import cc.cosmetica.kupe.api.gui.Component;
 import cc.cosmetica.kupe.api.gui.FakePlayer;
@@ -33,7 +34,7 @@ public class FakePlayerTestScreen extends Screen {
 		return new Component[] {
 				new FakePlayer(UUID.fromString("8ea1da2f-0efa-4044-9e6f-4a3bf4e8a9a5"), !frozen)
 						.withStyle(Style.create()
-										.set(CommonProperties.BORDER_SIZE, 1)),
+										.set(CommonProperties.BORDER, Border.create(1, 0xFFFFFF))),
 				new Button(Text.literal(frozen ? "Unfreeze Player" : "Freeze Player"), () -> this.frozen.set(!frozen)),
 				new Button(Text.GUI_DONE, Screens::closeCurrentScreen)
 		};

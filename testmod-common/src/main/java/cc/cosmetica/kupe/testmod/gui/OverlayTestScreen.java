@@ -34,7 +34,7 @@ public class OverlayTestScreen extends Screen {
 				new Div()
 						.withStyle(Style.create()
 							.set(CommonProperties.PADDING, fixed(new Margins(1)))
-							.set(CommonProperties.BORDER_SIZE, 1)
+							.set(CommonProperties.BORDER, Border.create(Border.BorderConfig.split(1, 0xDDDDDD, 0x666666)))
 							.set(CommonProperties.WIDTH, screen(200/3f, 0))
 							.set(CommonProperties.FLEX, 1)),
 				new Button(Text.GUI_DONE, Screens::closeCurrentScreen)

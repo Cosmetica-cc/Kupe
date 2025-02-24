@@ -9,10 +9,7 @@ package cc.cosmetica.kupe.testmod.gui.widget;
 
 import cc.cosmetica.kupe.api.State;
 import cc.cosmetica.kupe.api.Text;
-import cc.cosmetica.kupe.api.gui.Button;
-import cc.cosmetica.kupe.api.gui.Component;
-import cc.cosmetica.kupe.api.gui.Div;
-import cc.cosmetica.kupe.api.gui.Justify;
+import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
@@ -61,7 +58,7 @@ public class HelloHolaComponent extends Component {
 						.set(CommonProperties.WIDTH, fixed(OptionalInt.of(200)))
 						.set(CommonProperties.MARGINS, fixed(new Margins(20, 0)))
 						.set(CommonProperties.PADDING, fixed(new Margins(1))) // need padding for the border to sit in
-						.set(CommonProperties.BORDER_SIZE, 1))
+						.set(CommonProperties.BORDER, Border.create(1, 0xFFFFFF)))
 				.component(Button.class, Style.create()
 						.set(CommonProperties.WIDTH, fixed(OptionalInt.of(90))));
 	}

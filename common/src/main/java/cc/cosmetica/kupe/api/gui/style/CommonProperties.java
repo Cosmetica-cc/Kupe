@@ -17,6 +17,7 @@
 package cc.cosmetica.kupe.api.gui.style;
 
 import cc.cosmetica.kupe.api.gui.Align;
+import cc.cosmetica.kupe.api.gui.Border;
 import cc.cosmetica.kupe.api.gui.PointerEvents;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
@@ -115,14 +116,9 @@ public final class CommonProperties {
 	public static final Style.Property<OptionalInt> BACKGROUND_COLOUR = new Style.Property<>("backgroundColour", OptionalInt.empty(), false); // but effectively does
 
 	/**
-	 * The border colour for this component.
+	 * The component's border.
 	 */
-	public static final Style.Property<Integer> BORDER_COLOUR = new Style.Property<>("borderColour", 0xFFFFFF, true);
-
-	/**
-	 * Get the border size for this component. The border is placed at the edge of the padding, within the padding.
-	 */
-	public static final Style.Property<Integer> BORDER_SIZE = new Style.Property<>("borderSize",  0, false);
+	public static final Style.Property<Optional<Border>> BORDER = new Style.Property<>("borderColour", Optional.empty(), true);
 
 	// Utility Dimension Operator and Dimension Operator constructors for common use cases.
 
