@@ -50,7 +50,13 @@ public interface QuadBuilder {
 	QuadBuilder lightmap(int u, int v);
 
 	/**
-	 * Build this quad and dispatch it to be rendered.
+	 * End the current vertex and prepare for the next.
+	 * @return this.
+	 */
+	QuadBuilder endVertex();
+
+	/**
+	 * Build these quads and dispatch them to be rendered.
 	 */
 	void build();
 
@@ -85,6 +91,14 @@ public interface QuadBuilder {
 		}
 
 		/**
+		 * Get the number of components to this vertex.
+		 * @return the number of components to this vertex.
+		 */
+		public int getSize() {
+			return this.size;
+		}
+
+		/**
 		 * Apply the shader this Mode is associated with.
 		 */
 		public void applyShader() {
@@ -94,14 +108,6 @@ public interface QuadBuilder {
 			} else {
 				RenderSystem.disableTexture();
 			}
-		}
-
-		/**
-		 * Get the number of parameters this vertex mode has.
-		 * @return the number of things that need to be specified for vertices in this mode.
-		 */
-		public int getSize() {
-			return this.size;
 		}
 	}
 }

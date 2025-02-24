@@ -62,6 +62,12 @@ public class BufferQuadBuilder implements QuadBuilder {
 	}
 
 	@Override
+	public QuadBuilder endVertex() {
+		this.builder.endVertex();
+		return this;
+	}
+
+	@Override
 	public void build() {
 		this.builder.end();
 		BufferUploader.end(this.builder);
