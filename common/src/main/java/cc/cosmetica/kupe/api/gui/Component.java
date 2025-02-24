@@ -380,7 +380,7 @@ public abstract class Component {
 		Optional<Border> border = this.getStyle().get(CommonProperties.BORDER);
 
 		if (border.isPresent()) {
-			border.get().paint(canvas, region, this.getStyle());
+			border.get().paint(canvas, drawRegion, this.getStyle());
 		}
 	}
 
