@@ -26,7 +26,7 @@ public class FlatBorder implements Border {
         this.sizes = sizes;
         this.colours = new float[colours.length][3];
 
-        for (int i : colours) {
+        for (int i = 0; i < colours.length; i++) {
             int borderColour = colours[i];
 
             float r = ((borderColour >> 16) & 0xFF) / 255.0f;
