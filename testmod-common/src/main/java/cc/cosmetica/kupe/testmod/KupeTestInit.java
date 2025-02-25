@@ -17,13 +17,14 @@ public final class KupeTestInit {
 	public static void init() {
 		Screens.setDebugInspect(true); // have it on by default. this is a testmod after all
 		Screens.registerScreen(AllKupeTestsScreen.ID, new AllKupeTestsScreen());
-		Screens.registerScreen(StateTestScreen.ID, new StateTestScreen());
-		Screens.registerScreen(FakePlayerTestScreen.ID, new FakePlayerTestScreen());
-		Screens.registerScreen(OversizeAndMaxHeightTestCase.ID, OversizeAndMaxHeightTestCase::new); // factory register
-		Screens.registerScreen(ZLayeringTest.ID, new ZLayeringTest());
-		Screens.registerScreen(TextWrapTextboxSizingTest.ID, new TextWrapTextboxSizingTest());
-		Screens.registerScreen(ScrollTestScreen.ID, new ScrollTestScreen());
-		Screens.registerScreen(OverlayTestScreen.ID, new OverlayTestScreen());
 		Screens.registerScreen(BorderBoxTest.ID, new BorderBoxTest());
+		Screens.registerScreen(FakePlayerTestScreen.ID, new FakePlayerTestScreen());
+		Screens.registerScreen(OverlayTestScreen.ID, new OverlayTestScreen());
+		// factory register demonstration
+		Screens.registerScreen(OversizeAndMaxHeightTestCase.ID, OversizeAndMaxHeightTestCase::new);
+		Screens.registerScreen(ScrollTestScreen.ID, new ScrollTestScreen());
+		Screens.registerScreen(StateTestScreen.ID, new StateTestScreen());
+		Screens.registerScreen(TextWrapTextboxSizingTest.ID, new TextWrapTextboxSizingTest());
+		Screens.registerScreen(ZLayeringTest.ID, new ZLayeringTest());
 	}
 }

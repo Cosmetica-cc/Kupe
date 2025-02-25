@@ -411,10 +411,14 @@ public class Div extends Component {
 			// the only slight difference will be when available width is negative
 			x += (double) (availableWidth / 2);
 			break;
+		case SPACE_EVENLY:
+			x += (double) availableWidth / (children.size() + 1);
+			break;
 		case SPACE_AROUND:
-			x += (double) availableWidth / children.size();
+			x += (double) availableWidth / (children.size() * 2);
 			break;
 		}
+
 		// other justify contents don't have initial space
 
 		while (childIterator.hasNext()) {
@@ -430,7 +434,7 @@ public class Div extends Component {
 			final int height = heights.getInt(element);
 			final Align align = element.getComponent().getStyle().get(CommonProperties.ALIGN_SELF).orElse(alignItems);
 
-			int space = region.getHeight() - height - margins.top - margins.bottom;
+			int vSpace = region.getHeight() - height - margins.top - margins.bottom;
 			int y = region.getY();
 
 			// align at start, middle, or end on secondary axis
@@ -441,11 +445,11 @@ public class Div extends Component {
 				break;
 			case CENTRE:
 			case STRETCH_CENTRE:
-				y += space/2;
+				y += vSpace/2;
 				break;
 			case END:
 			case STRETCH_END:
-				y += space;
+				y += vSpace;
 				break;
 			}
 
@@ -460,14 +464,22 @@ public class Div extends Component {
 			x += width + margins.right;
 
 			// post-child space
-			switch (justifyContent) {
-			case SPACE_AROUND:
-				x += 2.0 * availableWidth / children.size();
-				break;
-			case SPACE_BETWEEN:
-				if (childIterator.hasNext())
+
+			// don't add extra blank space at the end
+			// this prevents unnecessary overflow
+			// todo what if this is intentional?
+			if (childIterator.hasNext()) {
+				switch (justifyContent) {
+				case SPACE_EVENLY:
+					x += (double) availableWidth / (children.size() + 1);
+					break;
+				case SPACE_AROUND:
+					x += (double) availableWidth / children.size();
+					break;
+				case SPACE_BETWEEN:
 					x += availableWidth / (children.size() - 1.0);
-				break;
+					break;
+				}
 			}
 		}
 

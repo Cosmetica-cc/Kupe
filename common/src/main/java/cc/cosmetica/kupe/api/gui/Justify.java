@@ -40,5 +40,9 @@ public enum Justify {
 	/**
 	 * Places extra space evenly around each component.
 	 */
-	SPACE_AROUND
+	SPACE_AROUND,
+	/**
+	 * Distribute space evenly between each gap, including between components and edges.
+	 */
+	SPACE_EVENLY
 }
