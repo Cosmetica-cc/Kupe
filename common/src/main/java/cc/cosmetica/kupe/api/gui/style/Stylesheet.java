@@ -17,6 +17,8 @@
 package cc.cosmetica.kupe.api.gui.style;
 
 import cc.cosmetica.kupe.api.gui.Component;
+import com.google.common.collect.ImmutableList;
+import org.apache.http.annotation.Immutable;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
@@ -74,14 +76,16 @@ public class Stylesheet {
 	 * @param tag the tag components must have applied to inherit these style overrides.
 	 * @param style the style overrides.
 	 * @return this style sheet.
-	 * @throws IllegalArgumentException if the style overrides for the given tag have already been set.
 	 */
 	public Stylesheet tag(String tag, Style style) {
-		if (this.tagStyles.containsKey(tag)) {
-			throw new IllegalArgumentException("Cannot set style overrides for same tag (" + tag + ") twice.");
+		@Nullable Style existing = this.tagStyles.get(tag);
+
+		if (existing != null) {
+			this.tagStyles.put(tag, Style.merge(ImmutableList.of(style, existing)));
+		} else {
+			this.tagStyles.put(tag, style);
 		}
 
-		this.tagStyles.put(tag, style);
 		return this;
 	}
 
@@ -91,14 +95,16 @@ public class Stylesheet {
 	 *                       class, and not subclasses.
 	 * @param style the style overrides.
 	 * @return this style sheet.
-	 * @throws IllegalArgumentException if the style overrides for the given component class have already been set.
 	 */
 	public Stylesheet component(Class<? extends Component> componentClass, Style style) {
-		if (this.classStyles.containsKey(componentClass)) {
-			throw new IllegalArgumentException("Cannot set style overrides for same class (" + componentClass + ") twice.");
+		@Nullable Style existing = this.classStyles.get(componentClass);
+
+		if (existing != null) {
+			this.classStyles.put(componentClass, Style.merge(ImmutableList.of(style, existing)));
+		} else {
+			this.classStyles.put(componentClass, style);
 		}
 
-		this.classStyles.put(componentClass, style);
 		return this;
 	}
 
@@ -108,7 +114,12 @@ public class Stylesheet {
 	 * @return this style sheet.
 	 */
 	public Stylesheet self(Style style) {
-		this.self = style;
+		if (this.self == null) {
+			this.self = style;
+		} else {
+			this.self = Style.merge(ImmutableList.of(style, this.self));
+		}
+
 		return this;
 	}
 
