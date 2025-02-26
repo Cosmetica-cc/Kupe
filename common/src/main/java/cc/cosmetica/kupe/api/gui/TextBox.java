@@ -19,9 +19,6 @@ package cc.cosmetica.kupe.api.gui;
 import cc.cosmetica.kupe.api.Context;
 import cc.cosmetica.kupe.api.State;
 import cc.cosmetica.kupe.api.Text;
-import cc.cosmetica.kupe.api.gui.style.CommonProperties;
-import cc.cosmetica.kupe.api.gui.style.RootStylesheet;
-import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
@@ -32,7 +29,6 @@ import net.minecraft.client.gui.components.EditBox;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
-import java.util.OptionalInt;
 import java.util.function.Consumer;
 
 /**

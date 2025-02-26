@@ -19,6 +19,7 @@ package cc.cosmetica.kupe.api.gui.style;
 import cc.cosmetica.kupe.api.gui.Align;
 import cc.cosmetica.kupe.api.gui.Border;
 import cc.cosmetica.kupe.api.gui.PointerEvents;
+import cc.cosmetica.kupe.api.gui.Tooltip;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.impl.dim.*;
@@ -118,7 +119,12 @@ public final class CommonProperties {
 	/**
 	 * The component's border.
 	 */
-	public static final Style.Property<Optional<Border>> BORDER = new Style.Property<>("borderColour", Optional.empty(), true);
+	public static final Style.Property<Optional<Border>> BORDER = new Style.Property<>("border", Optional.empty(), false);
+
+	/**
+	 * A tooltip to render when hovering over the component.
+	 */
+	public static final Style.Property<Optional<Tooltip>> TOOLTIP = new Style.Property<>("tooltip", Optional.empty(), false);
 
 	// Utility Dimension Operator and Dimension Operator constructors for common use cases.
 

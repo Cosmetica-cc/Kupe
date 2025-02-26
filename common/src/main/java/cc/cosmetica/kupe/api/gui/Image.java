@@ -131,6 +131,8 @@ public class Image extends Component {
 			canvas.drawTexture(region.getX(), region.getY(), region.getWidth(), region.getHeight(), 0.0f, this.texture);
 			canvas.disableTransparency();
 		}
+
+		super.paint(canvas, region, mouseX, mouseY);
 	}
 
 	/**

@@ -14,8 +14,10 @@ import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 
+import java.util.Optional;
 import java.util.OptionalInt;
 
+import static cc.cosmetica.kupe.api.gui.style.CommonProperties.TOOLTIP;
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.fixed;
 
 public class OversizeAndMaxHeightTestCase extends Screen {
@@ -49,7 +51,9 @@ public class OversizeAndMaxHeightTestCase extends Screen {
 					} else {
 						this.axis.set(Axis2D.POSITIVE_X);
 					}
-				}).addHoverText(new Tooltip(Text.literal("This shouldn't change anything, visually"))),
+				}).withStyle(
+						Style.create().set(TOOLTIP, Optional.of(new Tooltip(Text.literal("This shouldn't change anything, visually"))))
+				),
 
 				new Button(Text.GUI_DONE, Screens::closeCurrentScreen)
 		};

@@ -392,7 +392,12 @@ public abstract class Component {
 	 * @param mouseY the y position of the mosue on the screen.
 	 */
 	protected void paint(Canvas canvas, Region region, int mouseX, int mouseY) {
-		// By default, do nothing
+		// Render tooltip
+		Optional<Tooltip> tooltip = this.getStyle().get(CommonProperties.TOOLTIP);
+
+		if (tooltip.isPresent() && region.contains(mouseX, mouseY)) {
+			tooltip.get().render(canvas, mouseX, mouseY);
+		}
 	}
 
 	// Non-Render Methods

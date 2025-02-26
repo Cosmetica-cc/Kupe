@@ -57,6 +57,7 @@ public abstract class MinecraftBuiltinComponent extends Component {
 	@Override
 	public void paint(Canvas canvas, Region region, int mouseX, int mouseY) {
 		canvas.renderMinecraftComponent(this.minecraftWidget, mouseX, mouseY);
+		super.paint(canvas, region, mouseX, mouseY);
 	}
 
 	// interact //

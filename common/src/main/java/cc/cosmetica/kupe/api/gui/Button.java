@@ -44,15 +44,9 @@ public class Button extends MinecraftBuiltinComponent {
 		this.onClicked = onClicked;
 	}
 
-	public Button addHoverText(Tooltip tooltip) {
-		this.onHover = tooltip;
-		return this;
-	}
-
 	// properties
 	private final Text text;
 	public Runnable onClicked;
-	public Tooltip onHover;
 
 	@Override
 	public Dimensions intrinsicSize(List<? extends SizedElement> children, Margins padding, Context context) {
@@ -73,14 +67,6 @@ public class Button extends MinecraftBuiltinComponent {
 				this.text.toMinecraftComponent(),
 				bn -> this.onClicked.run()
 		);
-	}
-
-	@Override
-	public void paint(Canvas canvas, Region region, int mouseX, int mouseY) {
-		super.paint(canvas, region, mouseX, mouseY);
-		if (this.onHover != null && region.contains(mouseX, mouseY)) {
-			this.onHover.render(canvas, mouseX, mouseY);
-		}
 	}
 
 	@Override

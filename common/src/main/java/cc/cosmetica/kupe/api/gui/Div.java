@@ -617,6 +617,8 @@ public class Div extends Component {
 				canvas.scroll(-this.scrollPercent * this.maxScroll, 0);
 			}
 		}
+
+		super.paint(canvas, region, mouseX, mouseY);
 	}
 
 	public boolean isOccluding(Region region, int x, int y) {
