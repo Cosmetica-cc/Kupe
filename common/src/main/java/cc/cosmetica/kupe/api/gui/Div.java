@@ -665,7 +665,7 @@ public class Div extends Component {
 	 * The alignment of components in this div along the secondary axis.
 	 * The secondary axis is the direction perpendicular to the direction components are laid out.
 	 */
-	public static final Style.Property<Align> ALIGN_ITEMS = new Style.Property<>("alignItems", Align.STRETCH_START, false);
+	public static final Style.Property<Align> ALIGN_ITEMS = new Style.Property<>("alignItems", Align.CENTRE, false);
 
 	/**
 	 * Whether this div must expand to fit all components. If this is false, the div will ignore the minimum size of
