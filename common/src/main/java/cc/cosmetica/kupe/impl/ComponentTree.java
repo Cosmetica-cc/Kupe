@@ -328,7 +328,7 @@ class ComponentTree {
 					PointerEvents eventHandling = child.element.getStyle().get(CommonProperties.POINTER_EVENTS);
 
 					if (child.trueRenderRegion().contains((int) x, (int) y)) {
-						if (eventHandling == PointerEvents.ALL || (!occluded && eventHandling == PointerEvents.VISIBLE)) {
+						if (eventHandling == PointerEvents.REGION || (!occluded && eventHandling == PointerEvents.VISIBLE)) {
 							nodes.push(child);
 						}
 
