@@ -33,6 +33,12 @@ public class DivSpacingsScreen extends Screen {
 	@Override
 	protected Component[] buildScreen() {
 		return new Component[] {
+				new Label(Text.literal("Left")),
+				new Div(Block(), Block()).tag("start", "block"),
+				new Label(Text.literal("Centre")),
+				new Div(Block(), Block()).tag("centre", "block"),
+				new Label(Text.literal("Right")),
+				new Div(Block(), Block()).tag("end", "block"),
 				new Label(Text.literal("Space Around")),
 				new Div(Block(), Block()).tag("space_around", "block"),
 				new Label(Text.literal("Space Between")),
@@ -45,6 +51,9 @@ public class DivSpacingsScreen extends Screen {
 	@Override
 	public @Nullable Stylesheet getStylesheet() {
 		return super.getStylesheet()
+				.tag("start", Style.create().set(Div.JUSTIFY_CONTENT, Justify.START))
+				.tag("centre", Style.create().set(Div.JUSTIFY_CONTENT, Justify.CENTRE))
+				.tag("end", Style.create().set(Div.JUSTIFY_CONTENT, Justify.END))
 				.tag("space_around", Style.create().set(Div.JUSTIFY_CONTENT, Justify.SPACE_AROUND))
 				.tag("space_between", Style.create().set(Div.JUSTIFY_CONTENT, Justify.SPACE_BETWEEN))
 				.tag("space_evenly", Style.create().set(Div.JUSTIFY_CONTENT, Justify.SPACE_EVENLY))
@@ -52,7 +61,7 @@ public class DivSpacingsScreen extends Screen {
 						.set(WIDTH, screen(90, 0))
 						.set(BACKGROUND_COLOUR, OptionalInt.of(0))
 						.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
-						.set(MARGINS, fixed(new Margins(0, 0, 20, 0))));
+						.set(MARGINS, fixed(new Margins(0, 0, 12, 0))));
 	}
 
 	public static final ResourceKey ID = new ResourceKey("kupe_test", "div_spacings");
@@ -61,7 +70,7 @@ public class DivSpacingsScreen extends Screen {
 		return new Div().withStyle(
 				Style.create()
 						.set(WIDTH, fixed(OptionalInt.of(100)))
-						.set(HEIGHT, fixed(OptionalInt.of(50)))
+						.set(HEIGHT, fixed(OptionalInt.of(16)))
 						.set(BACKGROUND_COLOUR, OptionalInt.of(0xdb9751))
 		);
 	}

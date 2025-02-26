@@ -108,8 +108,6 @@ public class Label extends Component implements WrappingElement {
 			}
 			break;
 		}
-
-		super.paint(canvas, region, mouseX, mouseY);
 	}
 
 	/**

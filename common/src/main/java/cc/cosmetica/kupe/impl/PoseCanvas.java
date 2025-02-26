@@ -127,7 +127,7 @@ public class PoseCanvas implements Canvas {
 	}
 
 	// pop the scissor translation. we don't scroll the component itself. Only its contents!
-	private void popTranslation() {
+	public void popTranslation() {
 		if (this.scissorStack.hasActiveTranslation) {
 			this.stack.popPose(); // SCROLL_POP
 		}
@@ -136,6 +136,7 @@ public class PoseCanvas implements Canvas {
 	}
 
 	public void popScissor() {
+		// in case i forger :skull:
 		this.popTranslation();
 		//if (this.scissorStack.hasActiveTranslation)
 		//	throw new IllegalStateException("Kupe Error: Did not pop scissor translation before scissor");

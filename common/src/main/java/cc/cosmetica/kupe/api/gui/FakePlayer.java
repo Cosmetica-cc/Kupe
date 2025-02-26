@@ -177,7 +177,6 @@ public class FakePlayer extends Component {
 
 		int footY = region.getFinalY() - 3; // players feet dip a bit lower when rotating to look up/down
 		this.renderer.render(this, canvas.getDrawingContext(), centreX, footY, region.getWidth() / 2.5f, lookX, lookY);
-		super.paint(canvas, region, mouseX, mouseY);
 	}
 
 	public static Attachment<ResourceLocation> CAPE = registerAttachment(new CapeAttachment());

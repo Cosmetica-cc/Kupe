@@ -392,7 +392,18 @@ public abstract class Component {
 	 * @param mouseY the y position of the mosue on the screen.
 	 */
 	protected void paint(Canvas canvas, Region region, int mouseX, int mouseY) {
-		// Render tooltip
+		// No default behaviour.
+	}
+
+	/**
+	 * Paint deocrations after this component and its children are rendered.
+	 * @param canvas the canvas for drawing on the screen.
+	 * @param region the region of the screen this component has been placed in.
+	 * @param mouseX the x position of the user's mouse.
+	 * @param mouseY the y position of the user's mouse.
+	 */
+	public void paintDecorations(Canvas canvas, Region region, int mouseX, int mouseY) {
+		// Draw tooltip
 		Optional<Tooltip> tooltip = this.getStyle().get(CommonProperties.TOOLTIP);
 
 		if (tooltip.isPresent() && region.contains(mouseX, mouseY)) {

@@ -241,15 +241,23 @@ class ComponentTree {
 		while (!nodes.isEmpty()) {
 			Node n = nodes.pop();
 			if (grey.contains(n)) {
+				// don't use component's inner scroll for drawing its own decorations
+				canvas.popTranslation();
+				// draw decorations
+				n.decorate(canvas, mouseX, mouseY);
+				// pop scissor: we are done with this node and its children.
 				canvas.popScissor();
 				grey.remove(n);
 			} else if (n.childrenByZ.isEmpty()) {
-				// optimisation: do both renderBackground and render for leaf nodes without touching stack
+				// optimisation: do both all render operations for leaf nodes without touching stack
 
 				// push scissors
 				canvas.pushScissor();
 				// render
 				n.render(canvas, mouseX, mouseY);// mouseX/mouseY adjusted for scroll by render()
+				canvas.popTranslation();
+				// decorate
+				n.decorate(canvas, mouseX, mouseY);
 				// pop scissors
 				canvas.popScissor();
 			} else {
@@ -509,6 +517,7 @@ class ComponentTree {
 		boolean grey; // grey if visited in resizing stage for adding children
 		              // but not for actual preferred size calculation
 
+		// the actual scroll (that is the offset) of this component
 		float scrollX() {
 			return parent == null?0:parent.innerScrollX;
 		}
@@ -687,6 +696,16 @@ class ComponentTree {
 				this.innerScrollX = canvas.getScrollX();
 			} catch (NullPointerException e) {
 				throw new RuntimeException("Rendering " + this.element, e);
+			}
+		}
+
+		private void decorate(PoseCanvas canvas, int mouseX, int mouseY) {
+			try {
+				// render still thinks it's at the original position
+				// so if it's moved up, move mouse positions accordingly
+				this.element.paintDecorations(canvas, this.renderRegion, mouseX - (int)this.scrollX(), mouseY - (int)this.scrollY());
+			} catch (NullPointerException e) {
+				throw new RuntimeException("Decorating " + this.element, e);
 			}
 		}
 

@@ -526,7 +526,8 @@ public class Div extends Component {
 
 	private boolean grabbed;
 	private float grabOffset;
-	private float scrollbarTopY, scrollbarLeftX, scrollbarSize; // passed from render to click
+	private float scrollbarTopY, scrollbarLeftX; // passed from render to click/paintDecorations
+	private int scrollbarSize;
 
 	@Override
 	public boolean mouseClicked(double x, double y, int button) {
@@ -567,47 +568,32 @@ public class Div extends Component {
 	}
 
 	@Override
-	public void paint(Canvas canvas, Region region, int mouseX, int mouseY) {
-		if (overflow) {
-			// scrollbar
-			if (this.isVerticalFlow()) {
-				// height of the div's 'view'. But not of all its contents.
-				final float divVH = region.getHeight();
+	public void paintDecorations(Canvas canvas, Region region, int mouseX, int mouseY) {
+		if (overflow && this.isVerticalFlow()) {
+			this.drawScrollbar(canvas, region, mouseY);
+		}
 
+		super.paintDecorations(canvas, region, mouseX, mouseY);
+	}
+
+	@Override
+	protected void paint(Canvas canvas, Region region, int mouseX, int mouseY) {
+		// scroll behaviour
+		if (this.overflow) {
+			// Dragging Vertical Scrollbar
+			if (this.isVerticalFlow()) {
+				// measurements
+				final float divVH = region.getHeight();
 				float pageCover = divVH / (divVH + this.maxScroll);
-				int scrollbarSize = (int)Math.max(10, pageCover * divVH);// minimum height of 10 pixels
+				this.scrollbarSize = (int) Math.max(10, pageCover * divVH);// minimum height of 10 pixels
 
 				// update scroll position for drag
 				if (this.grabbed) {
-					this.scrollPercent = (mouseY - this.grabOffset - region.getY()) / (divVH - scrollbarSize);
+					this.scrollPercent = (mouseY - this.grabOffset - region.getY()) / (divVH - this.scrollbarSize);
 					// clamp
 					if (this.scrollPercent > 1) this.scrollPercent = 1;
 					else if (this.scrollPercent < 0) this.scrollPercent = 0;
 				}
-
-				float scrollbarTopY = region.getY() + this.scrollPercent * (divVH - scrollbarSize);
-				// pass to click
-				this.scrollbarLeftX = region.getEndX() - DEFAULT_SCROLLBAR_THICKNESS;
-				this.scrollbarSize = scrollbarSize;
-				this.scrollbarTopY = scrollbarTopY;
-
-				canvas.drawRect(
-						region.getEndX() - DEFAULT_SCROLLBAR_THICKNESS, region.getY(),
-						DEFAULT_SCROLLBAR_THICKNESS, region.getHeight(),
-						50.0f, 0, 0, 0
-				);
-				canvas.drawRect(
-						region.getEndX() - DEFAULT_SCROLLBAR_THICKNESS, (int)scrollbarTopY,
-						DEFAULT_SCROLLBAR_THICKNESS, scrollbarSize,
-						50.0f, 0.5f, 0.5f, 0.5f
-				);
-
-				final float scrollBarColour = 192.0f/255.0f;
-				canvas.drawRect(
-						region.getEndX() - DEFAULT_SCROLLBAR_THICKNESS, (int)scrollbarTopY,
-						DEFAULT_SCROLLBAR_THICKNESS - 1, scrollbarSize - 1,
-						50.0f, scrollBarColour, scrollBarColour, scrollBarColour
-				);
 			}
 
 			//shift contents by scroll amount
@@ -617,11 +603,45 @@ public class Div extends Component {
 				canvas.scroll(-this.scrollPercent * this.maxScroll, 0);
 			}
 		}
-
-		super.paint(canvas, region, mouseX, mouseY);
 	}
 
+	protected void drawScrollbar(Canvas canvas, Region region, int mouseY) {
+		// height of the div's 'view'. But not of all its contents.
+		final float divVH = region.getHeight();
+
+		float scrollbarTopY = region.getY() + this.scrollPercent * (divVH - this.scrollbarSize);
+		// pass to click
+		this.scrollbarLeftX = region.getEndX() - DEFAULT_SCROLLBAR_THICKNESS;
+		this.scrollbarTopY = scrollbarTopY;
+
+		canvas.drawRect(
+				region.getEndX() - DEFAULT_SCROLLBAR_THICKNESS, region.getY(),
+				DEFAULT_SCROLLBAR_THICKNESS, region.getHeight(),
+				50.0f, 0, 0, 0
+		);
+		canvas.drawRect(
+				region.getEndX() - DEFAULT_SCROLLBAR_THICKNESS, (int)scrollbarTopY,
+				DEFAULT_SCROLLBAR_THICKNESS, this.scrollbarSize,
+				50.0f, 0.5f, 0.5f, 0.5f
+		);
+
+		final float scrollBarColour = 192.0f/255.0f;
+		canvas.drawRect(
+				region.getEndX() - DEFAULT_SCROLLBAR_THICKNESS, (int)scrollbarTopY,
+				DEFAULT_SCROLLBAR_THICKNESS - 1, this.scrollbarSize - 1,
+				50.0f, scrollBarColour, scrollBarColour, scrollBarColour
+		);
+	}
+
+	@Override
 	public boolean isOccluding(Region region, int x, int y) {
+		if (this.overflow && this.isVerticalFlow()) {
+			// scrollbar
+			if (x >= region.getEndX() - DEFAULT_SCROLLBAR_THICKNESS) {
+				return true;
+			}
+		}
+
 		return this.getStyle().get(CommonProperties.BACKGROUND_COLOUR).isPresent();
 	}
 
