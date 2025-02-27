@@ -302,7 +302,7 @@ class ComponentTree {
 
 	public void mouseMoved(double mouseX, double mouseY) {
 		this.walkConsumableEvent(mouseX, mouseY, n -> {
-			n.element.mouseMoved(this.root.renderRegion, mouseX - n.scrollX(), mouseY - n.scrollY());
+			n.element.mouseMoved(n.renderRegion, mouseX - n.scrollX(), mouseY - n.scrollY());
 			return false;
 		});
 	}
