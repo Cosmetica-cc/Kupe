@@ -478,15 +478,16 @@ public abstract class Component {
 
 	/**
 	 * Get whether this component (not including children) is occluding components underneath.
-	 * The coordinates provided are guaranteed to be contained by the given {@link Region}.
+	 * The coordinates provided are not guaranteed to be contained by the given {@link Region}.
 	 * @param region the true render region of this component.
 	 * @param x the x position at which the mouse clicked.
 	 * @param y the y position at which the mouse clicked.
+	 * @param decorations whether this testing for occlusion by overlaid decorations.
 	 * @return whether this component is visible at the given position.
 	 * @apiNote used to determine obstruction for {@linkplain PointerEvents pointer events}.
 	 */
-	public boolean isOccluding(Region region, int x, int y) {
-		return true;
+	public boolean isOccluding(Region region, int x, int y, boolean decorations) {
+		return !decorations && region.contains(x, y);
 	}
 
 	/**

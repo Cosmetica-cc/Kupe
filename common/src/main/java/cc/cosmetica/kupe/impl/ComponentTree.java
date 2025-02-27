@@ -296,13 +296,13 @@ class ComponentTree {
 		return this.walkConsumableEvent(mouseX, mouseY, n -> n.element.mouseScrolled(mouseX - n.scrollX(), mouseY - n.scrollY(), delta));
 	}
 
-	private boolean walkConsumableEvent(double x, double y, Predicate<Node> callback) {
+	private boolean walkConsumableEvent(double x, double y, Consumer<Node> callback) {
 		// DFS walk() with regional restriction. children override parents.
 		// front prioritised over back
 		Deque<Node> nodes = new ArrayDeque<>();
 		Set<Node> grey = new HashSet<>();
 		// once we reach an element that blocks, set this to true. we know we've found the occluding element
-		boolean occluded = false;
+		Node occluding = null;
 
 		nodes.add(this.root);
 
@@ -310,36 +310,35 @@ class ComponentTree {
 			Node node = nodes.poll();
 
 			if (grey.remove(node)) {
-				boolean consumed = callback.test(node);
-				// With VISIBLE mode, do we need to have consumption?
-
-				if (consumed) {
-					return true;
+				// deterimine occlusion of parents, for subsequent elements
+				if (occluding == null && node.element.isOccluding(node.trueRenderRegion(), (int) x, (int) y, false)) {
+					occluding = node;
 				}
-			}
-			else {
+
 				// Determine whether this node should receive pointer events.
 				PointerEvents eventHandling = node.element.getStyle().get(CommonProperties.POINTER_EVENTS);
 
 				if (eventHandling != PointerEvents.NONE) {
 					if (eventHandling == PointerEvents.ALL || (node.trueRenderRegion().contains((int) x, (int) y) && (
-							eventHandling == PointerEvents.REGION || !occluded
+							eventHandling == PointerEvents.REGION || occluding == node || occluding == null
 					))) {
-						// visit again
-						nodes.push(node);
-						grey.add(node);
+						callback.accept(node);
 					}
 				}
+			}
+			else {
+
+				// visit again
+				nodes.push(node);
+				grey.add(node);
 
 				// determine if occluding pointer events for next elements
-				// parents can occlude children. (?? background colour div doesn't! scrollbar does.)
-				if (node.element.isOccluding(node.trueRenderRegion(), (int) x, (int) y)) {
-					occluded = true;
-				} // TODO we need multiple results or multiple occlusion methods -> once for before children(scrollbar), once for child priority(background)
-				// Could this be handled with event consumption vs occlusion?
+				// parent decorations can occlude children
+				if (occluding == null && node.element.isOccluding(node.trueRenderRegion(), (int) x, (int) y, true)) {
+					occluding = node;
+				}
 
 				// Handle Children.
-
 				// Last element has highest Z, so should be pushed to stack last.
 				for (Node child : node.childrenByZ) {
 					nodes.push(child);

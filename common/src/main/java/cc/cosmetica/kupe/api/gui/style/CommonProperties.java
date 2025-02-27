@@ -87,7 +87,7 @@ public final class CommonProperties {
 	public static final Style.Property<Integer> Z_INDEX = new Style.Property<>("zIndex", 0, false);
 
 	/**
-	 * Controls when to receive pointer events. Parent components must be passed pointer events for this to be considered.
+	 * Controls when this component receives pointer events.
 	 */
 	public static final Style.Property<PointerEvents> POINTER_EVENTS = new Style.Property<>("pointerEvents", PointerEvents.VISIBLE, false);
 

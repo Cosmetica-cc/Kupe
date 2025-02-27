@@ -634,15 +634,21 @@ public class Div extends Component {
 	}
 
 	@Override
-	public boolean isOccluding(Region region, int x, int y) {
-		if (this.overflow && this.isVerticalFlow()) {
-			// scrollbar
-			if (x >= region.getEndX() - DEFAULT_SCROLLBAR_THICKNESS) {
-				return true;
-			}
+	public boolean isOccluding(Region region, int x, int y, boolean decorations) {
+		if (!region.contains(x, y)) {
+			return false;
 		}
 
-		return this.getStyle().get(CommonProperties.BACKGROUND_COLOUR).isPresent();
+		if (decorations) {
+			if (this.overflow && this.isVerticalFlow()) {
+				// scrollbar
+                return x >= region.getEndX() - DEFAULT_SCROLLBAR_THICKNESS;
+			}
+
+			return false;
+		} else {
+			return this.getStyle().get(CommonProperties.BACKGROUND_COLOUR).isPresent();
+		}
 	}
 
 	protected boolean isVerticalFlow() {
