@@ -438,11 +438,8 @@ public abstract class Component {
 	 * @param x the x position of the mouse on the screen.
 	 * @param y the y position of the mouse on the screen.
 	 * @param button the button pressed.
-	 * @return whether this component should consume the click. If the click is consumed, children won't be passed the
-	 * 		   mouse click.
 	 */
-	public boolean mouseClicked(double x, double y, int button) {
-		return false;
+	public void mouseClicked(double x, double y, int button) {
 	}
 
 	/**
@@ -451,8 +448,7 @@ public abstract class Component {
 	 * @param y the y position of the mouse on the screen.
 	 * @param button the button released.
 	 */
-	public boolean mouseReleased(double x, double y, int button) {
-		return false;
+	public void mouseReleased(double x, double y, int button) {
 	}
 
 	/**

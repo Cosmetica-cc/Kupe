@@ -530,7 +530,7 @@ public class Div extends Component {
 	private int scrollbarSize;
 
 	@Override
-	public boolean mouseClicked(double x, double y, int button) {
+	public void mouseClicked(double x, double y, int button) {
 		if (overflow) {
 			if (this.isVerticalFlow()) {
 				if (
@@ -539,22 +539,16 @@ public class Div extends Component {
 				) {
 					this.grabbed = true;
 					this.grabOffset = (float) y - this.scrollbarTopY;
-					return true;
 				}
 			}
 		}
-
-		return false;
 	}
 
 	@Override
-	public boolean mouseReleased(double x, double y, int button) {
+	public void mouseReleased(double x, double y, int button) {
 		if (this.grabbed) {
 			this.grabbed = false;
-			return true;
 		}
-
-		return false;
 	}
 
 	@Override

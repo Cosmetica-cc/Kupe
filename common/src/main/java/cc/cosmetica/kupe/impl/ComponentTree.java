@@ -284,11 +284,15 @@ class ComponentTree {
 	}
 
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		return this.walkConsumableEvent(mouseX, mouseY, n -> n.element.mouseClicked(mouseX - n.scrollX(), mouseY - n.scrollY(), button));
+		return this.walkConsumableEvent(mouseX, mouseY, n -> {
+			n.element.mouseClicked(mouseX - n.scrollX(), mouseY - n.scrollY(), button);
+			return false;
+		});
 	}
 
 	public boolean mouseReleased(double mouseX, double mouseY, int button) {
-		return this.root.walkAndTest(node -> node.element.mouseReleased(mouseX - node.scrollX(), mouseY - node.scrollY(), button));
+		this.root.walk(node -> node.element.mouseReleased(mouseX - node.scrollX(), mouseY - node.scrollY(), button));
+		return true;
 	}
 
 	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
@@ -296,20 +300,38 @@ class ComponentTree {
 		return this.walkConsumableEvent(mouseX, mouseY, n -> n.element.mouseScrolled(mouseX - n.scrollX(), mouseY - n.scrollY(), delta));
 	}
 
-	private boolean walkConsumableEvent(double x, double y, Consumer<Node> callback) {
-		// DFS walk() with regional restriction. children override parents.
+	/**
+	 * Walk a callback, taking into account occlusion and each element's preferred {@link PointerEvents} strategy.
+	 * @param x the pointer X.
+	 * @param y the pointer Y.
+	 * @param callback the callback to test for each element. If an element returns true, further elements will not be tested.
+	 * @return whether the callback was tested at least once.
+	 */
+	private boolean walkConsumableEvent(double x, double y, Predicate<Node> callback) {
+		// DFS walk() with tests for occlusion. children run before parents and can consume some events preventing propagation.
 		// front prioritised over back
 		Deque<Node> nodes = new ArrayDeque<>();
-		Set<Node> grey = new HashSet<>();
+		Map<Node, Boolean> grey = new HashMap<>();
 		// once we reach an element that blocks, set this to true. we know we've found the occluding element
 		Node occluding = null;
 
 		nodes.add(this.root);
+		boolean componentListened = false;
 
 		while (!nodes.isEmpty()) {
 			Node node = nodes.poll();
+			Boolean listens = grey.remove(node);
 
-			if (grey.remove(node)) {
+			if (listens != null) {
+				if (listens) {
+					// check for consumption
+					if (callback.test(node)) {
+						return true;
+					}
+
+					componentListened = true;
+				}
+
 				// deterimine occlusion of behind elements by this element's background
 				// parent background cannot occlude children
 				if (occluding == null && node.element.isOccluding(node.trueRenderRegion(), (int) x, (int) y, false)) {
@@ -319,7 +341,7 @@ class ComponentTree {
 			else {
 				// visit again
 				nodes.push(node);
-				grey.add(node);
+				grey.put(node, false);
 
 				// Determine whether this node should receive pointer events.
 				PointerEvents eventHandling = node.element.getStyle().get(CommonProperties.POINTER_EVENTS);
@@ -328,7 +350,7 @@ class ComponentTree {
 					if (eventHandling == PointerEvents.ALL || (node.trueRenderRegion().contains((int) x, (int) y) && (
 							eventHandling == PointerEvents.REGION || occluding == node || occluding == null
 					))) {
-						callback.accept(node);
+						grey.put(node, true);
 					}
 				}
 
@@ -346,7 +368,7 @@ class ComponentTree {
 			}
 		}
 
-		return false;
+		return componentListened;
 	}
 
 	public void mouseMoved(double mouseX, double mouseY) {
