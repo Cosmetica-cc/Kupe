@@ -300,6 +300,13 @@ class ComponentTree {
 		return this.walkConsumableEvent(mouseX, mouseY, n -> n.element.mouseScrolled(mouseX - n.scrollX(), mouseY - n.scrollY(), delta));
 	}
 
+	public void mouseMoved(double mouseX, double mouseY) {
+		this.walkConsumableEvent(mouseX, mouseY, n -> {
+			n.element.mouseMoved(this.root.renderRegion, mouseX - n.scrollX(), mouseY - n.scrollY());
+			return false;
+		});
+	}
+
 	/**
 	 * Walk a callback, taking into account occlusion and each element's preferred {@link PointerEvents} strategy.
 	 * @param x the pointer X.
@@ -369,21 +376,6 @@ class ComponentTree {
 		}
 
 		return componentListened;
-	}
-
-	public void mouseMoved(double mouseX, double mouseY) {
-		// walk() with regional restriction
-		Deque<Node> nodes = new ArrayDeque<>();
-		nodes.add(this.root);
-
-		while (!nodes.isEmpty()) {
-			Node node = nodes.remove();
-
-			if (node.trueRenderRegion().contains((int) mouseX, (int) mouseY)) {
-				node.element.mouseMoved(this.root.renderRegion, mouseX - node.scrollX(), mouseY - node.scrollY());
-				nodes.addAll(node.children); // children should be within parent's region!
-			}
-		}
 	}
 
 	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
