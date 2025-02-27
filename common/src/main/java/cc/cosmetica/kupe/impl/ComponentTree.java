@@ -380,7 +380,7 @@ class ComponentTree {
 			Node node = nodes.remove();
 
 			if (node.trueRenderRegion().contains((int) mouseX, (int) mouseY)) {
-				node.element.mouseMoved(mouseX - node.scrollX(), mouseY - node.scrollY());
+				node.element.mouseMoved(this.root.renderRegion, mouseX - node.scrollX(), mouseY - node.scrollY());
 				nodes.addAll(node.children); // children should be within parent's region!
 			}
 		}

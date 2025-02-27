@@ -453,10 +453,11 @@ public abstract class Component {
 
 	/**
 	 * Called when the mouse is moved on this component.
+	 * @param region this component's region.
 	 * @param x the x position of the mouse on the screen.
 	 * @param y the y position of the mouse on the screen.
 	 */
-	public void mouseMoved(double x, double y) {
+	public void mouseMoved(Region region, double x, double y) {
 		// No default implementation
 	}
 
