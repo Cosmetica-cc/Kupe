@@ -310,10 +310,16 @@ class ComponentTree {
 			Node node = nodes.poll();
 
 			if (grey.remove(node)) {
-				// deterimine occlusion of parents, for subsequent elements
+				// deterimine occlusion of behind elements by this element's background
+				// parent background cannot occlude children
 				if (occluding == null && node.element.isOccluding(node.trueRenderRegion(), (int) x, (int) y, false)) {
 					occluding = node;
 				}
+			}
+			else {
+				// visit again
+				nodes.push(node);
+				grey.add(node);
 
 				// Determine whether this node should receive pointer events.
 				PointerEvents eventHandling = node.element.getStyle().get(CommonProperties.POINTER_EVENTS);
@@ -325,14 +331,8 @@ class ComponentTree {
 						callback.accept(node);
 					}
 				}
-			}
-			else {
 
-				// visit again
-				nodes.push(node);
-				grey.add(node);
-
-				// determine if occluding pointer events for next elements
+				// determine if occluding pointer events for subsequent elements (including children)
 				// parent decorations can occlude children
 				if (occluding == null && node.element.isOccluding(node.trueRenderRegion(), (int) x, (int) y, true)) {
 					occluding = node;

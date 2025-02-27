@@ -21,7 +21,7 @@ package cc.cosmetica.kupe.api.gui;
  */
 public enum PointerEvents {
 	NONE, /* Skip this component. Make it 'transparent' to pointers. */
-	VISIBLE, /* Default behaviour. Receive events only when visible. */
+	VISIBLE, /* Default behaviour. Receive events only on this component's region, when visible. */
 	REGION, /* All pointer events on this component's region, even when occluded. */
 	ALL /* All pointer events, always. */
 }
