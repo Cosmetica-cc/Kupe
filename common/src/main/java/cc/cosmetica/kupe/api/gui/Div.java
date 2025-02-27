@@ -494,7 +494,7 @@ public class Div extends Component {
 
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder("Div ");
+		StringBuilder sb = new StringBuilder(this.getClass().getSimpleName()).append(" ");
 
 		if (this.getStyle() != null) {
 			sb.append("flow=").append(this.getStyle().get(FLOW_DIRECTION));

@@ -462,7 +462,7 @@ class ComponentTree {
 				if (this.debugParent == null) {
 					active = this.root;
 				} else {
-					active = this.root.children.size() == 0 ? null : this.root.children.get(this.debugIndex);
+					active = this.debugParent.children.size() == 0 ? null : this.debugParent.children.get(this.debugIndex);
 				}
 
 				if (active == null) {

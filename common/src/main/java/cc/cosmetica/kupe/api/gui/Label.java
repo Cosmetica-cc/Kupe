@@ -110,6 +110,11 @@ public class Label extends Component implements WrappingElement {
 		}
 	}
 
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName() + "{" + this.text + "}";
+	}
+
 	/**
 	 * The text colour, as an RGB integer. Default value is #FFFFFF (0xFFFFFF)
 	 */
