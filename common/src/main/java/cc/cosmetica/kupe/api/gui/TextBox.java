@@ -59,6 +59,11 @@ public class TextBox extends MinecraftBuiltinComponent {
 		return this;
 	}
 
+	@Override
+	public TextBox setDisabled(boolean disabled) {
+		return (TextBox) super.setDisabled(disabled);
+	}
+
 	// properties
 	private final Text placeholder;
 	private final State<String> value;

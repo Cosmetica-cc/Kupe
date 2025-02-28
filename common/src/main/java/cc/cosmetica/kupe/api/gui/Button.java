@@ -53,6 +53,11 @@ public class Button extends MinecraftBuiltinComponent {
 		return this.tryFixed(DEFAULT_DIMENSIONS, padding, context);
 	}
 
+	@Override
+	public Button setDisabled(boolean disabled) {
+		return (Button) super.setDisabled(disabled);
+	}
+
 	public Text getText() {
 		return this.text;
 	}

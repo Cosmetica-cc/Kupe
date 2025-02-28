@@ -53,6 +53,16 @@ public abstract class MinecraftBuiltinComponent extends Component {
 	@LeavesSandbox
 	abstract public AbstractWidget createMinecraftWidget(Region region, Context context);
 
+	/**
+	 * Set whether the component should be disabled.
+	 * @param disabled whether to disable the component.
+	 * @return this component.
+	 */
+	public MinecraftBuiltinComponent setDisabled(boolean disabled) {
+		this.minecraftWidget.active = !disabled;
+		return this;
+	}
+
 	// render //
 	@Override
 	public void paint(Canvas canvas, Region region, int mouseX, int mouseY) {
