@@ -140,10 +140,10 @@ public class FlatBorder implements Border {
         int x1 = x0 + width;
         int y1 = y0 + height;
 
-        builder.vertex((float)x0, (float)y1, -0.5f).colour(colour[0], colour[1], colour[2], 1).endVertex();
-        builder.vertex((float)x1, (float)y1, -0.5f).colour(colour[0], colour[1], colour[2], 1).endVertex();
-        builder.vertex((float)x1, (float)y0, -0.5f).colour(colour[0], colour[1], colour[2], 1).endVertex();
-        builder.vertex((float)x0, (float)y0, -0.5f).colour(colour[0], colour[1], colour[2], 1).endVertex();
+        builder.vertex((float)x0, (float)y1, 0).colour(colour[0], colour[1], colour[2], 1).endVertex();
+        builder.vertex((float)x1, (float)y1, 0).colour(colour[0], colour[1], colour[2], 1).endVertex();
+        builder.vertex((float)x1, (float)y0, 0).colour(colour[0], colour[1], colour[2], 1).endVertex();
+        builder.vertex((float)x0, (float)y0, 0).colour(colour[0], colour[1], colour[2], 1).endVertex();
     }
 
     /**

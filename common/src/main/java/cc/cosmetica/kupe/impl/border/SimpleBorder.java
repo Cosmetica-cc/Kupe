@@ -46,19 +46,19 @@ public class SimpleBorder implements Border {
         canvas.drawRect( // top
                 region.getX(), region.getY(),
                 region.getWidth(), this.size,
-                -0.5f,
+                0,
                 r, g, b);
 
         canvas.drawRect( // bottom
                 region.getX(), region.getY() + region.getHeight() - this.size,
                 region.getWidth(), this.size,
-                -0.5f,
+                0,
                 r, g, b);
 
         canvas.drawRect( // left
                 region.getX(), region.getY() + this.size,
                 this.size, region.getHeight() - this.size * 2,
-                -0.5f,
+                0,
                 r, g, b);
 
         canvas.drawRect( // right

@@ -30,6 +30,7 @@ import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
+import com.mojang.blaze3d.systems.RenderSystem;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
@@ -233,6 +234,8 @@ class ComponentTree {
 	public void render(PoseCanvas canvas, int mouseX, int mouseY) {
 		//this.root.walk(node -> node.render(canvas, mouseX, mouseY));
 		// DFS
+		RenderSystem.disableDepthTest(); // don't use depth test for GUI?
+
 		Deque<Node> nodes = new ArrayDeque<>();
 		nodes.add(this.root);
 		Set<Node> grey = new HashSet<>(); // nodes that have rendered background but not rendered
