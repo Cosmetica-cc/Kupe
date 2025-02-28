@@ -58,7 +58,7 @@ public abstract class MinecraftBuiltinComponent extends Component {
 	 * @param disabled whether to disable the component.
 	 * @return this component.
 	 */
-	public MinecraftBuiltinComponent setDisabled(boolean disabled) {
+	protected MinecraftBuiltinComponent setDisabled(boolean disabled) {
 		this.minecraftWidget.active = !disabled;
 		return this;
 	}

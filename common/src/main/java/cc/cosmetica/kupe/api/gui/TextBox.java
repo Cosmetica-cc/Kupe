@@ -34,7 +34,7 @@ import java.util.function.Consumer;
 /**
  * A text box for entering text.
  */
-public class TextBox extends MinecraftBuiltinComponent {
+public class TextBox extends MinecraftBuiltinComponent implements Input {
 	/**
 	 * Create a new button with the given text.
 	 * @param placeholder the text to render as a placeholder.

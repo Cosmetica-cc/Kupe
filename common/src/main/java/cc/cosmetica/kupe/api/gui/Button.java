@@ -34,7 +34,7 @@ import java.util.OptionalInt;
 /**
  * A button in the menu, with text and an action.
  */
-public class Button extends MinecraftBuiltinComponent {
+public class Button extends MinecraftBuiltinComponent implements Input {
 	/**
 	 * Create a new button with the given text.
 	 * @param text the text to provide.
