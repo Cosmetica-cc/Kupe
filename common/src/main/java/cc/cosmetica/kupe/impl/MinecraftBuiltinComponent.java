@@ -38,6 +38,7 @@ import java.util.OptionalInt;
 public abstract class MinecraftBuiltinComponent extends Component {
 	// internal //
 	protected AbstractWidget minecraftWidget;
+	protected boolean disabled = false;
 
 	// build //
 	@Override
@@ -48,6 +49,7 @@ public abstract class MinecraftBuiltinComponent extends Component {
 	@Override
 	public void resize(Region region, SizedElement sizedElement, List<? extends ResizableElement> children, Context context) {
 		this.minecraftWidget = this.createMinecraftWidget(region, context);
+		this.minecraftWidget.active = !this.disabled;
 	}
 
 	@LeavesSandbox
@@ -59,7 +61,10 @@ public abstract class MinecraftBuiltinComponent extends Component {
 	 * @return this component.
 	 */
 	protected MinecraftBuiltinComponent setDisabled(boolean disabled) {
-		this.minecraftWidget.active = !disabled;
+		this.disabled = disabled;
+		if (this.minecraftWidget != null) {
+			this.minecraftWidget.active = !disabled;
+		}
 		return this;
 	}
 
