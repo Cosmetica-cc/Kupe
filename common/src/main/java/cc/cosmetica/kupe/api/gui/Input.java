@@ -21,7 +21,7 @@ package cc.cosmetica.kupe.api.gui;
  */
 public interface Input {
     /**
-     * Set whether the component should be disabled.
+     * Set whether the component should be disabled. This prevents user interaction and may change the component visually.
      * @param disabled whether to disable the component.
      * @return this component.
      */
