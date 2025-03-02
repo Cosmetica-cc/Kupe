@@ -42,6 +42,8 @@ public class Label extends Component implements WrappingElement {
 
 	@Override
 	public Dimensions intrinsicSize(List<? extends SizedElement> children, Margins padding, Context context) {
+		// - Shouldn't label have a minimum height of line height?
+
 		final int vw = context.getViewWidth();
 		final int vh = context.getViewHeight();
 

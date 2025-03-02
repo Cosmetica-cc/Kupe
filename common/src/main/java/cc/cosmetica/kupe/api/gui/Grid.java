@@ -17,6 +17,7 @@
 package cc.cosmetica.kupe.api.gui;
 
 import cc.cosmetica.kupe.api.Context;
+import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
@@ -24,13 +25,14 @@ import cc.cosmetica.kupe.api.maths.Region;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.function.Function;
 
 /**
  * A layout which positions components in a grid, left to right.
  * Components will wrap to the first column and next row once space runs out.
  */
-public class Grid extends Component {
+public class Grid extends AbstractScrollContainer {
     public Grid(Component... components) {
         this.components = Arrays.asList(components);
     }
@@ -38,25 +40,76 @@ public class Grid extends Component {
     private final List<Component> components;
 
     @Override
+    protected boolean hasVerticalOverflow() {
+        // overflow is always vertical for Grid.
+        return this.overflow;
+    }
+
+    @Override
     public List<Component> build() {
         return this.components;
     }
 
+    // ==========
+    //   SIZING
+    // ==========
+
     @Override
     public Dimensions minimumSize(List<? extends SizedElement> children, Margins padding, int vw, int vh) {
-        return Dimensions.NONE;
+        return this.size(children, SizedElement::getMinimumSize, padding, vw, vh);
     }
 
     @Override
     public Dimensions intrinsicSize(List<? extends SizedElement> children, Margins padding, Context context) {
-        return Dimensions.NONE;
+        return this.size(children, SizedElement::getPreferredSize, padding, context.getViewWidth(), context.getViewHeight());
     }
 
-    private Dimensions size(List<? extends SizedElement> children, Function<? extends SizedElement, Dimensions> getDimensions, Margins padding) {
-        final int columns = this.getStyle().get(COLUMNS);
-        int column = 0;
-        return null;
+    private Dimensions size(List<? extends SizedElement> children, Function<SizedElement, Dimensions> getDimensions, Margins padding, int vw, int vh) {
+        int elementWidth = 0;
+        int elementHeight = 0;
+
+        // find largest size
+        for (SizedElement element : children) {
+            Dimensions dimensions = getDimensions.apply(element);
+
+            if (dimensions.getHeight() > elementHeight) {
+                elementHeight = dimensions.getHeight();
+            }
+            if (dimensions.getWidth() > elementWidth) {
+                elementWidth = dimensions.getWidth();
+            }
+        }
+
+        final OptionalInt fixedWidth = this.getStyle().get(CommonProperties.WIDTH).apply(vw, vh, 0, 0);
+        final int columnGap = this.getStyle().get(COLUMN_GAP);
+
+        int columns = this.getStyle().get(COLUMNS);
+
+        // constrain by the number of elements that can fit into the fixed width
+        if (elementWidth > 0 && fixedWidth.isPresent()) {
+            final int W = fixedWidth.getAsInt();
+
+            // the proof is left as an exercise to the reader
+            // (w+g)(n-1)+w=W
+            int fixedWidthColumns = (W-elementWidth)/(elementWidth+columnGap) + 1;
+
+            if (columns == 0 || fixedWidthColumns < columns) {
+                columns = fixedWidthColumns;
+            }
+        }
+
+        if (columns == 0) {
+            final int n = Math.max(1,children.size());
+            return new Dimensions(elementWidth*n + columnGap * (n-1), elementHeight);
+        }
+
+        int rows = Math.max(1, (int)Math.ceil((double) children.size() / columns));
+        final int rowGap = this.getStyle().get(ROW_GAP);
+        return new Dimensions(elementWidth * columns + columnGap * (columns-1), elementHeight * rows + rowGap * (rows-1));
     }
+
+    // Layout
+    // ======
 
     @Override
     public void resize(Region region, SizedElement sizedElement, List<? extends ResizableElement> children, Context context) {
@@ -64,9 +117,15 @@ public class Grid extends Component {
     }
 
     /**
-     * Determine the number of columns to divide the grid into. Leave as 0 for auto, where the largest item determines the columns size.
+     * Determine the number of columns to divide the grid into. Leave as 0 for auto.
+     * If this is specified it can be overridden by width constraints.
      */
     public static final Style.Property<Integer> COLUMNS = new Style.Property<>("columns", 0, false);
+    /**
+     * If true, columns should stretch to take up as much space as possible.
+     * If false, column width is determined by the largest element.
+     */
+    public static final Style.Property<Boolean> STRETCH_COLUMNS = new Style.Property<>("stretchColumns", false, false);
     /**
      * Extra space in pixels between each column.
      */
