@@ -36,15 +36,12 @@ import java.util.stream.Collectors;
  * A section of the page that lays out multiple elements in a row or column.
  * All divs, if the sum of the components exceed the allocated size, will scroll.
  */
-public class Div extends Component {
+public class Div extends AbstractScrollContainer {
 	public Div(Component... children) {
 		this.children = Arrays.asList(children);
 	}
 
 	private final List<Component> children;
-	private boolean overflow = false;
-	private float maxScroll = 0;
-	private float scrollPercent;
 
 	@Override
 	public List<Component> build() {
@@ -510,144 +507,14 @@ public class Div extends Component {
 		return sb.toString();
 	}
 
-	@Override
-	public boolean mouseScrolled(double x, double y, double delta) {
-		// scroll% = amount Scrolled / maxScroll
-		// add to exising scroll%
-		float newScroll = this.scrollPercent - (float) ((delta * PX_PER_SCROLL) / this.maxScroll);
-		// clamp
-		if (newScroll > 1) newScroll = 1;
-		else if (newScroll < 0) newScroll = 0;
-
-		boolean scrollChanged = this.scrollPercent != newScroll;
-		this.scrollPercent = newScroll;
-		return scrollChanged;
-	}
-
-	private boolean grabbed;
-	private float grabOffset;
-	private float scrollbarTopY, scrollbarLeftX; // passed from render to click/paintDecorations
-	private int scrollbarSize;
-
-	@Override
-	public void mouseClicked(double x, double y, int button) {
-		if (overflow) {
-			if (this.isVerticalFlow()) {
-				if (
-						y >= this.scrollbarTopY && y < (this.scrollbarTopY + this.scrollbarSize)
-						&& x >= this.scrollbarLeftX && x < (this.scrollbarLeftX + DEFAULT_SCROLLBAR_THICKNESS)
-				) {
-					this.grabbed = true;
-					this.grabOffset = (float) y - this.scrollbarTopY;
-				}
-			}
-		}
-	}
-
-	@Override
-	public void mouseReleased(double x, double y, int button) {
-		if (this.grabbed) {
-			this.grabbed = false;
-		}
-	}
-
-	@Override
-	public void paintBackground(Canvas canvas, Region region, Margins padding) {
-		super.paintBackground(canvas, region, padding);
-
-		if (overflow) {
-			// stencil
-			canvas.useScissor(region);
-		}
-	}
-
-	@Override
-	public void paintDecorations(Canvas canvas, Region region, int mouseX, int mouseY) {
-		if (overflow && this.isVerticalFlow()) {
-			this.drawScrollbar(canvas, region, mouseY);
-		}
-
-		super.paintDecorations(canvas, region, mouseX, mouseY);
-	}
-
-	@Override
-	protected void paint(Canvas canvas, Region region, int mouseX, int mouseY) {
-		// scroll behaviour
-		if (this.overflow) {
-			// Dragging Vertical Scrollbar
-			if (this.isVerticalFlow()) {
-				// measurements
-				final float divVH = region.getHeight();
-				float pageCover = divVH / (divVH + this.maxScroll);
-				this.scrollbarSize = (int) Math.max(10, pageCover * divVH);// minimum height of 10 pixels
-
-				// update scroll position for drag
-				if (this.grabbed) {
-					this.scrollPercent = (mouseY - this.grabOffset - region.getY()) / (divVH - this.scrollbarSize);
-					// clamp
-					if (this.scrollPercent > 1) this.scrollPercent = 1;
-					else if (this.scrollPercent < 0) this.scrollPercent = 0;
-				}
-			}
-
-			//shift contents by scroll amount
-			if (this.isVerticalFlow()) {
-				canvas.scroll(0, -this.scrollPercent * this.maxScroll);
-			} else {
-				canvas.scroll(-this.scrollPercent * this.maxScroll, 0);
-			}
-		}
-	}
-
-	protected void drawScrollbar(Canvas canvas, Region region, int mouseY) {
-		// height of the div's 'view'. But not of all its contents.
-		final float divVH = region.getHeight();
-
-		float scrollbarTopY = region.getY() + this.scrollPercent * (divVH - this.scrollbarSize);
-		// pass to click
-		this.scrollbarLeftX = region.getEndX() - DEFAULT_SCROLLBAR_THICKNESS;
-		this.scrollbarTopY = scrollbarTopY;
-
-		canvas.drawRect(
-				region.getEndX() - DEFAULT_SCROLLBAR_THICKNESS, region.getY(),
-				DEFAULT_SCROLLBAR_THICKNESS, region.getHeight(),
-				50.0f, 0, 0, 0
-		);
-		canvas.drawRect(
-				region.getEndX() - DEFAULT_SCROLLBAR_THICKNESS, (int)scrollbarTopY,
-				DEFAULT_SCROLLBAR_THICKNESS, this.scrollbarSize,
-				50.0f, 0.5f, 0.5f, 0.5f
-		);
-
-		final float scrollBarColour = 192.0f/255.0f;
-		canvas.drawRect(
-				region.getEndX() - DEFAULT_SCROLLBAR_THICKNESS, (int)scrollbarTopY,
-				DEFAULT_SCROLLBAR_THICKNESS - 1, this.scrollbarSize - 1,
-				50.0f, scrollBarColour, scrollBarColour, scrollBarColour
-		);
-	}
-
-	@Override
-	public boolean isOccluding(Region region, int x, int y, boolean decorations) {
-		if (!region.contains(x, y)) {
-			return false;
-		}
-
-		if (decorations) {
-			if (this.overflow && this.isVerticalFlow()) {
-				// scrollbar
-                return x >= region.getEndX() - DEFAULT_SCROLLBAR_THICKNESS;
-			}
-
-			return false;
-		} else {
-			return this.getStyle().get(CommonProperties.BACKGROUND_COLOUR).isPresent();
-		}
-	}
-
 	protected boolean isVerticalFlow() {
 		return this.getStyle().get(FLOW_DIRECTION) == Axis2D.POSITIVE_Y ||
 				this.getStyle().get(FLOW_DIRECTION) == Axis2D.NEGATIVE_Y;
+	}
+
+	@Override
+	protected boolean hasVerticalOverflow() {
+		return this.overflow && this.isVerticalFlow();
 	}
 
 	/**
@@ -672,9 +539,6 @@ public class Div extends Component {
 	 * its children when determining its own minimum size. This promotes overflowing and scrolling behaviour.
 	 */
 	public static final Style.Property<Boolean> FIXED_CONTAINER = new Style.Property<>("fixedContainer", true, false);
-
-	private static final int DEFAULT_SCROLLBAR_THICKNESS = 6;
-	private static final int PX_PER_SCROLL = 10;
 
 	/**
 	 * Flips the axis of operations. Y <-> X. Essentially mirrors along a line from top left corner down and right, 45 degrees.
