@@ -229,20 +229,26 @@ public class Grid extends AbstractScrollContainer {
             // place at x, y
             // TODO (also handle aligns)
 
+            // move forward to next item
+            x += elementWidth;
+
             // add column gap
             // (what to do about column end gap? we dont have horizontal overflow so we can ignore for now. doesnt matter if we go over or under)
-            x += gapSpace(justifyColumns, remainingHSpace, columns);
+            x += sColumnGap + gapSpace(justifyColumns, remainingHSpace, columns);
 
             // next column
             if (++column == columns) {
                 column = 0;
                 x = region.getX();
+                y += elementHeight;
 
                 // next row: add row gap
                 // because remainingVSpace is 0 if overflow will happen this shouldnt be necessary but just in case,
                 // to prevent accidental overflow when there is no overflow
-                if (childIterator.hasNext())
+                if (childIterator.hasNext()) {
+                    y += sRowGap;
                     y += gapSpace(justifyRows, remainingVSpace, rows);
+                }
             }
         }
 
