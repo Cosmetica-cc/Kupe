@@ -24,6 +24,7 @@ import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.OptionalInt;
 import java.util.function.Function;
@@ -88,10 +89,7 @@ public class Grid extends AbstractScrollContainer {
         // constrain by the number of elements that can fit into the fixed width
         if (elementWidth > 0 && fixedWidth.isPresent()) {
             final int W = fixedWidth.getAsInt();
-
-            // the proof is left as an exercise to the reader
-            // (w+g)(n-1)+w=W
-            int fixedWidthColumns = (W-elementWidth)/(elementWidth+columnGap) + 1;
+            int fixedWidthColumns = findColumnsForWidth(W, elementWidth, columnGap);
 
             if (columns == 0 || fixedWidthColumns < columns) {
                 columns = fixedWidthColumns;
@@ -103,9 +101,19 @@ public class Grid extends AbstractScrollContainer {
             return new Dimensions(elementWidth*n + columnGap * (n-1), elementHeight);
         }
 
-        int rows = Math.max(1, (int)Math.ceil((double) children.size() / columns));
+        int rows = calcRows(children.size(), columns);
         final int rowGap = this.getStyle().get(ROW_GAP);
         return new Dimensions(elementWidth * columns + columnGap * (columns-1), elementHeight * rows + rowGap * (rows-1));
+    }
+
+    private static int findColumnsForWidth(int W, int elementWidth, int columnGap) {
+        // the proof is left as an exercise to the reader
+        // Solves (w+g)(n-1)+w=W for n
+        return (W-elementWidth)/(elementWidth+columnGap) + 1;
+    }
+
+    private static int calcRows(int children, int columns) {
+        return Math.max(1, (int)Math.ceil((double) children / columns));
     }
 
     // Layout
@@ -113,7 +121,167 @@ public class Grid extends AbstractScrollContainer {
 
     @Override
     public void resize(Region region, SizedElement sizedElement, List<? extends ResizableElement> children, Context context) {
-        // this is gonna be fun
+        // style
+        final int sColumns = this.getStyle().get(COLUMNS);
+        final boolean sStretch = this.getStyle().get(STRETCH_COLUMNS);
+        final int sColumnGap = this.getStyle().get(COLUMN_GAP);
+        final int sRowGap = this.getStyle().get(ROW_GAP);
+
+        final Align sAlignHorizontal = this.getStyle().get(ALIGN_HORIZONTAL);
+        final Align sAlignVertical = this.getStyle().get(ALIGN_VERTICAL);
+
+        // find box size //
+        int elementWidth = 0;
+        int elementHeight = 0;
+
+
+        // find largest size
+        for (SizedElement element : children) {
+            Dimensions dimensions = element.getPreferredSize();
+
+            if (dimensions.getHeight() > elementHeight) {
+                elementHeight = dimensions.getHeight();
+            }
+            if (dimensions.getWidth() > elementWidth) {
+                elementWidth = dimensions.getWidth();
+            }
+        }
+
+        if (sStretch && sColumns > 0) {
+            // instead divide space
+            // solve w*n + g*(n-1) = W
+            // => w = W-g(n-1) / n
+            elementWidth = (region.getWidth() - sColumnGap*(sColumns-1)) / sColumns;
+        }
+
+        // calculate actual number of columns
+        final int columns;
+        if (sColumns == 0) {
+            // figure out actual number of columns
+            if (elementWidth + sColumnGap == 0) {
+                elementWidth = 1; // i dont want a /0 kthx
+            }
+
+            columns = findColumnsForWidth(region.getWidth(), elementWidth, sColumnGap);
+        } else {
+            columns = sColumns;
+        }
+
+        // Remaining horizontal space distributed by justify
+        int remainingHSpace = region.getWidth() - ( elementWidth*columns + sColumnGap*(columns-1) );
+
+        // space-between, space-around, space-evenly simplify to centre for one entry
+        // todo is this the most intuitive behaviour?
+        Justify justifyColumns;
+        switch (this.getStyle().get(JUSTIFY_COLUMNS)) {
+        case SPACE_AROUND:
+        case SPACE_BETWEEN:
+        case SPACE_EVENLY:
+            if (columns == 1) {
+                justifyColumns = Justify.CENTRE;
+                break;
+            }
+        default:
+            justifyColumns = this.getStyle().get(JUSTIFY_COLUMNS);
+            break;
+        }
+
+        // Figure out distribution of rows
+        int rows = calcRows(children.size(), columns);
+        Justify justifyRows; // same logic as columns
+        switch (this.getStyle().get(JUSTIFY_ROWS)) {
+            case SPACE_AROUND:
+            case SPACE_BETWEEN:
+            case SPACE_EVENLY:
+                if (rows == 1) {
+                    justifyRows = Justify.CENTRE;
+                    break;
+                }
+            default:
+                justifyRows = this.getStyle().get(JUSTIFY_ROWS);
+                break;
+        }
+
+        // JUSTIFY_ROWS takes effect only if we aren't oversize.
+        final int rowSpaceAndGapPixels = elementHeight*rows + sRowGap*(rows-1);
+        int remainingVSpace = Math.max(0, region.getHeight() - rowSpaceAndGapPixels);
+
+        // Place grid boxes and elements within these grid boxes.
+        float y = region.getY();
+        float x = region.getX();
+        int column = 0;
+
+        // add initial row gap
+        if (remainingVSpace > 0) {
+            y += initialSpace(justifyRows, remainingVSpace, rows);
+        }
+
+        Iterator<? extends ResizableElement> childIterator = children.iterator();
+
+        while (childIterator.hasNext()) {
+            ResizableElement element = childIterator.next();
+
+            if (column == 0) {
+                // add initial gap
+                x += initialSpace(justifyColumns, remainingHSpace, columns);
+            }
+
+            // place at x, y
+            // TODO (also handle aligns)
+
+            // add column gap
+            // (what to do about column end gap? we dont have horizontal overflow so we can ignore for now. doesnt matter if we go over or under)
+            x += gapSpace(justifyColumns, remainingHSpace, columns);
+
+            // next column
+            if (++column == columns) {
+                column = 0;
+                x = region.getX();
+
+                // next row: add row gap
+                // because remainingVSpace is 0 if overflow will happen this shouldnt be necessary but just in case,
+                // to prevent accidental overflow when there is no overflow
+                if (childIterator.hasNext())
+                    y += gapSpace(justifyRows, remainingVSpace, rows);
+            }
+        }
+
+        // set overflow flag
+        this.overflow = (int)y > region.getEndY();
+        this.maxScroll = y - region.getEndY();
+        this.grabbed = false;
+    }
+
+    private static float initialSpace(Justify justify, int remainingSpace, int items) {
+        switch (justify) {
+            case END:
+                return remainingSpace;
+            case CENTRE:
+                // only gap will be rounded anyway, int division is ok
+                return remainingSpace/2;
+            case SPACE_AROUND:
+                return remainingSpace/(items * 2.0f);
+            case SPACE_EVENLY:
+                return remainingSpace/(items + 1.0f);
+            case START: case SPACE_BETWEEN: default:
+                return 0;
+        }
+    }
+
+    private static float gapSpace(Justify justify, int remainingSpace, int items) {
+        switch (justify) {
+            case SPACE_AROUND:
+                // right of first item, left of second item
+                return remainingSpace/(float)items;
+            case SPACE_BETWEEN:
+                // 1 less gap than items
+                return remainingSpace/(items - 1.0f);
+            case SPACE_EVENLY:
+                // 1 more gap than items
+                return remainingSpace/(items + 1.0f);
+            case START: case END: case CENTRE: default:
+                return 0;
+        }
     }
 
     /**
@@ -122,8 +290,9 @@ public class Grid extends AbstractScrollContainer {
      */
     public static final Style.Property<Integer> COLUMNS = new Style.Property<>("columns", 0, false);
     /**
-     * If true, columns should stretch to take up as much space as possible.
+     * If true, columns should stretch to take up as much space as possible, instead of sizing off the largest element.
      * If false, column width is determined by the largest element.
+     * Use this in combination with {@link Grid#COLUMNS}.
      */
     public static final Style.Property<Boolean> STRETCH_COLUMNS = new Style.Property<>("stretchColumns", false, false);
     /**
