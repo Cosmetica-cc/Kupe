@@ -26,5 +26,6 @@ public final class KupeTestInit {
 		Screens.registerScreen(StateTestScreen.ID, new StateTestScreen());
 		Screens.registerScreen(TextWrapTextboxSizingTest.ID, new TextWrapTextboxSizingTest());
 		Screens.registerScreen(ZLayeringTest.ID, new ZLayeringTest());
+		Screens.registerScreen(GridTestScreen.ID, new GridTestScreen());
 	}
 }

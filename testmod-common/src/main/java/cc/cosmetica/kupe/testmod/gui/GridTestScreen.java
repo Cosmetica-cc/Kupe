@@ -15,7 +15,7 @@ import cc.cosmetica.kupe.api.gui.Component;
  * Test case for {@link cc.cosmetica.kupe.api.gui.Grid}.
  */
 public class GridTestScreen extends Screen {
-    protected GridTestScreen() {
+    public GridTestScreen() {
         super(ID);
     }
 
