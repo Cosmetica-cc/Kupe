@@ -227,13 +227,94 @@ public class Grid extends AbstractScrollContainer {
             }
 
             // place at x, y
-            // TODO (also handle aligns)
+            {
+                // Determine final component size
+                // preferred does take into account fixed and intrinsic, and minimum
+                // not maximum though (why?)
+                Dimensions size = element.getPreferredSize();
+
+                // handle stretch
+                switch (sAlignHorizontal) {
+                    case STRETCH_CENTRE: case STRETCH_END: case STRETCH_START:
+                        size = new Dimensions(
+                                Math.max(elementWidth, size.getWidth()), // will be capped anyway; may as well shrink nicely?
+                                size.getHeight()
+                        );
+                    default:
+                        break;
+                }
+                switch (sAlignVertical) {
+                    case STRETCH_CENTRE: case STRETCH_END: case STRETCH_START:
+                        size = new Dimensions(
+                                size.getWidth(),
+                                Math.max(elementHeight, size.getHeight())
+                        );
+                    default:
+                        break;
+                }
+
+                // handle max size & grid area borders
+                Dimensions max = element.getMaximumSize();
+                Dimensions min = element.getMinimumSize();
+
+                int wCap = Math.min(elementWidth, max.getWidth());
+
+                if (size.getWidth() > wCap) {
+                    // clamp
+                    int newWidth = Math.max(min.getWidth(), wCap);
+                    // shrink other dimension
+                    int h = element.shrinkHeight(newWidth, size.getHeight(), context);
+                    h = Math.max(h, min.getHeight());
+                    size = new Dimensions(newWidth, h);
+                }
+
+                int hCap = Math.min(elementHeight, max.getHeight());
+
+                if (size.getWidth() > hCap) {
+                    // clamp
+                    int newHeight = Math.max(min.getHeight(), hCap);
+                    // shrink other dimension
+                    int w = element.shrinkWidth(newHeight, size.getWidth(), context);
+                    w = Math.max(w, min.getWidth());
+                    size = new Dimensions(w, newHeight);
+                }
+
+                // Handle alignment within space
+                int componentX;
+                switch (sAlignHorizontal) {
+                    case START: case STRETCH_START:
+                        componentX = (int) x;
+                        break;
+                    case CENTRE: case STRETCH_CENTRE:
+                        componentX = (int) x + (elementWidth - size.getWidth())/2;
+                        break;
+                    case END: case STRETCH_END: default:
+                        componentX = (int) x + elementWidth - size.getWidth();
+                        break;
+                }
+
+                int componentY;
+                switch (sAlignVertical) {
+                    case START: case STRETCH_START:
+                        componentY = (int) y;
+                        break;
+                    case CENTRE: case STRETCH_CENTRE:
+                        componentY = (int) y + (elementHeight - size.getHeight())/2;
+                        break;
+                    case END: case STRETCH_END: default:
+                        componentY = (int) y + elementHeight - size.getHeight();
+                        break;
+                }
+
+                // place component
+                element.setRenderRegion(new Region(componentX, componentY, size.getWidth(), size.getHeight()));
+            }
 
             // move forward to next item
             x += elementWidth;
 
             // add column gap
-            // (what to do about column end gap? we dont have horizontal overflow so we can ignore for now. doesnt matter if we go over or under)
+            // (what to do about column end gap? => we dont have horizontal overflow so we can ignore for now. doesnt matter if we go over or under)
             x += sColumnGap + gapSpace(justifyColumns, remainingHSpace, columns);
 
             // next column

@@ -44,7 +44,7 @@ public interface ResizableElement extends SizedElement {
 	 * Get the new preferred width after shrinking height
 	 * @param newHeight the new height.
 	 * @param width the current width.
-	 * @param c
+	 * @param context the rendering context.
 	 * @return the new preferred width.
 	 */
 	int shrinkWidth(int newHeight, int width, Context context);
