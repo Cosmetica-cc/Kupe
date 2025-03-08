@@ -13,6 +13,13 @@ import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.Button;
 import cc.cosmetica.kupe.api.gui.Component;
+import cc.cosmetica.kupe.api.gui.Div;
+import cc.cosmetica.kupe.api.gui.style.CommonProperties;
+import cc.cosmetica.kupe.api.gui.style.Style;
+import cc.cosmetica.kupe.api.gui.style.Stylesheet;
+import org.jetbrains.annotations.Nullable;
+
+import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
 public class AllKupeTestsScreen extends Screen {
 	public AllKupeTestsScreen() {
@@ -32,8 +39,20 @@ public class AllKupeTestsScreen extends Screen {
 				new Button(Text.literal("Border Box Test"), () -> Screens.setScreen(BorderBoxTest.ID)),
 				// demonstrate setting an unregistered screen
 				new Button(Text.literal("Div Spacings Test"), () -> Screens.setScreen(new DivSpacingsScreen(), DivSpacingsScreen.ID)),
-				new Button(Text.translatable("screens.kupe_test.grid"), () -> Screens.setScreen(GridTestScreen.ID))
+				new Button(Text.translatable("screens.kupe_test.grid"), () -> Screens.setScreen(GridTestScreen.ID)),
+				new Button(FontInheritanceTest.ID.translationKey("screens"), () -> Screens.setScreen(FontInheritanceTest.ID))
 		};
+	}
+
+	@Override
+	public @Nullable Stylesheet getStylesheet() {
+		return super.getStylesheet()
+				.tag("body", Style.create()
+						.set(Div.FIXED_CONTAINER, false)
+						.set(MARGINS, screen(0, 12, MARGINS_FACTORY))
+						.set(CommonProperties.HEIGHT, screen(0, 75)))
+				.component(Button.class, Style.create()
+						.set(FLEX_SHRINK, 0));
 	}
 
 	public static final ResourceKey ID = new ResourceKey("kupe_test", "root");

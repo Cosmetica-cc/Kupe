@@ -282,10 +282,10 @@ public class Div extends AbstractScrollContainer {
 				}
 			}
 
-			if (availableWidth < 0) {
-				// TODO use a logger
-				System.err.println("Warning! Div overflow by " + -availableWidth);
-			}
+			// Debug
+			//if (availableWidth < 0) {
+			//	("Div overflow! by " + -availableWidth);
+			//}
 
 			// remove non flexing elements before checking if there's leftover space
 			// As this is a non-issue if all components are non-flexing or have hit max size

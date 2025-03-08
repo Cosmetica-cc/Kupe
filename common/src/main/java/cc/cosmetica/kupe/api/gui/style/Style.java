@@ -16,7 +16,6 @@
 
 package cc.cosmetica.kupe.api.gui.style;
 
-import cc.cosmetica.kupe.impl.dim.FixedDimensions;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -69,9 +68,13 @@ public class Style {
 	 */
 	public static Style merge(List<Style> styles) {
 		Style result = new Style(true);
+		assert result.inheritance != null; // shut up compiler warning
 
 		for (int i = styles.size() - 1; i >= 0; i--) {
 			result.properties.putAll(styles.get(i).properties);
+            @Nullable Style inheritance = styles.get(i).inheritance;
+
+			result.inheritance.properties.putAll(inheritance == null ? styles.get(i).properties : inheritance.properties);
 		}
 
 		return result;

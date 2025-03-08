@@ -622,7 +622,9 @@ class ComponentTree {
 			
 			// Then, inherited properties from the parent
 			// Only marked properties are inherited
-			if (this.parent != null) styles.add(this.parent.element.getStyle().inheritance);
+			if (this.parent != null) {
+				styles.add(this.parent.element.getStyle().inheritance);
+			}
 
 			// finally, the root stylesheet has lowest priority
 			RootStylesheet.fillDefaultOverrides(styles, this.element.getClass());

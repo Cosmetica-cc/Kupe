@@ -38,7 +38,7 @@ import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
  */
 public abstract class Screen extends Component {
 	protected Screen(ResourceKey id) {
-		this.key = Text.translatable("screens." + id.getNamespace() + "." + id.getPath());
+		this.key = id.translationKey("screens");
 	}
 
 	protected Screen(Text title) {
