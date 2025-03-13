@@ -71,7 +71,7 @@ public abstract class Screen extends Component {
 	}
 
 	@Override
-	public @Nullable Stylesheet getStylesheet() {
+	public Stylesheet getStylesheet() {
 		// the child screen may want to override the style
 		// they can do that with this stylesheet
 		return new Stylesheet()
