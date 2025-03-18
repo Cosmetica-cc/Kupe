@@ -55,6 +55,24 @@ class ComponentTree {
 	}
 
 	/**
+	 * Rebuild the whole tree. This is called when a screen is re-initialised (e.g. come back from a child screen).
+	 */
+	public void rebuildAll() {
+		final Node node = this.root;
+
+		// rebuild node
+		node.rebuildThis();
+
+		// build new children
+		for (Node child : node.children) {
+			child.walk(Node::buildThis);
+		}
+
+		// sort by z
+		node.sortChildrenRecursive();
+	}
+
+	/**
 	 * Rebuild the given components. Will only rebuild the most basal nodes. For example, if a parent and its descendant
 	 * are provided, the parent will be the one rebuilt.
 	 * @param components the components to rebuild.

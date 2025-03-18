@@ -25,6 +25,7 @@ import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.impl.text.FormattedCharSeqRenderer;
 import cc.cosmetica.kupe.util.ImageUtilities;
 import cc.cosmetica.kupe.util.MultiCache;
+import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -67,6 +68,8 @@ public final class KupeScreen extends Screen {
 		if (!built) {
 			this.tree.buildAll();
 			built = true;
+		} else {
+			this.tree.rebuildAll();
 		}
 
 		this.resize();
