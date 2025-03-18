@@ -56,7 +56,7 @@ public final class CommonProperties {
 	public static final Style.Property<DimensionsOperator<Margins>> PADDING = new Style.Property<>("padding", NO_MARGINS, false);
 
 	/**
-	 * The maximum size of the component. This does not include padding or margins.
+	 * The maximum size of the component. This does not include margins, but includes padding.
 	 */
 	public static final Style.Property<DimensionsOperator<Dimensions>> MAXIMUM_SIZE = new Style.Property<>("maximumSize", fixed(Dimensions.MAX), false);
 
@@ -75,11 +75,21 @@ public final class CommonProperties {
 	public static final Style.Property<DimensionsOperator<OptionalInt>> HEIGHT = new Style.Property<>("height", NO_SIZE, false);
 
 	/**
-	 * The minimum size of the component. This does not include padding or margins.
+	 * The minimum size of the component. This does not include margins, but includes padding.
 	 * The actual minimum size of the component is the maximum, per-axis, of this and the minimum size due to its
 	 * children.
 	 */
 	public static final Style.Property<DimensionsOperator<Optional<Dimensions>>> MINIMUM_SIZE = new Style.Property<>("minimumSize", NO_DIMENSIONS, false);
+
+	// TODO switch MINIMUM_SIZE to this, and remove FIXED_CONTAINER.
+	/**
+	 * Override the minimum size of the component. This does not include margins, but includes padding.
+	 */
+	public static final Style.Property<DimensionsOperator<OptionalInt>> MIN_WIDTH = new Style.Property<>("minWidth", NO_SIZE, false);
+	/**
+	 * Override the minimum size of the component. This does not include margins, but includes padding.
+	 */
+	public static final Style.Property<DimensionsOperator<OptionalInt>> MIN_HEIGHT = new Style.Property<>("minHeight", NO_SIZE, false);
 
 	/**
 	 * Controls the component draw order at this level. Lower numbers are drawn first (behind) other components.
