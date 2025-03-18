@@ -435,11 +435,12 @@ public abstract class Component {
 
 	/**
 	 * Called when the mouse is clicked on this component.
+	 * @param target the frontmost, non-occluded element that received this event.
 	 * @param x the x position of the mouse on the screen.
 	 * @param y the y position of the mouse on the screen.
 	 * @param button the button pressed.
 	 */
-	public void mouseClicked(double x, double y, int button) {
+	public void mouseClicked(Element target, double x, double y, int button) {
 	}
 
 	/**

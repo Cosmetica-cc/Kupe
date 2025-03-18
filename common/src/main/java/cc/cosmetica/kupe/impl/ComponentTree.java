@@ -33,6 +33,7 @@ import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.*;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -285,8 +286,8 @@ class ComponentTree {
 	}
 
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		return this.walkConsumableEvent(mouseX, mouseY, n -> {
-			n.element.mouseClicked(mouseX - n.scrollX(), mouseY - n.scrollY(), button);
+		return this.walkConsumableEvent(mouseX, mouseY, (n, target) -> {
+			n.element.mouseClicked(target, mouseX - n.scrollX(), mouseY - n.scrollY(), button);
 			return false;
 		});
 	}
@@ -298,11 +299,11 @@ class ComponentTree {
 
 	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
 		// only the frontmost div will scroll.
-		return this.walkConsumableEvent(mouseX, mouseY, n -> n.element.mouseScrolled(mouseX - n.scrollX(), mouseY - n.scrollY(), delta));
+		return this.walkConsumableEvent(mouseX, mouseY, (n, target) -> n.element.mouseScrolled(mouseX - n.scrollX(), mouseY - n.scrollY(), delta));
 	}
 
 	public void mouseMoved(double mouseX, double mouseY) {
-		this.walkConsumableEvent(mouseX, mouseY, n -> {
+		this.walkConsumableEvent(mouseX, mouseY, (n, target) -> {
 			n.element.mouseMoved(n.renderRegion, mouseX - n.scrollX(), mouseY - n.scrollY());
 			return false;
 		});
@@ -315,13 +316,15 @@ class ComponentTree {
 	 * @param callback the callback to test for each element. If an element returns true, further elements will not be tested.
 	 * @return whether the callback was tested at least once.
 	 */
-	private boolean walkConsumableEvent(double x, double y, Predicate<Node> callback) {
+	private boolean walkConsumableEvent(double x, double y, BiPredicate<Node, Node> callback) {
 		// DFS walk() with tests for occlusion. children run before parents and can consume some events preventing propagation.
 		// front prioritised over back
 		Deque<Node> nodes = new ArrayDeque<>();
 		Map<Node, Boolean> grey = new HashMap<>();
 		// once we reach an element that blocks, set this to true. we know we've found the occluding element
 		Node occluding = null;
+		// the frontmost, non-occluded element that receives the event. Used for some logic. May differ to occluding.
+		Node target = null;
 
 		nodes.add(this.root);
 		boolean componentListened = false;
@@ -333,7 +336,8 @@ class ComponentTree {
 			if (listens != null) {
 				if (listens) {
 					// check for consumption
-					if (callback.test(node)) {
+					// target should be stabilised by now.
+					if (callback.test(node, target)) {
 						return true;
 					}
 
@@ -359,6 +363,11 @@ class ComponentTree {
 							eventHandling == PointerEvents.REGION || occluding == node || occluding == null
 					))) {
 						grey.put(node, true);
+
+						// determine if a step towards frontmost non-occluded
+						if (target == node.parent && occluding == null) {
+							target = node;
+						}
 					}
 				}
 
@@ -369,7 +378,7 @@ class ComponentTree {
 				}
 
 				// Handle Children.
-				// Last element has highest Z, so should be pushed to stack last.
+				// Last element has highest Z, so should be pushed to stack last (to be handled first).
 				for (Node child : node.childrenByZ) {
 					nodes.push(child);
 				}

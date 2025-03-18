@@ -20,6 +20,7 @@ import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.Context;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.Component;
+import cc.cosmetica.kupe.api.gui.Element;
 import cc.cosmetica.kupe.api.gui.ResizableElement;
 import cc.cosmetica.kupe.api.gui.SizedElement;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
@@ -76,7 +77,7 @@ public abstract class MinecraftBuiltinComponent extends Component {
 
 	// interact //
 	@Override
-	public void mouseClicked(double x, double y, int button) {
+	public void mouseClicked(Element target, double x, double y, int button) {
 		this.minecraftWidget.mouseClicked(x, y, button);
 	}
 

@@ -63,7 +63,7 @@ public abstract class AbstractScrollContainer extends Component {
     }
 
     @Override
-    public void mouseClicked(double x, double y, int button) {
+    public void mouseClicked(Element target, double x, double y, int button) {
         if (this.hasVerticalOverflow()) {
             if (
                 y >= this.scrollbarTopY && y < (this.scrollbarTopY + this.scrollbarSize)
