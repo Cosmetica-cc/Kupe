@@ -17,6 +17,7 @@ import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Margins;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.OptionalInt;
 
@@ -42,7 +43,7 @@ public class BorderBoxTest extends Screen {
 	}
 
 	@Override
-	public Stylesheet getStylesheet() {
+	public @NotNull Stylesheet getStylesheet() {
 		return super.getStylesheet()
 				.tag("outer", Style.create()
 						.set(CommonProperties.WIDTH, fixed(OptionalInt.of(120)))

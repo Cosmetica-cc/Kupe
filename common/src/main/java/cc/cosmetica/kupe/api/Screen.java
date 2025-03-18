@@ -21,6 +21,7 @@ import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Margins;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
@@ -71,7 +72,7 @@ public abstract class Screen extends Component {
 	}
 
 	@Override
-	public Stylesheet getStylesheet() {
+	public @NotNull Stylesheet getStylesheet() {
 		// the child screen may want to override the style
 		// they can do that with this stylesheet
 		return new Stylesheet()

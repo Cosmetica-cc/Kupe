@@ -14,6 +14,7 @@ import cc.cosmetica.kupe.api.gui.Div;
 import cc.cosmetica.kupe.api.gui.Grid;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.OptionalInt;
@@ -38,7 +39,7 @@ public class GridTestScreen extends Screen {
     }
 
     @Override
-    public @Nullable Stylesheet getStylesheet() {
+    public @NotNull Stylesheet getStylesheet() {
         return super.getStylesheet()
                 .tag("x", Style.create()
                         .set(Grid.COLUMN_GAP, 2)

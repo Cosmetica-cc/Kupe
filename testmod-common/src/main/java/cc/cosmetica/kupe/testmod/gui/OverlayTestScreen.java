@@ -16,6 +16,7 @@ import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Margins;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
@@ -42,7 +43,7 @@ public class OverlayTestScreen extends Screen {
 	}
 
 	@Override
-	public @Nullable Stylesheet getStylesheet() {
+	public @NotNull Stylesheet getStylesheet() {
 		return new Stylesheet()
 				.tag("body", Style.create()
 						// default

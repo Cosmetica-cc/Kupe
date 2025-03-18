@@ -17,6 +17,7 @@ import cc.cosmetica.kupe.api.gui.Div;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
@@ -45,7 +46,7 @@ public class AllKupeTestsScreen extends Screen {
 	}
 
 	@Override
-	public @Nullable Stylesheet getStylesheet() {
+	public @NotNull Stylesheet getStylesheet() {
 		return super.getStylesheet()
 				.tag("body", Style.create()
 						.set(Div.FIXED_CONTAINER, false)

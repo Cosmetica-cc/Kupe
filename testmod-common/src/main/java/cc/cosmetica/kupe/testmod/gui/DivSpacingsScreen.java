@@ -19,6 +19,7 @@ import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Margins;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.OptionalInt;
@@ -49,7 +50,7 @@ public class DivSpacingsScreen extends Screen {
 	}
 
 	@Override
-	public @Nullable Stylesheet getStylesheet() {
+	public @NotNull Stylesheet getStylesheet() {
 		return super.getStylesheet()
 				.tag("start", Style.create().set(Div.JUSTIFY_CONTENT, Justify.START))
 				.tag("centre", Style.create().set(Div.JUSTIFY_CONTENT, Justify.CENTRE))

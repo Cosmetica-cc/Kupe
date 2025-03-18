@@ -20,6 +20,7 @@ import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.fixed;
@@ -48,7 +49,7 @@ public class ScrollTestScreen extends Screen {
 	}
 
 	@Override
-	public @Nullable Stylesheet getStylesheet() {
+	public @NotNull Stylesheet getStylesheet() {
 		return super.getStylesheet() // default styles
 				.self(Style.create().set(CommonProperties.PADDING, fixed(new Margins(5, 0))));
 	}
