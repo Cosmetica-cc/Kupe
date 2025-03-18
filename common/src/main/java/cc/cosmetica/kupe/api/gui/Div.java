@@ -462,9 +462,8 @@ public class Div extends AbstractScrollContainer {
 
 			// post-child space
 
-			// don't add extra blank space at the end
-			// this prevents unnecessary overflow
-			// todo what if this is intentional?
+			// ~~don't~~ *do* add extra blank space at the end
+			// this would prevent unnecessary overflow - but what if this is intentional (e.g. padding)?
 			if (childIterator.hasNext()) {
 				switch (justifyContent) {
 				case SPACE_EVENLY:
@@ -476,6 +475,16 @@ public class Div extends AbstractScrollContainer {
 				case SPACE_BETWEEN:
 					x += availableWidth / (children.size() - 1.0);
 					break;
+				}
+			} else {
+				// final space
+				switch (justifyContent) {
+					case SPACE_EVENLY:
+						x += (double) availableWidth / (children.size() + 1);
+						break;
+					case SPACE_AROUND:
+						x += (double) availableWidth / (children.size() * 2);
+						break;
 				}
 			}
 		}
