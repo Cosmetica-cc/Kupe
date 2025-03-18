@@ -22,7 +22,7 @@ import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.Component;
 import cc.cosmetica.kupe.api.gui.PointerEvents;
 import cc.cosmetica.kupe.api.gui.ResizableElement;
-import cc.cosmetica.kupe.api.gui.WrappingElement;
+import cc.cosmetica.kupe.api.gui.WrappingComponent;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.RootStylesheet;
 import cc.cosmetica.kupe.api.gui.style.Style;
@@ -202,7 +202,7 @@ class ComponentTree {
 			for (Node child : node.children) {
 				child.computeMargins(vw, vh, pw, ph);
 
-				if (!(child.element instanceof WrappingElement)) {
+				if (!(child.element instanceof WrappingComponent)) {
 					child.computeSizes(context, pw, ph);
 				}
 			}
@@ -212,8 +212,8 @@ class ComponentTree {
 			nodes.addAll(node.children);//can we skip adding leaf nodes
 
 			// check for wrapping overflow
-			if (wrappingOverflowed != null && node.parent != null && node.element instanceof WrappingElement) {
-				int realHeight = ((WrappingElement)node.element).realHeight(node.renderRegion.getWidth(), context);
+			if (wrappingOverflowed != null && node.parent != null && node.element instanceof WrappingComponent) {
+				int realHeight = ((WrappingComponent)node.element).realHeight(node.renderRegion.getWidth(), context);
 
 				if (node.renderRegion.getHeight() < realHeight) {
 					// use REAL dimensions as the actual intrinsic size

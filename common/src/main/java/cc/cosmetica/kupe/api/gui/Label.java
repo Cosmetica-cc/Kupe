@@ -33,7 +33,7 @@ import java.util.OptionalInt;
 /**
  * A plain text label. This could be multi-line.
  */
-public class Label extends Component implements WrappingElement {
+public class Label extends Component implements WrappingComponent {
 	public Label(Text text) {
 		this.text = text;
 	}

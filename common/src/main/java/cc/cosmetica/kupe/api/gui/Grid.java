@@ -33,7 +33,7 @@ import java.util.function.Function;
  * A layout which positions components in a grid, left to right.
  * Components will wrap to the first column and next row once space runs out.
  */
-public class Grid extends AbstractScrollContainer {
+public class Grid extends AbstractScrollContainer implements WrappingComponent {
     public Grid(Component... components) {
         this.components = Arrays.asList(components);
     }
@@ -54,6 +54,12 @@ public class Grid extends AbstractScrollContainer {
     // ==========
     //   SIZING
     // ==========
+
+
+    @Override
+    public int realHeight(int width, Context context) {
+        return 0;
+    }
 
     @Override
     public Dimensions minimumSize(List<? extends SizedElement> children, Margins padding, int vw, int vh) {
@@ -98,12 +104,12 @@ public class Grid extends AbstractScrollContainer {
 
         if (columns == 0) {
             final int n = Math.max(1,children.size());
-            return new Dimensions(elementWidth*n + columnGap * (n-1), elementHeight);
+            return new Dimensions(fixedWidth.orElse(elementWidth*n + columnGap * (n-1) + padding.horizontal()), elementHeight + padding.vertical());
         }
 
         int rows = calcRows(children.size(), columns);
         final int rowGap = this.getStyle().get(ROW_GAP);
-        return new Dimensions(elementWidth * columns + columnGap * (columns-1), elementHeight * rows + rowGap * (rows-1));
+        return new Dimensions(fixedWidth.orElse(elementWidth * columns + columnGap * (columns-1) + padding.horizontal()), elementHeight * rows + rowGap * (rows-1) + padding.vertical());
     }
 
     private static int findColumnsForWidth(int W, int elementWidth, int columnGap) {

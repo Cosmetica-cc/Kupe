@@ -19,12 +19,12 @@ package cc.cosmetica.kupe.api.gui;
 import cc.cosmetica.kupe.api.Context;
 
 /**
- * An element that wraps content vertically when constrained horizontally.
+ * A component that wraps content vertically when constrained horizontally.
  * You should still try to allocate the right size initially, accounting for wrapping, in your base component sizing
  * methods.
  * @implNote These are considered in an additional step during element sizing.
  */
-public interface WrappingElement {
+public interface WrappingComponent {
 	/**
 	 * Get the real height of this component, given the width.
 	 * @param width the width.
