@@ -33,7 +33,7 @@ import java.util.function.Function;
  * A layout which positions components in a grid, left to right.
  * Components will wrap to the first column and next row once space runs out.
  */
-public class Grid extends AbstractScrollContainer implements WrappingComponent {
+public class Grid extends AbstractScrollContainer /*implements WrappingComponent*/ {
     public Grid(Component... components) {
         this.components = Arrays.asList(components);
     }
@@ -56,10 +56,10 @@ public class Grid extends AbstractScrollContainer implements WrappingComponent {
     // ==========
 
 
-    @Override
-    public int realHeight(int width, Context context) {
-        return 0;
-    }
+    //@Override TODO: need children
+    //public int realHeight(int width, Context context) {
+        //
+    //}
 
     @Override
     public Dimensions minimumSize(List<? extends SizedElement> children, Margins padding, int vw, int vh) {

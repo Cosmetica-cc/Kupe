@@ -19,10 +19,7 @@ package cc.cosmetica.kupe.impl;
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.Context;
 import cc.cosmetica.kupe.api.Text;
-import cc.cosmetica.kupe.api.gui.Component;
-import cc.cosmetica.kupe.api.gui.PointerEvents;
-import cc.cosmetica.kupe.api.gui.ResizableElement;
-import cc.cosmetica.kupe.api.gui.WrappingComponent;
+import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.RootStylesheet;
 import cc.cosmetica.kupe.api.gui.style.Style;
@@ -30,6 +27,7 @@ import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
+import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
@@ -515,7 +513,7 @@ class ComponentTree {
 	private static final Text DEBUG_INSTRUCTIONS_P = Text.literal("[1] Back [2] Step In [3] Previous [4] Next [5] Print Debug [6] Show Content Region - (Padded Region)");
 	private static Text debugInstructions = DEBUG_INSTRUCTIONS_C;
 
-	private static class Node implements ResizableElement {
+	private static class Node implements ResizableElement, Element {
 		Node(@Nullable ComponentTree.Node parent, Component element) {
 			this.parent = parent;
 			this.element = element;
@@ -773,6 +771,18 @@ class ComponentTree {
 			}
 
 			return result;
+		}
+
+		// Element
+
+		@Override
+		public Optional<Element> getParent() {
+			return Optional.ofNullable(this.parent);
+		}
+
+		@Override
+		public List<Element> getChildren() {
+			return ImmutableList.copyOf(children);
 		}
 
 		// ResizableElement
