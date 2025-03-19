@@ -228,7 +228,10 @@ public abstract class Component {
 		int width = preferred.getWidth() + padding.horizontal();
 		int height = preferred.getHeight() + padding.vertical(); // style-specified dimensions (min,max,fixed) include padding
 		Dimensions maxDimensions = this.getStyle().get(CommonProperties.MAXIMUM_SIZE).apply(vw, vh, 0, 0);
-		Dimensions minDimensions = this.getStyle().get(CommonProperties.MINIMUM_SIZE).apply(vw, vh, 0, 0).orElse(Dimensions.NONE);
+		Dimensions minDimensions = new Dimensions(
+				this.getStyle().get(CommonProperties.MIN_WIDTH).apply(vw, vh, 0, 0).orElse(0),
+				this.getStyle().get(CommonProperties.MIN_HEIGHT).apply(vw, vh, 0, 0).orElse(0)
+		);
 
 		OptionalInt fixedWidth = this.getStyle().get(CommonProperties.WIDTH).apply(vw, vh, 0, 0);
 

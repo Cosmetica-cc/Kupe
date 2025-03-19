@@ -62,26 +62,18 @@ public final class CommonProperties {
 
 	/**
 	 * The fixed width of the component. This is bounded by the {@linkplain CommonProperties#MAXIMUM_SIZE maximum} and
-	 * {@linkplain CommonProperties#MINIMUM_SIZE minimum} sizes.
+	 * {@linkplain CommonProperties#MIN_WIDTH minimum} sizes.
 	 * This may still resize due to flex attributes.
 	 */
 	public static final Style.Property<DimensionsOperator<OptionalInt>> WIDTH = new Style.Property<>("width", NO_SIZE, false);
 
 	/**
 	 * The fixed height of the component. This is bounded by the {@linkplain CommonProperties#MAXIMUM_SIZE maximum} and
-	 * {@linkplain CommonProperties#MINIMUM_SIZE minimum} sizes.
+	 * {@linkplain CommonProperties#MIN_HEIGHT minimum} sizes.
 	 * This may still resize due to flex attributes.
 	 */
 	public static final Style.Property<DimensionsOperator<OptionalInt>> HEIGHT = new Style.Property<>("height", NO_SIZE, false);
 
-	/**
-	 * The minimum size of the component. This does not include margins, but includes padding.
-	 * The actual minimum size of the component is the maximum, per-axis, of this and the minimum size due to its
-	 * children.
-	 */
-	public static final Style.Property<DimensionsOperator<Optional<Dimensions>>> MINIMUM_SIZE = new Style.Property<>("minimumSize", NO_DIMENSIONS, false);
-
-	// TODO switch MINIMUM_SIZE to this, and remove FIXED_CONTAINER.
 	/**
 	 * Override the minimum size of the component. This does not include margins, but includes padding.
 	 */

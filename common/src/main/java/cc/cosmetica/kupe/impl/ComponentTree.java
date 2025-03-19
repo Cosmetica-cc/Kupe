@@ -678,9 +678,11 @@ class ComponentTree {
 			final int vw = context.getViewWidth();
 			final int vh = context.getViewHeight();
 
-			this.minimumSize = Dimensions.max(
-					this.element.minimumSize(this.children, this.padding, vw, vh),
-					this.element.getStyle().get(CommonProperties.MINIMUM_SIZE).apply(vw, vh, pw, ph).orElse(Dimensions.NONE)
+			// min size can be overridden by stylesheet
+			Dimensions minSizeByChildren = this.element.minimumSize(this.children, this.padding, vw, vh);
+			this.minimumSize = new Dimensions(
+					this.element.getStyle().get(CommonProperties.MIN_WIDTH).apply(vw, vh, pw, ph).orElse(minSizeByChildren.getWidth()),
+					this.element.getStyle().get(CommonProperties.MIN_HEIGHT).apply(vw, vh, pw, ph).orElse(minSizeByChildren.getHeight())
 			);
 
 			// max size is specified in the style only

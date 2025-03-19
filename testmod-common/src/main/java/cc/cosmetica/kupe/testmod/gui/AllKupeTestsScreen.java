@@ -13,12 +13,12 @@ import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.Button;
 import cc.cosmetica.kupe.api.gui.Component;
-import cc.cosmetica.kupe.api.gui.Div;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import java.util.OptionalInt;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
@@ -49,7 +49,7 @@ public class AllKupeTestsScreen extends Screen {
 	public @NotNull Stylesheet getStylesheet() {
 		return super.getStylesheet()
 				.tag("body", Style.create()
-						.set(Div.FIXED_CONTAINER, false)
+						.set(MIN_HEIGHT, fixed(OptionalInt.of(0)))
 						.set(MARGINS, screen(0, 12, MARGINS_FACTORY))
 						.set(CommonProperties.HEIGHT, screen(0, 75)))
 				.component(Button.class, Style.create()

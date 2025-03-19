@@ -52,7 +52,7 @@ public class Div extends AbstractScrollContainer {
 
 	@Override
 	public Dimensions minimumSize(List<? extends SizedElement> children, Margins padding, int vw, int vh) {
-		return this.getStyle().get(FIXED_CONTAINER) ? this.size(children, padding, SizedElement::getMinimumSize) : Dimensions.NONE;
+		return this.size(children, padding, SizedElement::getMinimumSize);
 	}
 
 	@Override
@@ -542,12 +542,6 @@ public class Div extends AbstractScrollContainer {
 	 * The secondary axis is the direction perpendicular to the direction components are laid out.
 	 */
 	public static final Style.Property<Align> ALIGN_ITEMS = new Style.Property<>("alignItems", Align.CENTRE, false);
-
-	/**
-	 * Whether this div must expand to fit all components. If this is false, the div will ignore the minimum size of
-	 * its children when determining its own minimum size. This promotes overflowing and scrolling behaviour.
-	 */
-	public static final Style.Property<Boolean> FIXED_CONTAINER = new Style.Property<>("fixedContainer", true, false);
 
 	/**
 	 * Flips the axis of operations. Y <-> X. Essentially mirrors along a line from top left corner down and right, 45 degrees.
