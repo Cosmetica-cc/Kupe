@@ -20,8 +20,20 @@ package cc.cosmetica.kupe.api.gui;
  * How components can receive pointer events.
  */
 public enum PointerEvents {
-	NONE, /* Skip this component. Make it 'transparent' to pointers. */
-	VISIBLE, /* Default behaviour. Receive events only on this component's region, when visible. */
-	REGION, /* All pointer events on this component's region, even when occluded. */
-	ALL /* All pointer events, always. */
+	/**
+	 * Skip this component. Make it 'transparent' to pointers.
+	 */
+	NONE,
+	/**
+	 * Default behaviour. Receive events only on this component's region, when visible.
+	 */
+	VISIBLE,
+	/**
+	 * All pointer events on this component's region, even when occluded.
+	 */
+	REGION,
+	/**
+	 * All pointer events, always.
+	 */
+	ALL
 }

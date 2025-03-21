@@ -362,6 +362,13 @@ public abstract class Component {
 	 */
 	public void render(Canvas canvas, Region region, Margins padding, int mouseX, int mouseY) {
 		this.paintBackground(canvas, region, padding);
+
+		// stencil
+		@Nullable Region scissorRegion = this.getScissorRegion(region);
+		if (scissorRegion != null) {
+			canvas.useScissor(region);
+		}
+
 		this.paint(canvas, region, mouseX, mouseY);
 	}
 
@@ -489,6 +496,16 @@ public abstract class Component {
 	 */
 	public boolean isOccluding(Region region, int x, int y, boolean decorations) {
 		return !decorations && region.contains(x, y);
+	}
+
+	/**
+	 * Get the scissor region of this component for both render and mouse events.
+	 * @param region the component's render region.
+	 * @return the region to scissor. null does not apply a new scissor.
+	 * @apiNote this is applied between the <i>paintBackground</i> and <i>paint</i> stages.
+	 */
+	public @Nullable Region getScissorRegion(Region region) {
+		return null;
 	}
 
 	/**

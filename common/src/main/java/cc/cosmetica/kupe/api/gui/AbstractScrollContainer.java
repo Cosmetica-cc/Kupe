@@ -18,8 +18,8 @@ package cc.cosmetica.kupe.api.gui;
 
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
-import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Base for a container that can scroll.
@@ -105,13 +105,8 @@ public abstract class AbstractScrollContainer extends Component {
     ////////////////////
 
     @Override
-    public void paintBackground(Canvas canvas, Region region, Margins padding) {
-        super.paintBackground(canvas, region, padding);
-
-        if (overflow) {
-            // stencil
-            canvas.useScissor(region);
-        }
+    public @Nullable Region getScissorRegion(Region region) {
+        return this.overflow ? region : null;
     }
 
     @Override
