@@ -43,8 +43,9 @@ public class AllKupeTestsScreen extends Screen {
 				// demonstrate setting an unregistered screen
 				new Button(Text.literal("Div Spacings Test"), () -> Screens.setScreen(new DivSpacingsScreen(), DivSpacingsScreen.ID)),
 				new Button(Text.translatable("screens.kupe_test.grid"), () -> Screens.setScreen(GridTestScreen.ID)),
-				new Button(FontInheritanceTest.ID.translationKey("screens"), () -> Screens.setScreen(FontInheritanceTest.ID)),
-				new Div(Region(0), Region(1), Region(0), Region(1), Region(0), Region(1)).withStyle(Style.create().set(FLEX_SHRINK, 0).set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X).set(MIN_WIDTH, fixedSize(0)).set(WIDTH, fixedSize(50)))
+				new Button(FontInheritanceTest.ID.translationKey("screens"), () -> Screens.setScreen(FontInheritanceTest.ID))
+				// Test for nested scrolling region
+				//new Div(Region(0), Region(1), Region(0), Region(1), Region(0), Region(1)).withStyle(Style.create().set(FLEX_SHRINK, 0).set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X).set(MIN_WIDTH, fixedSize(0)).set(WIDTH, fixedSize(50)))
 		};
 	}
 

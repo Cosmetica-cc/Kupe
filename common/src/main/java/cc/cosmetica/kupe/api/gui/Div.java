@@ -396,7 +396,8 @@ public class Div extends AbstractScrollContainer {
 			}
 		}
 
-		//System.out.println(availableWidth);
+		// Negative available width screws with placement.
+		availableWidth = Math.max(availableWidth, 0);
 
 		// initial space
 		switch (justifyContent) {
@@ -495,6 +496,7 @@ public class Div extends AbstractScrollContainer {
 		this.grabbed = false;
 //		if (this.overflow) {
 //			System.out.println(super.toString() + " Overflow = " + region.getEndX() + " < " + x);
+//			System.out.printf("MaxScroll %f\n", this.maxScroll);
 //		}
 	}
 
