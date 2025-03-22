@@ -238,9 +238,11 @@ public class Grid extends AbstractScrollContainer /*implements WrappingComponent
                 // preferred does take into account fixed and intrinsic, and minimum
                 // not maximum though (why?)
                 Dimensions size = element.getPreferredSize();
+                Align componentAlignHorizontal = element.getComponent().getStyle().get(CommonProperties.ALIGN_SELF)
+                        .orElse(sAlignHorizontal);
 
                 // handle stretch
-                switch (sAlignHorizontal) {
+                switch (componentAlignHorizontal) {
                     case STRETCH_CENTRE: case STRETCH_END: case STRETCH_START:
                         size = new Dimensions(
                                 Math.max(elementWidth, size.getWidth()), // will be capped anyway; may as well shrink nicely?
@@ -287,7 +289,7 @@ public class Grid extends AbstractScrollContainer /*implements WrappingComponent
 
                 // Handle alignment within space
                 int componentX;
-                switch (sAlignHorizontal) {
+                switch (componentAlignHorizontal) {
                     case START: case STRETCH_START:
                         componentX = (int) x;
                         break;
@@ -405,7 +407,7 @@ public class Grid extends AbstractScrollContainer /*implements WrappingComponent
      */
     public static final Style.Property<Justify> JUSTIFY_COLUMNS = new Style.Property<>("justifyColumns", Justify.CENTRE, false);
     /**
-     * Align each component in its grid space horizontally.
+     * Align each component in its grid space horizontally. Children can override this with {@link CommonProperties#ALIGN_SELF}.
      */
     public static final Style.Property<Align> ALIGN_HORIZONTAL = new Style.Property<>("alignHorizontal", Align.CENTRE, false);
     /**
