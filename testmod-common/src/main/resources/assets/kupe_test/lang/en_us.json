@@ -4,6 +4,7 @@
   "screens.kupe_test.edge_case_1": "Resizing Edge Case",
   "screens.kupe_test.fakeplayer": "Fake Player Test",
   "screens.kupe_test.grid": "Grid Test",
+  "screens.kupe_test.nested_scroll_test": "Nested Scroll Test",
   "screens.kupe_test.root": "Select a Test",
   "screens.kupe_test.screen": "Kupe Test Screen",
   "screens.kupe_test.scroll": "Scrollable Div Test",

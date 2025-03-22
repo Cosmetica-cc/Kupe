@@ -28,5 +28,6 @@ public final class KupeTestInit {
 		Screens.registerScreen(ZLayeringTest.ID, new ZLayeringTest());
 		Screens.registerScreen(GridTestScreen.ID, new GridTestScreen());
 		Screens.registerScreen(FontInheritanceTest.ID, new FontInheritanceTest());
+		Screens.registerScreen(NestedScrollTestScreen.ID, new NestedScrollTestScreen());
 	}
 }

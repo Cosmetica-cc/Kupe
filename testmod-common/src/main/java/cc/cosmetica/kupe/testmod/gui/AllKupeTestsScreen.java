@@ -13,11 +13,9 @@ import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.Button;
 import cc.cosmetica.kupe.api.gui.Component;
-import cc.cosmetica.kupe.api.gui.Div;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
-import cc.cosmetica.kupe.api.maths.Axis2D;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.OptionalInt;
@@ -42,18 +40,11 @@ public class AllKupeTestsScreen extends Screen {
 				new Button(Text.literal("Border Box Test"), () -> Screens.setScreen(BorderBoxTest.ID)),
 				// demonstrate setting an unregistered screen
 				new Button(Text.literal("Div Spacings Test"), () -> Screens.setScreen(new DivSpacingsScreen(), DivSpacingsScreen.ID)),
+				// use translation strings for the screen names below
 				new Button(Text.translatable("screens.kupe_test.grid"), () -> Screens.setScreen(GridTestScreen.ID)),
-				new Button(FontInheritanceTest.ID.translationKey("screens"), () -> Screens.setScreen(FontInheritanceTest.ID))
-				// Test for nested scrolling region
-				//new Div(Region(0), Region(1), Region(0), Region(1), Region(0), Region(1)).withStyle(Style.create().set(FLEX_SHRINK, 0).set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X).set(MIN_WIDTH, fixedSize(0)).set(WIDTH, fixedSize(50)))
+				new Button(FontInheritanceTest.ID.translationKey("screens"), () -> Screens.setScreen(FontInheritanceTest.ID)),
+				new Button(NestedScrollTestScreen.ID.translationKey("screens"), () -> Screens.setScreen(NestedScrollTestScreen.ID))
 		};
-	}
-
-	private Component Region(int c) {
-		return new Div().withStyle(
-				Style.create().set(WIDTH, fixedSize(50)).set(FLEX_SHRINK, 0).set(HEIGHT, fixedSize(20))
-						.set(BACKGROUND_COLOUR, OptionalInt.of(c==1?0xFF00FF:0x00FF77))
-		);
 	}
 
 	@Override
