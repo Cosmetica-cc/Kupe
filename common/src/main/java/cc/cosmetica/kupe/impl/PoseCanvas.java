@@ -77,7 +77,6 @@ public class PoseCanvas implements Canvas {
 
 	@Override
 	public void useScissor(Region region) {
-
 		// set current region
 		this.scissorStack.region = region;
 
@@ -85,6 +84,12 @@ public class PoseCanvas implements Canvas {
 		if (region == null) {
 			RenderSystem.disableScissor();
 		} else {
+			// check whether to scroll scissor region
+			ScissorStack scissorScroller = this.scissorStack.prevNode;
+			if (scissorScroller != null && (scissorScroller.scrollX != 0 || scissorScroller.scrollY != 0)) {
+				region = region.translate((int) scissorScroller.scrollX, (int) scissorScroller.scrollY);
+			}
+
 			double guiScale = Minecraft.getInstance().getWindow().getGuiScale();
 			double windowHeight = Minecraft.getInstance().getWindow().getGuiScaledHeight();
 
