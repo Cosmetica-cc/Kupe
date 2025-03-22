@@ -373,12 +373,28 @@ class ComponentTree {
 				nodes.push(node);
 				grey.put(node, false);
 
+				// update scissor region
+				Region scissorRegion = node.getComponent().getScissorRegion(node.renderRegion);
+				if (scissorRegion != null) {
+					// calculate new scissor region - same logic as render
+					scissorRegion = scissorRegion.translate((int)node.scrollX(), (int)node.scrollY());
+					if (node.parent != null && node.parent.trueScissorRegion != null) {
+						scissorRegion = scissorRegion.intersect(node.parent.trueScissorRegion);
+					}
+					// set scissor region
+					node.trueScissorRegion = scissorRegion;
+				} else {
+					// inherit
+					node.trueScissorRegion = node.parent == null ? null : node.parent.trueScissorRegion;
+				}
+
 				// Determine whether this node should receive pointer events.
 				PointerEvents eventHandling = node.element.getStyle().get(CommonProperties.POINTER_EVENTS);
 
 				if (eventHandling != PointerEvents.NONE) {
 					if (eventHandling == PointerEvents.ALL || (node.trueRenderRegion().contains((int) x, (int) y) && (
-							eventHandling == PointerEvents.REGION || occluding == node || occluding == null
+							eventHandling == PointerEvents.REGION ||
+									(node.parent == null || node.parent.trueScissorRegion == null || node.parent.trueScissorRegion.contains ((int) x, (int) y)) && (occluding == node || occluding == null)
 					))) {
 						grey.put(node, true);
 
@@ -558,6 +574,7 @@ class ComponentTree {
 		final int depth;
 		// extra data
 		Region renderRegion;
+		Region trueScissorRegion;
 		float innerScrollX, innerScrollY = 0;
 		Dimensions minimumSize, maximumSize, intrinsicSize; // calculated and cached
 		OptionalInt width, height;
