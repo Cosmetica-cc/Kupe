@@ -231,8 +231,13 @@ public class PoseCanvas implements Canvas {
 	}
 
 	@Override
-	public QuadBuilder drawQuads(QuadBuilder.Mode mode) {
-		return new BufferQuadBuilder(Tesselator.getInstance().getBuilder(), mode, this.stack.last().pose());
+	public PolyBuilder drawQuads(PolyBuilder.Mode mode) {
+		return new BufferPolyBuilder(Tesselator.getInstance().getBuilder(), GL11.GL_QUADS, mode, this.stack.last().pose());
+	}
+
+	@Override
+	public PolyBuilder drawTriangles(PolyBuilder.Mode mode) {
+		return new BufferPolyBuilder(Tesselator.getInstance().getBuilder(), GL11.GL_TRIANGLES, mode, this.stack.last().pose());
 	}
 
 	@Override

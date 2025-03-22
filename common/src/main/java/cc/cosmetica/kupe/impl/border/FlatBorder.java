@@ -17,7 +17,7 @@
 package cc.cosmetica.kupe.impl.border;
 
 import cc.cosmetica.kupe.api.Canvas;
-import cc.cosmetica.kupe.api.QuadBuilder;
+import cc.cosmetica.kupe.api.PolyBuilder;
 import cc.cosmetica.kupe.api.gui.Border;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.maths.Region;
@@ -78,7 +78,7 @@ public class FlatBorder implements Border {
 
         // border with transparent centre
         // draw in batch
-        QuadBuilder builder = canvas.drawQuads(QuadBuilder.Mode.POSITION_COLOUR);
+        PolyBuilder builder = canvas.drawQuads(PolyBuilder.Mode.POSITION_COLOUR);
 
         // top
         if (this.sizes[TOP] > 0)
@@ -136,7 +136,7 @@ public class FlatBorder implements Border {
         builder.build();
     }
 
-    private static void addRect(QuadBuilder builder, int x0, int y0, int width, int height, float[] colour) {
+    private static void addRect(PolyBuilder builder, int x0, int y0, int width, int height, float[] colour) {
         int x1 = x0 + width;
         int y1 = y0 + height;
 

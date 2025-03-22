@@ -122,11 +122,16 @@ public interface Canvas {
 	void drawTexture(int x0, int y0, int width, int height, float z, ResourceKey texture);
 
 	/**
-	 * Start drawing quads.
-	 *
+	 * Start drawing quadrilaterals. The {@link PolyBuilder#build()} method must be called to finish building.
 	 * @param mode the format to draw vertices in. Each vertex will require these parameters.
 	 */
-	QuadBuilder drawQuads(QuadBuilder.Mode mode);
+	PolyBuilder drawQuads(PolyBuilder.Mode mode);
+
+	/**
+	 * Start drawing triangles. The {@link PolyBuilder#build()} method must be called to finish building.
+	 * @param mode the format to draw vertices in. Each vertex will require these parameters.
+	 */
+	PolyBuilder drawTriangles(PolyBuilder.Mode mode);
 
 	/**
 	 * Render the provided minecraft component.

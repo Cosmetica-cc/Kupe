@@ -16,17 +16,17 @@
 
 package cc.cosmetica.kupe.impl;
 
-import cc.cosmetica.kupe.api.QuadBuilder;
+import cc.cosmetica.kupe.api.PolyBuilder;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.math.Matrix4f;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 
-public class BufferQuadBuilder implements QuadBuilder {
-	public BufferQuadBuilder(BufferBuilder builder, Mode mode, @Nullable Matrix4f matrix4f) {
+public class BufferPolyBuilder implements PolyBuilder {
+	public BufferPolyBuilder(BufferBuilder builder, int shape, Mode mode, @Nullable Matrix4f matrix4f) {
 		this.builder = builder;
-		this.builder.begin(GL11.GL_QUADS, mode.getFormat());
+		this.builder.begin(shape, mode.getFormat());
 		this.matrix4f = matrix4f;
 	}
 
@@ -34,7 +34,7 @@ public class BufferQuadBuilder implements QuadBuilder {
 	private final Matrix4f matrix4f;
 
 	@Override
-	public QuadBuilder vertex(double x, double y, double z) {
+	public PolyBuilder vertex(double x, double y, double z) {
 		if (this.matrix4f == null) {
 			this.builder.vertex(x, y, z);
 		} else {
@@ -44,25 +44,25 @@ public class BufferQuadBuilder implements QuadBuilder {
 	}
 
 	@Override
-	public QuadBuilder colour(float r, float g, float b, float a) {
+	public PolyBuilder colour(float r, float g, float b, float a) {
 		this.builder.color(r, g, b, a);
 		return this;
 	}
 
 	@Override
-	public QuadBuilder uv(float u, float v) {
+	public PolyBuilder uv(float u, float v) {
 		this.builder.uv(u, v);
 		return this;
 	}
 
 	@Override
-	public QuadBuilder lightmap(int u, int v) {
+	public PolyBuilder lightmap(int u, int v) {
 		this.builder.uv2(u, v);
 		return this;
 	}
 
 	@Override
-	public QuadBuilder endVertex() {
+	public PolyBuilder endVertex() {
 		this.builder.endVertex();
 		return this;
 	}

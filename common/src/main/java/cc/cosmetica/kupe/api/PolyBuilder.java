@@ -22,16 +22,16 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 
 /**
- * It builds the quads.
+ * Draw polygons. Typically used for {@linkplain Canvas#drawQuads(Mode) quadrilaterals}.
  */
-public interface QuadBuilder {
-	default QuadBuilder vertex(double x, double y) {
+public interface PolyBuilder {
+	default PolyBuilder vertex(double x, double y) {
 		return this.vertex(x, y, 0.0);
 	}
 
-	QuadBuilder vertex(double x, double y, double z);
+	PolyBuilder vertex(double x, double y, double z);
 
-	QuadBuilder colour(float r, float g, float b, float a);
+	PolyBuilder colour(float r, float g, float b, float a);
 
 	/**
 	 * The first lot of uv coordinates. Corresponds to the texture coordinates.
@@ -39,7 +39,7 @@ public interface QuadBuilder {
 	 * @param v the y position in the texture, between 0 and 1.
 	 * @return this.
 	 */
-	QuadBuilder uv(float u, float v);
+	PolyBuilder uv(float u, float v);
 
 	/**
 	 * The second lot of uv coordinates. Corresponds to the lightmap.
@@ -47,13 +47,13 @@ public interface QuadBuilder {
 	 * @param v the y position in the lightmap texture.
 	 * @return this.
 	 */
-	QuadBuilder lightmap(int u, int v);
+	PolyBuilder lightmap(int u, int v);
 
 	/**
 	 * End the current vertex and prepare for the next.
 	 * @return this.
 	 */
-	QuadBuilder endVertex();
+	PolyBuilder endVertex();
 
 	/**
 	 * Build these quads and dispatch them to be rendered.
