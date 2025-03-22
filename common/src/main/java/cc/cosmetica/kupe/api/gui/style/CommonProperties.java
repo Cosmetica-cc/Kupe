@@ -186,6 +186,16 @@ public final class CommonProperties {
 	}
 
 	/**
+	 * Provide a fixed value independent of screen size. A shorter version of the common idiom
+	 * {@code fixed(OptionalInt.of(...))}
+	 * @param value the value to give to the property.
+	 * @return a dimension operator for this fixed value.
+	 */
+	public static DimensionsOperator<OptionalInt> fixedSize(int value) {
+		return new FixedDimensions<>(OptionalInt.of(value));
+	}
+
+	/**
 	 * Provide a percentage of the width and height.
 	 * @param widthPercent the percentage (out of 100) of width.
 	 * @param heightPercent the percentage (out of 100) of height.

@@ -52,11 +52,10 @@ public interface Canvas {
 
 	/**
 	 * Set whether to use 'fast scissor'. This trims child branches that do not fall within a component's scissor.
-	 * That is, said children will not get rendered. This is on by default.
+	 * That is, said children will not get rendered. This is off by default to give children more freedom to ignore
+	 * their parents.
 	 * @param fastScissor whether to use fast scissor.
-	 * @deprecated this may be removed in the future to give children more freedom to ignore their parents.
 	 */
-	@Deprecated
 	void setFastScissor(boolean fastScissor);
 
 	/**

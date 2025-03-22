@@ -42,7 +42,7 @@ public class PoseCanvas implements Canvas {
 
 		// set up scissor stack
 		this.scissorStack = new ScissorStack();
-		this.fastScissor = true;
+		this.fastScissor = false;
 	}
 
 	private final PoseStack stack;
@@ -77,6 +77,7 @@ public class PoseCanvas implements Canvas {
 
 	@Override
 	public void useScissor(Region region) {
+
 		// set current region
 		this.scissorStack.region = region;
 
