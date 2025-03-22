@@ -18,6 +18,7 @@ package cc.cosmetica.kupe.api;
 
 import cc.cosmetica.kupe.api.maths.Region;
 import cc.cosmetica.kupe.impl.LeavesSandbox;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Tool for drawing on the screen without needing to use Mojang code directly.
@@ -38,8 +39,10 @@ public interface Canvas {
 
 	/**
 	 * Enable scissor for this component and its children. This restricts them to the bounds of this region.
+	 * @param region the region to scissor to. Scroll from parent regions is accounted for.
+	 * @param stack whether to stack this scissor atop previous scissors.
 	 */
-	void useScissor(Region region);
+	void useScissor(@Nullable Region region, boolean stack);
 
 	/**
 	 * Scroll the view the given amount for this component and its children. This is not just equivalent to translating

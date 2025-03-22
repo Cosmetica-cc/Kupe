@@ -16,6 +16,8 @@
 
 package cc.cosmetica.kupe.api.maths;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * Represents a region of the screen.
  */
@@ -193,6 +195,21 @@ public class Region {
 		}
 
 		return new Region(x, y, width, height);
+	}
+
+	/**
+	 * Get the intersection of this region and another region.
+	 * @param region the other region.
+	 * @return the intersection of the two regions.
+	 */
+	public Region intersect(Region region) {
+		int x0 = Math.max(region.x, this.x);
+		int y0 = Math.max(region.y, this.y);
+		// exclusive
+		int x1 = Math.min(region.getEndX(), this.getEndX());
+		int y1 = Math.min(region.getEndY(), this.getEndY());
+
+		return new Region(x0, y0, Math.max(x1-x0, 0), Math.max(y1-y0, 0));
 	}
 
 	@Override

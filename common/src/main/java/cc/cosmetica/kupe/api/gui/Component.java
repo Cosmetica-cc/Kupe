@@ -366,7 +366,7 @@ public abstract class Component {
 		// stencil
 		@Nullable Region scissorRegion = this.getScissorRegion(region);
 		if (scissorRegion != null) {
-			canvas.useScissor(region);
+			canvas.useScissor(region, true);
 		}
 
 		this.paint(canvas, region, mouseX, mouseY);

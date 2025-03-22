@@ -76,12 +76,10 @@ public class PoseCanvas implements Canvas {
 	}
 
 	@Override
-	public void useScissor(Region region) {
-		// set current region
-		this.scissorStack.region = region;
-
-		// update region minecraft rendering engine is using
+	public void useScissor(@Nullable Region region, boolean stack) {
+		// update region minecraft rendering engine is using and in the stack
 		if (region == null) {
+			this.scissorStack.region = null;
 			RenderSystem.disableScissor();
 		} else {
 			// check whether to scroll scissor region
@@ -89,6 +87,17 @@ public class PoseCanvas implements Canvas {
 			if (scissorScroller != null && (scissorScroller.scrollX != 0 || scissorScroller.scrollY != 0)) {
 				region = region.translate((int) scissorScroller.scrollX, (int) scissorScroller.scrollY);
 			}
+
+			// stack scissor
+			if (stack) {
+				Region previous = this.scissorStack.region;
+				if (previous != null) {
+					region = previous.intersect(region);
+				}
+			}
+
+			// set current region
+			this.scissorStack.region = region;
 
 			double guiScale = Minecraft.getInstance().getWindow().getGuiScale();
 			double windowHeight = Minecraft.getInstance().getWindow().getGuiScaledHeight();
@@ -152,7 +161,7 @@ public class PoseCanvas implements Canvas {
 
 		// use new region if it changed
 		if (this.scissorStack.region != oldRegion) {
-			this.useScissor(this.scissorStack.region);
+			this.useScissor(this.scissorStack.region, false);
 		}
 	}
 
