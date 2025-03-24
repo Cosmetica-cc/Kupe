@@ -782,6 +782,7 @@ class ComponentTree {
 		 * Called when hooks referencing this component need to be cleared.
 		 */
 		private void dispose() {
+			this.element.unmount(); // callback for unmount
 			StateManagerImpl.clearStates(this.element);
 		}
 

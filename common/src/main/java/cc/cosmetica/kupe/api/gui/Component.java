@@ -485,6 +485,13 @@ public abstract class Component {
 	}
 
 	/**
+	 * Called when this component is unmounted. That is, when it disappears from the hierarchy.
+	 */
+	public void unmount() {
+		// No default behaviour.
+	}
+
+	/**
 	 * Get whether this component (not including children) is occluding components underneath.
 	 * The coordinates provided are not guaranteed to be contained by the given {@link Region}.
 	 * @param region the true render region of this component.
