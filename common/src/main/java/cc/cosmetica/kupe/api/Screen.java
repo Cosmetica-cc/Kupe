@@ -97,14 +97,14 @@ public abstract class Screen extends Component {
 
 
 	// make immutable with Style.merge. Default styles shouldn't be modifiable. Override stylesheet instead.
-	protected static final Style BODY_DEFAULT_STYLE = Style.merge(
+	public static final Style BODY_DEFAULT_STYLE = Style.merge(
 			Collections.singletonList(Style.create()
 					.set(CommonProperties.WIDTH, SCREEN_WIDTH)
 					.set(CommonProperties.HEIGHT, SCREEN_HEIGHT)
 					.set(Div.JUSTIFY_CONTENT, Justify.CENTRE)
 					.set(Div.ALIGN_ITEMS, Align.CENTRE))
 	);
-	protected static final Style TITLE_DEFAULT_STYLE = Style.merge(
+	public static final Style TITLE_DEFAULT_STYLE = Style.merge(
 			Collections.singletonList(Style.create()
 					.set(CommonProperties.WIDTH, SCREEN_WIDTH)
 					.set(Label.ALIGN_TEXT, Align.CENTRE)
