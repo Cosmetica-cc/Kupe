@@ -71,6 +71,9 @@ public class TextBox extends MinecraftBuiltinComponent implements Input {
 	private final int maxLength;
 	private Consumer<String> onEnter;
 
+	// internal widget
+	private EditBox box;
+
 	@Override
 	public Dimensions intrinsicSize(List<? extends SizedElement> children, Margins padding, Context context) {
 		return this.tryFixed(DEFAULT_DIMENSIONS, padding, context);
@@ -79,16 +82,27 @@ public class TextBox extends MinecraftBuiltinComponent implements Input {
 	@Override
 	public AbstractWidget createMinecraftWidget(Region region, Context context) {
 		/* NB this.minecraft.keyboardHandler.setSendRepeatsToGui(true); */
-		EditBox box = new net.minecraft.client.gui.components.EditBox(
-				Minecraft.getInstance().font,
-				region.getX(),
-				region.getY(),
-				region.getWidth(),
-				region.getHeight(),
-				this.placeholder.toMinecraftComponent()
-		);
+
+		// for some reason resize is running when we click on the box?
+		if (this.box == null || (this.box.getHeight() != region.getHeight())) {
+			box = new net.minecraft.client.gui.components.EditBox(
+					Minecraft.getInstance().font,
+					region.getX(),
+					region.getY(),
+					region.getWidth(),
+					region.getHeight(),
+					this.placeholder.toMinecraftComponent()
+			);
+		} else {
+			box.x = region.getX();
+			box.y = region.getY();
+			box.setWidth(region.getWidth());
+		}
+
 		box.setEditable(this.editable);
 		box.setMaxLength(this.maxLength);
+		box.setResponder(null);
+		box.setValue(this.value.peek());
 		box.setResponder(this.value::set);
 		return box;
 	}
@@ -96,7 +110,7 @@ public class TextBox extends MinecraftBuiltinComponent implements Input {
 	@Override
 	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
 		if (this.minecraftWidget.isFocused()) {
-			if (keyCode == GLFW.GLFW_KEY_ENTER) {
+			if (keyCode == GLFW.GLFW_KEY_ENTER && this.onEnter != null) {
 				this.onEnter.accept(((EditBox)this.minecraftWidget).getValue());
 			} else {
 				return super.keyPressed(keyCode, scanCode, modifiers);
