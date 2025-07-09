@@ -85,7 +85,7 @@ public class FakePlayer extends Component {
 	 * @param configuration the configuration to provide for this attachment. If null, will remove the configuration.
 	 * @return this fake player.
 	 */
-	public <T> FakePlayer configureAttachment(Attachment<T> attachment, @Nullable T configuration) {
+	public <T> FakePlayer configureOverride(Attachment<T> attachment, @Nullable T configuration) {
 		if (configuration == null) {
 			this.configurations.remove(attachment);
 		} else {
@@ -93,6 +93,17 @@ public class FakePlayer extends Component {
 		}
 
 		return this;
+	}
+
+	/**
+	 * Add additional nametags to the fake player.
+	 * @param nametagText the nametag text.
+	 * @param scale the scale.
+	 * @return this Fake player.
+	 */
+	public FakePlayer addNametag(Text nametagText, float scale) {
+		throw new UnsupportedOperationException("Not implemented");
+		// TODO doesn't account for prefix and suffix. Does prefix/suffix automatically show?
 	}
 
 	public Iterator<Attachment<?>> getRenderingAttachments() {
@@ -181,7 +192,6 @@ public class FakePlayer extends Component {
 
 	public static Attachment<ResourceLocation> CAPE = registerAttachment(new CapeAttachment());
 	public static Attachment<ResourceLocation> ELYTRA = registerAttachment(new ElytraAttachment());
-	public static Attachment<Text> NAMETAG = registerAttachment(new NameTagAttachment());
 
 	public static <T> Attachment<T> registerAttachment(Attachment<T> attachment) {
 		AttachmentsRegistry.register(attachment);
@@ -207,18 +217,10 @@ public class FakePlayer extends Component {
 		void render(Canvas canvas, T configuration, Quaternion cameraOrientation, MultiBufferSource bufferSource, int packedLight);
 
 		/**
-		 * Get the dynamic user configuration. This is called every tick.
+		 * Get the dynamic user configuration. This is called every tick for an enabled component of a UUID FakePlayer.
 		 * @return the configuration for the given user.
 		 */
 		T getDynamicConfiguration(UUID uuid);
-
-		/**
-		 * Whether this is a name tag attachment.
-		 * @return whether this attachment should render with nametag. Otherwise renders with model.
-		 */
-		default boolean isNameTag() {
-			return false;
-		}
 
 		/**
 		 * Whether this attachment should be shown by default in UUID-configured fake players.
