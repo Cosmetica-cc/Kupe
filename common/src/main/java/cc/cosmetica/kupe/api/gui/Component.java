@@ -444,6 +444,13 @@ public abstract class Component {
 	}
 
 	/**
+	 * Called when a character is typed on a screen containing this component.
+	 * @param symbol the symbol typed.
+	 * @param modifiers modifiers to the key being pressed, like control.
+	 */
+	public boolean charTyped(char symbol, int modifiers) { return false; }
+
+	/**
 	 * Called when the mouse is clicked on this component.
 	 * @param target the frontmost, non-occluded element that received this event.
 	 * @param x the x position of the mouse on the screen.

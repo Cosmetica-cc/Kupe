@@ -430,6 +430,10 @@ class ComponentTree {
 		return this.root.walkAndTest(node -> node.element.keyReleased(keyCode, scanCode, modifiers));
 	}
 
+	public boolean charTyped(char symbol, int modifiers) {
+		return this.root.walkAndTest(node -> node.element.charTyped(symbol, modifiers));
+	}
+
 	/**
 	 * Called when hooks referencing the components need to be cleared.
 	 */

@@ -126,6 +126,11 @@ public final class KupeScreen extends Screen {
 		return this.tree.keyReleased(keyCode, scanCode, modifiers);
 	}
 
+	@Override
+	public boolean charTyped(char codePoint, int modifiers) {
+		return this.tree.charTyped(codePoint, modifiers);
+	}
+
 	/**
 	 * Handle a mouse click at the specified position on the screen.
 	 * @return whether to consume click and not pass to game.
