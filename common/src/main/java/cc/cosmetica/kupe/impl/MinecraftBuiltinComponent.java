@@ -90,4 +90,9 @@ public abstract class MinecraftBuiltinComponent extends Component {
 	public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
 		return this.minecraftWidget.keyReleased(keyCode, scanCode, modifiers);
 	}
+
+	@Override
+	public boolean charTyped(char symbol, int modifiers) {
+		return this.minecraftWidget.charTyped(symbol, modifiers);
+	}
 }
