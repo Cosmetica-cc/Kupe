@@ -18,11 +18,12 @@ package cc.cosmetica.kupe.impl.fakeplayer;
 
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.MatrixStack;
-import cc.cosmetica.kupe.api.gui.FakePlayer;
+import cc.cosmetica.kupe.api.gui.GUIPlayer;
 import cc.cosmetica.kupe.api.maths.Vec3;
 import cc.cosmetica.kupe.mixin.fakeplayer.PlayerModelAccessor;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Quaternion;
+import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -31,16 +32,16 @@ import net.minecraft.util.Mth;
 
 import java.util.UUID;
 
-public class CapeAttachment implements FakePlayer.Attachment<ResourceLocation> {
+public class CapeAttachment implements GUIPlayer.Attachment<ResourceLocation> {
 	@Override
-	public void render(FakePlayerRenderer renderer, Canvas canvas, ResourceLocation configuration, Quaternion cameraOrientation, MultiBufferSource bufferSource, int packedLight) {
+	public void render(PlayerModel playerModel, GUIPlayer.Posture posture, Canvas canvas, ResourceLocation configuration, Quaternion cameraOrientation, MultiBufferSource bufferSource, int packedLight) {
 		MatrixStack stack = canvas.getStack();
 		stack.push();
 		stack.translate(0.0D, 0.0D, 0.125D);
 		double d = 0;
 		double e = 0;
 		double m = 0;
-		float n = renderer.yRotBody;
+		float n = posture.yRotBody;
 		double o = Mth.sin(n * 0.017453292F);
 		double p = -Mth.cos(n * 0.017453292F);
 		float q = (float)e * 10.0F;
@@ -53,7 +54,7 @@ public class CapeAttachment implements FakePlayer.Attachment<ResourceLocation> {
 			r = 0.0F;
 		}
 
-		if (renderer.sneaking) {
+		if (posture.sneaking) {
 			q += 25.0F;
 		}
 
@@ -61,7 +62,7 @@ public class CapeAttachment implements FakePlayer.Attachment<ResourceLocation> {
 		stack.rotate(Vec3.ZP, s / 2.0F, true);
 		stack.rotate(Vec3.YP, 180.0F - s / 2.0F, true);
 		VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityTranslucent(configuration));
-		((PlayerModelAccessor) renderer.getPlayerModel()).getCloak().render(stack.getMinecraftStack(), vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY);
+		((PlayerModelAccessor) playerModel).getCloak().render(stack.getMinecraftStack(), vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY);
 		stack.pop();
 	}
 

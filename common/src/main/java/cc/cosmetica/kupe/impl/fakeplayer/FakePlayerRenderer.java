@@ -19,10 +19,8 @@ package cc.cosmetica.kupe.impl.fakeplayer;
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.Context;
 import cc.cosmetica.kupe.api.MatrixStack;
-import cc.cosmetica.kupe.api.Text;
-import cc.cosmetica.kupe.api.gui.FakePlayer;
+import cc.cosmetica.kupe.api.gui.GUIPlayer;
 import cc.cosmetica.kupe.impl.PoseCanvas;
-import cc.cosmetica.kupe.impl.text.VanillaText;
 import cc.cosmetica.kupe.mixin.fakeplayer.HumanoidModelAccessor;
 import cc.cosmetica.kupe.mixin.fakeplayer.PlayerModelAccessor;
 import cc.cosmetica.kupe.util.GlobalMatrixStack;
@@ -42,27 +40,23 @@ import net.minecraft.client.model.AnimationUtils;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
 /**
- * Renderer for {@link cc.cosmetica.kupe.api.gui.FakePlayer}.
+ * Renderer for {@link GUIPlayer}.
  * This is largely adapted from code used in the vanilla game to render players. So take the licensing of this file with
- * a grain of salt.
+ * many grains of salt (this file should not be treated as under the same license as the project).
  */
 public final class FakePlayerRenderer {
 	// Lazy Model Loading
@@ -78,25 +72,18 @@ public final class FakePlayerRenderer {
 		return true;
 	}
 
-	// properties
-	public boolean sneaking;
+	// properties, exposed
 	public boolean slim;
-	public boolean upsideDown;
-	public boolean leftHanded;
-	public boolean isMainArmRaised;
 	public ResourceLocation skin;
-	public PlayerRenderMode renderMode = PlayerRenderMode.NORMAL;
-	public HumanoidArm mainArm = HumanoidArm.RIGHT;
-	public float yRotBody, yRotHead, yRot, xRot;
+
+	// properties, internal
+	private boolean upsideDown;
+	private PlayerRenderMode renderMode = PlayerRenderMode.NORMAL;
 
 	private Quaternion cameraOrientation = Quaternion.ONE;
 	public Set<PlayerModelPart> shownParts = new HashSet<>();
 
-	public PlayerModel<?> getPlayerModel() {
-		return Objects.requireNonNull(this.model, "Model has not been loaded!");
-	}
-
-	public void render(FakePlayer player, Context context, int left, int top, float extraScale, float lookX, float lookY) {
+	public void render(GUIPlayer player, Context context, int left, int top, float extraScale, float lookX, float lookY) {
 		// lazy load model (important on newer mc versions)
 		if (!this.lazyLoadModel()) {
 			return;
@@ -124,10 +111,12 @@ public final class FakePlayerRenderer {
 
 		float rotationBody = 180.0F + h * 20.0F;
 		float rotationMain = 180.0F + h * 40.0F;
-		this.yRotBody += rotationBody;
-		this.yRot += rotationMain;
-		this.xRot = -l * 20.0F;
-		this.yRotHead = this.yRot;//fakePlayer.getYRot(0);
+
+		// rotate player to face lookX, lookY
+		player.pose.yRotBody += rotationBody;
+		player.pose.yRotHead += rotationMain;// yRotHead = yRot = getYRot(0);
+		float xRotOld = player.pose.xRot;
+		player.pose.xRot += -l * 20.0F;
 		//Lighting.setupForEntityInInventory();
 
 		xRotation.conj();
@@ -140,8 +129,10 @@ public final class FakePlayerRenderer {
 		});
 		bufferSource.endBatch();
 
-		this.yRotBody -= rotationBody;
-		this.yRot -= rotationMain;
+		// restore
+		player.pose.yRotBody -= rotationBody;
+		player.pose.yRotHead -= rotationMain;
+		player.pose.xRot = xRotOld;
 
 		stack.pop();
 		//RenderSystem.applyModelViewMatrix();
@@ -149,9 +140,9 @@ public final class FakePlayerRenderer {
 	}
 
 	// EntityRenderDispatcher#render
-	private void render(FakePlayer player, Context context, PoseStack stack, MultiBufferSource bufferSource, double xOffset, double yOffset, double zOffset, float rotation, float delta, int light) {
+	private void render(GUIPlayer player, Context context, PoseStack stack, MultiBufferSource bufferSource, double xOffset, double yOffset, double zOffset, float rotation, float delta, int light) {
 		try {
-			Vec3 vec3 = getRenderOffset();
+			Vec3 vec3 = getRenderOffset(player.pose);
 			double x = xOffset + vec3.x();
 			double y = yOffset + vec3.y();
 			double z = zOffset + vec3.z();
@@ -159,14 +150,14 @@ public final class FakePlayerRenderer {
 			stack.translate(x, y, z);
 
 			// PlayerRenderer#render
-			this.setModelProperties();
+			this.setModelProperties(player.pose);
 			this.drawLivingEntity(player, context, rotation, delta, stack, bufferSource, light);
 			// </PlayerRenderer#render>
 
 			stack.popPose();
 		} catch (Throwable var24) {
-			CrashReport crashReport = CrashReport.forThrowable(var24, "Rendering fake player in menu");
-			crashReport.addCategory("Fake Player being rendered");
+			CrashReport crashReport = CrashReport.forThrowable(var24, "Rendering GUI player in menu");
+			crashReport.addCategory("GUI Player being rendered");
 
 			CrashReportCategory category = crashReport.addCategory("Renderer details");
 			category.setDetail("Location", xOffset + "," + yOffset + "," + zOffset);
@@ -176,12 +167,12 @@ public final class FakePlayerRenderer {
 		}
 	}
 
-	private Vec3 getRenderOffset() {
-		return this.sneaking ? new Vec3(0.0D, -0.125D, 0.0D) : Vec3.ZERO;
+	private Vec3 getRenderOffset(GUIPlayer.Posture posture) {
+		return posture.sneaking ? new Vec3(0.0D, -0.125D, 0.0D) : Vec3.ZERO;
 	}
 
 	// PlayerRenderer#setModelProperties()
-	private void setModelProperties() {
+	private void setModelProperties(GUIPlayer.Posture posture) {
 		PlayerModel playerModel = this.model;
 
 		playerModel.setAllVisible(true);
@@ -191,32 +182,29 @@ public final class FakePlayerRenderer {
 		playerModel.rightPants.visible = this.shownParts.contains(PlayerModelPart.RIGHT_PANTS_LEG);
 		playerModel.leftSleeve.visible = this.shownParts.contains(PlayerModelPart.LEFT_SLEEVE);
 		playerModel.rightSleeve.visible = this.shownParts.contains(PlayerModelPart.RIGHT_SLEEVE);
-		playerModel.crouching = this.sneaking;
+		playerModel.crouching = posture.sneaking;
 
-		if (!this.leftHanded) {
-			playerModel.rightArmPose = this.isMainArmRaised ? HumanoidModel.ArmPose.ITEM : HumanoidModel.ArmPose.EMPTY;
-			playerModel.leftArmPose = HumanoidModel.ArmPose.EMPTY;
-		} else {
-			playerModel.rightArmPose = HumanoidModel.ArmPose.EMPTY;
-			playerModel.leftArmPose = this.isMainArmRaised ? HumanoidModel.ArmPose.ITEM : HumanoidModel.ArmPose.EMPTY;
-		}
+		playerModel.rightArmPose = posture.leftArmRaised ? HumanoidModel.ArmPose.ITEM : HumanoidModel.ArmPose.EMPTY;
+		playerModel.leftArmPose = posture.rightArmRaised ? HumanoidModel.ArmPose.ITEM : HumanoidModel.ArmPose.EMPTY;
 	}
 
 	// LivingEntityRenderer#render
-	private void drawLivingEntity(FakePlayer player, Context context, float rotation, float delta, PoseStack stack, MultiBufferSource bufferSource, int light) {
+	private void drawLivingEntity(GUIPlayer player, Context context, float rotation, float delta, PoseStack stack, MultiBufferSource bufferSource, int light) {
 		stack.pushPose();
 		PlayerModel<AbstractClientPlayer> model = this.model;
+
+		GUIPlayer.Posture posture = player.pose;
 
 		model.attackTime = 0;
 		model.riding = false;
 		model.young = false;
 
-		float yRotBody = this.yRotBody; //player.getYRotBody(delta);
-		float yRotHead = this.yRotHead; //player.getYRotHead(delta);
+		float yRotBody = posture.yRotBody; //player.getYRotBody(delta);
+		float yRotHead = posture.yRotHead; //player.getYRotHead(delta);
 		float yRotDiff = yRotHead - yRotBody;
 		float bob = delta;
 
-		float xRot = this.xRot; //player.getXRot(delta);
+		float xRot = posture.xRot; //player.getXRot(delta);
 
 		// Upside Down
 		if (this.upsideDown) {
@@ -238,7 +226,7 @@ public final class FakePlayerRenderer {
 		}
 
 		//model.prepareMobModel(player, o, n, delta); only does swim stuff, not necessary
-		this.modelSetupAnim(model, animationPosition, animationSpeed, bob, yRotDiff, xRot);
+		this.modelSetupAnim(player.pose.sneaking, player.pose.isLeftHanded, model, animationPosition, animationSpeed, bob, yRotDiff, xRot);
 
 		RenderType renderType = this.getRenderType(this.renderMode);
 
@@ -254,13 +242,13 @@ public final class FakePlayerRenderer {
 		// if they're just going to leave the sandbox every time anyway
 
 		Canvas canvas = new PoseCanvas(stack, Minecraft.getInstance(), context, delta);
-		Iterator<FakePlayer.Attachment<?>> iterator = player.getRenderingAttachments();
+		Iterator<GUIPlayer.Attachment<?>> iterator = player.getRenderingAttachments();
 
 		while (iterator.hasNext()) {
-			FakePlayer.Attachment<?> layer = iterator.next();
+			GUIPlayer.Attachment<?> layer = iterator.next();
 			Object configuration = player.getConfiguration(layer);
 			if (configuration != null) {
-				((FakePlayer.Attachment)layer).render(this, canvas, configuration, cameraOrientation, bufferSource, light);
+				((GUIPlayer.Attachment)layer).render(this.model, posture, canvas, configuration, cameraOrientation, bufferSource, light);
 			}
 		}
 
@@ -272,7 +260,7 @@ public final class FakePlayerRenderer {
 		stack.popPose();
 	}
 
-	private void renderNametag(FakePlayer player, Canvas canvas, MultiBufferSource bufferSource, int packedLight) {
+	private void renderNametag(GUIPlayer player, Canvas canvas, MultiBufferSource bufferSource, int packedLight) {
 		PoseStack stack = canvas.getStack().getMinecraftStack();
 
 		float yPosition = EntityType.PLAYER.getDimensions().height + 0.5F;
@@ -319,7 +307,7 @@ public final class FakePlayerRenderer {
 		}
 	}
 
-	private void modelSetupAnim(PlayerModel<AbstractClientPlayer> model, float f, float g, float bob, float yRotDiff, float xRot) {
+	private void modelSetupAnim(boolean sneaking, boolean leftHanded, PlayerModel<AbstractClientPlayer> model, float f, float g, float bob, float yRotDiff, float xRot) {
 		model.head.yRot = yRotDiff * 0.017453292F;
 
 		if (model.swimAmount > 0.0F) {
@@ -366,12 +354,12 @@ public final class FakePlayerRenderer {
 
 		model.rightArm.yRot = 0.0F;
 		model.leftArm.yRot = 0.0F;
-		boolean bl3 = this.mainArm == HumanoidArm.RIGHT;
+		boolean rightHanded = !leftHanded;
 		boolean bl4;
 
-		bl4 = bl3 ? model.leftArmPose.isTwoHanded() : model.rightArmPose.isTwoHanded();
+		bl4 = rightHanded ? model.leftArmPose.isTwoHanded() : model.rightArmPose.isTwoHanded();
 
-		if (bl3 != bl4) {
+		if (rightHanded != bl4) {
 			poseLeftArm(model);
 			poseRightArm(model);
 		} else {
@@ -409,9 +397,8 @@ public final class FakePlayerRenderer {
 
 		if (model.swimAmount > 0.0F) {
 			float l = f % 26.0F;
-			HumanoidArm humanoidArm = this.mainArm;
-			float m = humanoidArm == HumanoidArm.RIGHT && model.attackTime > 0.0F ? 0.0F : model.swimAmount;
-			float n = humanoidArm == HumanoidArm.LEFT && model.attackTime > 0.0F ? 0.0F : model.swimAmount;
+			float m = !leftHanded && model.attackTime > 0.0F ? 0.0F : model.swimAmount;
+			float n = leftHanded && model.attackTime > 0.0F ? 0.0F : model.swimAmount;
 			float o;
 
 			if (l < 14.0F) {
@@ -453,7 +440,7 @@ public final class FakePlayerRenderer {
 
 		ModelPart cloak = ((PlayerModelAccessor) model).getCloak();
 
-		if (this.sneaking) {
+		if (sneaking) {
 			cloak.z = 1.4F;
 			cloak.y = 1.85F;
 		} else {

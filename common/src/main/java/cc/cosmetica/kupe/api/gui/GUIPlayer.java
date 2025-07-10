@@ -24,12 +24,16 @@ import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
 import cc.cosmetica.kupe.impl.LeavesSandbox;
-import cc.cosmetica.kupe.impl.fakeplayer.*;
+import cc.cosmetica.kupe.impl.fakeplayer.AttachmentsRegistry;
+import cc.cosmetica.kupe.impl.fakeplayer.CapeAttachment;
+import cc.cosmetica.kupe.impl.fakeplayer.ElytraAttachment;
+import cc.cosmetica.kupe.impl.fakeplayer.FakePlayerRenderer;
 import cc.cosmetica.kupe.impl.text.VanillaText;
 import com.google.common.base.Preconditions;
 import com.mojang.math.Quaternion;
 import com.mojang.util.UUIDTypeAdapter;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.resources.DefaultPlayerSkin;
@@ -43,12 +47,12 @@ import java.util.*;
  * Component to show a player, like in the inventory.
  * Elements like Cape/Elytra are added as attachments.
  */
-public class FakePlayer extends Component {
+public class GUIPlayer extends Component {
 	/**
-	 * Display a 'static' fake player with the given skin texture. No attachments by default.
+	 * Display a 'static' GUI player with the given skin texture. No attachments by default.
 	 * @param skin the resource location of the skin texture.
 	 */
-	public FakePlayer(@NotNull ResourceKey skin, boolean slim, boolean followsMouse) {
+	public GUIPlayer(@NotNull ResourceKey skin, boolean slim, boolean followsMouse) {
 		Preconditions.checkNotNull(skin, "Cannot provide a null skin.");
 
 		this.followsMouse = followsMouse;
@@ -58,11 +62,11 @@ public class FakePlayer extends Component {
 	}
 
 	/**
-	 * Create a new, 'dynamic' FakePlayer with the given UUID. All attachments will be dynamically configured by the
+	 * Create a new, 'dynamic' {@link GUIPlayer} with the given UUID. All attachments will be dynamically configured by the
 	 * provided UUID, and set to their default enable state.
 	 * @param uuid the uuid of the player to render.
 	 */
-	public FakePlayer(@NotNull UUID uuid, boolean followsMouse) {
+	public GUIPlayer(@NotNull UUID uuid, boolean followsMouse) {
 		Preconditions.checkNotNull(uuid, "Cannot provide a null UUID.");
 
 		this.followsMouse = followsMouse;
@@ -73,8 +77,13 @@ public class FakePlayer extends Component {
 		this.showAttachments(AttachmentsRegistry.getAll().stream().filter(Attachment::defaultEnable).toArray(Attachment[]::new));
 	}
 
+	/**
+	 * Modify the posture of the player.
+	 */
+	public final Posture pose = new Posture();
+
 	private final boolean followsMouse;
-	public/*FIXME private*/ final FakePlayerRenderer renderer = new FakePlayerRenderer();
+	private final FakePlayerRenderer renderer = new FakePlayerRenderer();
 	private final @Nullable UUID uuid;
 	private final Map<Attachment<?>, Object> configurations = new HashMap<>();
 	private final Set<Attachment<?>> shown = new HashSet<>();
@@ -89,7 +98,7 @@ public class FakePlayer extends Component {
 	 * @param configuration the configuration to provide for this attachment. If null, will remove the configuration.
 	 * @return this fake player.
 	 */
-	public <T> FakePlayer configureOverride(Attachment<T> attachment, @Nullable T configuration) {
+	public <T> GUIPlayer configureOverride(Attachment<T> attachment, @Nullable T configuration) {
 		if (configuration == null) {
 			this.configurations.remove(attachment);
 		} else {
@@ -105,7 +114,7 @@ public class FakePlayer extends Component {
 	 * @param scale the scale.
 	 * @return this Fake player.
 	 */
-	public FakePlayer addNametag(Text nametagText, float scale) {
+	public GUIPlayer addNametag(Text nametagText, float scale) {
 		throw new UnsupportedOperationException("Not implemented");
 		// TODO doesn't account for prefix and suffix. Does prefix/suffix automatically show?
 	}
@@ -130,7 +139,7 @@ public class FakePlayer extends Component {
 	 * Show the given attachments on this FakePlayer.
 	 * @param attachments a list of attachments to show on this fake player. Leave blank to show all attachments.
 	 */
-	public FakePlayer showAttachments(Attachment<?>... attachments) {
+	public GUIPlayer showAttachments(Attachment<?>... attachments) {
 		if (attachments.length == 0) {
 			this.shown.addAll(AttachmentsRegistry.getAll());
 		} else {
@@ -144,18 +153,13 @@ public class FakePlayer extends Component {
 	 * Hide the given attachments on this FakePlayer.
 	 * @param attachments a list of attachments to hide on this fake player. Leave blank to hide all attachments.
 	 */
-	public FakePlayer hideAttachments(Attachment<?>... attachments) {
+	public GUIPlayer hideAttachments(Attachment<?>... attachments) {
 		if (attachments.length == 0) {
 			this.shown.clear();
 		} else for (Attachment<?> attachment : attachments) {
 			this.shown.remove(attachment);
 		}
 
-		return this;
-	}
-
-	public FakePlayer setSneaking(boolean sneaking) {
-		this.renderer.sneaking = sneaking;
 		return this;
 	}
 
@@ -235,12 +239,14 @@ public class FakePlayer extends Component {
 		/**
 		 * Render this attachment on the fake player.
 		 * Leaves sandbox due to MultiBufferSource and Quaternion parameter.
+		 * @param playerModel the player model on which to render.
+		 * @param posture the posture of the player being rendered.
 		 * @param canvas the canvas environment for rendering.
 		 * @param configuration the configuration.
 		 * @param packedLight packed light for rendering.
 		 */
 		@LeavesSandbox
-		void render(FakePlayerRenderer playerRenderer, Canvas canvas, T configuration, Quaternion cameraOrientation, MultiBufferSource bufferSource, int packedLight);
+		void render(PlayerModel playerModel, GUIPlayer.Posture posture, Canvas canvas, T configuration, Quaternion cameraOrientation, MultiBufferSource bufferSource, int packedLight);
 
 		/**
 		 * Get the dynamic user configuration. This is called every tick for an enabled component of a UUID FakePlayer.
@@ -257,6 +263,22 @@ public class FakePlayer extends Component {
 		}
 	}
 
+	/**
+	 * Contains variables which alter the posture of the player.
+	 */
+	public static class Posture {
+		public boolean sneaking = false;
+		public boolean isLeftHanded = false;
+		public boolean leftArmRaised = false;
+		public boolean rightArmRaised = false;
+		public float yRotBody = 0;
+		public float yRotHead = 0;
+		public float xRot = 0;
+	}
+
+	/**
+	 * Contains Elytra properties.
+	 */
 	public final static class ElytraProperties {
 		public ElytraProperties(ResourceLocation texture, boolean glint, boolean translucent) {
 			this.texture = texture;

@@ -16,20 +16,20 @@
 
 package cc.cosmetica.kupe.impl.fakeplayer;
 
-import cc.cosmetica.kupe.api.gui.FakePlayer;
+import cc.cosmetica.kupe.api.gui.GUIPlayer;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 public class AttachmentsRegistry {
-	private static final List<FakePlayer.Attachment<?>> attachments = new ArrayList<>();
+	private static final List<GUIPlayer.Attachment<?>> attachments = new ArrayList<>();
 
-	public static Collection<FakePlayer.Attachment<?>> getAll() {
+	public static Collection<GUIPlayer.Attachment<?>> getAll() {
 		return attachments;
 	}
 
-	public static void register(FakePlayer.Attachment<?> attachment) {
+	public static void register(GUIPlayer.Attachment<?> attachment) {
 		attachments.add(attachment);
 	}
 }

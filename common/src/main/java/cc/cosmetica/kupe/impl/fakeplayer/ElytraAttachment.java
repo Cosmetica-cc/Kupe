@@ -18,12 +18,13 @@ package cc.cosmetica.kupe.impl.fakeplayer;
 
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.MatrixStack;
-import cc.cosmetica.kupe.api.gui.FakePlayer;
-import cc.cosmetica.kupe.api.gui.FakePlayer.ElytraProperties;
+import cc.cosmetica.kupe.api.gui.GUIPlayer;
+import cc.cosmetica.kupe.api.gui.GUIPlayer.ElytraProperties;
 import cc.cosmetica.kupe.mixin.fakeplayer.ElytraModelAccessor;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Quaternion;
 import net.minecraft.client.model.ElytraModel;
+import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -33,11 +34,11 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.UUID;
 
-public class ElytraAttachment implements FakePlayer.Attachment<ElytraProperties> {
+public class ElytraAttachment implements GUIPlayer.Attachment<ElytraProperties> {
 	private final ElytraModel<?> elytraModel = new ElytraModel<>();
 
 	@Override
-	public void render(FakePlayerRenderer renderer, Canvas canvas, ElytraProperties configuration, Quaternion cameraOrientation, MultiBufferSource bufferSource, int packedLight) {
+	public void render(PlayerModel model, GUIPlayer.Posture posture, Canvas canvas, ElytraProperties configuration, Quaternion cameraOrientation, MultiBufferSource bufferSource, int packedLight) {
 		MatrixStack stack = canvas.getStack();
 
 		stack.push();
@@ -52,14 +53,14 @@ public class ElytraAttachment implements FakePlayer.Attachment<ElytraProperties>
 		RenderType renderType = configuration.translucent ? RenderType.entityTranslucent(configuration.texture)
 				: RenderType.armorCutoutNoCull(configuration.texture);
 
-		this.setupAnim(renderer, (ElytraModelAccessor) elytraModel, 0, 0, 0, renderer.yRotHead, renderer.xRot);
+		this.setupAnim(posture, (ElytraModelAccessor) elytraModel, 0, 0, 0, posture.yRotHead, posture.xRot);
 		VertexConsumer vertexConsumer = ItemRenderer.getArmorFoilBuffer(bufferSource, renderType, false, configuration.glint);
 		this.elytraModel.renderToBuffer(stack.getMinecraftStack(), vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 1.0f, 1.0f, 1.0f, 1.0f);
 		stack.pop();
 	}
 
 	// based on ElytraModel#setupAnim
-	private void setupAnim(FakePlayerRenderer renderer, ElytraModelAccessor elytra, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+	private void setupAnim(GUIPlayer.Posture posture, ElytraModelAccessor elytra, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		float f = 0.2617994f;
 		float g = -0.2617994f;
 		float h = 0.0f;
@@ -73,7 +74,7 @@ public class ElytraAttachment implements FakePlayer.Attachment<ElytraProperties>
 			}
 			f = j * 0.34906584f + (1.0f - j) * f;
 			g = j * -1.5707964f + (1.0f - j) * g;
-		} else if (renderer.sneaking) {
+		} else if (posture.sneaking) {
 			f = 0.6981317f;
 			g = -0.7853982f;
 			h = 3.0f;
