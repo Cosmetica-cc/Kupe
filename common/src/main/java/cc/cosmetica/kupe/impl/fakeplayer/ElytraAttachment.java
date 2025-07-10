@@ -41,7 +41,8 @@ public class ElytraAttachment implements FakePlayer.Attachment<ElytraProperties>
 		MatrixStack stack = canvas.getStack();
 
 		stack.push();
-		stack.translate(0.0, 0.0, 0.125);
+		stack.scale(2,2,2);
+		stack.translate(0.0, -24/32.0, 0.125/2);
 
 //		((EntityModel)this.getParentModel()).copyPropertiesTo(this.elytraModel);
 //		{entityModel.attackTime = this.attackTime;

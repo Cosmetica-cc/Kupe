@@ -28,6 +28,7 @@ import cc.cosmetica.kupe.impl.fakeplayer.*;
 import cc.cosmetica.kupe.impl.text.VanillaText;
 import com.google.common.base.Preconditions;
 import com.mojang.math.Quaternion;
+import com.mojang.util.UUIDTypeAdapter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -73,7 +74,7 @@ public class FakePlayer extends Component {
 	}
 
 	private final boolean followsMouse;
-	private final FakePlayerRenderer renderer = new FakePlayerRenderer();
+	public/*FIXME private*/ final FakePlayerRenderer renderer = new FakePlayerRenderer();
 	private final @Nullable UUID uuid;
 	private final Map<Attachment<?>, Object> configurations = new HashMap<>();
 	private final Set<Attachment<?>> shown = new HashSet<>();
@@ -162,9 +163,17 @@ public class FakePlayer extends Component {
 	// Internal //
 	// ======== //
 
+	// TODO do this on creation with UUID?
 	public Text getNameTag() {
 		if (uuid == null) {
 			return Text.literal("Player");
+		}
+		if (Minecraft.getInstance().getConnection() == null) {
+			if (uuid.equals(UUIDTypeAdapter.fromString(Minecraft.getInstance().getUser().getUuid()))) {
+				return Text.literal(Minecraft.getInstance().getUser().getName());
+			} else {
+				return Text.literal("Player");
+			}
 		}
 
 		PlayerInfo loadedProfile = Minecraft.getInstance().getConnection().getPlayerInfo(uuid);
