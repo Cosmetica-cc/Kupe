@@ -78,7 +78,9 @@ public abstract class MinecraftBuiltinComponent extends Component {
 	// interact //
 	@Override
 	public void mouseClicked(Element target, double x, double y, int button) {
-		this.minecraftWidget.mouseClicked(x, y, button);
+		if (target.getComponent() == this) {
+			this.minecraftWidget.mouseClicked(x, y, button);
+		}
 	}
 
 	@Override

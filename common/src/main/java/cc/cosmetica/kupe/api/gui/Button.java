@@ -63,6 +63,16 @@ public class Button extends MinecraftBuiltinComponent implements Input {
 	}
 
 	@Override
+	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+		// TODO implement tab/shift-tab focus with auto-scroll - interface Input.
+		if (this.minecraftWidget.isFocused()) {
+			return super.keyPressed(keyCode, scanCode, modifiers);
+		} else {
+			return false;
+		}
+	}
+
+	@Override
 	public AbstractWidget createMinecraftWidget(Region region, Context context) {
 		return new net.minecraft.client.gui.components.Button(
 				region.getX(),

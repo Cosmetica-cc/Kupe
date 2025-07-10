@@ -19,6 +19,8 @@ package cc.cosmetica.kupe.api.gui;
 import cc.cosmetica.kupe.api.Context;
 import cc.cosmetica.kupe.api.State;
 import cc.cosmetica.kupe.api.Text;
+import cc.cosmetica.kupe.api.gui.style.RootStylesheet;
+import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
@@ -30,6 +32,8 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 import java.util.function.Consumer;
+
+import static cc.cosmetica.kupe.api.gui.style.CommonProperties.POINTER_EVENTS;
 
 /**
  * A text box for entering text.
@@ -126,4 +130,9 @@ public class TextBox extends MinecraftBuiltinComponent implements Input {
 	}
 
 	private static final Dimensions DEFAULT_DIMENSIONS = new Dimensions(200, 20);
+
+	static {
+		// Clicking out of the textbox
+		RootStylesheet.setDefaultOverrides(TextBox.class, Style.create().set(POINTER_EVENTS, PointerEvents.ALL));
+	}
 }

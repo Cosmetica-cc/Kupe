@@ -451,7 +451,7 @@ public abstract class Component {
 	public boolean charTyped(char symbol, int modifiers) { return false; }
 
 	/**
-	 * Called when the mouse is clicked on this component.
+	 * Called when the mouse is clicked on this component, or screen, as specified in {@link CommonProperties#POINTER_EVENTS}.
 	 * @param target the frontmost, non-occluded element that received this event.
 	 * @param x the x position of the mouse on the screen.
 	 * @param y the y position of the mouse on the screen.
