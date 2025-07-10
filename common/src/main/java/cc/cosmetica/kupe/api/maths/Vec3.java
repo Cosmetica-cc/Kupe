@@ -38,4 +38,8 @@ public interface Vec3 {
 	static Vec3 of(double x, double y, double z) {
 		return MathsImpl.createVec3(x, y, z);
 	}
+
+	Vec3 XP = of(1, 0, 0);
+	Vec3 YP = of(0, 1, 0);
+	Vec3 ZP = of(0, 0, 1);
 }

@@ -26,7 +26,7 @@ import java.util.UUID;
 
 public class ElytraAttachment implements FakePlayer.Attachment<ResourceLocation> {
 	@Override
-	public void render(Canvas canvas, ResourceLocation configuration, Quaternion cameraOrientation, MultiBufferSource bufferSource, int packedLight) {
+	public void render(FakePlayerRenderer renderer, Canvas canvas, ResourceLocation configuration, Quaternion cameraOrientation, MultiBufferSource bufferSource, int packedLight) {
 
 	}
 

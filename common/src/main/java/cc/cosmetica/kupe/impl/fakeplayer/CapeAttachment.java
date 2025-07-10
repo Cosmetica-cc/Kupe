@@ -17,17 +17,52 @@
 package cc.cosmetica.kupe.impl.fakeplayer;
 
 import cc.cosmetica.kupe.api.Canvas;
+import cc.cosmetica.kupe.api.MatrixStack;
 import cc.cosmetica.kupe.api.gui.FakePlayer;
+import cc.cosmetica.kupe.api.maths.Vec3;
+import cc.cosmetica.kupe.mixin.fakeplayer.PlayerModelAccessor;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Quaternion;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 
 import java.util.UUID;
 
 public class CapeAttachment implements FakePlayer.Attachment<ResourceLocation> {
 	@Override
-	public void render(Canvas canvas, ResourceLocation configuration, Quaternion cameraOrientation, MultiBufferSource bufferSource, int packedLight) {
+	public void render(FakePlayerRenderer renderer, Canvas canvas, ResourceLocation configuration, Quaternion cameraOrientation, MultiBufferSource bufferSource, int packedLight) {
+		MatrixStack stack = canvas.getStack();
+		stack.push();
+		stack.translate(0.0D, 0.0D, 0.125D);
+		double d = 0;
+		double e = 0;
+		double m = 0;
+		float n = renderer.yRotBody;
+		double o = Mth.sin(n * 0.017453292F);
+		double p = -Mth.cos(n * 0.017453292F);
+		float q = (float)e * 10.0F;
+		q = Mth.clamp(q, -6.0F, 32.0F);
+		float r = (float)(d * o + m * p) * 100.0F;
+		r = Mth.clamp(r, 0.0F, 150.0F);
+		float s = (float)(d * p - m * o) * 100.0F;
+		s = Mth.clamp(s, -20.0F, 20.0F);
+		if (r < 0.0F) {
+			r = 0.0F;
+		}
 
+		if (renderer.sneaking) {
+			q += 25.0F;
+		}
+
+		stack.rotate(Vec3.XP, 6.0F + r / 2.0F + q, true);
+		stack.rotate(Vec3.ZP, s / 2.0F, true);
+		stack.rotate(Vec3.YP, 180.0F - s / 2.0F, true);
+		VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityTranslucent(configuration));
+		((PlayerModelAccessor) renderer.getPlayerModel()).getCloak().render(stack.getMinecraftStack(), vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY);
+		stack.pop();
 	}
 
 	@Override

@@ -213,8 +213,7 @@ public class FakePlayer extends Component {
 		 * @param packedLight packed light for rendering.
 		 */
 		@LeavesSandbox
-		// TODO refactor so it doesn't leave sandbox
-		void render(Canvas canvas, T configuration, Quaternion cameraOrientation, MultiBufferSource bufferSource, int packedLight);
+		void render(FakePlayerRenderer playerRenderer, Canvas canvas, T configuration, Quaternion cameraOrientation, MultiBufferSource bufferSource, int packedLight);
 
 		/**
 		 * Get the dynamic user configuration. This is called every tick for an enabled component of a UUID FakePlayer.

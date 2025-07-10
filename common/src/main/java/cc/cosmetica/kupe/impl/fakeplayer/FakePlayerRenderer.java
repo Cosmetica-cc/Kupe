@@ -88,6 +88,10 @@ public final class FakePlayerRenderer {
 	private Quaternion cameraOrientation = Quaternion.ONE;
 	public Set<PlayerModelPart> shownParts = new HashSet<>();
 
+	public PlayerModel<?> getPlayerModel() {
+		return Objects.requireNonNull(this.model, "Model has not been loaded!");
+	}
+
 	public void render(FakePlayer player, Context context, int left, int top, float extraScale, float lookX, float lookY) {
 		// lazy load model (important on newer mc versions)
 		if (!this.lazyLoadModel()) {
@@ -242,35 +246,26 @@ public final class FakePlayerRenderer {
 
 		// render layers
 
-		// TODO optimise this; it's better to precompute the split between model and non-model.
+		// TODO refactor so it doesn't leave sandbox? Or refactor so it's fully out of context cause why force people
+		// if they're just going to leave the sandbox every time anyway
+
 		Canvas canvas = new PoseCanvas(stack, Minecraft.getInstance(), context, delta);
-		List<FakePlayer.Attachment<?>> nonModel = new ArrayList<>();
 		Iterator<FakePlayer.Attachment<?>> iterator = player.getRenderingAttachments();
 
 		while (iterator.hasNext()) {
 			FakePlayer.Attachment<?> layer = iterator.next();
-
-			if (!layer.isNameTag()) {
-				Object configuration = player.getConfiguration(layer);
-				if (configuration != null) {
-					((FakePlayer.Attachment)layer).render(canvas, configuration, cameraOrientation, bufferSource, light);
-				}
-			} else {
-				nonModel.add(layer);
+			Object configuration = player.getConfiguration(layer);
+			if (configuration != null) {
+				((FakePlayer.Attachment)layer).render(this, canvas, configuration, cameraOrientation, bufferSource, light);
 			}
 		}
 
 		stack.popPose();
 
-		// Render nametag attachments
+		// Render nametag
 		stack.pushPose();
 
-		for (FakePlayer.Attachment<?> layer : nonModel) {
-			Object configuration = player.getConfiguration(layer);
-			if (configuration != null) {
-				((FakePlayer.Attachment)layer).render(canvas, configuration, cameraOrientation, bufferSource, light);
-			}
-		}
+		// TODO nametag
 
 		stack.popPose();
 	}
