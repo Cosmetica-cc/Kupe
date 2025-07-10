@@ -25,8 +25,11 @@ import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
 import cc.cosmetica.kupe.impl.LeavesSandbox;
 import cc.cosmetica.kupe.impl.fakeplayer.*;
+import cc.cosmetica.kupe.impl.text.VanillaText;
 import com.google.common.base.Preconditions;
 import com.mojang.math.Quaternion;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.resources.ResourceLocation;
@@ -158,6 +161,21 @@ public class FakePlayer extends Component {
 	// ======== //
 	// Internal //
 	// ======== //
+
+	public Text getNameTag() {
+		if (uuid == null) {
+			return Text.literal("Player");
+		}
+
+		PlayerInfo loadedProfile = Minecraft.getInstance().getConnection().getPlayerInfo(uuid);
+
+		if (loadedProfile == null) {
+			return Text.literal("Player");
+		} else {
+			//todo best way to do this? this way preserves formatting.
+			return new VanillaText(loadedProfile.getTabListDisplayName());
+		}
+	}
 
 	@Override
 	public List<Component> build() {
