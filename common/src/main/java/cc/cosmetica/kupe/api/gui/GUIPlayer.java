@@ -51,20 +51,28 @@ public class GUIPlayer extends Component {
 	/**
 	 * Display a 'static' GUI player with the given skin texture. No attachments by default.
 	 * @param skin the resource location of the skin texture.
+	 * @param name the username text of the player.
+	 * @param slim whether to use the slim player model.
+	 * @param followsMouse whether the player should follow the mouse.
 	 */
-	public GUIPlayer(@NotNull ResourceKey skin, boolean slim, boolean followsMouse) {
+	public GUIPlayer(@NotNull ResourceKey skin, Text name, boolean slim, boolean followsMouse) {
 		Preconditions.checkNotNull(skin, "Cannot provide a null skin.");
 
 		this.followsMouse = followsMouse;
 		this.uuid = null;
 		this.renderer.skin = skin.toResourceLocation();
 		this.renderer.slim = slim;
+
+		// nametag
+		this.renderer.nametag = new Nametag(name, 1.0f);
+		this.renderer.nametags.add(this.renderer.nametag);
 	}
 
 	/**
 	 * Create a new, 'dynamic' {@link GUIPlayer} with the given UUID. All attachments will be dynamically configured by the
 	 * provided UUID, and set to their default enable state.
 	 * @param uuid the uuid of the player to render.
+	 * @param followsMouse whether the player should follow the mouse.
 	 */
 	public GUIPlayer(@NotNull UUID uuid, boolean followsMouse) {
 		Preconditions.checkNotNull(uuid, "Cannot provide a null UUID.");
@@ -73,6 +81,10 @@ public class GUIPlayer extends Component {
 		this.uuid = uuid;
 		this.renderer.skin = DefaultPlayerSkin.getDefaultSkin(uuid); // todo get actual skin
 		this.renderer.slim = "slim".equals(DefaultPlayerSkin.getSkinModelName(uuid));
+
+		// nametag
+		this.renderer.nametag = new Nametag(getNameTag(uuid), 1.0f);
+		this.renderer.nametags.add(this.renderer.nametag);
 
 		this.showAttachments(AttachmentsRegistry.getAll().stream().filter(Attachment::defaultEnable).toArray(Attachment[]::new));
 	}
@@ -115,8 +127,19 @@ public class GUIPlayer extends Component {
 	 * @return this Fake player.
 	 */
 	public GUIPlayer addNametag(Text nametagText, float scale) {
-		throw new UnsupportedOperationException("Not implemented");
-		// TODO doesn't account for prefix and suffix. Does prefix/suffix automatically show?
+		this.renderer.nametags.add(new Nametag(nametagText, scale));
+		return this;
+		// TODO Check in Cosmetica: does prefix/suffix automatically show?
+	}
+
+	/**
+	 * Sets whether the player's nametags are shown. Hidden by default.
+	 * @param show whether to show the player's nametags.
+	 * @return this GUI player.
+	 */
+	public GUIPlayer showNametag(boolean show) {
+		this.renderer.showNametag = show;
+		return this;
 	}
 
 	public Iterator<Attachment<?>> getRenderingAttachments() {
@@ -167,29 +190,6 @@ public class GUIPlayer extends Component {
 	// Internal //
 	// ======== //
 
-	// TODO do this on creation with UUID?
-	public Text getNameTag() {
-		if (uuid == null) {
-			return Text.literal("Player");
-		}
-		if (Minecraft.getInstance().getConnection() == null) {
-			if (uuid.equals(UUIDTypeAdapter.fromString(Minecraft.getInstance().getUser().getUuid()))) {
-				return Text.literal(Minecraft.getInstance().getUser().getName());
-			} else {
-				return Text.literal("Player");
-			}
-		}
-
-		PlayerInfo loadedProfile = Minecraft.getInstance().getConnection().getPlayerInfo(uuid);
-
-		if (loadedProfile == null) {
-			return Text.literal("Player");
-		} else {
-			//todo best way to do this? this way preserves formatting.
-			return new VanillaText(loadedProfile.getTabListDisplayName());
-		}
-	}
-
 	@Override
 	public List<Component> build() {
 		return Collections.emptyList();
@@ -227,6 +227,27 @@ public class GUIPlayer extends Component {
 	public static <T> Attachment<T> registerAttachment(Attachment<T> attachment) {
 		AttachmentsRegistry.register(attachment);
 		return attachment;
+	}
+
+	// Internal
+	private static Text getNameTag(UUID uuid) {
+		if (Minecraft.getInstance().getConnection() == null) {
+			if (uuid.equals(UUIDTypeAdapter.fromString(Minecraft.getInstance().getUser().getUuid()))) {
+				// TODO (see below. this way doesn't preserve formatting)
+				return Text.literal(Minecraft.getInstance().getUser().getName());
+			} else {
+				return Text.literal("Player");
+			}
+		} else {
+			PlayerInfo loadedProfile = Minecraft.getInstance().getConnection().getPlayerInfo(uuid);
+
+			if (loadedProfile == null) {
+				return Text.literal("Player");
+			} else {
+				//todo best way to do this? this way preserves formatting.
+				return new VanillaText(loadedProfile.getTabListDisplayName());
+			}
+		}
 	}
 
 	private static final Dimensions DEFAULT_DIMENSIONS = new Dimensions(55, 90);
@@ -274,6 +295,16 @@ public class GUIPlayer extends Component {
 		public float yRotBody = 0;
 		public float yRotHead = 0;
 		public float xRot = 0;
+	}
+
+	public static class Nametag {
+		public Nametag(Text text, float scale) {
+			this.text = text;
+			this.scale = scale;
+		}
+
+		public final Text text;
+		public final float scale;
 	}
 
 	/**

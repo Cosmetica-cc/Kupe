@@ -45,6 +45,8 @@ public class FakePlayerTestScreen extends Screen {
 							.configureOverride(GUIPlayer.CAPE, new ResourceLocation("kupe_test", "textures/test_cape.png"))
 							.hideAttachments()
 							.showAttachments(elytra ? GUIPlayer.ELYTRA : GUIPlayer.CAPE)
+							.showNametag(true)
+							.addNametag(Text.literal("Test Player"), 0.75f)
 							.withStyle(Style.create()
 									.set(CommonProperties.BORDER, Border.create(1, 0xFFFFFF))),
 					new Button(Text.literal(frozen ? "Unfreeze Player" : "Freeze Player"), () -> this.frozen.set(!frozen)),

@@ -76,6 +76,10 @@ public final class FakePlayerRenderer {
 	public boolean slim;
 	public ResourceLocation skin;
 
+	public GUIPlayer.Nametag nametag;
+	public List<GUIPlayer.Nametag> nametags = new ArrayList<>();
+	public boolean showNametag = false;
+
 	// properties, internal
 	private boolean upsideDown;
 	private PlayerRenderMode renderMode = PlayerRenderMode.NORMAL;
@@ -255,12 +259,22 @@ public final class FakePlayerRenderer {
 		stack.popPose();
 
 		// nametag
-		stack.pushPose();
-		this.renderNametag(player, canvas, bufferSource, light);
-		stack.popPose();
+		if (this.showNametag) {
+			stack.pushPose();
+			for (int i = this.nametags.size() - 1; i >= 0; i--) {
+				GUIPlayer.Nametag nametag = this.nametags.get(i);
+				stack.pushPose();
+				this.renderNametag(nametag, canvas, bufferSource, light);
+				stack.popPose();
+				stack.translate(0, 0.25875f, 0);
+			}
+			stack.popPose();
+		}
 	}
 
-	private void renderNametag(GUIPlayer player, Canvas canvas, MultiBufferSource bufferSource, int packedLight) {
+	private void renderNametag(GUIPlayer.Nametag nametag, Canvas canvas, MultiBufferSource bufferSource, int packedLight) {
+		final Component name = nametag.text.toMinecraftComponent();
+		final float scale = nametag.scale;
 		PoseStack stack = canvas.getStack().getMinecraftStack();
 
 		float yPosition = EntityType.PLAYER.getDimensions().height + 0.5F;
@@ -268,8 +282,7 @@ public final class FakePlayerRenderer {
 		stack.translate(0.0D, yPosition, 0.0D);
 		stack.mulPose(cameraOrientation);
 		stack.scale(-0.025F, -0.025F, 0.025F);
-
-		Component name = player.getNameTag().toMinecraftComponent();
+		stack.scale(scale, scale, scale);
 
 		boolean fullyRender = true; // TODO !player.renderDiscreteNametag();
 		int offsetForDeadmau5 = "deadmau5".equals(name.getString()) ? -10 : 0;
