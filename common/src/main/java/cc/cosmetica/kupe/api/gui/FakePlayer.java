@@ -191,7 +191,7 @@ public class FakePlayer extends Component {
 	}
 
 	public static Attachment<ResourceLocation> CAPE = registerAttachment(new CapeAttachment());
-	public static Attachment<ResourceLocation> ELYTRA = registerAttachment(new ElytraAttachment());
+	public static Attachment<ElytraProperties> ELYTRA = registerAttachment(new ElytraAttachment());
 
 	public static <T> Attachment<T> registerAttachment(Attachment<T> attachment) {
 		AttachmentsRegistry.register(attachment);
@@ -228,5 +228,18 @@ public class FakePlayer extends Component {
 		default boolean defaultEnable() {
 			return true;
 		}
+	}
+
+	public final static class ElytraProperties {
+		public ElytraProperties(ResourceLocation texture, boolean glint, boolean translucent) {
+			this.texture = texture;
+			this.glint = glint;
+			this.translucent = translucent;
+		}
+
+		public final ResourceLocation texture;
+		public final boolean glint, translucent;
+
+		public static final ElytraProperties DEFAULT = new ElytraProperties(new ResourceLocation("textures/entity/elytra.png"), false, false);
 	}
 }
