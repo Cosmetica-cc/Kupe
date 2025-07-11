@@ -27,14 +27,17 @@ import cc.cosmetica.kupe.impl.LeavesSandbox;
 import cc.cosmetica.kupe.impl.fakeplayer.*;
 import com.google.common.base.Preconditions;
 import com.mojang.math.Quaternion;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Component to show a player, like in the inventory.
@@ -76,6 +79,15 @@ public class GUIPlayer extends Component {
 				DefaultPlayerSkin.getDefaultSkin(uuid),
 				"slim".equals(DefaultPlayerSkin.getSkinModelName(uuid))
 		);
+		// model parts shown
+		if (Minecraft.getInstance().level != null) {
+			Player player = Minecraft.getInstance().level.getPlayerByUUID(uuid);
+			if (player != null) {
+				this.renderer.shownParts = this.renderer.shownParts.stream()
+						.filter(player::isModelPartShown)
+						.collect(Collectors.toSet());
+			}
+		}
 
 		// nametag
 		Text username = PlayerUtils.getUsername(uuid);
