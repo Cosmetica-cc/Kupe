@@ -347,6 +347,11 @@ class ComponentTree {
 		nodes.add(this.root);
 		boolean componentListened = false;
 
+		// TODO new process
+		// -> 1. determine occluding element and target (= occluding element if exists, else frontmost, deepest)
+		// -> The target element should be correct for all running of callback. Therefore, we must do this all before pointer events
+		// -> walk pointer event.
+
 		while (!nodes.isEmpty()) {
 			Node node = nodes.poll();
 			Boolean listens = grey.remove(node);
