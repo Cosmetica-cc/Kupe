@@ -27,7 +27,9 @@ import cc.cosmetica.kupe.impl.LeavesSandbox;
 import cc.cosmetica.kupe.impl.fakeplayer.*;
 import com.google.common.base.Preconditions;
 import com.mojang.math.Quaternion;
+import com.mojang.util.UUIDTypeAdapter;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.Options;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.resources.DefaultPlayerSkin;
@@ -87,6 +89,10 @@ public class GUIPlayer extends Component {
 						.filter(player::isModelPartShown)
 						.collect(Collectors.toSet());
 			}
+		} else if (uuid.equals(UUIDTypeAdapter.fromString(Minecraft.getInstance().getUser().getUuid()))) {
+			// own settings
+			Options options = Minecraft.getInstance().options;
+			this.renderer.shownParts = new HashSet<>(options.getModelParts());
 		}
 
 		// nametag
