@@ -53,8 +53,7 @@ public class GUIPlayer extends Component {
 
 		this.followsMouse = followsMouse;
 		this.uuid = null;
-		this.renderer.skin = skin.toResourceLocation();
-		this.renderer.slim = slim;
+		this.renderer.skin = new PlayerUtils.Skin(skin.toResourceLocation(), slim);
 
 		// nametag
 		this.renderer.username = new Nametag(name, 1.0f);
@@ -73,8 +72,10 @@ public class GUIPlayer extends Component {
 		this.followsMouse = followsMouse;
 		this.uuid = uuid;
 
-		this.renderer.skin = DefaultPlayerSkin.getDefaultSkin(uuid);
-		this.renderer.slim = "slim".equals(DefaultPlayerSkin.getSkinModelName(uuid));
+		this.renderer.skin = new PlayerUtils.Skin(
+				DefaultPlayerSkin.getDefaultSkin(uuid),
+				"slim".equals(DefaultPlayerSkin.getSkinModelName(uuid))
+		);
 
 		// nametag
 		Text username = PlayerUtils.getUsername(uuid);

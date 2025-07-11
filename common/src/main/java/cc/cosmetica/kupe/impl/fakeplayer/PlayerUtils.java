@@ -62,13 +62,23 @@ public class PlayerUtils {
         return Text.literal("Player");
     }
 
+    public static class Skin {
+        public Skin(ResourceLocation texture, boolean slim) {
+            Objects.requireNonNull(texture, "No texture for skin");
+            this.texture = texture;
+            this.slim = slim;
+        }
+        public final ResourceLocation texture;
+        public final boolean slim;
+    }
+
     /**
      * Get the skin of the given UUID.
      * @param uuid the uuid of the player.
      * @param existing the fallback skin.
      * @return the resource location of the skin.
      */
-    public static ResourceLocation getSkin(UUID uuid, ResourceLocation existing) {
+    public static Skin getSkin(UUID uuid, Skin existing) {
         // Get skin for cached profile
         GameProfile profile = cache.get(uuid);
 
@@ -77,7 +87,10 @@ public class PlayerUtils {
             Minecraft minecraft = Minecraft.getInstance();
             Map<MinecraftProfileTexture.Type, MinecraftProfileTexture> properties = minecraft.getSkinManager().getInsecureSkinInformation(profile);
             if (properties.containsKey(MinecraftProfileTexture.Type.SKIN)) {
-                return minecraft.getSkinManager().registerTexture(properties.get(MinecraftProfileTexture.Type.SKIN), MinecraftProfileTexture.Type.SKIN);
+                MinecraftProfileTexture profileTexture = properties.get(MinecraftProfileTexture.Type.SKIN);
+                boolean slim = "slim".equals(profileTexture.getMetadata("model"));
+                ResourceLocation texture = minecraft.getSkinManager().registerTexture(properties.get(MinecraftProfileTexture.Type.SKIN), MinecraftProfileTexture.Type.SKIN);
+                return new Skin(texture, slim);
             }
         }
 
@@ -86,7 +99,7 @@ public class PlayerUtils {
             PlayerInfo loadedProfile = Minecraft.getInstance().getConnection().getPlayerInfo(uuid);
 
             if (loadedProfile != null) {
-                return loadedProfile.getSkinLocation();
+                return new Skin(loadedProfile.getSkinLocation(), "slim".equals(loadedProfile.getModelName()));
             }
         }
 
@@ -96,7 +109,7 @@ public class PlayerUtils {
     }
 
     /**
-     * Get the resource location for a custom cape or elytra. Can also be used to load skin, but {@link PlayerUtils#getSkin(UUID, ResourceLocation)} is preferred.
+     * Get the resource location for a custom cape or elytra. Can also be used to load skin, but {@link PlayerUtils#getSkin(UUID, Skin)} is preferred.
      * Unlike other methods, this does not automatically start a look-up.
      * @param uuid the player's uuid.
      * @param type the texture type.

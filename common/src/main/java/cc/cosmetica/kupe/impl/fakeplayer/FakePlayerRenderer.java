@@ -66,16 +66,15 @@ public final class FakePlayerRenderer {
 	private boolean slimModel;
 
 	private boolean lazyLoadModel() {
-		if (this.model == null || (this.slimModel != this.slim)) {
-			this.model = new PlayerModel<>(0.0f, this.slimModel = this.slim);
+		if (this.model == null || (this.slimModel != this.skin.slim)) {
+			this.model = new PlayerModel<>(0.0f, this.slimModel = this.skin.slim);
 		}
 
 		return true;
 	}
 
 	// properties, exposed
-	public boolean slim;
-	public ResourceLocation skin;
+	public PlayerUtils.Skin skin;
 
 	public GUIPlayer.Nametag username;
 	public List<GUIPlayer.Nametag> nametags = new ArrayList<>();
@@ -310,11 +309,11 @@ public final class FakePlayerRenderer {
 	private RenderType getRenderType(PlayerRenderMode mode) {
 		switch (mode) {
 		case INVISIBLE:
-			return RenderType.itemEntityTranslucentCull(this.skin);
+			return RenderType.itemEntityTranslucentCull(this.skin.texture);
 		case NORMAL:
-			return this.model.renderType(this.skin);
+			return this.model.renderType(this.skin.texture);
 		case GLOWING:
-			return RenderType.outline(this.skin);
+			return RenderType.outline(this.skin.texture);
 		case NO_RENDER:
 		default:
 			return null;
