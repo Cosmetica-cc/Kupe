@@ -40,6 +40,10 @@ def IterPaste(fold, licenseText):
     for fileName in listdir(fold):
         filePath = path.join(fold, fileName)
 
+        # exclude this file as too much code is derived from minecraft
+        if filePath == path.join("common/src", "main", "java", "cc", "cosmetica", "kupe", "impl", "fakeplayer", "FakePlayerRenderer.java"):
+            continue
+
         if path.isfile(filePath) and filePath.endswith(".java"):
             print("Modifying " + filePath)
             with open(filePath) as fil:

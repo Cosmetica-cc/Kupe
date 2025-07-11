@@ -1,5 +1,6 @@
 /*
- * Copyright 2024, 2025 Cosmetica
+ * Minecraft Code from which this is derived is All Rights Reserved, Mojang AB.
+ * Modifications to said code are Copyright 2024, 2025 Cosmetica
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,7 +77,7 @@ public final class FakePlayerRenderer {
 	public boolean slim;
 	public ResourceLocation skin;
 
-	public GUIPlayer.Nametag nametag;
+	public GUIPlayer.Nametag username;
 	public List<GUIPlayer.Nametag> nametags = new ArrayList<>();
 	public boolean showNametag = false;
 

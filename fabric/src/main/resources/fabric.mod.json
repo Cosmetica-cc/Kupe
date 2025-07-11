@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "kupe",
   "version": "${version}",
-  "name": "Kupe",
+  "name": "Kupe GUI",
   "description": "Reactive cross-platform and cross-version GUI library. For all your navigation needs.",
   "authors": [
     "Valoeghese"

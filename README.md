@@ -1,6 +1,6 @@
-# Kupe
+# Kupe GUI
 
-Cross-loader, cross-version GUI and Rendering library for Minecraft. For all your navigation needs. Like the great and
+Cross-loader, cross-version GUI and Rendering library for Minecraft. For all your navigation needs. Named after the great and
 legendary navigator Kupe, who sailed to Aotearoa.
 
 This documentation uses Mojang's official mappings.

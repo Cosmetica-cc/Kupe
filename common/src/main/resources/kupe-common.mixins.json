@@ -8,9 +8,8 @@
     "Vec3Mixin",
     "fakeplayer.ElytraModelAccessor",
     "fakeplayer.HumanoidModelAccessor",
+    "fakeplayer.MinecraftMixin",
     "fakeplayer.PlayerModelAccessor"
-  ],
-  "mixins": [
   ],
   "injectors": {
     "defaultRequire": 1

@@ -24,17 +24,10 @@ import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
 import cc.cosmetica.kupe.impl.LeavesSandbox;
-import cc.cosmetica.kupe.impl.fakeplayer.AttachmentsRegistry;
-import cc.cosmetica.kupe.impl.fakeplayer.CapeAttachment;
-import cc.cosmetica.kupe.impl.fakeplayer.ElytraAttachment;
-import cc.cosmetica.kupe.impl.fakeplayer.FakePlayerRenderer;
-import cc.cosmetica.kupe.impl.text.VanillaText;
+import cc.cosmetica.kupe.impl.fakeplayer.*;
 import com.google.common.base.Preconditions;
 import com.mojang.math.Quaternion;
-import com.mojang.util.UUIDTypeAdapter;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
-import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.resources.ResourceLocation;
@@ -64,8 +57,8 @@ public class GUIPlayer extends Component {
 		this.renderer.slim = slim;
 
 		// nametag
-		this.renderer.nametag = new Nametag(name, 1.0f);
-		this.renderer.nametags.add(this.renderer.nametag);
+		this.renderer.username = new Nametag(name, 1.0f);
+		this.renderer.nametags.add(this.renderer.username);
 	}
 
 	/**
@@ -79,12 +72,13 @@ public class GUIPlayer extends Component {
 
 		this.followsMouse = followsMouse;
 		this.uuid = uuid;
-		this.renderer.skin = DefaultPlayerSkin.getDefaultSkin(uuid); // todo get actual skin
+
+		this.renderer.skin = DefaultPlayerSkin.getDefaultSkin(uuid);
 		this.renderer.slim = "slim".equals(DefaultPlayerSkin.getSkinModelName(uuid));
 
 		// nametag
-		this.renderer.nametag = new Nametag(getNameTag(uuid), 1.0f);
-		this.renderer.nametags.add(this.renderer.nametag);
+		this.renderer.username = new Nametag(PlayerUtils.getNameTag(uuid), 1.0f);
+		this.renderer.nametags.add(this.renderer.username);
 
 		this.showAttachments(AttachmentsRegistry.getAll().stream().filter(Attachment::defaultEnable).toArray(Attachment[]::new));
 	}
@@ -108,7 +102,7 @@ public class GUIPlayer extends Component {
 	 * Configure the given attachment on this FakePlayer.
 	 * @param attachment the attachment to configure on this FakePlayer.
 	 * @param configuration the configuration to provide for this attachment. If null, will remove the configuration.
-	 * @return this fake player.
+	 * @return this GUI player.
 	 */
 	public <T> GUIPlayer configureOverride(Attachment<T> attachment, @Nullable T configuration) {
 		if (configuration == null) {
@@ -123,8 +117,8 @@ public class GUIPlayer extends Component {
 	/**
 	 * Add additional nametags to the fake player.
 	 * @param nametagText the nametag text.
-	 * @param scale the scale.
-	 * @return this Fake player.
+	 * @param scale the scale multiplier.
+	 * @return this GUI player.
 	 */
 	public GUIPlayer addNametag(Text nametagText, float scale) {
 		this.renderer.nametags.add(new Nametag(nametagText, scale));
@@ -139,6 +133,19 @@ public class GUIPlayer extends Component {
 	 */
 	public GUIPlayer showNametag(boolean show) {
 		this.renderer.showNametag = show;
+		return this;
+	}
+
+	/**
+	 * Change the username nametag.
+	 * @param text the text of the nametag.
+	 * @param scale the scale multiplier.
+	 * @return this GUI player.
+	 */
+	public GUIPlayer setUsername(Text text, float scale) {
+		this.renderer.username = new Nametag(text, scale);
+		this.renderer.nametags.remove(0);
+		this.renderer.nametags.add(0, this.renderer.username);
 		return this;
 	}
 
@@ -218,6 +225,7 @@ public class GUIPlayer extends Component {
 		}
 
 		int footY = region.getFinalY() - 3; // players feet dip a bit lower when rotating to look up/down
+		this.renderer.skin = PlayerUtils.getSkin(uuid, this.renderer.skin);
 		this.renderer.render(this, canvas.getDrawingContext(), centreX, footY, region.getWidth() / 2.5f, lookX, lookY);
 	}
 
@@ -227,27 +235,6 @@ public class GUIPlayer extends Component {
 	public static <T> Attachment<T> registerAttachment(Attachment<T> attachment) {
 		AttachmentsRegistry.register(attachment);
 		return attachment;
-	}
-
-	// Internal
-	private static Text getNameTag(UUID uuid) {
-		if (Minecraft.getInstance().getConnection() == null) {
-			if (uuid.equals(UUIDTypeAdapter.fromString(Minecraft.getInstance().getUser().getUuid()))) {
-				// TODO (see below. this way doesn't preserve formatting)
-				return Text.literal(Minecraft.getInstance().getUser().getName());
-			} else {
-				return Text.literal("Player");
-			}
-		} else {
-			PlayerInfo loadedProfile = Minecraft.getInstance().getConnection().getPlayerInfo(uuid);
-
-			if (loadedProfile == null) {
-				return Text.literal("Player");
-			} else {
-				//todo best way to do this? this way preserves formatting.
-				return new VanillaText(loadedProfile.getTabListDisplayName());
-			}
-		}
 	}
 
 	private static final Dimensions DEFAULT_DIMENSIONS = new Dimensions(55, 90);

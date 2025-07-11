@@ -6,7 +6,7 @@ license = "Apache 2.0"
 [[mods]]
 modId = "kupe"
 version = "${version}"
-displayName = "Kupe"
+displayName = "Kupe GUI"
 authors = "Valoeghese"
 description = '''
 This is an example description! Tell everyone what your mod is about!

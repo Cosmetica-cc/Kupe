@@ -18,6 +18,4 @@ package cc.cosmetica.kupe;
 
 public class Kupe {
     public static final String MOD_ID = "kupe";
-
-
 }
