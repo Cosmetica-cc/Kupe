@@ -287,6 +287,7 @@ public class GUIPlayer extends Component {
 		public boolean isLeftHanded = false;
 		public boolean leftArmRaised = false;
 		public boolean rightArmRaised = false;
+		public boolean upsideDown = false;
 		public float yRotBody = 0;
 		public float yRotHead = 0;
 		public float xRot = 0;

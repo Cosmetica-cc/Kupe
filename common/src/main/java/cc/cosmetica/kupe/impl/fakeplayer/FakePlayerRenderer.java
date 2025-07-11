@@ -46,7 +46,6 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.PlayerModelPart;
@@ -81,7 +80,6 @@ public final class FakePlayerRenderer {
 	public boolean showNametag = false;
 
 	// properties, internal
-	private boolean upsideDown;
 	private PlayerRenderMode renderMode = PlayerRenderMode.NORMAL;
 
 	private Quaternion cameraOrientation = Quaternion.ONE;
@@ -211,12 +209,12 @@ public final class FakePlayerRenderer {
 		float xRot = posture.xRot; //player.getXRot(delta);
 
 		// Upside Down
-		if (this.upsideDown) {
+		if (player.pose.upsideDown) {
 			xRot *= -1.0F;
 			yRotDiff *= -1.0F;
 		}
 
-		this.setupRotations(stack, bob, yRotBody, delta);
+		this.setupRotations(posture, stack, bob, yRotBody, delta);
 
 		stack.scale(-1.0F, -1.0F, 1.0F);
 		stack.scale(0.9375F, 0.9375F, 0.9375F); // PlayerRenderer#scale
@@ -494,11 +492,11 @@ public final class FakePlayerRenderer {
 		}
 	}
 
-	private void setupRotations(PoseStack stack, float f, float g, float h) {
+	private void setupRotations(GUIPlayer.Posture posture, PoseStack stack, float f, float g, float h) {
 		stack.mulPose(Vector3f.YP.rotationDegrees(180.0F - g));
 
 		// Upside Down
-		if (this.upsideDown) {
+		if (posture.upsideDown) {
 			stack.translate(0.0D, EntityType.PLAYER.getDimensions().height + 0.1, 0.0D);
 			stack.mulPose(Vector3f.ZP.rotationDegrees(180.0F));
 		}
