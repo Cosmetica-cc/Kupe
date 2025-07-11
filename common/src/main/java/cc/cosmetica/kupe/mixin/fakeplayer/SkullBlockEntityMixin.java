@@ -17,22 +17,20 @@
 package cc.cosmetica.kupe.mixin.fakeplayer;
 
 import cc.cosmetica.kupe.impl.fakeplayer.PlayerUtils;
-import com.mojang.authlib.minecraft.SocialInteractionsService;
-import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.main.GameConfig;
+import com.mojang.authlib.minecraft.MinecraftSessionService;
+import net.minecraft.world.level.block.entity.SkullBlockEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * Set up the profile cache for Kupe GUI's {@link cc.cosmetica.kupe.api.gui.GUIPlayer}.
+ * Refresh the profile cache for Kupe GUI's {@link cc.cosmetica.kupe.api.gui.GUIPlayer}.
  */
-@Mixin(Minecraft.class)
-public class MinecraftMixin {
-    @Inject(at = @At("HEAD"), method="createSocialInteractions")
-    private void onInit(YggdrasilAuthenticationService authService, GameConfig gameConfig, CallbackInfoReturnable<SocialInteractionsService> cir) {
-        PlayerUtils.createNewCache(authService.createMinecraftSessionService());
+@Mixin(SkullBlockEntity.class)
+public class SkullBlockEntityMixin {
+    @Inject(at = @At("HEAD"), method="setSessionService")
+    private static void onSetMinecraftSession(MinecraftSessionService sessionService, CallbackInfo ci) {
+        PlayerUtils.createNewCache(sessionService);
     }
 }

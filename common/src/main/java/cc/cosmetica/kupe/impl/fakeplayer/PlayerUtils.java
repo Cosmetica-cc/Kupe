@@ -41,8 +41,8 @@ public class PlayerUtils {
     private static Map<UUID, @Nullable GameProfile> cache = new HashMap<>();
     private static MinecraftSessionService sessionService;
 
-    public static void createNewCache(YggdrasilAuthenticationService authService) {
-        sessionService = authService.createMinecraftSessionService();
+    public static void createNewCache(MinecraftSessionService minecraftSessionService) {
+        sessionService = minecraftSessionService;
         cache = new HashMap<>();
     }
 
