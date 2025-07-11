@@ -304,7 +304,7 @@ class ComponentTree {
 	}
 
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		return this.walkConsumableEvent(mouseX, mouseY, (n, target) -> {
+		return this.walkPointerEvent(mouseX, mouseY, (n, target) -> {
 			n.element.mouseClicked(target, mouseX - n.scrollX(), mouseY - n.scrollY(), button);
 			return false;
 		});
@@ -317,11 +317,11 @@ class ComponentTree {
 
 	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
 		// only the frontmost div will scroll.
-		return this.walkConsumableEvent(mouseX, mouseY, (n, target) -> n.element.mouseScrolled(mouseX - n.scrollX(), mouseY - n.scrollY(), delta));
+		return this.walkPointerEvent(mouseX, mouseY, (n, target) -> n.element.mouseScrolled(mouseX - n.scrollX(), mouseY - n.scrollY(), delta));
 	}
 
 	public void mouseMoved(double mouseX, double mouseY) {
-		this.walkConsumableEvent(mouseX, mouseY, (n, target) -> {
+		this.walkPointerEvent(mouseX, mouseY, (n, target) -> {
 			n.element.mouseMoved(n.renderRegion, mouseX - n.scrollX(), mouseY - n.scrollY());
 			return false;
 		});
@@ -334,7 +334,7 @@ class ComponentTree {
 	 * @param callback the callback to test for each element. If an element returns true, further elements will not be tested.
 	 * @return whether the callback was tested at least once.
 	 */
-	private boolean walkConsumableEvent(double x, double y, BiPredicate<Node, Node> callback) {
+	private boolean walkPointerEvent(double x, double y, BiPredicate<Node, Node> callback) {
 		// DFS walk() with tests for occlusion. children run before parents and can consume some events preventing propagation.
 		// front prioritised over back
 		Deque<Node> nodes = new ArrayDeque<>();
@@ -390,18 +390,31 @@ class ComponentTree {
 
 				// Determine whether this node should receive pointer events.
 				PointerEvents eventHandling = node.element.getStyle().get(CommonProperties.POINTER_EVENTS);
+				boolean inScissor = (node.parent == null || node.parent.trueScissorRegion == null || node.parent.trueScissorRegion.contains((int) x, (int) y));
+				boolean canReceiveEvents;
+				switch (eventHandling) {
+				case NONE:
+					canReceiveEvents = false;
+					break;
+				case ALL:
+					canReceiveEvents = true;
+					break;
+				case REGION:
+					canReceiveEvents = node.trueRenderRegion().contains((int) x, (int) y);
+					break;
+				case VISIBLE:
+				default:
+					canReceiveEvents = node.trueRenderRegion().contains((int) x, (int) y) && inScissor &&
+							(occluding == node || occluding == null);
+					break;
+				}
 
-				if (eventHandling != PointerEvents.NONE) {
-					if (eventHandling == PointerEvents.ALL || (node.trueRenderRegion().contains((int) x, (int) y) && (
-							eventHandling == PointerEvents.REGION ||
-									(node.parent == null || node.parent.trueScissorRegion == null || node.parent.trueScissorRegion.contains ((int) x, (int) y)) && (occluding == node || occluding == null)
-					))) {
-						grey.put(node, true);
+				if (canReceiveEvents) {
+					grey.put(node, true);
 
-						// determine if a step towards frontmost non-occluded
-						if (target == node.parent && occluding == null) {
-							target = node;
-						}
+					// determine if a step towards frontmost non-occluded
+					if (target == node.parent && occluding == null && inScissor && node.trueRenderRegion().contains((int) x, (int) y)) {
+						target = node;
 					}
 				}
 
