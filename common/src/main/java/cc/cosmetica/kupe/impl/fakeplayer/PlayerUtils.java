@@ -17,7 +17,6 @@
 package cc.cosmetica.kupe.impl.fakeplayer;
 
 import cc.cosmetica.kupe.api.Text;
-import cc.cosmetica.kupe.impl.text.VanillaText;
 import com.google.common.collect.Iterables;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
@@ -27,13 +26,12 @@ import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import com.mojang.util.UUIDTypeAdapter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
-import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -48,27 +46,21 @@ public class PlayerUtils {
         cache = new HashMap<>();
     }
 
-    public static Text getNameTag(UUID uuid) {
-//        GameProfile profile = new GameProfile();
-
-        if (Minecraft.getInstance().level == null) {
-            if (uuid.equals(UUIDTypeAdapter.fromString(Minecraft.getInstance().getUser().getUuid()))) {
-                // TODO (see below. this way doesn't preserve formatting)
-                return Text.literal(Minecraft.getInstance().getUser().getName());
-            } else {
-                return Text.literal("Player");
-            }
-        } else {
-            Level level = Minecraft.getInstance().level;
-            AbstractClientPlayer player = (AbstractClientPlayer) level.getPlayerByUUID(uuid);
-
-            if (player == null) {
-                return Text.literal("Player");
-            } else {
-                // this way preserves formatting.
-                return new VanillaText(player.getDisplayName());
-            }
+    public static Text getUsername(UUID uuid) {
+        // Get name for cached profile
+        GameProfile profile = cache.get(uuid);
+        if (profile != null) {
+            return Text.literal(profile.getName());
         }
+
+        // Fallback 1: own username
+        if (uuid.equals(UUIDTypeAdapter.fromString(Minecraft.getInstance().getUser().getUuid()))) {
+            return Text.literal(Minecraft.getInstance().getUser().getName());
+        }
+
+        // Fallback 2: look up for cache
+        startProfileLookup(uuid);
+        return Text.literal("Player");
     }
 
     /**
@@ -99,19 +91,23 @@ public class PlayerUtils {
         }
 
         // Fallback 2: start profile look up, use existing default skin
+        startProfileLookup(uuid);
+        return existing;
+    }
+
+    private static void startProfileLookup(UUID uuid) {
         if (!cache.containsKey(uuid)) {
             cache.put(uuid, null);
 
             // look up new profile
             // TODO async
-            GameProfile profile1 = new GameProfile(uuid, null);
-            sessionService.fillProfileProperties(profile1, true);
-            Property property = Iterables.getFirst(profile1.getProperties().get("textures"), null);
+            GameProfile profile = new GameProfile(uuid, null);
+            profile = sessionService.fillProfileProperties(profile, true);
+            Property property = Iterables.getFirst(profile.getProperties().get("textures"), null);
             if (property != null) {
-                cache.put(uuid, profile1);
+                Objects.requireNonNull(profile.getName(), "Filled Game Profile is missing username?");
+                cache.put(uuid, profile);
             } // else prefer fallback 1. Don't spam the session server.
         }
-
-        return existing;
     }
 }

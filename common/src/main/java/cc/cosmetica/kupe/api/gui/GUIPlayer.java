@@ -77,8 +77,10 @@ public class GUIPlayer extends Component {
 		this.renderer.slim = "slim".equals(DefaultPlayerSkin.getSkinModelName(uuid));
 
 		// nametag
-		this.renderer.username = new Nametag(PlayerUtils.getNameTag(uuid), 1.0f);
+		Text username = PlayerUtils.getUsername(uuid);
+		this.renderer.username = new Nametag(username, 1.0f);
 		this.renderer.nametags.add(this.renderer.username);
+		this.loadedName = !username.getString().equals("Player");
 
 		this.showAttachments(AttachmentsRegistry.getAll().stream().filter(Attachment::defaultEnable).toArray(Attachment[]::new));
 	}
@@ -93,6 +95,7 @@ public class GUIPlayer extends Component {
 	private final @Nullable UUID uuid;
 	private final Map<Attachment<?>, Object> configurations = new HashMap<>();
 	private final Set<Attachment<?>> shown = new HashSet<>();
+	private boolean loadedName = false;
 
 	// ============= //
 	//  API Methods  //
@@ -143,6 +146,7 @@ public class GUIPlayer extends Component {
 	 * @return this GUI player.
 	 */
 	public GUIPlayer setUsername(Text text, float scale) {
+		this.loadedName = true;
 		this.renderer.username = new Nametag(text, scale);
 		this.renderer.nametags.remove(0);
 		this.renderer.nametags.add(0, this.renderer.username);
@@ -226,6 +230,9 @@ public class GUIPlayer extends Component {
 
 		int footY = region.getFinalY() - 3; // players feet dip a bit lower when rotating to look up/down
 		this.renderer.skin = PlayerUtils.getSkin(uuid, this.renderer.skin);
+		if (!this.loadedName && this.uuid != null) {
+			this.renderer.nametags.get(0).text = PlayerUtils.getUsername(uuid);
+		}
 		this.renderer.render(this, canvas.getDrawingContext(), centreX, footY, region.getWidth() / 2.5f, lookX, lookY);
 	}
 
@@ -290,7 +297,7 @@ public class GUIPlayer extends Component {
 			this.scale = scale;
 		}
 
-		public final Text text;
+		public Text text;
 		public final float scale;
 	}
 
