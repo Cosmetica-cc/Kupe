@@ -50,6 +50,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.phys.Vec3;
+import org.spongepowered.include.com.google.common.collect.Sets;
 
 import java.util.*;
 
@@ -83,7 +84,7 @@ public final class FakePlayerRenderer {
 	private PlayerRenderMode renderMode = PlayerRenderMode.NORMAL;
 
 	private Quaternion cameraOrientation = Quaternion.ONE;
-	public Set<PlayerModelPart> shownParts = new HashSet<>();
+	public Set<PlayerModelPart> shownParts = Sets.newHashSet(PlayerModelPart.values());
 
 	public void render(GUIPlayer player, Context context, int left, int top, float extraScale, float lookX, float lookY) {
 		// lazy load model (important on newer mc versions)
