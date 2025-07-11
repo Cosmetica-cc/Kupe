@@ -306,7 +306,7 @@ class ComponentTree {
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		return this.walkPointerEvent(mouseX, mouseY, (n, target) -> {
 			n.element.mouseClicked(target, mouseX - n.scrollX(), mouseY - n.scrollY(), button);
-			return false;
+			return true;
 		});
 	}
 
@@ -317,14 +317,126 @@ class ComponentTree {
 
 	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
 		// only the frontmost div will scroll.
-		return this.walkPointerEvent(mouseX, mouseY, (n, target) -> n.element.mouseScrolled(mouseX - n.scrollX(), mouseY - n.scrollY(), delta));
+		return this.walkScrollEvent(mouseX, mouseY, (n, target) -> n.element.mouseScrolled(mouseX - n.scrollX(), mouseY - n.scrollY(), delta));
 	}
 
 	public void mouseMoved(double mouseX, double mouseY) {
 		this.walkPointerEvent(mouseX, mouseY, (n, target) -> {
 			n.element.mouseMoved(n.renderRegion, mouseX - n.scrollX(), mouseY - n.scrollY());
-			return false;
+			return true;
 		});
+	}
+
+	/**
+	 * Walk a callback, taking into account occlusion and each element's preferred {@link PointerEvents} strategy.
+	 * @param x the pointer X.
+	 * @param y the pointer Y.
+	 * @param callback the callback to test for each element. If any element returns true, this returns true.
+	 * @return whether the callback was tested at least once.
+	 */
+	private boolean walkPointerEvent(double x, double y, BiPredicate<Node, Node> callback) {
+		// DFS walk() with tests for occlusion. children run before parents and can consume some events preventing propagation.
+		// front prioritised over back
+		Deque<Node> nodes = new ArrayDeque<>();
+		Map<Node, Boolean> grey = new HashMap<>();
+		// once we reach an element that blocks, set this to true. we know we've found the occluding element
+		Node occluding = null;
+		// the frontmost, non-occluded element that receives the event.
+		Node frontmost = null;
+
+		nodes.add(this.root);
+
+		Queue<Node> received = new ArrayDeque<>();
+
+		// -> 1. determine occluding element and target (= occluding element if exists, else frontmost, deepest)
+
+		while (!nodes.isEmpty()) {
+			Node node = nodes.poll();
+			Boolean listens = grey.remove(node);
+
+			if (listens != null) {
+				if (listens) {
+					received.add(node);
+				}
+
+				// deterimine occlusion of behind elements by this element's background
+				// parent background cannot occlude children
+				if (occluding == null && node.element.isOccluding(node.trueRenderRegion(), (int) x, (int) y, false)) {
+					occluding = node;
+				}
+			}
+			else {
+				// visit again
+				nodes.push(node);
+				grey.put(node, false);
+
+				// update scissor region
+				Region scissorRegion = node.getComponent().getScissorRegion(node.renderRegion);
+				if (scissorRegion != null) {
+					// calculate new scissor region - same logic as render
+					scissorRegion = scissorRegion.translate((int)node.scrollX(), (int)node.scrollY());
+					if (node.parent != null && node.parent.trueScissorRegion != null) {
+						scissorRegion = scissorRegion.intersect(node.parent.trueScissorRegion);
+					}
+					// set scissor region
+					node.trueScissorRegion = scissorRegion;
+				} else {
+					// inherit
+					node.trueScissorRegion = node.parent == null ? null : node.parent.trueScissorRegion;
+				}
+
+				// Determine whether this node should receive pointer events.
+				PointerEvents eventHandling = node.element.getStyle().get(CommonProperties.POINTER_EVENTS);
+				boolean inScissor = (node.parent == null || node.parent.trueScissorRegion == null || node.parent.trueScissorRegion.contains((int) x, (int) y));
+				boolean canReceiveThisEvent;
+				switch (eventHandling) {
+					case NONE:
+						canReceiveThisEvent = false;
+						break;
+					case ALL:
+						canReceiveThisEvent = true;
+						break;
+					case REGION:
+						canReceiveThisEvent = node.trueRenderRegion().contains((int) x, (int) y);
+						break;
+					case VISIBLE:
+					default:
+						canReceiveThisEvent = node.trueRenderRegion().contains((int) x, (int) y) && inScissor &&
+								(occluding == node || occluding == null);
+						break;
+				}
+
+				if (canReceiveThisEvent) {
+					grey.put(node, true);
+
+					// determine if a step towards frontmost non-occluded
+					if (frontmost == node.parent && occluding == null && inScissor && node.trueRenderRegion().contains((int) x, (int) y)) {
+						frontmost = node;
+					}
+				}
+
+				// determine if occluding pointer events for subsequent elements (including children)
+				// parent decorations can occlude children
+				if (occluding == null && node.element.isOccluding(node.trueRenderRegion(), (int) x, (int) y, true)) {
+					occluding = node;
+				}
+
+				// Handle Children.
+				// Last element has highest Z, so should be pushed to stack last (to be handled first).
+				for (Node child : node.childrenByZ) {
+					nodes.push(child);
+				}
+			}
+		}
+
+		// -> 1. receive event
+		boolean componentListened = false;
+		Node target = occluding == null ? frontmost : occluding;
+		while (!received.isEmpty()) {
+			componentListened |= callback.test(received.remove(), target);
+		}
+
+		return componentListened;
 	}
 
 	/**
@@ -334,7 +446,8 @@ class ComponentTree {
 	 * @param callback the callback to test for each element. If an element returns true, further elements will not be tested.
 	 * @return whether the callback was tested at least once.
 	 */
-	private boolean walkPointerEvent(double x, double y, BiPredicate<Node, Node> callback) {
+	private boolean walkScrollEvent(double x, double y, BiPredicate<Node, Node> callback) {
+		// TODO work with walkPointerEvent
 		// DFS walk() with tests for occlusion. children run before parents and can consume some events preventing propagation.
 		// front prioritised over back
 		Deque<Node> nodes = new ArrayDeque<>();
@@ -346,11 +459,6 @@ class ComponentTree {
 
 		nodes.add(this.root);
 		boolean componentListened = false;
-
-		// TODO new process
-		// -> 1. determine occluding element and target (= occluding element if exists, else frontmost, deepest)
-		// -> The target element should be correct for all running of callback. Therefore, we must do this all before pointer events
-		// -> walk pointer event.
 
 		while (!nodes.isEmpty()) {
 			Node node = nodes.poll();
