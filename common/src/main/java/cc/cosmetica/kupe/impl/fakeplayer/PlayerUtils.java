@@ -22,7 +22,6 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.properties.Property;
-import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import com.mojang.util.UUIDTypeAdapter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
@@ -66,6 +65,7 @@ public class PlayerUtils {
     /**
      * Get the skin of the given UUID.
      * @param uuid the uuid of the player.
+     * @param existing the fallback skin.
      * @return the resource location of the skin.
      */
     public static ResourceLocation getSkin(UUID uuid, ResourceLocation existing) {
@@ -93,6 +93,29 @@ public class PlayerUtils {
         // Fallback 2: start profile look up, use existing default skin
         startProfileLookup(uuid);
         return existing;
+    }
+
+    /**
+     * Get the resource location for a custom cape or elytra. Can also be used to load skin, but {@link PlayerUtils#getSkin(UUID, ResourceLocation)} is preferred.
+     * Unlike other methods, this does not automatically start a look-up.
+     * @param uuid the player's uuid.
+     * @param type the texture type.
+     * @return the texture, or null if one could not be loaded.
+     */
+    public static @Nullable ResourceLocation getTexture(UUID uuid, MinecraftProfileTexture.Type type) {
+        // Get skin for cached profile
+        GameProfile profile = cache.get(uuid);
+
+        if (profile != null) {
+            // get texture
+            Minecraft minecraft = Minecraft.getInstance();
+            Map<MinecraftProfileTexture.Type, MinecraftProfileTexture> properties = minecraft.getSkinManager().getInsecureSkinInformation(profile);
+            if (properties.containsKey(type)) {
+                return minecraft.getSkinManager().registerTexture(properties.get(type), type);
+            }
+        }
+
+        return null;
     }
 
     private static void startProfileLookup(UUID uuid) {

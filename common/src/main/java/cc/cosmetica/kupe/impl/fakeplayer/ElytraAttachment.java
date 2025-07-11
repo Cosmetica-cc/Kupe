@@ -21,6 +21,7 @@ import cc.cosmetica.kupe.api.MatrixStack;
 import cc.cosmetica.kupe.api.gui.GUIPlayer;
 import cc.cosmetica.kupe.api.gui.GUIPlayer.ElytraProperties;
 import cc.cosmetica.kupe.mixin.fakeplayer.ElytraModelAccessor;
+import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Quaternion;
 import net.minecraft.client.model.ElytraModel;
@@ -30,7 +31,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.UUID;
 
@@ -45,11 +46,6 @@ public class ElytraAttachment implements GUIPlayer.Attachment<ElytraProperties> 
 		stack.scale(2,2,2);
 		stack.translate(0.0, -24/32.0, 0.125/2);
 
-//		((EntityModel)this.getParentModel()).copyPropertiesTo(this.elytraModel);
-//		{entityModel.attackTime = this.attackTime;
-//		entityModel.riding = this.riding;
-//		entityModel.young = this.young;}
-
 		RenderType renderType = configuration.translucent ? RenderType.entityTranslucent(configuration.texture)
 				: RenderType.armorCutoutNoCull(configuration.texture);
 
@@ -61,35 +57,27 @@ public class ElytraAttachment implements GUIPlayer.Attachment<ElytraProperties> 
 
 	// based on ElytraModel#setupAnim
 	private void setupAnim(GUIPlayer.Posture posture, ElytraModelAccessor elytra, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-		float f = 0.2617994f;
-		float g = -0.2617994f;
-		float h = 0.0f;
-		float i = 0.0f;
-		if (false /* fall flying */) {
-			float j = 1.0f;
-			Vec3 velocity = Vec3.ZERO;
-			if (velocity.y < 0.0) {
-				Vec3 vec32 = velocity.normalize();
-				j = 1.0f - (float)Math.pow(-vec32.y, 1.5);
-			}
-			f = j * 0.34906584f + (1.0f - j) * f;
-			g = j * -1.5707964f + (1.0f - j) * g;
-		} else if (posture.sneaking) {
-			f = 0.6981317f;
-			g = -0.7853982f;
-			h = 3.0f;
-			i = 0.08726646f;
+		float xRot = 0.2617994f;
+		float zRot = -0.2617994f;
+		float wingY = 0.0f;
+		float yRot = 0.0f;
+
+		if (posture.sneaking) {
+			xRot = 0.6981317f;
+			zRot = -0.7853982f;
+			wingY = 3.0f;
+			yRot = 0.08726646f;
 		}
 
 		ModelPart leftWing = elytra.getLeftWing();
 		ModelPart rightWing = elytra.getRightWing();
 
 		leftWing.x = 5.0f;
-		leftWing.y = h;
+		leftWing.y = wingY;
 
-		leftWing.xRot = f;
-		leftWing.zRot = g;
-		leftWing.yRot = i;
+		leftWing.xRot = xRot;
+		leftWing.zRot = zRot;
+		leftWing.yRot = yRot;
 
 		// copy left wing to right wing
 		rightWing.x = -leftWing.x;
@@ -101,6 +89,10 @@ public class ElytraAttachment implements GUIPlayer.Attachment<ElytraProperties> 
 
 	@Override
 	public ElytraProperties getDynamicConfiguration(UUID uuid) {
+		ResourceLocation customElytra = PlayerUtils.getTexture(uuid, MinecraftProfileTexture.Type.CAPE);
+		if (customElytra != null) {
+			return new ElytraProperties(customElytra, false, false);
+		}
 		return ElytraProperties.DEFAULT;
 	}
 

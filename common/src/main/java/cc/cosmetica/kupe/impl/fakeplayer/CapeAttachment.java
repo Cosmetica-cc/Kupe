@@ -21,6 +21,7 @@ import cc.cosmetica.kupe.api.MatrixStack;
 import cc.cosmetica.kupe.api.gui.GUIPlayer;
 import cc.cosmetica.kupe.api.maths.Vec3;
 import cc.cosmetica.kupe.mixin.fakeplayer.PlayerModelAccessor;
+import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Quaternion;
 import net.minecraft.client.model.PlayerModel;
@@ -68,6 +69,6 @@ public class CapeAttachment implements GUIPlayer.Attachment<ResourceLocation> {
 
 	@Override
 	public ResourceLocation getDynamicConfiguration(UUID uuid) {
-		return null;
+		return PlayerUtils.getTexture(uuid, MinecraftProfileTexture.Type.CAPE);
 	}
 }
