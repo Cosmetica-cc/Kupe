@@ -113,7 +113,7 @@ public abstract class AbstractScrollContainer extends Component {
 
     @Override
     public void paintDecorations(Canvas canvas, Region region, int mouseX, int mouseY) {
-        if (this.hasVerticalOverflow()) {
+        if (this.shouldDrawScrollbar()) {
             this.drawScrollbar(canvas, region, mouseY);
         }
 
@@ -122,8 +122,8 @@ public abstract class AbstractScrollContainer extends Component {
 
     @Override
     protected void paint(Canvas canvas, Region region, int mouseX, int mouseY) {
-        // scroll behaviour
-        if (this.overflow) {
+        // scroll interaction and visual pan (doesn't do anything if no overflow)
+        if (this.shouldDrawScrollbar() && this.overflow) {
             // Dragging Vertical Scrollbar
             if (this.hasVerticalOverflow()) {
                 // measurements
@@ -146,6 +146,18 @@ public abstract class AbstractScrollContainer extends Component {
             } else {
                 canvas.scroll(-this.scrollPercent * this.maxScroll, 0);
             }
+        }
+    }
+
+    protected boolean shouldDrawScrollbar() {
+        switch (this.getStyle().get(VERTICAL_SCROLLBAR)) {
+        case ALWAYS:
+            return true;
+        case NEVER:
+            return false;
+        case AUTO:
+        default:
+            return this.hasVerticalOverflow();
         }
     }
 
