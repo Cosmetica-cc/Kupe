@@ -17,7 +17,9 @@
 package cc.cosmetica.kupe.api.gui;
 
 import cc.cosmetica.kupe.api.Canvas;
+import cc.cosmetica.kupe.api.State;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
+import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.maths.Region;
 import org.jetbrains.annotations.Nullable;
 
@@ -175,6 +177,41 @@ public abstract class AbstractScrollContainer extends Component {
         );
     }
 
+    /**
+     * Controls when the vertical scrollbar should be shown. By default, shows on content overflow.
+     */
+    public static final Style.Property<Visibility> VERTICAL_SCROLLBAR = new Style.Property<>("verticalScrollbar", Visibility.AUTO, false);
+    /**
+     * Set where the vertical scrollbar should be placed.
+     */
+    public static final Style.Property<ScrollbarPosition> VERTICAL_SCROLLBAR_POSITION = new Style.Property<>("verticalScrollbarPosition", ScrollbarPosition.INSIDE, false);
+
     private static final int DEFAULT_SCROLLBAR_THICKNESS = 6;
     private static final int PX_PER_SCROLL = 10;
+
+    public enum Visibility {
+        /**
+         * Show the scrollbar always.
+         */
+        ALWAYS,
+        /**
+         * Show the scrollbar automatically when there is overflow.
+         */
+        AUTO,
+        /**
+         * Never show the scrollbar.
+         */
+        NEVER
+    }
+
+    public enum ScrollbarPosition {
+        /**
+         * Place the scrollbar inside at the right of the component
+         */
+        INSIDE,
+        /**
+         * Place the scrollbar outside, to the right of the component.
+         */
+        OUTSIDE
+    }
 }
