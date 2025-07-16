@@ -66,7 +66,7 @@ public abstract class AbstractScrollContainer extends Component {
 
     @Override
     public void mouseClicked(Element target, double x, double y, int button) {
-        if (this.hasVerticalOverflow()) {
+        if (this.shouldDrawScrollbar()) {
             if (
                 y >= this.scrollbarTopY && y < (this.scrollbarTopY + this.scrollbarSize)
                         && x >= this.scrollbarLeftX && x < (this.scrollbarLeftX + DEFAULT_SCROLLBAR_THICKNESS)
@@ -91,7 +91,7 @@ public abstract class AbstractScrollContainer extends Component {
         }
 
         if (decorations) {
-            if (this.hasVerticalOverflow()) {
+            if (this.shouldDrawScrollbar()) {
                 // scrollbar
                 return x >= region.getEndX() - DEFAULT_SCROLLBAR_THICKNESS;
             }
