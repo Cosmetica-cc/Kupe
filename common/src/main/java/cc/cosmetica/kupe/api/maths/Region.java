@@ -167,6 +167,24 @@ public class Region {
 	}
 
 	/**
+	 * Get a region representing this region grown by the provided margin values.
+	 * The original region is guaranteed not to be modified.
+	 * @param top the amount to grow the top.
+	 * @param right the amount to grow the right.
+	 * @param bottom the amount to grow the bottom.
+	 * @param left the amount to grow the left.
+	 * @return a region with expanded left, right, top, bottom as specified by the given margins.
+	 */
+	public Region grow(int top, int right, int bottom, int left) {
+		return new Region(
+				this.x - left,
+				this.y - top,
+				this.width + left + right,
+				this.height + top + bottom
+		);
+	}
+
+	/**
 	 * Shrink this region by the given amount on all sides. The original region is guaranteed to not be
 	 * modified.
 	 * @param by the amount, in pixels, to shrink the region by.
