@@ -17,7 +17,6 @@
 package cc.cosmetica.kupe.api.gui;
 
 import cc.cosmetica.kupe.api.Canvas;
-import cc.cosmetica.kupe.api.State;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.maths.Region;
@@ -150,7 +149,7 @@ public abstract class AbstractScrollContainer extends Component {
     }
 
     protected boolean shouldDrawScrollbar() {
-        switch (this.getStyle().get(VERTICAL_SCROLLBAR)) {
+        switch (this.getStyle().get(SCROLLBAR)) {
         case ALWAYS:
             return true;
         case NEVER:
@@ -190,13 +189,13 @@ public abstract class AbstractScrollContainer extends Component {
     }
 
     /**
-     * Controls when the vertical scrollbar should be shown. By default, shows on content overflow.
+     * Controls when the vertical scrollbar should be shown. By default, shows on content overflow. Horizontal scrollbar is not implemented yet.
      */
-    public static final Style.Property<Visibility> VERTICAL_SCROLLBAR = new Style.Property<>("verticalScrollbar", Visibility.AUTO, false);
+    public static final Style.Property<Visibility> SCROLLBAR = new Style.Property<>("scrollbar", Visibility.AUTO, false);
     /**
-     * Set where the vertical scrollbar should be placed.
+     * Set where the scrollbar should be placed.
      */
-    public static final Style.Property<ScrollbarPosition> VERTICAL_SCROLLBAR_POSITION = new Style.Property<>("verticalScrollbarPosition", ScrollbarPosition.INSIDE, false);
+    public static final Style.Property<ScrollbarPosition> SCROLLBAR_POSITION = new Style.Property<>("scrollbarPosition", ScrollbarPosition.INSIDE, false);
 
     private static final int DEFAULT_SCROLLBAR_THICKNESS = 6;
     private static final int PX_PER_SCROLL = 10;
