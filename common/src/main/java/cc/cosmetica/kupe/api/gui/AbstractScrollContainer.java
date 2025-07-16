@@ -65,7 +65,7 @@ public abstract class AbstractScrollContainer extends Component {
 
     @Override
     public void mouseClicked(Element target, double x, double y, int button) {
-        if (this.shouldDrawScrollbar()) {
+        if (this.shouldDrawVerticalScrollbar()) {
             if (
                 y >= this.scrollbarTopY && y < (this.scrollbarTopY + this.scrollbarSize)
                         && x >= this.scrollbarLeftX && x < (this.scrollbarLeftX + DEFAULT_SCROLLBAR_THICKNESS)
@@ -90,7 +90,7 @@ public abstract class AbstractScrollContainer extends Component {
         }
 
         if (decorations) {
-            if (this.shouldDrawScrollbar()) {
+            if (this.shouldDrawVerticalScrollbar()) {
                 // scrollbar
                 return x >= region.getEndX() - DEFAULT_SCROLLBAR_THICKNESS;
             }
@@ -112,7 +112,7 @@ public abstract class AbstractScrollContainer extends Component {
 
     @Override
     public void paintDecorations(Canvas canvas, Region region, int mouseX, int mouseY) {
-        if (this.shouldDrawScrollbar()) {
+        if (this.shouldDrawVerticalScrollbar()) {
             this.drawScrollbar(canvas, region, mouseY);
         }
 
@@ -122,9 +122,9 @@ public abstract class AbstractScrollContainer extends Component {
     @Override
     protected void paint(Canvas canvas, Region region, int mouseX, int mouseY) {
         // scroll interaction and visual pan (doesn't do anything if no overflow)
-        if (this.shouldDrawScrollbar() && this.overflow) {
+        if (this.overflow) {
             // Dragging Vertical Scrollbar
-            if (this.hasVerticalOverflow()) {
+            if (this.hasVerticalOverflow() && this.shouldDrawVerticalScrollbar()) {
                 // measurements
                 final float divVH = region.getHeight();
                 float pageCover = divVH / (divVH + this.maxScroll);
@@ -148,7 +148,7 @@ public abstract class AbstractScrollContainer extends Component {
         }
     }
 
-    protected boolean shouldDrawScrollbar() {
+    protected boolean shouldDrawVerticalScrollbar() {
         switch (this.getStyle().get(SCROLLBAR)) {
         case ALWAYS:
             return true;
