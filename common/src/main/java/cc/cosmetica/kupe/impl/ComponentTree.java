@@ -385,6 +385,8 @@ class ComponentTree {
 					node.trueScissorRegion = node.parent == null ? null : node.parent.trueScissorRegion;
 				}
 
+				final boolean decorationsOccluding = node.element.isOccluding(node.trueRenderRegion(), (int) x, (int) y, true);
+
 				// Determine whether this node should receive pointer events.
 				PointerEvents eventHandling = node.element.getStyle().get(CommonProperties.POINTER_EVENTS);
 				boolean inScissor = (node.parent == null || node.parent.trueScissorRegion == null || node.parent.trueScissorRegion.contains((int) x, (int) y));
@@ -397,12 +399,12 @@ class ComponentTree {
 						canReceiveThisEvent = true;
 						break;
 					case REGION:
-						canReceiveThisEvent = node.trueRenderRegion().contains((int) x, (int) y);
+						canReceiveThisEvent = node.trueRenderRegion().contains((int) x, (int) y) || decorationsOccluding;
 						break;
 					case VISIBLE:
 					default:
-						canReceiveThisEvent = node.trueRenderRegion().contains((int) x, (int) y) && inScissor &&
-								(occluding == node || occluding == null);
+						canReceiveThisEvent = (node.trueRenderRegion().contains((int) x, (int) y) || decorationsOccluding)
+								&& inScissor && (occluding == node || occluding == null);
 						break;
 				}
 
@@ -410,14 +412,14 @@ class ComponentTree {
 					grey.put(node, true);
 
 					// determine if a step towards frontmost non-occluded
-					if (frontmost == node.parent && occluding == null && inScissor && node.trueRenderRegion().contains((int) x, (int) y)) {
+					if (frontmost == node.parent && occluding == null && inScissor && (node.trueRenderRegion().contains((int) x, (int) y) || decorationsOccluding)) {
 						frontmost = node;
 					}
 				}
 
 				// determine if occluding pointer events for subsequent elements (including children)
 				// parent decorations can occlude children
-				if (occluding == null && node.element.isOccluding(node.trueRenderRegion(), (int) x, (int) y, true)) {
+				if (occluding == null && decorationsOccluding) {
 					occluding = node;
 				}
 

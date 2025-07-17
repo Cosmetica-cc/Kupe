@@ -137,7 +137,7 @@ public class PlayerUtils {
     private static void startProfileLookup(UUID uuid) {
         Map<UUID, Optional<GameProfile>> map = cache;
         if (!map.containsKey(uuid)) {
-            map.put(uuid, Optional.empty()); // looking up!
+            map.put(uuid, Optional.empty()); // looking up!c
 
             // look up new profile async
             CompletableFuture.runAsync(() -> {
