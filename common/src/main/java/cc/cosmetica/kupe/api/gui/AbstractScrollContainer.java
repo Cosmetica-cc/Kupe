@@ -66,12 +66,10 @@ public abstract class AbstractScrollContainer extends Component {
     @Override
     public void mouseClicked(Element target, double x, double y, int button) {
         if (this.shouldDrawVerticalScrollbar()) {
-            System.out.println("mouse click " + x+" "+this.scrollbarLeftX);
             if (
                 y >= this.scrollbarTopY && y < (this.scrollbarTopY + this.scrollbarSize)
                         && x >= this.scrollbarLeftX && x < (this.scrollbarLeftX + DEFAULT_SCROLLBAR_THICKNESS)
             ) {
-                System.out.println("grab");
                 this.grabbed = true;
                 this.grabOffset = (float) y - this.scrollbarTopY;
             }
