@@ -91,7 +91,7 @@ public final class CommonProperties {
 	/**
 	 * Controls when this component receives pointer events.
 	 */
-	public static final Style.Property<PointerEvents> POINTER_EVENTS = new Style.Property<>("pointerEvents", PointerEvents.VISIBLE, false);
+	public static final Style.Property<PointerEvents> POINTER_EVENTS = new Style.Property<>("pointerEvents", PointerEvents.VISIBLE, true);
 
 	/**
 	 * Get the amount this object flexes in divisions. That is, when objects are being made to fill the space of the
