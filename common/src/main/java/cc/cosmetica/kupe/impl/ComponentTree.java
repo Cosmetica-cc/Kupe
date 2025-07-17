@@ -306,7 +306,7 @@ class ComponentTree {
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		return this.walkPointerEvent(mouseX, mouseY, (n, target) -> {
 			n.element.mouseClicked(target, mouseX - n.scrollX(), mouseY - n.scrollY(), button);
-			return true;
+			return false;
 		});
 	}
 
@@ -317,13 +317,13 @@ class ComponentTree {
 
 	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
 		// only the frontmost div will scroll.
-		return this.walkScrollEvent(mouseX, mouseY, (n, target) -> n.element.mouseScrolled(mouseX - n.scrollX(), mouseY - n.scrollY(), delta));
+		return this.walkPointerEvent(mouseX, mouseY, (n, target) -> n.element.mouseScrolled(mouseX - n.scrollX(), mouseY - n.scrollY(), delta));
 	}
 
 	public void mouseMoved(double mouseX, double mouseY) {
 		this.walkPointerEvent(mouseX, mouseY, (n, target) -> {
 			n.element.mouseMoved(n.renderRegion, mouseX - n.scrollX(), mouseY - n.scrollY());
-			return true;
+			return false;
 		});
 	}
 
@@ -331,7 +331,7 @@ class ComponentTree {
 	 * Walk a callback, taking into account occlusion and each element's preferred {@link PointerEvents} strategy.
 	 * @param x the pointer X.
 	 * @param y the pointer Y.
-	 * @param callback the callback to test for each element. If any element returns true, this returns true.
+	 * @param callback the callback to test for each element. If any element returns true, this returns early.
 	 * @return whether the callback was tested at least once.
 	 */
 	private boolean walkPointerEvent(double x, double y, BiPredicate<Node, Node> callback) {
@@ -432,119 +432,13 @@ class ComponentTree {
 		}
 
 		// -> 1. receive event
-		boolean componentListened = false;
+		boolean componentListened = !received.isEmpty();
 		Node target = occluding == null ? frontmost : occluding;
+
 		while (!received.isEmpty()) {
-			componentListened |= callback.test(received.remove(), target);
-		}
-
-		return componentListened;
-	}
-
-	/**
-	 * Walk a callback, taking into account occlusion and each element's preferred {@link PointerEvents} strategy.
-	 * @param x the pointer X.
-	 * @param y the pointer Y.
-	 * @param callback the callback to test for each element. If an element returns true, further elements will not be tested.
-	 * @return whether the callback was tested at least once.
-	 */
-	private boolean walkScrollEvent(double x, double y, BiPredicate<Node, Node> callback) {
-		// TODO work with walkPointerEvent
-		// DFS walk() with tests for occlusion. children run before parents and can consume some events preventing propagation.
-		// front prioritised over back
-		Deque<Node> nodes = new ArrayDeque<>();
-		Map<Node, Boolean> grey = new HashMap<>();
-		// once we reach an element that blocks, set this to true. we know we've found the occluding element
-		Node occluding = null;
-		// the frontmost, non-occluded element that receives the event. Used for some logic. May differ to occluding.
-		Node target = null;
-
-		nodes.add(this.root);
-		boolean componentListened = false;
-
-		while (!nodes.isEmpty()) {
-			Node node = nodes.poll();
-			Boolean listens = grey.remove(node);
-
-			if (listens != null) {
-				if (listens) {
-					// check for consumption
-					// target should be stabilised by now.
-					if (callback.test(node, target)) {
-						return true;
-					}
-
-					componentListened = true;
-				}
-
-				// deterimine occlusion of behind elements by this element's background
-				// parent background cannot occlude children
-				if (occluding == null && node.element.isOccluding(node.trueRenderRegion(), (int) x, (int) y, false)) {
-					occluding = node;
-				}
-			}
-			else {
-				// visit again
-				nodes.push(node);
-				grey.put(node, false);
-
-				// update scissor region
-				Region scissorRegion = node.getComponent().getScissorRegion(node.renderRegion);
-				if (scissorRegion != null) {
-					// calculate new scissor region - same logic as render
-					scissorRegion = scissorRegion.translate((int)node.scrollX(), (int)node.scrollY());
-					if (node.parent != null && node.parent.trueScissorRegion != null) {
-						scissorRegion = scissorRegion.intersect(node.parent.trueScissorRegion);
-					}
-					// set scissor region
-					node.trueScissorRegion = scissorRegion;
-				} else {
-					// inherit
-					node.trueScissorRegion = node.parent == null ? null : node.parent.trueScissorRegion;
-				}
-
-				// Determine whether this node should receive pointer events.
-				PointerEvents eventHandling = node.element.getStyle().get(CommonProperties.POINTER_EVENTS);
-				boolean inScissor = (node.parent == null || node.parent.trueScissorRegion == null || node.parent.trueScissorRegion.contains((int) x, (int) y));
-				boolean canReceiveEvents;
-				switch (eventHandling) {
-				case NONE:
-					canReceiveEvents = false;
-					break;
-				case ALL:
-					canReceiveEvents = true;
-					break;
-				case REGION:
-					canReceiveEvents = node.trueRenderRegion().contains((int) x, (int) y);
-					break;
-				case VISIBLE:
-				default:
-					canReceiveEvents = node.trueRenderRegion().contains((int) x, (int) y) && inScissor &&
-							(occluding == node || occluding == null);
-					break;
-				}
-
-				if (canReceiveEvents) {
-					grey.put(node, true);
-
-					// determine if a step towards frontmost non-occluded
-					if (target == node.parent && occluding == null && inScissor && node.trueRenderRegion().contains((int) x, (int) y)) {
-						target = node;
-					}
-				}
-
-				// determine if occluding pointer events for subsequent elements (including children)
-				// parent decorations can occlude children
-				if (occluding == null && node.element.isOccluding(node.trueRenderRegion(), (int) x, (int) y, true)) {
-					occluding = node;
-				}
-
-				// Handle Children.
-				// Last element has highest Z, so should be pushed to stack last (to be handled first).
-				for (Node child : node.childrenByZ) {
-					nodes.push(child);
-				}
-			}
+			 if (callback.test(received.remove(), target)) {
+				 return true;
+			 }
 		}
 
 		return componentListened;
