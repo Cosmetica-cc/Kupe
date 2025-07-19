@@ -184,7 +184,7 @@ public class GUIPlayer extends Component {
 		}
 
 		this.renderer.nametags.remove(index);
-		this.renderer.nametags.add(index, this.renderer.username);
+		this.renderer.nametags.add(index, nametag);
 		return this;
 	}
 
