@@ -20,8 +20,8 @@ import cc.cosmetica.kupe.impl.LeavesSandbox;
 import cc.cosmetica.kupe.impl.text.EmptyText;
 import cc.cosmetica.kupe.impl.text.LiteralText;
 import cc.cosmetica.kupe.impl.text.TranslatableText;
+import cc.cosmetica.kupe.impl.text.VanillaText;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 
 /**
  * Base class for a text component.
@@ -43,6 +43,13 @@ public interface Text {
 	}
 
 	/**
+	 * Convert this component to its minecraft version.
+	 * @return the minecraft component from this text.
+	 */
+	@LeavesSandbox
+	Component toMinecraftComponent();
+
+	/**
 	 * Get a text instance that contains the provided text as-is.
 	 * @param text the text to display.
 	 * @return a text object with the given text literal.
@@ -62,11 +69,14 @@ public interface Text {
 	}
 
 	/**
-	 * Convert this component to its minecraft version.
-	 * @return the minecraft component from this text.
+	 * Create a {@link Text} from a minecraft component.
+	 * @param component the vanilla minecraft component.
+	 * @return the text.
 	 */
 	@LeavesSandbox
-	Component toMinecraftComponent();
+	static Text ofVanilla(Component component) {
+		return new VanillaText(component);
+	}
 
 	/*
 	 * Common translation keys used in GUI development.
