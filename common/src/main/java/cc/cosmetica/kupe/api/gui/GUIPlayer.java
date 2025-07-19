@@ -145,7 +145,17 @@ public class GUIPlayer extends Component {
 	public GUIPlayer addNametag(Text nametagText, float scale) {
 		this.renderer.nametags.add(new Nametag(nametagText, scale));
 		return this;
-		// TODO Check in Cosmetica: does prefix/suffix automatically show?
+	}
+
+	/**
+	 * Add additional nametags to the fake player. Get the index for later updating.
+	 * @param nametagText the nametag text.
+	 * @param scale the scale multiplier.
+	 * @return the nametag's index.
+	 */
+	public int createNametag(Text nametagText, float scale) {
+		this.renderer.nametags.add(new Nametag(nametagText, scale));
+		return this.renderer.nametags.size() - 1;
 	}
 
 	/**
@@ -159,16 +169,22 @@ public class GUIPlayer extends Component {
 	}
 
 	/**
-	 * Change the username nametag.
+	 * Change the username or other nametag.
+	 * @param index the index of the nametag. The username is at index 0.
 	 * @param text the text of the nametag.
 	 * @param scale the scale multiplier.
 	 * @return this GUI player.
 	 */
-	public GUIPlayer setUsername(Text text, float scale) {
-		this.loadedName = true;
-		this.renderer.username = new Nametag(text, scale);
-		this.renderer.nametags.remove(0);
-		this.renderer.nametags.add(0, this.renderer.username);
+	public GUIPlayer updateNametag(int index, Text text, float scale) {
+		Nametag nametag = new Nametag(text, scale);
+
+		if (index == 0) {
+			this.loadedName = true;
+			this.renderer.username = nametag;
+		}
+
+		this.renderer.nametags.remove(index);
+		this.renderer.nametags.add(index, this.renderer.username);
 		return this;
 	}
 
