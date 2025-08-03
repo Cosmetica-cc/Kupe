@@ -26,7 +26,7 @@ import java.util.OptionalInt;
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
 /**
- * Test case for image transparency.
+ * Test case for image and box transparency.
  */
 public class TransparencyTestScreen extends Screen {
     public TransparencyTestScreen() {
