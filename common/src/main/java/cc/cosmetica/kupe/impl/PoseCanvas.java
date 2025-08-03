@@ -50,6 +50,7 @@ public class PoseCanvas implements Canvas {
 	private final Minecraft minecraft;
 	private final Context context;
 	private final float tickDelta;
+	private float alpha = 1.0f;
 	//scissor
 	private ScissorStack scissorStack;
 	private boolean fastScissor;
@@ -67,12 +68,15 @@ public class PoseCanvas implements Canvas {
 	@Override
 	public void disableTransparency() {
 		RenderSystem.disableBlend();
+		RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
+		this.alpha = 1.0f;
 	}
 
 	@Override
 	public void setTransparency(float transparency) {
 		RenderSystem.enableBlend();
 		RenderSystem.color4f(1.0f, 1.0f, 1.0f, transparency);
+		this.alpha = transparency;
 	}
 
 	@Override
@@ -192,21 +196,23 @@ public class PoseCanvas implements Canvas {
 		RenderSystem.disableTexture();
 		BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
 		Matrix4f matrix4f = this.stack.last().pose();
-//		RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
+		RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
 
 		// x1, y1 exclusive because for some reason minecraft works this way
 		int x1 = x0 + width;
 		int y1 = y0 + height;
 
+		final float a = this.alpha;
 		bufferBuilder.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_COLOR);
-		bufferBuilder.vertex(matrix4f, x0, y1, z).color(r, g, b, 1.0F).endVertex();
-		bufferBuilder.vertex(matrix4f, x1, y1, z).color(r, g, b, 1.0F).endVertex();
-		bufferBuilder.vertex(matrix4f, x1, y0, z).color(r, g, b, 1.0F).endVertex();
-		bufferBuilder.vertex(matrix4f, x0, y0, z).color(r, g, b, 1.0F).endVertex();
+		bufferBuilder.vertex(matrix4f, x0, y1, z).color(r, g, b, a).endVertex();
+		bufferBuilder.vertex(matrix4f, x1, y1, z).color(r, g, b, a).endVertex();
+		bufferBuilder.vertex(matrix4f, x1, y0, z).color(r, g, b, a).endVertex();
+		bufferBuilder.vertex(matrix4f, x0, y0, z).color(r, g, b, a).endVertex();
 
 		bufferBuilder.end();
 		BufferUploader.end(bufferBuilder);
 		RenderSystem.enableTexture(); // re-enable
+		RenderSystem.color4f(1.0f, 1.0f, 1.0f, this.alpha); // reset alpha
 	}
 
 	@Override

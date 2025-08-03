@@ -11,5 +11,6 @@
   "screens.kupe_test.text_align_inheritance": "Text Align Inheritance",
   "screens.kupe_test.text_box_test": "Textbox Test",
   "screens.kupe_test.text_wrapping": "Text Wrap Label Sizing Test",
+  "screens.kupe_test.transparency": "Transparent Objects",
   "screens.kupe_test.z_layering": "Z Layering Test"
 }

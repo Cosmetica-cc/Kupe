@@ -44,7 +44,8 @@ public class AllKupeTestsScreen extends Screen {
 				new Button(Text.translatable("screens.kupe_test.grid"), () -> Screens.setScreen(GridTestScreen.ID)),
 				new Button(FontInheritanceTest.ID.translationKey("screens"), () -> Screens.setScreen(FontInheritanceTest.ID)),
 				new Button(NestedScrollTestScreen.ID.translationKey("screens"), () -> Screens.setScreen(NestedScrollTestScreen.ID)),
-				new Button(TextBoxTestScreen.ID.translationKey("screens"), () -> Screens.setScreen(TextBoxTestScreen.ID))
+				new Button(TextBoxTestScreen.ID.translationKey("screens"), () -> Screens.setScreen(TextBoxTestScreen.ID)),
+				new Button(TransparencyTestScreen.ID.translationKey("screens"), () -> Screens.setScreen(TransparencyTestScreen.ID))
 		};
 	}
 

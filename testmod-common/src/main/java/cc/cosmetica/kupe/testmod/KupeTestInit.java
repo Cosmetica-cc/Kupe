@@ -21,14 +21,15 @@ public final class KupeTestInit {
 		Screens.registerScreen(FakePlayerTestScreen.ID, new FakePlayerTestScreen());
 		Screens.registerScreen(OverlayTestScreen.ID, new OverlayTestScreen());
 		// factory register demonstration
+		Screens.registerScreen(FontInheritanceTest.ID, new FontInheritanceTest());
+		Screens.registerScreen(GridTestScreen.ID, new GridTestScreen());
+		Screens.registerScreen(NestedScrollTestScreen.ID, new NestedScrollTestScreen());
 		Screens.registerScreen(OversizeAndMaxHeightTestCase.ID, OversizeAndMaxHeightTestCase::new);
 		Screens.registerScreen(ScrollTestScreen.ID, new ScrollTestScreen());
 		Screens.registerScreen(StateTestScreen.ID, new StateTestScreen());
-		Screens.registerScreen(TextWrapTextboxSizingTest.ID, new TextWrapTextboxSizingTest());
-		Screens.registerScreen(ZLayeringTest.ID, new ZLayeringTest());
-		Screens.registerScreen(GridTestScreen.ID, new GridTestScreen());
-		Screens.registerScreen(FontInheritanceTest.ID, new FontInheritanceTest());
-		Screens.registerScreen(NestedScrollTestScreen.ID, new NestedScrollTestScreen());
 		Screens.registerScreen(TextBoxTestScreen.ID, TextBoxTestScreen::new);
+		Screens.registerScreen(TextWrapTextboxSizingTest.ID, new TextWrapTextboxSizingTest());
+		Screens.registerScreen(TransparencyTestScreen.ID, TransparencyTestScreen::new);
+		Screens.registerScreen(ZLayeringTest.ID, new ZLayeringTest());
 	}
 }
