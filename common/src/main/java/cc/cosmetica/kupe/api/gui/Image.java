@@ -18,6 +18,7 @@ package cc.cosmetica.kupe.api.gui;
 
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.Context;
+import cc.cosmetica.kupe.api.PolyBuilder;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.RootStylesheet;
@@ -26,6 +27,13 @@ import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
 import com.google.common.collect.ImmutableList;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.math.Matrix4f;
+import org.lwjgl.opengl.GL11;
 
 import java.io.IOException;
 import java.util.List;
@@ -63,9 +71,26 @@ public class Image extends Component {
 		return this;
 	}
 
+	/**
+	 * Crop the image by the given percentages in each direction.
+	 * @param top the amount to crop from the top (%).
+	 * @param right the amount to crop from the right (%).
+	 * @param bottom the amount to crop from the bottom (%).
+	 * @param left the amount to crop from the left (%).
+	 * @return this image.
+	 */
+	public Image crop(float top, float right, float bottom, float left) {
+		this.uv[0] = left;
+		this.uv[1] = top;
+		this.uv[2] = 1.0f - right;
+		this.uv[3] = 1.0f - bottom;
+		return this;
+	}
+
 	private float opacity = -1.0f;
 	private final ResourceKey texture;
 	private final ImageDimensionLoader dimensionFetcher;
+	private final float[] uv = {0.0f, 0.0f, 1.0f, 1.0f};
 
 	// TODO dont do io on the rendering thread
 	// could make a way to prefetch data and have it available
@@ -125,12 +150,28 @@ public class Image extends Component {
 	@Override
 	public void paint(Canvas canvas, Region region, int mouseX, int mouseY) {
 		if (this.opacity == -1.0f) {
-			canvas.drawTexture(region.getX(), region.getY(), region.getWidth(), region.getHeight(), 0.0f, this.texture);
+			this.drawTexture(canvas, region.getX(), region.getY(), region.getWidth(), region.getHeight(), this.texture);
 		} else {
 			canvas.setTransparency(this.opacity);
-			canvas.drawTexture(region.getX(), region.getY(), region.getWidth(), region.getHeight(), 0.0f, this.texture);
+			this.drawTexture(canvas, region.getX(), region.getY(), region.getWidth(), region.getHeight(), this.texture);
 			canvas.disableTransparency();
 		}
+	}
+
+	private void drawTexture(Canvas canvas, int x0, int y0, int width, int height, ResourceKey texture) {
+		canvas.setTexture(texture);
+		PolyBuilder bufferBuilder = canvas.drawQuads(PolyBuilder.Mode.POSITION_TEXTURE);
+
+		// x1, y1 exclusive because for some reason minecraft works this way
+		int x1 = x0 + width;
+		int y1 = y0 + height;
+
+		bufferBuilder.vertex((float)x0, (float)y1, 0.0f).uv(this.uv[0], this.uv[3]).endVertex();
+		bufferBuilder.vertex((float)x1, (float)y1, 0.0f).uv(this.uv[2], this.uv[3]).endVertex();
+		bufferBuilder.vertex((float)x1, (float)y0, 0.0f).uv(this.uv[2], this.uv[1]).endVertex();
+		bufferBuilder.vertex((float)x0, (float)y0, 0.0f).uv(this.uv[0], this.uv[1]).endVertex();
+
+		bufferBuilder.build();
 	}
 
 	/**

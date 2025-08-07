@@ -80,6 +80,11 @@ public class PoseCanvas implements Canvas {
 	}
 
 	@Override
+	public void setTexture(ResourceKey texture) {
+		Minecraft.getInstance().getTextureManager().bind(texture.toResourceLocation());
+	}
+
+	@Override
 	public void useScissor(@Nullable Region region, boolean stack) {
 		// update region minecraft rendering engine is using and in the stack
 		if (region == null) {
@@ -218,7 +223,7 @@ public class PoseCanvas implements Canvas {
 	@Override
 	public void drawTexture(int x0, int y0, int width, int height, float z, ResourceKey texture) {
 		RenderSystem.enableTexture();
-		Minecraft.getInstance().getTextureManager().bind(texture.toResourceLocation());
+		this.setTexture(texture);
 		BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
 		Matrix4f matrix4f = this.stack.last().pose();
 
@@ -238,11 +243,13 @@ public class PoseCanvas implements Canvas {
 
 	@Override
 	public PolyBuilder drawQuads(PolyBuilder.Mode mode) {
+		mode.applyShader();
 		return new BufferPolyBuilder(Tesselator.getInstance().getBuilder(), GL11.GL_QUADS, mode, this.stack.last().pose());
 	}
 
 	@Override
 	public PolyBuilder drawTriangles(PolyBuilder.Mode mode) {
+		mode.applyShader();
 		return new BufferPolyBuilder(Tesselator.getInstance().getBuilder(), GL11.GL_TRIANGLES, mode, this.stack.last().pose());
 	}
 

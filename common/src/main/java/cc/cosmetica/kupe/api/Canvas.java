@@ -73,6 +73,13 @@ public interface Canvas {
 	void setTransparency(float transparency);
 
 	/**
+	 * Set the texture to draw in subsequent polygon-builder drawings ({@link Canvas#drawTriangles(PolyBuilder.Mode)}, {@link Canvas#drawQuads(PolyBuilder.Mode)}.
+	 * It is not guaranteed to be preserved after other texture draw calls, such as drawText and drawImage.
+	 * @param texture the location at which the texture can be found.
+	 */
+	void setTexture(ResourceKey texture);
+
+	/**
 	 * Draw the text with the given colour at the given location on the screen.
 	 * @param text the text to draw.
 	 * @param x the x position at which to draw.
@@ -123,12 +130,14 @@ public interface Canvas {
 
 	/**
 	 * Start drawing quadrilaterals. The {@link PolyBuilder#build()} method must be called to finish building.
+	 * Automatically invokes {@link PolyBuilder.Mode#applyShader()}.
 	 * @param mode the format to draw vertices in. Each vertex will require these parameters.
 	 */
 	PolyBuilder drawQuads(PolyBuilder.Mode mode);
 
 	/**
 	 * Start drawing triangles. The {@link PolyBuilder#build()} method must be called to finish building.
+	 * Automatically invokes {@link PolyBuilder.Mode#applyShader()}.
 	 * @param mode the format to draw vertices in. Each vertex will require these parameters.
 	 */
 	PolyBuilder drawTriangles(PolyBuilder.Mode mode);

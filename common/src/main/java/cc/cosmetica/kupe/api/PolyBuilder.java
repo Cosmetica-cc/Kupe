@@ -67,7 +67,7 @@ public interface PolyBuilder {
 		POSITION(DefaultVertexFormat.POSITION, false, 1),
 		POSITION_COLOUR(DefaultVertexFormat.POSITION_COLOR, false, 2),
 		POSITION_TEXTURE(DefaultVertexFormat.POSITION_TEX, true, 2),
-		POSITION_COLOUR_TEXTURE(DefaultVertexFormat.POSITION_COLOR_TEX, false, 3),
+		POSITION_COLOUR_TEXTURE(DefaultVertexFormat.POSITION_COLOR_TEX, true, 3),
 		POSITION_COLOUR_LIGHTMAP(DefaultVertexFormat.POSITION_COLOR_LIGHTMAP, false, 3),
 		POSITION_COLOUR_TEXTURE_LIGHTMAP(DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP, true, 4);
 
