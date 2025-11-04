@@ -344,6 +344,7 @@ public class Grid extends AbstractScrollContainer /*implements WrappingComponent
         // set overflow flag
         this.overflow = (int)y > region.getEndY();
         this.maxScroll = y - region.getEndY();
+        if (this.maxScroll < 0) this.maxScroll = 0;
         this.grabbed = false;
     }
 

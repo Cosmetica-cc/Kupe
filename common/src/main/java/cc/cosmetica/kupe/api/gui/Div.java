@@ -493,6 +493,7 @@ public class Div extends AbstractScrollContainer {
 		// set overflow flag
 		this.overflow = (int)x > region.getEndX();// TODO should we have int cast?
 		this.maxScroll = (float)x - region.getEndX();
+		if (this.maxScroll < 0) this.maxScroll = 0;
 		this.grabbed = false;
 //		if (this.overflow) {
 //			System.out.println(super.toString() + " Overflow = " + region.getEndX() + " < " + x);
