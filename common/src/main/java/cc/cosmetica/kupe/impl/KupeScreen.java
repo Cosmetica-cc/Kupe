@@ -36,9 +36,7 @@ import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * The screen that controls the Kupe gui rendering. This handles the rendering and event calls to the root component.
@@ -58,6 +56,8 @@ public final class KupeScreen extends Screen {
 	private final Context context;
 	private final boolean defaultBackground;
 	private boolean built = false;
+	// todo how does this interact with states being deleted/reinstated
+	private final Map<Class<Component>, Map<Object, Component>> cache = new HashMap<>();
 
 	@Override
 	public void init(Minecraft minecraft, int w, int h) {
