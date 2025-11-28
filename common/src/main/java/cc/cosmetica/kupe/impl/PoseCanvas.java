@@ -24,8 +24,11 @@ import com.mojang.math.Matrix4f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Widget;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
+
+import java.util.Optional;
 
 /**
  * Implementation of Canvas.
@@ -52,7 +55,7 @@ public class PoseCanvas implements Canvas {
 	private final float tickDelta;
 	private float alpha = 1.0f;
 	//scissor
-	private ScissorStack scissorStack;
+	private @NotNull ScissorStack scissorStack;
 	private boolean fastScissor;
 
 	@Override
@@ -117,6 +120,21 @@ public class PoseCanvas implements Canvas {
 					(int) (region.getWidth() * guiScale),
 					(int) (region.getHeight() * guiScale)
 			);
+		}
+	}
+
+	@Override
+	public Optional<Region> getScissor() {
+		if (this.scissorStack.region == null) {
+			return Optional.empty();
+		}
+
+		// translate back
+		ScissorStack scissorScroller = this.scissorStack.prevNode;
+		if (scissorScroller != null && (scissorScroller.scrollX != 0 || scissorScroller.scrollY != 0)) {
+			return Optional.of(this.scissorStack.region.translate(-((int)scissorScroller.scrollX), -((int)scissorScroller.scrollY)));
+		} else {
+			return Optional.of(this.scissorStack.region);
 		}
 	}
 

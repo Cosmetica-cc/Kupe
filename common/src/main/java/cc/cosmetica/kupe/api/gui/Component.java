@@ -470,7 +470,7 @@ public abstract class Component {
 	}
 
 	/**
-	 * Called when the mouse is moved on this component.
+	 * Called when the mouse is moved on a screen containing this component.
 	 * @param region this component's region.
 	 * @param x the x position of the mouse on the screen.
 	 * @param y the y position of the mouse on the screen.

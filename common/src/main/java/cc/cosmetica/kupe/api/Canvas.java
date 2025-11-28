@@ -20,6 +20,8 @@ import cc.cosmetica.kupe.api.maths.Region;
 import cc.cosmetica.kupe.impl.LeavesSandbox;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
+
 /**
  * Tool for drawing on the screen without needing to use Mojang code directly.
  */
@@ -43,6 +45,12 @@ public interface Canvas {
 	 * @param stack whether to stack this scissor atop previous scissors.
 	 */
 	void useScissor(@Nullable Region region, boolean stack);
+
+	/**
+	 * Get the current scissor.
+	 * @return an optional of the currently in-use scissor region.
+	 */
+	Optional<Region> getScissor();
 
 	/**
 	 * Scroll the view the given amount for this component and its children. This is not just equivalent to translating

@@ -43,6 +43,7 @@ class ComponentTree {
 		this.updateDebugComponent();
 	}
 
+	private Region screenRegion = new Region(0,0,0,0);
 	private final Node root;
 
 	/**
@@ -205,6 +206,7 @@ class ComponentTree {
 		final Margins rootPadding = this.root.padding;
 		final int vw = context.getViewWidth();
 		final int vh = context.getViewHeight();
+		this.screenRegion = new Region(0, 0, context.getViewWidth(), context.getViewHeight());
 		this.root.renderRegion = new Region(rootPadding.left, rootPadding.top, context.getViewWidth() - rootPadding.horizontal(), context.getViewHeight() - rootPadding.vertical());
 
 		// Resize down the tree
@@ -361,7 +363,7 @@ class ComponentTree {
 
 				// deterimine occlusion of behind elements by this element's background
 				// parent background cannot occlude children
-				if (occluding == null && node.element.isOccluding(node.trueRenderRegion(), node.parent == null ? node.trueRenderRegion() : node.parent.trueScissorRegion, (int) x, (int) y, false)) {
+				if (occluding == null && node.element.isOccluding(node.trueRenderRegion(), node.parent == null ? this.screenRegion : (node.parent.trueScissorRegion == null ? this.screenRegion : node.parent.trueScissorRegion), (int) x, (int) y, false)) {
 					occluding = node;
 				}
 			}
@@ -385,7 +387,7 @@ class ComponentTree {
 					node.trueScissorRegion = node.parent == null ? null : node.parent.trueScissorRegion;
 				}
 
-				final boolean decorationsOccluding = node.element.isOccluding(node.trueRenderRegion(), node.parent == null ? node.trueRenderRegion() : node.parent.trueScissorRegion, (int) x, (int) y, true);
+				final boolean decorationsOccluding = node.element.isOccluding(node.trueRenderRegion(), node.parent == null ? this.screenRegion : (node.parent.trueScissorRegion == null ? this.screenRegion : node.parent.trueScissorRegion), (int) x, (int) y, true);
 
 				// Determine whether this node should receive pointer events.
 				PointerEvents eventHandling = node.element.getStyle().get(CommonProperties.POINTER_EVENTS);
