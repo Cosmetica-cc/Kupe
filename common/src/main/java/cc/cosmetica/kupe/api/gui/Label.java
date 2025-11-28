@@ -16,18 +16,17 @@
 
 package cc.cosmetica.kupe.api.gui;
 
-import cc.cosmetica.kupe.api.Canvas;
-import cc.cosmetica.kupe.api.Context;
-import cc.cosmetica.kupe.api.Renderable;
-import cc.cosmetica.kupe.api.Text;
+import cc.cosmetica.kupe.api.*;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.OptionalInt;
 
 /**
@@ -36,9 +35,15 @@ import java.util.OptionalInt;
 public class Label extends Component implements WrappingComponent {
 	public Label(Text text) {
 		this.text = text;
+		this.dynamic = null;
+	}
+	public Label(State<? extends Text> text) {
+		Objects.requireNonNull(text, "Text state cannot be null for dynamic label");
+		this.dynamic = text;
 	}
 
-	private final Text text;
+	private Text text;
+	private final @Nullable State<? extends Text> dynamic;
 
 	@Override
 	public Dimensions intrinsicSize(List<? extends SizedElement> children, Margins padding, Context context) {
@@ -68,11 +73,14 @@ public class Label extends Component implements WrappingComponent {
 
 	@Override
 	public List<Component> build() {
+		if (this.dynamic != null) {
+			this.text = this.dynamic.acquire(this);
+		}
 		return Collections.emptyList();
 	}
 
 	// Generate text lines and render
-	List<Renderable> label;
+	protected List<Renderable> label;
 
 	@Override
 	public void resize(Region region, SizedElement sizedElement, List<? extends ResizableElement> children, Context context) {
