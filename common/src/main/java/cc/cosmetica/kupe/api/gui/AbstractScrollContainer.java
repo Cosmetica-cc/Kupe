@@ -84,15 +84,15 @@ public abstract class AbstractScrollContainer extends Component {
     }
 
     @Override
-    public boolean isOccluding(Region region, int x, int y, boolean decorations) {
+    public boolean isOccluding(Region region, Region scissorRegion, int x, int y, boolean decorations) {
         boolean outsideScrollbar = this.getStyle().get(SCROLLBAR_POSITION) == ScrollbarPosition.OUTSIDE;
 
         if (outsideScrollbar && decorations && this.shouldDrawVerticalScrollbar()) {
-            if (!region.grow(0, DEFAULT_SCROLLBAR_THICKNESS, 0, 0).contains(x, y)) {
+            if (!region.grow(0, DEFAULT_SCROLLBAR_THICKNESS, 0, 0).intersect(scissorRegion).contains(x, y)) {
                 return false;
             }
         } else {
-            if (!region.contains(x, y)) {
+            if (!region.intersect(scissorRegion).contains(x, y)) {
                 return false;
             }
         }

@@ -361,7 +361,7 @@ class ComponentTree {
 
 				// deterimine occlusion of behind elements by this element's background
 				// parent background cannot occlude children
-				if (occluding == null && node.element.isOccluding(node.trueRenderRegion(), (int) x, (int) y, false)) {
+				if (occluding == null && node.element.isOccluding(node.trueRenderRegion(), node.parent == null ? node.trueRenderRegion() : node.parent.trueScissorRegion, (int) x, (int) y, false)) {
 					occluding = node;
 				}
 			}
@@ -385,7 +385,7 @@ class ComponentTree {
 					node.trueScissorRegion = node.parent == null ? null : node.parent.trueScissorRegion;
 				}
 
-				final boolean decorationsOccluding = node.element.isOccluding(node.trueRenderRegion(), (int) x, (int) y, true);
+				final boolean decorationsOccluding = node.element.isOccluding(node.trueRenderRegion(), node.parent == null ? node.trueRenderRegion() : node.parent.trueScissorRegion, (int) x, (int) y, true);
 
 				// Determine whether this node should receive pointer events.
 				PointerEvents eventHandling = node.element.getStyle().get(CommonProperties.POINTER_EVENTS);
@@ -594,8 +594,8 @@ class ComponentTree {
 				" (" + node.intrinsicSize.toString() + "i, " + node.minimumSize + "m, " + node.maximumSize + "M)");
 	}
 
-	private static final Text DEBUG_INSTRUCTIONS_C = Text.literal("[1] Back [2] Step In [3] Previous [4] Next [5] Print Debug [6] Show Padded Region  - (Content Region) [7] Show Render Regions");
-	private static final Text DEBUG_INSTRUCTIONS_P = Text.literal("[1] Back [2] Step In [3] Previous [4] Next [5] Print Debug [6] Show Content Region - (Padded Region) [7] Show Render Regions");
+	private static final Text DEBUG_INSTRUCTIONS_C = Text.literal("[1] Back [2] Step In [3] Previous [4] Next [5] Print Debug [6] Show Padded Region  - (Content Region) [7] Toggle Highlights");
+	private static final Text DEBUG_INSTRUCTIONS_P = Text.literal("[1] Back [2] Step In [3] Previous [4] Next [5] Print Debug [6] Show Content Region - (Padded Region) [7] Toggle Highlights");
 	private static Text debugInstructions = DEBUG_INSTRUCTIONS_C;
 
 	private static class Node implements ResizableElement, Element {

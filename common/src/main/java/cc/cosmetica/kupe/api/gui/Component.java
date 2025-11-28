@@ -501,15 +501,16 @@ public abstract class Component {
 	/**
 	 * Get whether this component (not including children) is occluding components underneath.
 	 * The coordinates provided are not guaranteed to be contained by the given {@link Region}.
-	 * @param region the true render region of this component.
+	 * @param region the render region of this component in global coordinates.
+	 * @param scissorRegion the scissor region of this component in global coordinates.
 	 * @param x the x position at which the mouse clicked.
 	 * @param y the y position at which the mouse clicked.
 	 * @param decorations whether this testing for occlusion by overlaid decorations.
 	 * @return whether this component is visible at the given position.
 	 * @apiNote used to determine obstruction for {@linkplain PointerEvents pointer events}.
 	 */
-	public boolean isOccluding(Region region, int x, int y, boolean decorations) {
-		return !decorations && region.contains(x, y);
+	public boolean isOccluding(Region region, Region scissorRegion, int x, int y, boolean decorations) {
+		return !decorations && region.intersect(scissorRegion).contains(x, y);
 	}
 
 	/**
