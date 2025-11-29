@@ -471,7 +471,7 @@ class ComponentTree {
 	private Text debugChildText;
 	private Node debugParent;
 	private int debugIndex = 0;
-	private boolean debugShowRegions;
+	private boolean debugShowRegions = true;
 
 	public void renderDebug(Canvas canvas, int vh) {
 		int lineHeight = (int)Math.ceil(canvas.getDrawingContext().getLineHeight() * 0.75f);
@@ -568,8 +568,8 @@ class ComponentTree {
 				this.updateDebugComponent();
 			}
 			break;
-		case GLFW.GLFW_KEY_7:
-			this.debugShowRegions = !this.debugShowRegions;
+//		case GLFW.GLFW_KEY_7:
+//			this.debugShowRegions = !this.debugShowRegions;
 		}
 
 		return false;
@@ -596,8 +596,8 @@ class ComponentTree {
 				" (" + node.intrinsicSize.toString() + "i, " + node.minimumSize + "m, " + node.maximumSize + "M)");
 	}
 
-	private static final Text DEBUG_INSTRUCTIONS_C = Text.literal("[1] Back [2] Step In [3] Previous [4] Next [5] Print Debug [6] Show Padded Region  - (Content Region) [7] Toggle Highlights");
-	private static final Text DEBUG_INSTRUCTIONS_P = Text.literal("[1] Back [2] Step In [3] Previous [4] Next [5] Print Debug [6] Show Content Region - (Padded Region) [7] Toggle Highlights");
+	private static final Text DEBUG_INSTRUCTIONS_C = Text.literal("[1] Back [2] Step In [3] Previous [4] Next [5] Print Debug [6] Show Padded Region  - (Content Region)");
+	private static final Text DEBUG_INSTRUCTIONS_P = Text.literal("[1] Back [2] Step In [3] Previous [4] Next [5] Print Debug [6] Show Content Region - (Padded Region)");
 	private static Text debugInstructions = DEBUG_INSTRUCTIONS_C;
 
 	private static class Node implements ResizableElement, Element {
