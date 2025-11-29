@@ -30,7 +30,7 @@ public class BiMultiMap<A, B> {
 	 * @param a the first element of the pair.
 	 * @param b the second element of the pair.
 	 */
-	public void put(A a, B b) {
+	public void add(A a, B b) {
 		// hashset disallows duplicates
 		this.aToB.computeIfAbsent(a, $ -> new HashSet<>()).add(b);
 		this.bToA.computeIfAbsent(b, $ -> new HashSet<>()).add(a);

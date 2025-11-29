@@ -31,11 +31,11 @@ import java.util.function.Function;
  */
 public final class StateManagerImpl {
 	private static final BiMultiMap<Component, State<?>> ACQUIRED = new BiMultiMap<>();
-	private static final Map<Component, Map<State<?>, Config>> EXTRACTIONS = new HashMap<>();
+	private static final Map<Component, Map<State<?>, DependencyConfig>> EXTRACTIONS = new HashMap<>();
 
-	private static class Config {
+	private static class DependencyConfig {
 		List<Follower> followers = new ArrayList<>();
-		boolean globalCapture = false; // enabled if the whole state is captured, so should be updated every time.
+		boolean fullAcquire = false; // enabled if the whole state is captured, so should be updated every time.
 	}
 
 	/**
@@ -59,20 +59,20 @@ public final class StateManagerImpl {
 	}
 
 	public static void acquireState(State<?> state, Component component) {
-		ACQUIRED.put(component, state);
+		ACQUIRED.add(component, state);
 
 		// configure global in config
 		EXTRACTIONS
 				.computeIfAbsent(component, x -> new HashMap<>())
-				.computeIfAbsent(state, x -> new Config()).globalCapture = true;
+				.computeIfAbsent(state, x -> new DependencyConfig()).fullAcquire = true;
 	}
 
 	public static <T, E> E extractState(State<T> state, Component component, Function<T, E> mapping) {
-		ACQUIRED.put(component, state);
+		ACQUIRED.add(component, state);
 
 		List<Follower> followers = EXTRACTIONS
 				.computeIfAbsent(component, x -> new HashMap<>())
-				.computeIfAbsent(state, x -> new Config()).followers;
+				.computeIfAbsent(state, x -> new DependencyConfig()).followers;
 
 		// the same follower doesn't need to be reused on rebuilds as we reset extractions upon rebuild.
 		Follower<T, E> follower = new Follower<>(mapping);
@@ -125,11 +125,11 @@ public final class StateManagerImpl {
 	 * @return whether the component should be rebuilt.
 	 */
 	private static boolean shouldRebuild(State<?> state, Component component) {
-		Config config = EXTRACTIONS.get(component).get(state);
+		DependencyConfig config = EXTRACTIONS.get(component).get(state);
 
 		// n.b. if this method returns true, not all followers have necessarily updated
 		// but that's okay, because a rebuilding component resets abstractions and creates the objects again.
-		if (config.globalCapture) {
+		if (config.fullAcquire) {
 			return true;
 		}
 
