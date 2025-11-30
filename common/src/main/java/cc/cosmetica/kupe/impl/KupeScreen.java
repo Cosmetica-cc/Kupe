@@ -163,6 +163,11 @@ public final class KupeScreen extends Screen {
 		this.tree.dispose();
 	}
 
+	@Override
+	public String toString() {
+		return "KupeScreen { screen=" + this.tree + ", built=" + this.built + "}";
+	}
+
 	private static boolean debug;
 	private static boolean allowDebug = true;
 

@@ -84,4 +84,25 @@ public class BiMultiMap<A, B> {
 		this.aToB.clear();
 		this.bToA.clear();
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("BiMultiMap{\n");
+
+		// Add forward A->B mappings
+		sb.append("  Forward Map:\n");
+		for (Map.Entry<A, Collection<B>> entry : aToB.entrySet()) {
+			sb.append("    ").append(entry.getKey()).append(" -> ").append(entry.getValue()).append("\n");
+		}
+
+		// Add reverse B->A mappings
+		sb.append("  Reverse Map:\n");
+		for (Map.Entry<B, Collection<A>> entry : bToA.entrySet()) {
+			sb.append("    ").append(entry.getKey()).append(" -> ").append(entry.getValue()).append("\n");
+		}
+
+		sb.append("}");
+		return sb.toString();
+	}
 }

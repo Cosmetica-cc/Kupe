@@ -16,6 +16,7 @@
 
 package cc.cosmetica.kupe.impl;
 
+import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.State;
 import cc.cosmetica.kupe.api.gui.Component;
 import cc.cosmetica.kupe.util.BiMultiMap;
@@ -36,6 +37,11 @@ public final class StateManagerImpl {
 	private static class DependencyConfig {
 		List<Follower> followers = new ArrayList<>();
 		boolean fullAcquire = false; // enabled if the whole state is captured, so should be updated every time.
+
+		@Override
+		public String toString() {
+			return "DependencyConfig{ followers=" + followers + ", fullAcquire=" + fullAcquire + "}";
+		}
 	}
 
 	/**
@@ -125,21 +131,31 @@ public final class StateManagerImpl {
 	 * @return whether the component should be rebuilt.
 	 */
 	private static boolean shouldRebuild(State<?> state, Component component) {
-		DependencyConfig config = EXTRACTIONS.get(component).get(state);
+		try {
+			DependencyConfig config = EXTRACTIONS.get(component).get(state);
 
-		// n.b. if this method returns true, not all followers have necessarily updated
-		// but that's okay, because a rebuilding component resets abstractions and creates the objects again.
-		if (config.fullAcquire) {
-			return true;
-		}
-
-		for (Follower follower : config.followers) {
-			if (follower.update(state.peek())) {
+			// n.b. if this method returns true, not all followers have necessarily updated
+			// but that's okay, because a rebuilding component resets abstractions and creates the objects again.
+			if (config.fullAcquire) {
 				return true;
 			}
-		}
 
-		return false;
+			for (Follower follower : config.followers) {
+				if (follower.update(state.peek())) {
+					return true;
+				}
+			}
+
+			return false;
+		} catch (NullPointerException e) {
+			// "robust" logging
+			System.out.println("Current State " + state);
+			System.out.println("Current component " + component);
+			System.out.println("Current Extraction list " + EXTRACTIONS);
+			System.out.println("Current Acquire list " + ACQUIRED);
+			System.out.println("Current Screen " + Minecraft.getInstance().screen);
+			throw e;
+		}
 	}
 
 	/**

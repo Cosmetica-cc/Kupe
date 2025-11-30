@@ -596,6 +596,11 @@ class ComponentTree {
 				" (" + node.intrinsicSize.toString() + "i, " + node.minimumSize + "m, " + node.maximumSize + "M)");
 	}
 
+	@Override
+	public String toString() {
+		return "ComponentTree { root=" + this.root + "}";
+	}
+
 	private static final Text DEBUG_INSTRUCTIONS_C = Text.literal("[1] Back [2] Step In [3] Previous [4] Next [5] Print Debug [6] Show Padded Region  - (Content Region)");
 	private static final Text DEBUG_INSTRUCTIONS_P = Text.literal("[1] Back [2] Step In [3] Previous [4] Next [5] Print Debug [6] Show Content Region - (Padded Region)");
 	private static Text debugInstructions = DEBUG_INSTRUCTIONS_C;

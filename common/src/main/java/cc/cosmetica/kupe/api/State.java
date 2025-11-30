@@ -66,4 +66,9 @@ public class State<T> {
 		// rebuild listeners
 		StateManagerImpl.scheduleRebuild(this);
 	}
+
+	@Override
+	public String toString() {
+		return getClass().getName() + "@" + Integer.toHexString(hashCode()) + "=" + this.value;
+	}
 }
