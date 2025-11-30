@@ -598,7 +598,7 @@ class ComponentTree {
 
 	@Override
 	public String toString() {
-		return "ComponentTree { root=" + this.root + "}";
+		return "ComponentTree {\n" + this.root + "\n}";
 	}
 
 	private static final Text DEBUG_INSTRUCTIONS_C = Text.literal("[1] Back [2] Step In [3] Previous [4] Next [5] Print Debug [6] Show Padded Region  - (Content Region)");
@@ -938,6 +938,20 @@ class ComponentTree {
 		@Override
 		public void setRenderRegion(Region region) {
 			this.renderRegion = region;
+		}
+
+		@Override
+		public String toString() {
+			StringBuilder sb = new StringBuilder();
+			sb.append("<").append(this.element).append(">\n");
+			for (Node child : this.children) {
+				String[] childString = child.toString().split("\n");
+				for (String s : childString) {
+					sb.append("  ").append(s);
+				}
+			}
+			sb.append("</").append(this.element.getClass().getName()).append(">");
+			return sb.toString();
 		}
 	}
 }
