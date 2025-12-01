@@ -54,16 +54,6 @@ public final class StateManagerImpl {
 		EXTRACTIONS.remove(component);
 	}
 
-	/**
-	 * Clear only the extractions acquired by this component. Called upon rebuilding a component.
-	 * @param component used to re-generate Followers.
-	 */
-	static void clearConfig(Component component) {
-		// clear only extractions for this component.
-		// used for rebuilding a component when it doesn't need to be disposed.
-		EXTRACTIONS.remove(component);
-	}
-
 	public static void acquireState(State<?> state, Component component) {
 		ACQUIRED.add(component, state);
 
@@ -103,6 +93,7 @@ public final class StateManagerImpl {
 	 * Schedule rebuild for the given state updating.
 	 */
 	public static void scheduleRebuild(State<?> state) {
+		// only collect components which have already acquired the state (future will get new value)
 		Iterable<Component> allComponents = ACQUIRED.getReverse(state);
 
 		// filter

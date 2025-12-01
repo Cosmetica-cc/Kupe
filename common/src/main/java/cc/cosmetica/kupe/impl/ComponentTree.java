@@ -59,18 +59,8 @@ class ComponentTree {
 	 * Rebuild the whole tree. This is called when a screen is re-initialised (e.g. come back from a child screen).
 	 */
 	public void rebuildAll() {
-		final Node node = this.root;
-
 		// rebuild node
-		node.rebuildThis();
-
-		// build new children
-		for (Node child : node.children) {
-			child.walk(Node::buildThis);
-		}
-
-		// sort by z
-		node.sortChildrenRecursive();
+		this.root.rebuildFromThis();
 	}
 
 	/**
@@ -94,16 +84,8 @@ class ComponentTree {
 
 			// if the node needs to be rebuilt, destroy its children and rebuild the node
 			if (toRebuild.contains(node.element)) {
-				// rebuild node
-				node.rebuildThis();
-
-				// build new children
-				for (Node child : node.children) {
-					child.walk(Node::buildThis);
-				}
-
-				// sort by z
-				node.sortChildrenRecursive();
+				// rebuild node and children
+				node.rebuildFromThis();
 			}
 			// otherwise check its children to see if they need rebuilding
 			else for (Node child : node.children) {
@@ -646,6 +628,21 @@ class ComponentTree {
 		}
 
 		/**
+		 * Rebuild this node and build out children.
+		 */
+		private void rebuildFromThis() {
+			this.rebuildThis();
+
+			// build new children
+			for (Node child : this.children) {
+				child.walk(Node::buildThis);
+			}
+
+			// sort by z
+			this.sortChildrenRecursive();
+		}
+
+		/**
 		 * Rebuild just this node.
 		 */
 		private void rebuildThis() {
@@ -658,8 +655,10 @@ class ComponentTree {
 			this.children.clear();
 			this.childrenByZ.clear();
 
-			// clear extractions as we want to re-generate these.
-			StateManagerImpl.clearConfig(this.element);
+			// clear extractions and acquirings as we want to re-generate these.
+			// depending on parameters and path in the build, some implementors may choose to acquire or extract
+			// different states.
+			StateManagerImpl.clearStates(this.element);
 
 			// build
 			this.buildThis();
