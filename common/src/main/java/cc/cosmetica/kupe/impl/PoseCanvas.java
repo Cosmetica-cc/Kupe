@@ -57,6 +57,8 @@ public class PoseCanvas implements Canvas {
 	//scissor
 	private @NotNull ScissorStack scissorStack;
 	private boolean fastScissor;
+	private boolean floatingStackActive = false;
+	private FloatingStack floatingStack;
 
 	@Override
 	public Context getDrawingContext() {
@@ -136,6 +138,37 @@ public class PoseCanvas implements Canvas {
 		} else {
 			return Optional.of(this.scissorStack.region);
 		}
+	}
+
+	public void startFloatingQueue() {
+		this.floatingStackActive = true;
+	}
+
+	public void stopFloatingQueue() {
+		this.floatingStackActive = false;
+
+		while (this.floatingStack != null) {
+			this.floatingStack.action.renderAction(this.floatingStack.x, this.floatingStack.y);
+			this.floatingStack = this.floatingStack.parent;
+		}
+	}
+
+	// TODO maybe make this API in next minor update
+	/**
+	 * Render after all components are rendered.
+	 * @param renderable the renderable to render.
+	 */
+	public void renderFloating(RenderAction renderable, int x, int y) {
+		if (!this.floatingStackActive) {
+			renderable.renderAction(x, y);
+			return;
+		}
+
+		this.floatingStack = new FloatingStack(
+				this.floatingStack,
+				renderable,
+				(int)this.scissorStack.scrollX + x,
+				(int)this.scissorStack.scrollY + y);
 	}
 
 	@Override
@@ -298,5 +331,24 @@ public class PoseCanvas implements Canvas {
 		private boolean hasActiveTranslation = false; // set if scrollX or scrollY changes.
 		private float scrollX, scrollY = 0;
 		private ScissorStack prevNode;
+	}
+
+	private static class FloatingStack {
+		FloatingStack(@Nullable FloatingStack parent, RenderAction action, int x, int y) {
+			this.parent = parent;
+			this.action = action;
+			this.x = x;
+			this.y = y;
+		}
+
+		private final @Nullable FloatingStack parent;
+		private final RenderAction action;
+		private final int x;
+		private final int y;
+	}
+
+	@FunctionalInterface
+	public interface RenderAction {
+		void renderAction(int x, int y);
 	}
 }

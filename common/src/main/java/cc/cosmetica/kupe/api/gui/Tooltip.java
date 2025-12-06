@@ -19,7 +19,7 @@ package cc.cosmetica.kupe.api.gui;
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.Renderable;
 import cc.cosmetica.kupe.api.Text;
-import com.mojang.blaze3d.systems.RenderSystem;
+import cc.cosmetica.kupe.impl.PoseCanvas;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 
@@ -35,6 +35,14 @@ public class Tooltip implements Renderable {
 
 	@Override
 	public void render(Canvas canvas, int x, int y, int colour) {
+		if (canvas instanceof PoseCanvas) {
+			((PoseCanvas) canvas).renderFloating((x_, y_) -> this._render(canvas, x_, y_), x, y);
+		} else {
+			this._render(canvas, x, y);
+		}
+	}
+
+	private void _render(Canvas canvas, int x, int y) {
 		Minecraft.getInstance().screen.renderTooltip(
 				canvas.getStack().getMinecraftStack(),
 				this.text, // TODO ability to split lines

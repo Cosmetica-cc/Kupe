@@ -242,6 +242,8 @@ class ComponentTree {
 		Set<Node> grey = new HashSet<>(); // nodes that have rendered background but not rendered
 		// this ultimately makes renderBackground occur before child components are considered, and render after.
 
+		canvas.startFloatingQueue();
+
 		while (!nodes.isEmpty()) {
 			Node n = nodes.pop();
 			if (grey.contains(n)) {
@@ -285,6 +287,8 @@ class ComponentTree {
 				grey.add(n);
 			}
 		}
+
+		canvas.stopFloatingQueue();
 	}
 
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
