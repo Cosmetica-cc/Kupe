@@ -106,13 +106,15 @@ public final class StateManagerImpl {
 		}
 
 		// rebuild
-		RenderSystem.recordRenderCall(() -> {
-			Screen screen = Minecraft.getInstance().screen;
+		if (!rebuildComponents.isEmpty()) {
+			RenderSystem.recordRenderCall(() -> {
+				Screen screen = Minecraft.getInstance().screen;
 
-			if (screen instanceof KupeScreen) {
-				((KupeScreen) screen).rebuildComponents(rebuildComponents);
-			}
-		});
+				if (screen instanceof KupeScreen) {
+					((KupeScreen) screen).rebuildComponents(rebuildComponents);
+				}
+			});
+		}
 	}
 
 	/**
