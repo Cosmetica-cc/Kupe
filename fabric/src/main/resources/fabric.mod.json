@@ -23,7 +23,6 @@
     "kupe-common.mixins.json"
   ],
   "depends": {
-    "fabric": "*",
     "minecraft": ">=1.16.5"
   },
   "custom": {
