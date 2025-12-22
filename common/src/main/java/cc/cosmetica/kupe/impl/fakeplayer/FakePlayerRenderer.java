@@ -25,6 +25,7 @@ import cc.cosmetica.kupe.impl.PoseCanvas;
 import cc.cosmetica.kupe.mixin.fakeplayer.HumanoidModelAccessor;
 import cc.cosmetica.kupe.mixin.fakeplayer.PlayerModelAccessor;
 import cc.cosmetica.kupe.util.GlobalMatrixStack;
+import com.google.common.collect.Sets;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -50,7 +51,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.phys.Vec3;
-import org.spongepowered.include.com.google.common.collect.Sets;
 
 import java.util.*;
 
