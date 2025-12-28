@@ -17,8 +17,10 @@
 package cc.cosmetica.kupe.api.gui;
 
 import cc.cosmetica.kupe.api.Canvas;
+import cc.cosmetica.kupe.api.Context;
 import cc.cosmetica.kupe.api.Renderable;
 import cc.cosmetica.kupe.api.Text;
+import cc.cosmetica.kupe.impl.MathsImpl;
 import cc.cosmetica.kupe.impl.PoseCanvas;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
@@ -33,6 +35,16 @@ public class Tooltip implements Renderable {
 
 	private final Component text;
 
+	/**
+	 * Get the text wrap width for the given context. Can be overridden for custom behaviour,
+	 * or defines a default behaviour dependent on the platform.
+	 * @param context the context to wrap text in.
+	 * @return the width at which to wrap text.
+	 */
+	public int getTextWrapWidth(Context context) {
+		return MathsImpl.defaultTooltipWidth(context.getViewWidth());
+	}
+
 	@Override
 	public void render(Canvas canvas, int x, int y, int colour) {
 		if (canvas instanceof PoseCanvas) {
@@ -45,7 +57,7 @@ public class Tooltip implements Renderable {
 	private void _render(Canvas canvas, int x, int y) {
 		Minecraft.getInstance().screen.renderTooltip(
 				canvas.getStack().getMinecraftStack(),
-				this.text, // TODO ability to split lines
+				Minecraft.getInstance().font.split(this.text, getTextWrapWidth(canvas.getDrawingContext())),
 				x, y);
 	}
 }

@@ -22,4 +22,9 @@ public class MathsImpl {
 	public static Vec3 createVec3(double x, double y, double z) {
 		return (Vec3) new net.minecraft.world.phys.Vec3(x, y, z);
 	}
+
+	public static int defaultTooltipWidth(int viewWidth) {
+		// Minecraft tooltip behaviour:
+		return Math.max(viewWidth / 2 - 43, 170);
+	}
 }

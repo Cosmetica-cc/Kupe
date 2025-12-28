@@ -18,11 +18,12 @@ import cc.cosmetica.kupe.api.gui.Label;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 
-import static cc.cosmetica.kupe.api.gui.style.CommonProperties.HEIGHT;
-import static cc.cosmetica.kupe.api.gui.style.CommonProperties.fixedSize;
+import java.util.OptionalInt;
+
+import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
 /**
- * Horizontal Text Scroll Test (text should not wrap past the fixed height when a Label is given a fixed height).
+ * Horizontal Text Scroll Test (nowrap + horizontal div).
  */
 public class HorizontalTextScrollTest extends Screen {
     public HorizontalTextScrollTest() {
@@ -33,7 +34,7 @@ public class HorizontalTextScrollTest extends Screen {
     protected Component[] buildScreen() {
         return new Component[] {
                 new Div(new Label(Text.literal("Lorem ipsum dolor sit amet sadspicing Lorem ipsum dolor sit amet sadspicing Lorem ipsum dolor sit amet sadspicing Lorem ipsum dolor sit amet sadspicing Lorem ipsum dolor sit amet sadspicing"))
-                        .withStyle(Style.create().set(HEIGHT, fixedSize(10))))
+                        .withStyle(Style.create().set(Label.TEXT_WRAP, fixed(OptionalInt.empty())).set(FLEX_SHRINK, 0)))
                         .withStyle(Style.create().set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)),
                 new Button(Text.GUI_DONE, Screens::closeCurrentScreen)
         };

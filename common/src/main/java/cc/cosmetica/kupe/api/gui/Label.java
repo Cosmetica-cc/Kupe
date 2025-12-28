@@ -60,7 +60,11 @@ public class Label extends Component implements WrappingComponent {
 			int width = Math.min(fixedWidth.getAsInt(), maxDimensions.getWidth());
 			// specified width in fixed/max INCLUDES padding
 
-			return new Dimensions(width, context.getTextHeight(this.text, width - padding.horizontal()/*get content width*/) + padding.vertical());
+			int wrapWidth = this.getStyle().get(TEXT_WRAP)
+					.apply(context.getViewWidth(), context.getViewHeight(), width, context.getLineHeight())
+					.orElse(Integer.MAX_VALUE);
+
+			return new Dimensions(width, context.getTextHeight(this.text, wrapWidth - padding.horizontal()/*get content width*/) + padding.vertical());
 		} else {
 			return new Dimensions(context.getWidth(this.text) + padding.horizontal(), context.getLineHeight() + padding.vertical());
 		}
@@ -69,7 +73,10 @@ public class Label extends Component implements WrappingComponent {
 	@Override
 	public int realHeight(int width, Context context) {
 		OptionalInt fixedHeight = this.getStyle().get(CommonProperties.HEIGHT).apply(context.getViewWidth(), context.getViewHeight(), 0, 0);
-		int realHeight = context.getTextHeight(this.text, width);
+		int wrapWidth = this.getStyle().get(TEXT_WRAP)
+				.apply(context.getViewWidth(), context.getViewHeight(), width, context.getLineHeight())
+				.orElse(Integer.MAX_VALUE);
+		int realHeight = context.getTextHeight(this.text, wrapWidth);
 		return fixedHeight.isPresent() ? Math.min(fixedHeight.getAsInt(), realHeight) : realHeight;
 	}
 
@@ -86,7 +93,11 @@ public class Label extends Component implements WrappingComponent {
 
 	@Override
 	public void resize(Region region, SizedElement sizedElement, List<? extends ResizableElement> children, Context context) {
-		this.label = context.split(this.text, region.getWidth());
+		final int wrapWidth = this.getStyle().get(TEXT_WRAP)
+				.apply(context.getViewWidth(), context.getViewHeight(), region.getWidth(), region.getHeight())
+				.orElse(Integer.MAX_VALUE);
+
+		this.label = context.split(this.text, wrapWidth);
 	}
 
 	@Override
@@ -136,4 +147,9 @@ public class Label extends Component implements WrappingComponent {
 	 * The alignment of text in the label.
 	 */
 	public static final Style.Property<Align> ALIGN_TEXT = new Style.Property<>("alignText", Align.START, true);
+
+	/**
+	 * Controls the width at which text should wrap in the label.
+	 */
+	public static final Style.Property<CommonProperties.DimensionsOperator<OptionalInt>> TEXT_WRAP = new Style.Property<>("wrap", CommonProperties.percent(100, 0), true);
 }
