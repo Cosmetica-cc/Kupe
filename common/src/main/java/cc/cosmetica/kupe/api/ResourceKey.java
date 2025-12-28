@@ -54,8 +54,14 @@ public final class ResourceKey {
         return this.namespace;
     }
 
+    /**
+     * Get a translation key for this resource key under the given group.
+     * @param group the group under which to place the translation key.
+     * @return a translation key, in the format "group.namespace.path[-1]"
+     */
     public Text translationKey(String group) {
-        return Text.translatable(group + "." + this.namespace + "." + this.path);
+        String[] path = this.path.split("/");
+        return Text.translatable(group + "." + this.namespace + "." + path[path.length - 1]);
     }
 
     @LeavesSandbox
