@@ -68,7 +68,9 @@ public class Label extends Component implements WrappingComponent {
 
 	@Override
 	public int realHeight(int width, Context context) {
-		return context.getTextHeight(this.text, width);
+		OptionalInt fixedHeight = this.getStyle().get(CommonProperties.HEIGHT).apply(context.getViewWidth(), context.getViewHeight(), 0, 0);
+		int realHeight = context.getTextHeight(this.text, width);
+		return fixedHeight.isPresent() ? Math.min(fixedHeight.getAsInt(), realHeight) : realHeight;
 	}
 
 	@Override

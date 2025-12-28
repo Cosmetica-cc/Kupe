@@ -19,10 +19,11 @@ public final class KupeTestInit {
 		Screens.registerScreen(AllKupeTestsScreen.ID, new AllKupeTestsScreen());
 		Screens.registerScreen(BorderBoxTest.ID, new BorderBoxTest());
 		Screens.registerScreen(FakePlayerTestScreen.ID, new FakePlayerTestScreen());
-		Screens.registerScreen(OverlayTestScreen.ID, new OverlayTestScreen());
+//		Screens.registerScreen(OverlayTestScreen.ID, new OverlayTestScreen()); Test not finished
 		// factory register demonstration
 		Screens.registerScreen(FontInheritanceTest.ID, new FontInheritanceTest());
 		Screens.registerScreen(GridTestScreen.ID, new GridTestScreen());
+		Screens.registerScreen(HorizontalTextScrollTest.ID, new HorizontalTextScrollTest());
 		Screens.registerScreen(NestedScrollTestScreen.ID, new NestedScrollTestScreen());
 		Screens.registerScreen(OversizeAndMaxHeightTestCase.ID, OversizeAndMaxHeightTestCase::new);
 		Screens.registerScreen(ScrollTestScreen.ID, new ScrollTestScreen());

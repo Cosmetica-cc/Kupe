@@ -38,6 +38,7 @@ public class AllKupeTestsScreen extends Screen {
 				new Button(Text.literal("Scroll Test"), () -> Screens.setScreen(ScrollTestScreen.ID)),
 				new Button(Text.literal("Overlay Test"), () -> Screens.setScreen(OverlayTestScreen.ID)),
 				new Button(Text.literal("Border Box Test"), () -> Screens.setScreen(BorderBoxTest.ID)),
+				new Button(Text.literal("Horizontal Text Scroll Test"), () -> Screens.setScreen(HorizontalTextScrollTest.ID)),
 				// demonstrate setting an unregistered screen
 				new Button(Text.literal("Div Spacings Test"), () -> Screens.setScreen(new DivSpacingsScreen(), DivSpacingsScreen.ID)),
 				// use translation strings for the screen names below
