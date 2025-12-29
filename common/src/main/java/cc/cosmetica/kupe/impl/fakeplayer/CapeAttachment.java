@@ -28,8 +28,8 @@ import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -71,6 +71,16 @@ public class CapeAttachment implements GUIPlayer.Attachment<GUIPlayer.CapeProper
 
 	@Override
 	public GUIPlayer.CapeProperties getDynamicConfiguration(UUID uuid) {
+		// Check cape providers first
+		for (GUIPlayer.CapeProvider provider : PlayerUtils.getCapeProviders()) {
+			@Nullable GUIPlayer.CapeProperties texture = provider.getCapeTexture(uuid);
+
+			if (texture != null) {
+				return texture;
+			}
+		}
+
+		// Default
 		return new GUIPlayer.CapeProperties(PlayerUtils.getTexture(uuid, MinecraftProfileTexture.Type.CAPE));
 	}
 }

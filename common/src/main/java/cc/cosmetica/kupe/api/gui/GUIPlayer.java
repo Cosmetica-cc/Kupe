@@ -289,14 +289,18 @@ public class GUIPlayer extends Component {
 
 	private static final Dimensions DEFAULT_DIMENSIONS = new Dimensions(55, 90);
 
-	@FunctionalInterface
 	public interface CapeProvider {
 		/**
 		 * Get the cape texture for a player.
-		 * @param elytra whether the texture is for an elytra.
-		 * @return the texture location to use. Null if no texture is provided. Empty to supply no texture (default for elytra).
+		 * @return the texture location to use. Null if no texture is provided..
 		 */
-		@Nullable CapeProperties getCapeTexture(UUID uuid, boolean elytra);
+		@Nullable CapeProperties getCapeTexture(UUID uuid);
+
+		/**
+		 * Get the cape texture for a player.
+		 * @return the texture location to use. Null if no texture is provided..
+		 */
+		@Nullable ElytraProperties getElytraTexture(UUID uuid);
 	}
 
 	/**

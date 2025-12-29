@@ -32,6 +32,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -89,8 +90,17 @@ public class ElytraAttachment implements GUIPlayer.Attachment<ElytraProperties> 
 
 	@Override
 	public ElytraProperties getDynamicConfiguration(UUID uuid) {
-		// note: this actually gets CAPE texture
-		ResourceLocation customElytra = PlayerUtils.getTexture(uuid, MinecraftProfileTexture.Type.ELYTRA);
+		// Check cape providers first
+		for (GUIPlayer.CapeProvider provider : PlayerUtils.getCapeProviders()) {
+			@Nullable GUIPlayer.ElytraProperties texture = provider.getElytraTexture(uuid);
+
+			if (texture != null) {
+				return texture;
+			}
+		}
+
+		// Default
+		ResourceLocation customElytra = PlayerUtils.getTexture(uuid, MinecraftProfileTexture.Type.CAPE);
 		if (customElytra != null) {
 			return new ElytraProperties(customElytra, false, false);
 		}

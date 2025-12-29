@@ -115,6 +115,10 @@ public class PlayerUtils {
         CAPE_PROVIDERS.add(provider);
     }
 
+    public static Iterable<GUIPlayer.CapeProvider> getCapeProviders() {
+        return CAPE_PROVIDERS;
+    }
+
     /**
      * Get the resource location for a custom cape or elytra. Can also be used to load skin, but {@link PlayerUtils#getSkin(UUID, Skin)} is preferred.
      * Unlike other methods, this does not automatically start a look-up.
@@ -123,23 +127,6 @@ public class PlayerUtils {
      * @return the texture, or null if one could not be loaded.
      */
     public static @Nullable ResourceLocation getTexture(UUID uuid, MinecraftProfileTexture.Type type) {
-        boolean elytra = false;
-        if (type == MinecraftProfileTexture.Type.ELYTRA) {
-            elytra = true;
-            type = MinecraftProfileTexture.Type.CAPE;
-        }
-
-        // Check cape providers first
-        if (type == MinecraftProfileTexture.Type.CAPE) {
-            for (GUIPlayer.CapeProvider provider : CAPE_PROVIDERS) {
-                @Nullable GUIPlayer.CapeProperties texture = provider.getCapeTexture(uuid, elytra);
-
-                if (texture != null) {
-                    return texture.getTexture().orElse(null);
-                }
-            }
-        }
-
         // Get skin for cached profile
         Optional<GameProfile> profile = cache.get(uuid);
 
