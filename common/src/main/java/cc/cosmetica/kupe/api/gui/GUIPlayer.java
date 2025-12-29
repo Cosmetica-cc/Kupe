@@ -271,7 +271,7 @@ public class GUIPlayer extends Component {
 		this.renderer.render(this, canvas.getDrawingContext(), centreX, footY, region.getWidth() / 2.5f, lookX, lookY);
 	}
 
-	public static Attachment<ResourceLocation> CAPE = registerAttachment(new CapeAttachment());
+	public static Attachment<CapeProperties> CAPE = registerAttachment(new CapeAttachment());
 	public static Attachment<ElytraProperties> ELYTRA = registerAttachment(new ElytraAttachment());
 
 	public static <T> Attachment<T> registerAttachment(Attachment<T> attachment) {
@@ -279,7 +279,25 @@ public class GUIPlayer extends Component {
 		return attachment;
 	}
 
+	/**
+	 * Add a cape provider for the per-player defaults of cape and elytra attachments.
+	 * @param provider the cape provider.
+	 */
+	public static void addCapeProvider(CapeProvider provider) {
+		PlayerUtils.addCapeProvider(provider);
+	}
+
 	private static final Dimensions DEFAULT_DIMENSIONS = new Dimensions(55, 90);
+
+	@FunctionalInterface
+	public interface CapeProvider {
+		/**
+		 * Get the cape texture for a player.
+		 * @param elytra whether the texture is for an elytra.
+		 * @return the texture location to use. Null if no texture is provided. Empty to supply no texture (default for elytra).
+		 */
+		@Nullable CapeProperties getCapeTexture(UUID uuid, boolean elytra);
+	}
 
 	/**
 	 * An attachment for the FakePlayer.
@@ -352,5 +370,25 @@ public class GUIPlayer extends Component {
 		public final boolean glint, translucent;
 
 		public static final ElytraProperties DEFAULT = new ElytraProperties(new ResourceLocation("textures/entity/elytra.png"), false, false);
+	}
+
+	/**
+	 * Contains Cape properties.
+	 */
+	public final static class CapeProperties {
+		public CapeProperties(@Nullable ResourceKey texture) {
+			this.texture = texture == null ? null : texture.toResourceLocation();
+		}
+
+		@LeavesSandbox
+		public CapeProperties(@Nullable ResourceLocation texture) {
+			this.texture = texture;
+		}
+
+		private final @Nullable ResourceLocation texture;
+
+		public Optional<ResourceLocation> getTexture() {
+			return Optional.ofNullable(texture);
+		}
 	}
 }

@@ -33,42 +33,44 @@ import net.minecraft.util.Mth;
 
 import java.util.UUID;
 
-public class CapeAttachment implements GUIPlayer.Attachment<ResourceLocation> {
+public class CapeAttachment implements GUIPlayer.Attachment<GUIPlayer.CapeProperties> {
 	@Override
-	public void render(GUIPlayer player, PlayerModel playerModel, GUIPlayer.Posture posture, Canvas canvas, ResourceLocation configuration, Quaternion cameraOrientation, MultiBufferSource bufferSource, int packedLight) {
-		MatrixStack stack = canvas.getStack();
-		stack.push();
-		stack.translate(0.0D, 0.0D, 0.125D);
-		double d = 0;
-		double e = 0;
-		double m = 0;
-		float n = posture.yRotBody;
-		double o = Mth.sin(n * 0.017453292F);
-		double p = -Mth.cos(n * 0.017453292F);
-		float q = (float)e * 10.0F;
-		q = Mth.clamp(q, -6.0F, 32.0F);
-		float r = (float)(d * o + m * p) * 100.0F;
-		r = Mth.clamp(r, 0.0F, 150.0F);
-		float s = (float)(d * p - m * o) * 100.0F;
-		s = Mth.clamp(s, -20.0F, 20.0F);
-		if (r < 0.0F) {
-			r = 0.0F;
-		}
+	public void render(GUIPlayer player, PlayerModel playerModel, GUIPlayer.Posture posture, Canvas canvas, GUIPlayer.CapeProperties configuration, Quaternion cameraOrientation, MultiBufferSource bufferSource, int packedLight) {
+		if (configuration.getTexture().isPresent()) {
+			MatrixStack stack = canvas.getStack();
+			stack.push();
+			stack.translate(0.0D, 0.0D, 0.125D);
+			double d = 0;
+			double e = 0;
+			double m = 0;
+			float n = posture.yRotBody;
+			double o = Mth.sin(n * 0.017453292F);
+			double p = -Mth.cos(n * 0.017453292F);
+			float q = (float)e * 10.0F;
+			q = Mth.clamp(q, -6.0F, 32.0F);
+			float r = (float)(d * o + m * p) * 100.0F;
+			r = Mth.clamp(r, 0.0F, 150.0F);
+			float s = (float)(d * p - m * o) * 100.0F;
+			s = Mth.clamp(s, -20.0F, 20.0F);
+			if (r < 0.0F) {
+				r = 0.0F;
+			}
 
-		if (posture.sneaking) {
-			q += 25.0F;
-		}
+			if (posture.sneaking) {
+				q += 25.0F;
+			}
 
-		stack.rotate(Vec3.XP, 6.0F + r / 2.0F + q, true);
-		stack.rotate(Vec3.ZP, s / 2.0F, true);
-		stack.rotate(Vec3.YP, 180.0F - s / 2.0F, true);
-		VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityTranslucent(configuration));
-		((PlayerModelAccessor) playerModel).getCloak().render(stack.getMinecraftStack(), vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY);
-		stack.pop();
+			stack.rotate(Vec3.XP, 6.0F + r / 2.0F + q, true);
+			stack.rotate(Vec3.ZP, s / 2.0F, true);
+			stack.rotate(Vec3.YP, 180.0F - s / 2.0F, true);
+			VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityTranslucent(configuration.getTexture().get()));
+			((PlayerModelAccessor) playerModel).getCloak().render(stack.getMinecraftStack(), vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY);
+			stack.pop();
+		}
 	}
 
 	@Override
-	public ResourceLocation getDynamicConfiguration(UUID uuid) {
-		return PlayerUtils.getTexture(uuid, MinecraftProfileTexture.Type.CAPE);
+	public GUIPlayer.CapeProperties getDynamicConfiguration(UUID uuid) {
+		return new GUIPlayer.CapeProperties(PlayerUtils.getTexture(uuid, MinecraftProfileTexture.Type.CAPE));
 	}
 }

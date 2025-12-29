@@ -89,7 +89,8 @@ public class ElytraAttachment implements GUIPlayer.Attachment<ElytraProperties> 
 
 	@Override
 	public ElytraProperties getDynamicConfiguration(UUID uuid) {
-		ResourceLocation customElytra = PlayerUtils.getTexture(uuid, MinecraftProfileTexture.Type.CAPE);
+		// note: this actually gets CAPE texture
+		ResourceLocation customElytra = PlayerUtils.getTexture(uuid, MinecraftProfileTexture.Type.ELYTRA);
 		if (customElytra != null) {
 			return new ElytraProperties(customElytra, false, false);
 		}
