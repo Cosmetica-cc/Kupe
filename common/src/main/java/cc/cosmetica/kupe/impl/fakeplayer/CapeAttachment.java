@@ -35,7 +35,7 @@ import java.util.UUID;
 
 public class CapeAttachment implements GUIPlayer.Attachment<ResourceLocation> {
 	@Override
-	public void render(PlayerModel playerModel, GUIPlayer.Posture posture, Canvas canvas, ResourceLocation configuration, Quaternion cameraOrientation, MultiBufferSource bufferSource, int packedLight) {
+	public void render(GUIPlayer player, PlayerModel playerModel, GUIPlayer.Posture posture, Canvas canvas, ResourceLocation configuration, Quaternion cameraOrientation, MultiBufferSource bufferSource, int packedLight) {
 		MatrixStack stack = canvas.getStack();
 		stack.push();
 		stack.translate(0.0D, 0.0D, 0.125D);

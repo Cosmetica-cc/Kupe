@@ -216,12 +216,13 @@ public class PoseCanvas implements Canvas {
 		//if (this.scissorStack.hasActiveTranslation)
 		//	throw new IllegalStateException("Kupe Error: Did not pop scissor translation before scissor");
 
-		Region oldRegion = this.scissorStack.region;
+		Region oldRegion = this.getScissor().orElse(null);
 		this.scissorStack = this.scissorStack.prevNode; // pop
+		Region newRegion = this.getScissor().orElse(null);
 
 		// use new region if it changed
-		if (this.scissorStack.region != oldRegion) {
-			this.useScissor(this.scissorStack.region, false);
+		if (newRegion != oldRegion) {
+			this.useScissor(newRegion, false);
 		}
 	}
 

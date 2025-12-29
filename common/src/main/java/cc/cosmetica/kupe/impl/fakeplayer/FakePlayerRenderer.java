@@ -251,7 +251,7 @@ public final class FakePlayerRenderer {
 			GUIPlayer.Attachment<?> layer = iterator.next();
 			Object configuration = player.getConfiguration(layer);
 			if (configuration != null) {
-				((GUIPlayer.Attachment)layer).render(this.model, posture, canvas, configuration, cameraOrientation, bufferSource, light);
+				((GUIPlayer.Attachment)layer).render(player, this.model, posture, canvas, configuration, cameraOrientation, bufferSource, light);
 			}
 		}
 

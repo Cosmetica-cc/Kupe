@@ -14,6 +14,7 @@ import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.Button;
 import cc.cosmetica.kupe.api.gui.Component;
 import cc.cosmetica.kupe.api.gui.Div;
+import cc.cosmetica.kupe.api.gui.Label;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
@@ -37,8 +38,16 @@ public class NestedScrollTestScreen extends Screen {
                 new Button(Text.literal("State Test"), () -> Screens.setScreen(StateTestScreen.ID)),
                 new Button(Text.literal("Fake Player Test"), () -> Screens.setScreen(FakePlayerTestScreen.ID)),
                 new Button(Text.literal("Resizing Edge Case"), () -> Screens.setScreen(OversizeAndMaxHeightTestCase.ID)),
+                new Div(Region(0), Region(1), Region(0), Region(1), Region(0), Region(1)).withStyle(Style.create().set(FLEX_SHRINK, 0).set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X).set(MIN_WIDTH, fixedSize(0)).set(WIDTH, fixedSize(50))),
                 new Button(Text.literal("Z Layering Test"), () -> Screens.setScreen(ZLayeringTest.ID)),
-                new Div(Region(0), Region(1), Region(0), Region(1), Region(0), Region(1)).withStyle(Style.create().set(FLEX_SHRINK, 0).set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X).set(MIN_WIDTH, fixedSize(0)).set(WIDTH, fixedSize(50)))
+                new Button(Text.literal("Does nothing"), () -> {}),
+                new Div(
+                        new Div(Region(0), Region(1), Region(0), Region(1), Region(0), Region(1)).withStyle(Style.create().set(FLEX_SHRINK, 0).set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X).set(MIN_WIDTH, fixedSize(0)).set(WIDTH, fixedSize(50))),
+                        // TODO text doesn't display even though space allocated
+                        new Label(Text.literal("Hello I am text")).withStyle(Style.create().set(HEIGHT, fixedSize(20)).set(MIN_HEIGHT, fixedSize(20)).set(FLEX_SHRINK, 0))
+                ).withStyle(Style.create().set(FLEX_SHRINK, 0).set(MIN_HEIGHT, fixedSize(30))),
+                new Button(Text.GUI_DONE, Screens::closeCurrentScreen),
+                new Button(Text.GUI_CANCEL, Screens::closeCurrentScreen)
         };
     }
 

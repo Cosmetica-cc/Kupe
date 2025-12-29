@@ -289,6 +289,7 @@ public class GUIPlayer extends Component {
 		/**
 		 * Render this attachment on the fake player.
 		 * Leaves sandbox due to MultiBufferSource and Quaternion parameter.
+		 * @param component the component being rendered.
 		 * @param playerModel the player model on which to render.
 		 * @param posture the posture of the player being rendered.
 		 * @param canvas the canvas environment for rendering.
@@ -296,7 +297,7 @@ public class GUIPlayer extends Component {
 		 * @param packedLight packed light for rendering.
 		 */
 		@LeavesSandbox
-		void render(PlayerModel playerModel, GUIPlayer.Posture posture, Canvas canvas, T configuration, Quaternion cameraOrientation, MultiBufferSource bufferSource, int packedLight);
+		void render(GUIPlayer component, PlayerModel playerModel, GUIPlayer.Posture posture, Canvas canvas, T configuration, Quaternion cameraOrientation, MultiBufferSource bufferSource, int packedLight);
 
 		/**
 		 * Get the dynamic user configuration. This is called every tick for an enabled component of a UUID FakePlayer.
