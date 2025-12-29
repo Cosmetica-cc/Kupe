@@ -119,7 +119,7 @@ public abstract class AbstractScrollContainer extends Component {
     }
 
     @Override
-    public void paintDecorations(Canvas canvas, Region region, int mouseX, int mouseY) {
+    public void paintDecorations(Canvas canvas, Region region, Region scissorRegion, int mouseX, int mouseY) {
         if (this.shouldDrawVerticalScrollbar()) {
             boolean inside = this.getStyle().get(SCROLLBAR_POSITION) == ScrollbarPosition.INSIDE;
             final int outsideShift = DEFAULT_SCROLLBAR_THICKNESS;
@@ -127,6 +127,7 @@ public abstract class AbstractScrollContainer extends Component {
             if (!inside) {
                 Region sciss = this.getScissorRegion(region);
                 if (sciss != null) {
+                    // scissor is popped after paintDecorations()
                     canvas.useScissor(sciss.translate(outsideShift, 0), false);
                 }
             }
@@ -134,7 +135,7 @@ public abstract class AbstractScrollContainer extends Component {
                     region.translate(outsideShift, 0), mouseY);
         }
 
-        super.paintDecorations(canvas, region, mouseX, mouseY);
+        super.paintDecorations(canvas, region, scissorRegion, mouseX, mouseY);
     }
 
     @Override

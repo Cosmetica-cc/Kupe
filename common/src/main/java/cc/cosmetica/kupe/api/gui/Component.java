@@ -409,14 +409,15 @@ public abstract class Component {
 	 * Paint deocrations after this component and its children are rendered.
 	 * @param canvas the canvas for drawing on the screen.
 	 * @param region the region of the screen this component has been placed in.
+	 * @param scissorRegion the scissor region of this component in global coordinates.
 	 * @param mouseX the x position of the user's mouse.
 	 * @param mouseY the y position of the user's mouse.
 	 */
-	public void paintDecorations(Canvas canvas, Region region, int mouseX, int mouseY) {
+	public void paintDecorations(Canvas canvas, Region region, Region scissorRegion, int mouseX, int mouseY) {
 		// Draw tooltip
 		Optional<Tooltip> tooltip = this.getStyle().get(CommonProperties.TOOLTIP);
 
-		if (tooltip.isPresent() && region.contains(mouseX, mouseY)) {
+		if (tooltip.isPresent() && region.intersect(scissorRegion).contains(mouseX, mouseY)) {
 			tooltip.get().render(canvas, mouseX, mouseY);
 		}
 	}

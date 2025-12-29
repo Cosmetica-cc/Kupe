@@ -349,7 +349,7 @@ class ComponentTree {
 
 				// deterimine occlusion of behind elements by this element's background
 				// parent background cannot occlude children
-				if (occluding == null && node.element.isOccluding(node.trueRenderRegion(), node.parent == null ? this.screenRegion : (node.parent.trueScissorRegion == null ? this.screenRegion : node.parent.trueScissorRegion), (int) x, (int) y, false)) {
+				if (occluding == null && node.element.isOccluding(node.trueRenderRegion(), node.trueAppliedScissorRegion(), (int) x, (int) y, false)) {
 					occluding = node;
 				}
 			}
@@ -363,21 +363,21 @@ class ComponentTree {
 				if (scissorRegion != null) {
 					// calculate new scissor region - same logic as render
 					scissorRegion = scissorRegion.translate((int)node.scrollX(), (int)node.scrollY());
-					if (node.parent != null && node.parent.trueScissorRegion != null) {
-						scissorRegion = scissorRegion.intersect(node.parent.trueScissorRegion);
+					if (node.parent != null && node.parent.trueInnerScissorRegion != null) {
+						scissorRegion = scissorRegion.intersect(node.parent.trueInnerScissorRegion);
 					}
 					// set scissor region
-					node.trueScissorRegion = scissorRegion;
+					node.trueInnerScissorRegion = scissorRegion;
 				} else {
 					// inherit
-					node.trueScissorRegion = node.parent == null ? null : node.parent.trueScissorRegion;
+					node.trueInnerScissorRegion = node.parent == null ? null : node.parent.trueInnerScissorRegion;
 				}
 
-				final boolean decorationsOccluding = node.element.isOccluding(node.trueRenderRegion(), node.parent == null ? this.screenRegion : (node.parent.trueScissorRegion == null ? this.screenRegion : node.parent.trueScissorRegion), (int) x, (int) y, true);
+				final boolean decorationsOccluding = node.element.isOccluding(node.trueRenderRegion(), node.trueAppliedScissorRegion(), (int) x, (int) y, true);
 
 				// Determine whether this node should receive pointer events.
 				PointerEvents eventHandling = node.element.getStyle().get(CommonProperties.POINTER_EVENTS);
-				boolean inScissor = (node.parent == null || node.parent.trueScissorRegion == null || node.parent.trueScissorRegion.contains((int) x, (int) y));
+				boolean inScissor = (node.parent == null || node.parent.trueInnerScissorRegion == null || node.parent.trueInnerScissorRegion.contains((int) x, (int) y));
 				boolean canReceiveThisEvent;
 				switch (eventHandling) {
 					case NONE:
@@ -477,8 +477,8 @@ class ComponentTree {
 			if (child.trueRenderRegion() != null) {
 				canvas.drawRect(child.trueRenderRegion(), 0x0000ff);
 			}
-			if (child.trueScissorRegion != null) {
-				canvas.drawRect(child.trueScissorRegion, 0xff0000);
+			if (child.trueInnerScissorRegion != null) {
+				canvas.drawRect(child.trueInnerScissorRegion, 0xff0000);
 			}
 		}
 	}
@@ -591,7 +591,7 @@ class ComponentTree {
 	private static final Text DEBUG_INSTRUCTIONS_P = Text.literal("[1] Back [2] Step In [3] Previous [4] Next [5] Print Debug [6] Show Content Region - (Padded Region)");
 	private static Text debugInstructions = DEBUG_INSTRUCTIONS_C;
 
-	private static class Node implements ResizableElement, Element {
+	private class Node implements ResizableElement, Element {
 		Node(@Nullable ComponentTree.Node parent, Component element) {
 			this.parent = parent;
 			this.element = element;
@@ -609,7 +609,7 @@ class ComponentTree {
 		final int depth;
 		// extra data
 		Region renderRegion;
-		Region trueScissorRegion;
+		Region trueInnerScissorRegion;
 		float innerScrollX, innerScrollY = 0;
 		Dimensions minimumSize, maximumSize, intrinsicSize; // calculated and cached
 		OptionalInt width, height;
@@ -629,6 +629,14 @@ class ComponentTree {
 		 */
 		Region trueRenderRegion() {
 			return this.renderRegion.translate((int)this.scrollX(), (int)this.scrollY());
+		}
+
+		Region trueAppliedScissorRegion() {
+			return this.parent == null ? ComponentTree.this.screenRegion : (this.parent.trueInnerScissorRegion == null ? ComponentTree.this.screenRegion : this.parent.trueInnerScissorRegion);
+		}
+
+		Region fakeAppliedScissorRegion() {
+			return this.trueAppliedScissorRegion().translate(-(int)this.scrollX(), -(int)this.scrollY());
 		}
 
 		/**
@@ -824,7 +832,7 @@ class ComponentTree {
 			try {
 				// render still thinks it's at the original position
 				// so if it's moved up, move mouse positions accordingly
-				this.element.paintDecorations(canvas, this.renderRegion, mouseX - (int)this.scrollX(), mouseY - (int)this.scrollY());
+				this.element.paintDecorations(canvas, this.renderRegion, this.fakeAppliedScissorRegion(), mouseX - (int)this.scrollX(), mouseY - (int)this.scrollY());
 			} catch (NullPointerException e) {
 				throw new RuntimeException("Decorating " + this.element, e);
 			}
