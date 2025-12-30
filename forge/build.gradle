@@ -1,5 +1,5 @@
 plugins {
-    id "com.github.johnrengelman.shadow" version "7.1.2"
+    id 'com.gradleup.shadow'
 }
 
 architectury {
@@ -55,6 +55,7 @@ remapJar {
     dependsOn shadowJar
 }
 
+// these two don't appear in 1.17 template?
 sourcesJar {
     def commonSources = project(":common").sourcesJar
     dependsOn commonSources
@@ -66,6 +67,7 @@ components.java {
         skip()
     }
 }
+// ---
 
 publishing {
     publications {
