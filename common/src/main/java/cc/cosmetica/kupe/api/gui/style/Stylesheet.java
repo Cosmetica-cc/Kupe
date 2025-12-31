@@ -18,7 +18,6 @@ package cc.cosmetica.kupe.api.gui.style;
 
 import cc.cosmetica.kupe.api.gui.Component;
 import com.google.common.collect.ImmutableList;
-import org.apache.http.annotation.Immutable;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;

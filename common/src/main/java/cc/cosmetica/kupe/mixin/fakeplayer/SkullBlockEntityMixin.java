@@ -18,19 +18,22 @@ package cc.cosmetica.kupe.mixin.fakeplayer;
 
 import cc.cosmetica.kupe.impl.fakeplayer.PlayerUtils;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
+import net.minecraft.server.players.GameProfileCache;
 import net.minecraft.world.level.block.entity.SkullBlockEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.concurrent.Executor;
+
 /**
  * Refresh the profile cache for Kupe GUI's {@link cc.cosmetica.kupe.api.gui.GUIPlayer}.
  */
 @Mixin(SkullBlockEntity.class)
 public class SkullBlockEntityMixin {
-    @Inject(at = @At("HEAD"), method="setSessionService")
-    private static void onSetMinecraftSession(MinecraftSessionService sessionService, CallbackInfo ci) {
+    @Inject(at = @At("HEAD"), method="setup")
+    private static void onSetMinecraftSession(GameProfileCache gameProfileCache, MinecraftSessionService sessionService, Executor executor, CallbackInfo ci) {
         PlayerUtils.createNewCache(sessionService);
     }
 }
