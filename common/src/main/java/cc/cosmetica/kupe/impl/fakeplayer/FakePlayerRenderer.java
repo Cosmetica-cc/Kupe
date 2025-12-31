@@ -21,10 +21,11 @@ import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.Context;
 import cc.cosmetica.kupe.api.MatrixStack;
 import cc.cosmetica.kupe.api.gui.GUIPlayer;
+import cc.cosmetica.kupe.impl.ExtendedPlayerModel;
+import cc.cosmetica.kupe.impl.KupeStack;
 import cc.cosmetica.kupe.impl.PoseCanvas;
 import cc.cosmetica.kupe.mixin.fakeplayer.HumanoidModelAccessor;
 import cc.cosmetica.kupe.mixin.fakeplayer.PlayerModelAccessor;
-import cc.cosmetica.kupe.util.GlobalMatrixStack;
 import com.google.common.collect.Sets;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -39,12 +40,15 @@ import net.minecraft.ReportedException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.model.AnimationUtils;
+import net.minecraft.client.model.ElytraModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
@@ -67,7 +71,17 @@ public final class FakePlayerRenderer {
 
 	private boolean lazyLoadModel() {
 		if (this.model == null || (this.slimModel != this.skin.slim)) {
-			this.model = new PlayerModel<>(0.0f, this.slimModel = this.skin.slim);
+			Minecraft minecraft = Minecraft.getInstance();
+			var context = new EntityRendererProvider.Context(
+					minecraft.getEntityRenderDispatcher(),
+					minecraft.getItemRenderer(),
+					minecraft.getResourceManager(),
+					minecraft.getEntityModels(),
+					minecraft.font);
+			ElytraModel<AbstractClientPlayer> elytraModel = new ElytraModel<>(context.bakeLayer(ModelLayers.ELYTRA));
+
+			this.slimModel = this.skin.slim;
+			this.model = new ExtendedPlayerModel<>(context.bakeLayer(this.slimModel ? ModelLayers.PLAYER_SLIM : ModelLayers.PLAYER), elytraModel, this.slimModel);
 		}
 
 		return true;
@@ -96,12 +110,12 @@ public final class FakePlayerRenderer {
 
 		float h = (float)Math.atan(lookX / 40.0F);
 		float l = (float)Math.atan(lookY / 40.0F);
-		MatrixStack stack = GlobalMatrixStack.INSTANCE;
+		MatrixStack stack = new KupeStack(RenderSystem.getModelViewStack());
 
 		stack.push();
 		stack.translate(left, top, 1050.0D);
 		stack.scale(2.0F, 2.0F, -1.0F);
-		//RenderSystem.applyModelViewMatrix();
+		RenderSystem.applyModelViewMatrix();
 
 		// view
 		PoseStack viewStack = new PoseStack();
@@ -120,14 +134,14 @@ public final class FakePlayerRenderer {
 		player.pose.yRotHead += rotationMain;// yRotHead = yRot = getYRot(0);
 		float xRotOld = player.pose.xRot;
 		player.pose.xRot += -l * 20.0F;
-		//Lighting.setupForEntityInInventory();
+		Lighting.setupForEntityInInventory();
 
 		xRotation.conj();
 		this.cameraOrientation = xRotation;
 		MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
 
 		RenderSystem.runAsFancy(() -> {
-			// Above 1.16.5 we need to do an extra step here
+			// Above 1.16.5 we don't need to do an extra step here because I do at the start of the method
 			this.render(player, context, viewStack, bufferSource, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, 15728880);
 		});
 		bufferSource.endBatch();
@@ -138,7 +152,7 @@ public final class FakePlayerRenderer {
 		player.pose.xRot = xRotOld;
 
 		stack.pop();
-		//RenderSystem.applyModelViewMatrix();
+		RenderSystem.applyModelViewMatrix();
 		Lighting.setupFor3DItems();
 	}
 

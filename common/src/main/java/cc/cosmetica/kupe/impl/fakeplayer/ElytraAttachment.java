@@ -20,6 +20,7 @@ import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.MatrixStack;
 import cc.cosmetica.kupe.api.gui.GUIPlayer;
 import cc.cosmetica.kupe.api.gui.GUIPlayer.ElytraProperties;
+import cc.cosmetica.kupe.impl.ExtendedPlayerModel;
 import cc.cosmetica.kupe.mixin.fakeplayer.ElytraModelAccessor;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -37,24 +38,26 @@ import org.jetbrains.annotations.Nullable;
 import java.util.UUID;
 
 public class ElytraAttachment implements GUIPlayer.Attachment<ElytraProperties> {
-	private final ElytraModel<?> elytraModel = new ElytraModel<>();
-
 	@Override
 	public void render(GUIPlayer component, PlayerModel model, GUIPlayer.Posture posture, Canvas canvas, ElytraProperties configuration, Quaternion cameraOrientation, MultiBufferSource bufferSource, int packedLight) {
-		MatrixStack stack = canvas.getStack();
+		if (model instanceof ExtendedPlayerModel) {
+			ElytraModel<?> elytraModel = ((ExtendedPlayerModel<?>) model).getElytra();
 
-		stack.push();
-		stack.scale(2,2,2);
-		stack.translate(0.0, -24/32.0, 0.125/2);
+			MatrixStack stack = canvas.getStack();
 
-		RenderType renderType = configuration.translucent ? RenderType.entityTranslucent(configuration.texture)
-				: RenderType.armorCutoutNoCull(configuration.texture);
+			stack.push();
+			stack.scale(2,2,2);
+			stack.translate(0.0, -24/32.0, 0.125/2);
 
-		this.setupAnim(posture, (ElytraModelAccessor) elytraModel, 0, 0, 0, posture.yRotHead, posture.xRot);
-		VertexConsumer vertexConsumer = ItemRenderer.getArmorFoilBuffer(bufferSource, renderType, false, configuration.glint);
-		this.elytraModel.renderToBuffer(stack.getMinecraftStack(), vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 1.0f, 1.0f, 1.0f, 1.0f);
-		stack.pop();
-	}
+			RenderType renderType = configuration.translucent ? RenderType.entityTranslucent(configuration.texture)
+					: RenderType.armorCutoutNoCull(configuration.texture);
+
+			this.setupAnim(posture, (ElytraModelAccessor) elytraModel, 0, 0, 0, posture.yRotHead, posture.xRot);
+			VertexConsumer vertexConsumer = ItemRenderer.getArmorFoilBuffer(bufferSource, renderType, false, configuration.glint);
+			elytraModel.renderToBuffer(stack.getMinecraftStack(), vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 1.0f, 1.0f, 1.0f, 1.0f);
+			stack.pop();
+		}
+ 	}
 
 	// based on ElytraModel#setupAnim
 	private void setupAnim(GUIPlayer.Posture posture, ElytraModelAccessor elytra, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {

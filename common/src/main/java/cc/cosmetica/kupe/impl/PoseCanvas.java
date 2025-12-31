@@ -24,9 +24,9 @@ import com.mojang.math.Matrix4f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Widget;
+import net.minecraft.client.renderer.GameRenderer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.opengl.GL11;
 
 import java.util.Optional;
 
@@ -73,20 +73,20 @@ public class PoseCanvas implements Canvas {
 	@Override
 	public void disableTransparency() {
 		RenderSystem.disableBlend();
-		RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
+		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
 		this.alpha = 1.0f;
 	}
 
 	@Override
 	public void setTransparency(float transparency) {
 		RenderSystem.enableBlend();
-		RenderSystem.color4f(1.0f, 1.0f, 1.0f, transparency);
+		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, transparency);
 		this.alpha = transparency;
 	}
 
 	@Override
 	public void setTexture(ResourceKey texture) {
-		Minecraft.getInstance().getTextureManager().bind(texture.toResourceLocation());
+		RenderSystem.setShaderTexture(0, texture.toResourceLocation());
 	}
 
 	@Override
@@ -250,17 +250,18 @@ public class PoseCanvas implements Canvas {
 
 	@Override
 	public void drawRect(int x0, int y0, int width, int height, float z, float r, float g, float b) {
+		RenderSystem.setShader(GameRenderer::getPositionColorShader);
 		RenderSystem.disableTexture();
 		BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
 		Matrix4f matrix4f = this.stack.last().pose();
-		RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
+		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
 
 		// x1, y1 exclusive because for some reason minecraft works this way
 		int x1 = x0 + width;
 		int y1 = y0 + height;
 
 		final float a = this.alpha;
-		bufferBuilder.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_COLOR);
+		bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 		bufferBuilder.vertex(matrix4f, x0, y1, z).color(r, g, b, a).endVertex();
 		bufferBuilder.vertex(matrix4f, x1, y1, z).color(r, g, b, a).endVertex();
 		bufferBuilder.vertex(matrix4f, x1, y0, z).color(r, g, b, a).endVertex();
@@ -269,11 +270,12 @@ public class PoseCanvas implements Canvas {
 		bufferBuilder.end();
 		BufferUploader.end(bufferBuilder);
 		RenderSystem.enableTexture(); // re-enable
-		RenderSystem.color4f(1.0f, 1.0f, 1.0f, this.alpha); // reset alpha
+		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, this.alpha); // reset alpha
 	}
 
 	@Override
 	public void drawTexture(int x0, int y0, int width, int height, float z, ResourceKey texture) {
+		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		RenderSystem.enableTexture();
 		this.setTexture(texture);
 		BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
@@ -283,7 +285,7 @@ public class PoseCanvas implements Canvas {
 		int x1 = x0 + width;
 		int y1 = y0 + height;
 
-		bufferBuilder.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_TEX);
+		bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
 		bufferBuilder.vertex(matrix4f, (float)x0, (float)y1, z).uv(0, 1).endVertex();
 		bufferBuilder.vertex(matrix4f, (float)x1, (float)y1, z).uv(1, 1).endVertex();
 		bufferBuilder.vertex(matrix4f, (float)x1, (float)y0, z).uv(1, 0).endVertex();
@@ -296,13 +298,13 @@ public class PoseCanvas implements Canvas {
 	@Override
 	public PolyBuilder drawQuads(PolyBuilder.Mode mode) {
 		mode.applyShader();
-		return new BufferPolyBuilder(Tesselator.getInstance().getBuilder(), GL11.GL_QUADS, mode, this.stack.last().pose());
+		return new BufferPolyBuilder(Tesselator.getInstance().getBuilder(), VertexFormat.Mode.QUADS, mode, this.stack.last().pose());
 	}
 
 	@Override
 	public PolyBuilder drawTriangles(PolyBuilder.Mode mode) {
 		mode.applyShader();
-		return new BufferPolyBuilder(Tesselator.getInstance().getBuilder(), GL11.GL_TRIANGLES, mode, this.stack.last().pose());
+		return new BufferPolyBuilder(Tesselator.getInstance().getBuilder(), VertexFormat.Mode.TRIANGLES, mode, this.stack.last().pose());
 	}
 
 	@Override

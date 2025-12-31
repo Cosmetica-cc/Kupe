@@ -20,6 +20,10 @@ import cc.cosmetica.kupe.impl.LeavesSandbox;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.ShaderInstance;
+
+import java.util.function.Supplier;
 
 /**
  * Draw polygons. Typically used for {@linkplain Canvas#drawQuads(Mode) quadrilaterals}.
@@ -64,20 +68,22 @@ public interface PolyBuilder {
 	 * The modes this QuadBuilder can run in.
 	 */
 	enum Mode {
-		POSITION(DefaultVertexFormat.POSITION, false, 1),
-		POSITION_COLOUR(DefaultVertexFormat.POSITION_COLOR, false, 2),
-		POSITION_TEXTURE(DefaultVertexFormat.POSITION_TEX, true, 2),
-		POSITION_COLOUR_TEXTURE(DefaultVertexFormat.POSITION_COLOR_TEX, true, 3),
-		POSITION_COLOUR_LIGHTMAP(DefaultVertexFormat.POSITION_COLOR_LIGHTMAP, false, 3),
-		POSITION_COLOUR_TEXTURE_LIGHTMAP(DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP, true, 4);
+		POSITION(DefaultVertexFormat.POSITION, GameRenderer::getPositionShader, false, 1),
+		POSITION_COLOUR(DefaultVertexFormat.POSITION_COLOR, GameRenderer::getPositionColorShader, false, 2),
+		POSITION_TEXTURE(DefaultVertexFormat.POSITION_TEX, GameRenderer::getPositionTexShader, true, 2),
+		POSITION_COLOUR_TEXTURE(DefaultVertexFormat.POSITION_COLOR_TEX, GameRenderer::getPositionColorTexShader, true, 3),
+		POSITION_COLOUR_LIGHTMAP(DefaultVertexFormat.POSITION_COLOR_LIGHTMAP, GameRenderer::getPositionColorLightmapShader, false, 3),
+		POSITION_COLOUR_TEXTURE_LIGHTMAP(DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP, GameRenderer::getPositionColorTexLightmapShader, true, 4);
 
-		Mode(VertexFormat format, boolean texture, int size) {
+		Mode(VertexFormat format, Supplier<ShaderInstance> shader, boolean texture, int size) {
 			this.format = format;
+			this.shader = shader;
 			this.texture = texture;
 			this.size = size;
 		}
 
 		private final VertexFormat format;
+		private final Supplier<ShaderInstance> shader;
 		private final boolean texture;
 		private final int size;
 
@@ -102,7 +108,9 @@ public interface PolyBuilder {
 		 * Apply the shader this Mode is associated with.
 		 */
 		public void applyShader() {
-			// Does not directly apply to 1.16.5. Set texture instead.
+			RenderSystem.setShader(this.shader);
+
+			// set texture
 			if (this.texture) {
 				RenderSystem.enableTexture();
 			} else {

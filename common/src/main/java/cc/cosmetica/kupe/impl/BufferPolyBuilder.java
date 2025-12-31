@@ -19,12 +19,13 @@ package cc.cosmetica.kupe.impl;
 import cc.cosmetica.kupe.api.PolyBuilder;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Matrix4f;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 
 public class BufferPolyBuilder implements PolyBuilder {
-	public BufferPolyBuilder(BufferBuilder builder, int shape, Mode mode, @Nullable Matrix4f matrix4f) {
+	public BufferPolyBuilder(BufferBuilder builder, VertexFormat.Mode shape, Mode mode, @Nullable Matrix4f matrix4f) {
 		this.builder = builder;
 		this.builder.begin(shape, mode.getFormat());
 		this.matrix4f = matrix4f;

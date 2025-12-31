@@ -31,10 +31,12 @@ import com.mojang.util.UUIDTypeAdapter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
 import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.PlayerModelPart;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -92,7 +94,13 @@ public class GUIPlayer extends Component {
 		} else if (uuid.equals(UUIDTypeAdapter.fromString(Minecraft.getInstance().getUser().getUuid()))) {
 			// own settings
 			Options options = Minecraft.getInstance().options;
-			this.renderer.shownParts = new HashSet<>(options.getModelParts());
+			HashSet<PlayerModelPart> newShownParts = new HashSet<>();
+			for (PlayerModelPart part : PlayerModelPart.values()) {
+				if (options.isModelPartEnabled(part)) {
+					newShownParts.add(part);
+				}
+			}
+			this.renderer.shownParts = newShownParts;
 		}
 
 		// nametag
