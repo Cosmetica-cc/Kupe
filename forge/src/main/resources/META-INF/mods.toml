@@ -9,7 +9,7 @@ version = "${version}"
 displayName = "Kupe GUI"
 authors = "Valoeghese"
 description = '''
-This is an example description! Tell everyone what your mod is about!
+Reactive cross-platform and cross-version GUI library. For all your navigation needs.
 '''
 #logoFile = ""
 
@@ -23,6 +23,6 @@ side = "BOTH"
 [[dependencies.kupe]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.19.1,)"
+versionRange = "[1.19.4,)"
 ordering = "NONE"
 side = "BOTH"
