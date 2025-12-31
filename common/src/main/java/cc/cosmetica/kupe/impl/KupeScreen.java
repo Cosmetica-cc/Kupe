@@ -213,8 +213,8 @@ public final class KupeScreen extends Screen {
 		}
 
 		private Optional<Dimensions> computeImageDimensions(ResourceKey location) throws IOException {
-			Resource resource = Minecraft.getInstance().getResourceManager().getResource(location.toResourceLocation());
-			return ImageUtilities.getImageDimensions(resource.getInputStream());
+			Optional<Resource> resource = Minecraft.getInstance().getResourceManager().getResource(location.toResourceLocation());
+			return resource.isPresent() ? ImageUtilities.getImageDimensions(resource.get().open()) : Optional.empty();
 		}
 
 		@Override

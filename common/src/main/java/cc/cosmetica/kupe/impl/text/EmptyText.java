@@ -18,7 +18,6 @@ package cc.cosmetica.kupe.impl.text;
 
 import cc.cosmetica.kupe.api.Text;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 
 public enum EmptyText implements Text {
 	INSTANCE;
@@ -35,6 +34,6 @@ public enum EmptyText implements Text {
 
 	@Override
 	public Component toMinecraftComponent() {
-		return TextComponent.EMPTY;
+		return Component.empty();
 	}
 }

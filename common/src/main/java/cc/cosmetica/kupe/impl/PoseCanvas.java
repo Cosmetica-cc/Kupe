@@ -267,8 +267,7 @@ public class PoseCanvas implements Canvas {
 		bufferBuilder.vertex(matrix4f, x1, y0, z).color(r, g, b, a).endVertex();
 		bufferBuilder.vertex(matrix4f, x0, y0, z).color(r, g, b, a).endVertex();
 
-		bufferBuilder.end();
-		BufferUploader.end(bufferBuilder);
+		BufferUploader.drawWithShader(bufferBuilder.end());
 		RenderSystem.enableTexture(); // re-enable
 		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, this.alpha); // reset alpha
 	}
@@ -291,8 +290,7 @@ public class PoseCanvas implements Canvas {
 		bufferBuilder.vertex(matrix4f, (float)x1, (float)y0, z).uv(1, 0).endVertex();
 		bufferBuilder.vertex(matrix4f, (float)x0, (float)y0, z).uv(0, 0).endVertex();
 
-		bufferBuilder.end();
-		BufferUploader.end(bufferBuilder);
+		BufferUploader.drawWithShader(bufferBuilder.end());
 	}
 
 	@Override

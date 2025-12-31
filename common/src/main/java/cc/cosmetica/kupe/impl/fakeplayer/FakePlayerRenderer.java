@@ -75,6 +75,8 @@ public final class FakePlayerRenderer {
 			var context = new EntityRendererProvider.Context(
 					minecraft.getEntityRenderDispatcher(),
 					minecraft.getItemRenderer(),
+					minecraft.getBlockRenderer(),
+					minecraft.gameRenderer.itemInHandRenderer,
 					minecraft.getResourceManager(),
 					minecraft.getEntityModels(),
 					minecraft.font);

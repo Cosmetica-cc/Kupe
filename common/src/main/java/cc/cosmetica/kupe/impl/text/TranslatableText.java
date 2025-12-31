@@ -19,7 +19,6 @@ package cc.cosmetica.kupe.impl.text;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.util.Cache;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.Arrays;
 
@@ -44,13 +43,13 @@ public class TranslatableText implements Text {
 	@Override
 	public String getDisplayString() {
 		return this.display.get(
-				() -> this.toMinecraftComponent().getString() // TODO is this right
+				() -> this.toMinecraftComponent().getString()
 		);
 	}
 
 	@Override
 	public Component toMinecraftComponent() {
-		return new TranslatableComponent(this.key, this.format);
+		return Component.translatable(this.key, this.format);
 	}
 
 	@Override

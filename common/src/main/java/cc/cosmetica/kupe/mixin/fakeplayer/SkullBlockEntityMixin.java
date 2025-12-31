@@ -18,6 +18,7 @@ package cc.cosmetica.kupe.mixin.fakeplayer;
 
 import cc.cosmetica.kupe.impl.fakeplayer.PlayerUtils;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
+import net.minecraft.server.Services;
 import net.minecraft.server.players.GameProfileCache;
 import net.minecraft.world.level.block.entity.SkullBlockEntity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -33,7 +34,7 @@ import java.util.concurrent.Executor;
 @Mixin(SkullBlockEntity.class)
 public class SkullBlockEntityMixin {
     @Inject(at = @At("HEAD"), method="setup")
-    private static void onSetMinecraftSession(GameProfileCache gameProfileCache, MinecraftSessionService sessionService, Executor executor, CallbackInfo ci) {
-        PlayerUtils.createNewCache(sessionService);
+    private static void onSetMinecraftSession(Services services, Executor executor, CallbackInfo ci) {
+        PlayerUtils.createNewCache(services.sessionService());
     }
 }

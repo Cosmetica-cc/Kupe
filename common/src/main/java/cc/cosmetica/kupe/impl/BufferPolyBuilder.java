@@ -70,7 +70,6 @@ public class BufferPolyBuilder implements PolyBuilder {
 
 	@Override
 	public void build() {
-		this.builder.end();
-		BufferUploader.end(this.builder);
+		BufferUploader.drawWithShader(this.builder.end());
 	}
 }
