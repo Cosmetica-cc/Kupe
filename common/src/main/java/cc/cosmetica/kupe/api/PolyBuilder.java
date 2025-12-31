@@ -84,6 +84,7 @@ public interface PolyBuilder {
 
 		private final VertexFormat format;
 		private final Supplier<ShaderInstance> shader;
+		@SuppressWarnings("unused")
 		private final boolean texture;
 		private final int size;
 
@@ -109,13 +110,6 @@ public interface PolyBuilder {
 		 */
 		public void applyShader() {
 			RenderSystem.setShader(this.shader);
-
-			// set texture
-			if (this.texture) {
-				RenderSystem.enableTexture();
-			} else {
-				RenderSystem.disableTexture();
-			}
 		}
 	}
 }

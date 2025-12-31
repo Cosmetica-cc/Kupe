@@ -31,9 +31,6 @@ import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
@@ -55,6 +52,10 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.phys.Vec3;
+import org.joml.AxisAngle4f;
+import org.joml.Matrix4f;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 import java.util.*;
 
@@ -99,8 +100,11 @@ public final class FakePlayerRenderer {
 	// properties, internal
 	private PlayerRenderMode renderMode = PlayerRenderMode.NORMAL;
 
-	private Quaternion cameraOrientation = Quaternion.ONE;
+	private Quaternionf cameraOrientation = new Quaternionf(0.0F, 0.0F, 0.0F, 1.0F);
 	public Set<PlayerModelPart> shownParts = Sets.newHashSet(PlayerModelPart.values());
+
+	private static final Vector3f XP = new Vector3f(1, 0, 0);
+	private static final Vector3f ZP = new Vector3f(0, 0, 1);
 
 	public void render(GUIPlayer player, Context context, int left, int top, float extraScale, float lookX, float lookY) {
 		// lazy load model (important on newer mc versions)
@@ -123,8 +127,8 @@ public final class FakePlayerRenderer {
 		PoseStack viewStack = new PoseStack();
 		viewStack.translate(0.0D, 0.0D, 1000.0D);
 		viewStack.scale(extraScale, extraScale, extraScale);
-		Quaternion zRotation = Vector3f.ZP.rotationDegrees(180.0F);
-		Quaternion xRotation = Vector3f.XP.rotationDegrees(l * 20.0F);
+		Quaternionf zRotation = new Quaternionf(new AxisAngle4f((float)Math.toRadians(180.0F), ZP));
+		Quaternionf xRotation = new Quaternionf(new AxisAngle4f((float)Math.toRadians(l * 20.0F), XP));
 		zRotation.mul(xRotation);
 		viewStack.mulPose(zRotation);
 
@@ -138,7 +142,7 @@ public final class FakePlayerRenderer {
 		player.pose.xRot += -l * 20.0F;
 		Lighting.setupForEntityInInventory();
 
-		xRotation.conj();
+		xRotation.conjugate();
 		this.cameraOrientation = xRotation;
 		MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
 
@@ -307,10 +311,10 @@ public final class FakePlayerRenderer {
 		int k = (int)(backgroundOpacity * 255.0F) << 24;
 		Font font = Minecraft.getInstance().font;
 		float h = (float)(-font.width(name) / 2);
-		font.drawInBatch(name, h, (float)offsetForDeadmau5, 0x20FFFFFF, false, pose, bufferSource, fullyRender, k, packedLight);
+		font.drawInBatch(name, h, (float)offsetForDeadmau5, 0x20FFFFFF, false, pose, bufferSource, fullyRender ? Font.DisplayMode.SEE_THROUGH : Font.DisplayMode.NORMAL, k, packedLight);
 
 		if (fullyRender) {
-			font.drawInBatch(name, h, (float)offsetForDeadmau5, -1, false, pose, bufferSource, false, 0, packedLight);
+			font.drawInBatch(name, h, (float)offsetForDeadmau5, -1, false, pose, bufferSource, Font.DisplayMode.NORMAL, 0, packedLight);
 		}
 	}
 
@@ -509,13 +513,15 @@ public final class FakePlayerRenderer {
 		}
 	}
 
-	private void setupRotations(GUIPlayer.Posture posture, PoseStack stack, float f, float g, float h) {
-		stack.mulPose(Vector3f.YP.rotationDegrees(180.0F - g));
+	private void setupRotations(GUIPlayer.Posture posture, PoseStack stackIn, float f, float g, float h) {
+		MatrixStack stack = new KupeStack(stackIn);
+
+		stack.rotate(cc.cosmetica.kupe.api.maths.Vec3.YP, 180.0F - g, true);
 
 		// Upside Down
 		if (posture.upsideDown) {
 			stack.translate(0.0D, EntityType.PLAYER.getDimensions().height + 0.1, 0.0D);
-			stack.mulPose(Vector3f.ZP.rotationDegrees(180.0F));
+			stack.rotate(cc.cosmetica.kupe.api.maths.Vec3.ZP, 180.0F, true);
 		}
 	}
 

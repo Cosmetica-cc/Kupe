@@ -23,19 +23,19 @@ import cc.cosmetica.kupe.api.maths.Vec3;
 import cc.cosmetica.kupe.mixin.fakeplayer.PlayerModelAccessor;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Quaternion;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Quaternionf;
 
 import java.util.UUID;
 
 public class CapeAttachment implements GUIPlayer.Attachment<GUIPlayer.CapeProperties> {
 	@Override
-	public void render(GUIPlayer player, PlayerModel playerModel, GUIPlayer.Posture posture, Canvas canvas, GUIPlayer.CapeProperties configuration, Quaternion cameraOrientation, MultiBufferSource bufferSource, int packedLight) {
+	public void render(GUIPlayer player, PlayerModel playerModel, GUIPlayer.Posture posture, Canvas canvas, GUIPlayer.CapeProperties configuration, Quaternionf cameraOrientation, MultiBufferSource bufferSource, int packedLight) {
 		if (configuration.getTexture().isPresent()) {
 			MatrixStack stack = canvas.getStack();
 			stack.push();

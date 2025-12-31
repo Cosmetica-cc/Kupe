@@ -5,7 +5,6 @@
   "minVersion": "0.8",
   "client": [
     "AbstractWidgetMixin",
-    "Matrix4fMixin",
     "Vec3Mixin",
     "fakeplayer.ElytraModelAccessor",
     "fakeplayer.HumanoidModelAccessor",

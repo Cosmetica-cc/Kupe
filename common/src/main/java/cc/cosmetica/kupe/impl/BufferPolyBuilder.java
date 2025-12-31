@@ -20,9 +20,8 @@ import cc.cosmetica.kupe.api.PolyBuilder;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.math.Matrix4f;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.opengl.GL11;
+import org.joml.Matrix4f;
 
 public class BufferPolyBuilder implements PolyBuilder {
 	public BufferPolyBuilder(BufferBuilder builder, VertexFormat.Mode shape, Mode mode, @Nullable Matrix4f matrix4f) {

@@ -98,8 +98,8 @@ public class TextBox extends MinecraftBuiltinComponent implements Input {
 					this.placeholder.toMinecraftComponent()
 			);
 		} else {
-			box.x = region.getX();
-			box.y = region.getY();
+			box.setX(region.getX());
+			box.setY(region.getY());
 			box.setWidth(region.getWidth());
 		}
 

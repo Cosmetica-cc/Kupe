@@ -20,13 +20,12 @@ import cc.cosmetica.kupe.api.*;
 import cc.cosmetica.kupe.api.maths.Region;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import com.mojang.math.Matrix4f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.renderer.GameRenderer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
 
 import java.util.Optional;
 
@@ -251,7 +250,6 @@ public class PoseCanvas implements Canvas {
 	@Override
 	public void drawRect(int x0, int y0, int width, int height, float z, float r, float g, float b) {
 		RenderSystem.setShader(GameRenderer::getPositionColorShader);
-		RenderSystem.disableTexture();
 		BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
 		Matrix4f matrix4f = this.stack.last().pose();
 		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -268,14 +266,12 @@ public class PoseCanvas implements Canvas {
 		bufferBuilder.vertex(matrix4f, x0, y0, z).color(r, g, b, a).endVertex();
 
 		BufferUploader.drawWithShader(bufferBuilder.end());
-		RenderSystem.enableTexture(); // re-enable
 		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, this.alpha); // reset alpha
 	}
 
 	@Override
 	public void drawTexture(int x0, int y0, int width, int height, float z, ResourceKey texture) {
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
-		RenderSystem.enableTexture();
 		this.setTexture(texture);
 		BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
 		Matrix4f matrix4f = this.stack.last().pose();
@@ -306,7 +302,7 @@ public class PoseCanvas implements Canvas {
 	}
 
 	@Override
-	public void renderMinecraftComponent(Widget component, int mouseX, int mouseY) {
+	public void renderMinecraftComponent(net.minecraft.client.gui.components.Renderable component, int mouseX, int mouseY) {
 		component.render(this.stack, mouseX, mouseY, this.tickDelta);
 	}
 

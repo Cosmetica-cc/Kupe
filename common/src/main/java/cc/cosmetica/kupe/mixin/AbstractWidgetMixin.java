@@ -19,7 +19,7 @@ package cc.cosmetica.kupe.mixin;
 import cc.cosmetica.kupe.impl.KupeScreen;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.AbstractButton;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -28,10 +28,10 @@ import org.spongepowered.asm.mixin.injection.Redirect;
  * Stop AbstractWidgets using depth test to draw text and buttons in Kupe screens.
  * Kupe implements Z-ordering via draw order.
  */
-@Mixin(AbstractWidget.class)
+@Mixin(AbstractButton.class)
 public class AbstractWidgetMixin {
     @Redirect(
-            method = "renderButton",
+            method = "renderWidget",
             at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;enableDepthTest()V")
     )
     private void onEnableDepthTest() {

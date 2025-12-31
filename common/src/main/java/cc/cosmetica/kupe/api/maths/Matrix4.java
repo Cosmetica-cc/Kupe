@@ -16,8 +16,6 @@
 
 package cc.cosmetica.kupe.api.maths;
 
-import com.mojang.math.Matrix4f;
-
 /**
  * A four-by-four matrix. Operations will modify the matrix in-place.
  */
@@ -54,6 +52,6 @@ public interface Matrix4 {
 	 * @return a new identity matrix.
 	 */
 	static Matrix4 create() {
-		return (Matrix4) (Object) new Matrix4f();
+		return (Matrix4) new org.joml.Matrix4f();
 	}
 }

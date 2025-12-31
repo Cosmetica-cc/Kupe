@@ -74,14 +74,14 @@ public class Button extends MinecraftBuiltinComponent implements Input {
 
 	@Override
 	public AbstractWidget createMinecraftWidget(Region region, Context context) {
-		return new net.minecraft.client.gui.components.Button(
-				region.getX(),
-				region.getY(),
-				region.getWidth(),
-				region.getHeight(),
+		return new net.minecraft.client.gui.components.Button.Builder(
 				this.text.toMinecraftComponent(),
-				bn -> this.onClicked.run()
-		);
+				bn -> this.onClicked.run())
+				.bounds(region.getX(),
+						region.getY(),
+						region.getWidth(),
+						region.getHeight())
+				.build();
 	}
 
 	// Minecraft button uses render(mouseX, mouseY) for highlight

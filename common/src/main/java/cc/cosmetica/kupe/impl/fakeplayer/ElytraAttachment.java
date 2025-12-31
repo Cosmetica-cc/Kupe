@@ -24,7 +24,6 @@ import cc.cosmetica.kupe.impl.ExtendedPlayerModel;
 import cc.cosmetica.kupe.mixin.fakeplayer.ElytraModelAccessor;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Quaternion;
 import net.minecraft.client.model.ElytraModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -34,12 +33,13 @@ import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Quaternionf;
 
 import java.util.UUID;
 
 public class ElytraAttachment implements GUIPlayer.Attachment<ElytraProperties> {
 	@Override
-	public void render(GUIPlayer component, PlayerModel model, GUIPlayer.Posture posture, Canvas canvas, ElytraProperties configuration, Quaternion cameraOrientation, MultiBufferSource bufferSource, int packedLight) {
+	public void render(GUIPlayer component, PlayerModel model, GUIPlayer.Posture posture, Canvas canvas, ElytraProperties configuration, Quaternionf cameraOrientation, MultiBufferSource bufferSource, int packedLight) {
 		if (model instanceof ExtendedPlayerModel) {
 			ElytraModel<?> elytraModel = ((ExtendedPlayerModel<?>) model).getElytra();
 
