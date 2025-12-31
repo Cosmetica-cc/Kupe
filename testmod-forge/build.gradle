@@ -33,3 +33,11 @@ dependencies {
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     common(project(path: ":testmod-common", configuration: "namedElements")) { transitive false }
 }
+
+processResources {
+    inputs.property "version", project.version
+
+    filesMatching("META-INF/mods.toml") {
+        expand "version": project.version
+    }
+}
