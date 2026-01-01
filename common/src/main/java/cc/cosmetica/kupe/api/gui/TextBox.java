@@ -31,6 +31,7 @@ import net.minecraft.client.gui.components.EditBox;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.POINTER_EVENTS;
@@ -98,6 +99,9 @@ public class TextBox extends MinecraftBuiltinComponent implements Input {
 					this.placeholder.toMinecraftComponent()
 			);
 		} else {
+//			for (StackTraceElement e : Thread.currentThread().getStackTrace()) {
+//				System.out.println(e);
+//			}
 			box.setX(region.getX());
 			box.setY(region.getY());
 			box.setWidth(region.getWidth());
@@ -105,9 +109,15 @@ public class TextBox extends MinecraftBuiltinComponent implements Input {
 
 		box.setEditable(this.editable);
 		box.setMaxLength(this.maxLength);
-		box.setResponder(null);
-		box.setValue(this.value.peek());
-		box.setResponder(this.value::set);
+		box.setResponder(str -> {});
+		if (!box.getValue().equals(this.value.peek())) {
+			box.setValue(this.value.peek());
+		}
+		box.setResponder(s -> {
+			if (!Objects.equals(s, this.value.peek())) {
+				this.value.set(s);
+			}
+		});
 		return box;
 	}
 

@@ -28,6 +28,7 @@ import cc.cosmetica.kupe.util.MultiCache;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.server.packs.resources.Resource;
@@ -91,12 +92,12 @@ public final class KupeScreen extends Screen {
 	}
 
 	@Override
-	public void render(PoseStack poseStack, int mouseX, int mouseY, float tickDelta) {
+	public void render(GuiGraphics graphics, int mouseX, int mouseY, float tickDelta) {
 		if (this.defaultBackground) { // TODO better way to do this that also handles scrolling backgrounds
-			this.renderBackground(poseStack);
+			this.renderBackground(graphics);
 		}
 
-		PoseCanvas canvas = new PoseCanvas(poseStack, this.minecraft, this.context, tickDelta);
+		PoseCanvas canvas = new PoseCanvas(graphics, this.minecraft, this.context, tickDelta);
 		this.tree.render(canvas, mouseX, mouseY);
 		
 		if (debug) {

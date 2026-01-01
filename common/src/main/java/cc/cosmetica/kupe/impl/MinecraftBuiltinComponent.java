@@ -18,20 +18,12 @@ package cc.cosmetica.kupe.impl;
 
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.Context;
-import cc.cosmetica.kupe.api.Text;
-import cc.cosmetica.kupe.api.gui.Component;
-import cc.cosmetica.kupe.api.gui.Element;
-import cc.cosmetica.kupe.api.gui.ResizableElement;
-import cc.cosmetica.kupe.api.gui.SizedElement;
-import cc.cosmetica.kupe.api.gui.style.CommonProperties;
-import cc.cosmetica.kupe.api.gui.style.Style;
-import cc.cosmetica.kupe.api.maths.Dimensions;
+import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.maths.Region;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.client.gui.components.AbstractWidget;
 
 import java.util.List;
-import java.util.OptionalInt;
 
 /**
  * Used for API components that wrap minecraft components. This is not recommended to be instantiated directly.
@@ -79,6 +71,15 @@ public abstract class MinecraftBuiltinComponent extends Component {
 	@Override
 	public void mouseClicked(Element target, double x, double y, int button) {
 		if (target.getComponent() == this) {
+			if (target instanceof InternalFocusable focus && !(target.getComponent() instanceof Button)) {
+				focus.setFocused(this, (c, b) -> {
+					if (c instanceof MinecraftBuiltinComponent mc) {
+						if (mc.minecraftWidget != null) {
+							mc.minecraftWidget.setFocused(b);
+						}
+					}
+				});
+			}
 			this.minecraftWidget.mouseClicked(x, y, button);
 		}
 	}

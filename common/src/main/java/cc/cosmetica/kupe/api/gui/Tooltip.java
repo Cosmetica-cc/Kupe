@@ -21,19 +21,16 @@ import cc.cosmetica.kupe.api.Context;
 import cc.cosmetica.kupe.api.Renderable;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.impl.MathsImpl;
-import cc.cosmetica.kupe.impl.PoseCanvas;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.Component;
 
 /**
  * A tooltip which can be drawn. Does not currently support colour tint.
  */
 public class Tooltip implements Renderable {
 	public Tooltip(Text text) {
-		this.text = text.toMinecraftComponent();
+		this.text = text;
 	}
 
-	private final Component text;
+	private final Text text;
 
 	/**
 	 * Get the text wrap width for the given context. Can be overridden for custom behaviour,
@@ -47,17 +44,6 @@ public class Tooltip implements Renderable {
 
 	@Override
 	public void render(Canvas canvas, int x, int y, int colour) {
-		if (canvas instanceof PoseCanvas) {
-			((PoseCanvas) canvas).renderFloating((x_, y_) -> this._render(canvas, x_, y_), x, y);
-		} else {
-			this._render(canvas, x, y);
-		}
-	}
-
-	private void _render(Canvas canvas, int x, int y) {
-		Minecraft.getInstance().screen.renderTooltip(
-				canvas.getStack().getMinecraftStack(),
-				Minecraft.getInstance().font.split(this.text, getTextWrapWidth(canvas.getDrawingContext())),
-				x, y);
+		canvas.drawTooltip(this.text, getTextWrapWidth(canvas.getDrawingContext()), x, y);
 	}
 }

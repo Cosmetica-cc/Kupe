@@ -36,6 +36,7 @@ import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.model.AnimationUtils;
 import net.minecraft.client.model.ElytraModel;
 import net.minecraft.client.model.HumanoidModel;
@@ -264,7 +265,8 @@ public final class FakePlayerRenderer {
 		// TODO refactor so it doesn't leave sandbox? Or refactor so it's fully out of context cause why force people
 		// if they're just going to leave the sandbox every time anyway
 
-		Canvas canvas = new PoseCanvas(stack, Minecraft.getInstance(), context, delta);
+		GuiGraphics graphics = new GuiGraphics(Minecraft.getInstance(), stack, Minecraft.getInstance().renderBuffers().bufferSource());
+		Canvas canvas = new PoseCanvas(graphics, Minecraft.getInstance(), context, delta);
 		Iterator<GUIPlayer.Attachment<?>> iterator = player.getRenderingAttachments();
 
 		while (iterator.hasNext()) {
@@ -289,6 +291,9 @@ public final class FakePlayerRenderer {
 			}
 			stack.popPose();
 		}
+
+		graphics.flush();
+		RenderSystem.disableDepthTest(); // nice try
 	}
 
 	private void renderNametag(GUIPlayer.Nametag nametag, Canvas canvas, MultiBufferSource bufferSource, int packedLight) {

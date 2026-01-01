@@ -33,6 +33,7 @@ import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -291,11 +292,19 @@ class ComponentTree {
 		canvas.stopFloatingQueue();
 	}
 
+	private Runnable unfocus;
+	private boolean updatedFocus;
+
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		return this.walkPointerEvent(mouseX, mouseY, (n, target) -> {
+		updatedFocus = false;
+		boolean result = this.walkPointerEvent(mouseX, mouseY, (n, target) -> {
 			n.element.mouseClicked(target, mouseX - n.scrollX(), mouseY - n.scrollY(), button);
 			return false;
 		});
+		if (!updatedFocus && unfocus != null) {
+			unfocus.run();
+		}
+		return result;
 	}
 
 	public boolean mouseReleased(double mouseX, double mouseY, int button) {
@@ -591,7 +600,7 @@ class ComponentTree {
 	private static final Text DEBUG_INSTRUCTIONS_P = Text.literal("[1] Back [2] Step In [3] Previous [4] Next [5] Print Debug [6] Show Content Region - (Padded Region)");
 	private static Text debugInstructions = DEBUG_INSTRUCTIONS_C;
 
-	private class Node implements ResizableElement, Element {
+	private class Node implements ResizableElement, Element, InternalFocusable {
 		Node(@Nullable ComponentTree.Node parent, Component element) {
 			this.parent = parent;
 			this.element = element;
@@ -637,6 +646,16 @@ class ComponentTree {
 
 		Region fakeAppliedScissorRegion() {
 			return this.trueAppliedScissorRegion().translate(-(int)this.scrollX(), -(int)this.scrollY());
+		}
+
+		@Override
+		public void setFocused(Component thisWidget, BiConsumer<Component, Boolean> doSetFocused) {
+			updatedFocus = true;
+			if (unfocus != null) {
+				unfocus.run();
+			}
+			doSetFocused.accept(thisWidget, true);
+			unfocus = () -> doSetFocused.accept(thisWidget, false);
 		}
 
 		/**
@@ -820,6 +839,8 @@ class ComponentTree {
 				// render still thinks it's at the original position
 				// so if it's moved up, move mouse positions accordingly
 				this.element.render(canvas, this.renderRegion, this.padding, mouseX - (int)this.scrollX(), mouseY - (int)this.scrollY());
+				canvas.graphics.flush();
+				RenderSystem.disableDepthTest();
 
 				this.innerScrollY = canvas.getScrollY();
 				this.innerScrollX = canvas.getScrollX();

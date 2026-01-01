@@ -18,6 +18,7 @@ package cc.cosmetica.kupe.impl.text;
 
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.Renderable;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.util.FormattedCharSequence;
 
@@ -35,7 +36,15 @@ public class FormattedCharSeqRenderer implements Renderable {
 
 	@Override
 	public void render(Canvas canvas, int x, int y, int colour) {
-		this.font.draw(canvas.getStack().getMinecraftStack(), this.sequence, x, y, colour);
+		this.font.drawInBatch(
+				this.sequence,
+				(float)x, (float)y,
+				colour,
+				false,
+				canvas.getStack().getMinecraftStack().last().pose(),
+				Minecraft.getInstance().renderBuffers().bufferSource(),
+				Font.DisplayMode.NORMAL,
+				0, 0xF000F0);
 	}
 
 	@Override

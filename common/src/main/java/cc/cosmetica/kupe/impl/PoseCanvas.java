@@ -21,7 +21,8 @@ import cc.cosmetica.kupe.api.maths.Region;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.renderer.GameRenderer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -35,9 +36,10 @@ import java.util.Optional;
  * update tickDelta.
  */
 public class PoseCanvas implements Canvas {
-	public PoseCanvas(PoseStack stack, Minecraft minecraft, Context context, float tickDelta) {
-		this.stack = stack;
-		this.kupeStack = new KupeStack(stack);
+	public PoseCanvas(GuiGraphics graphics, Minecraft minecraft, Context context, float tickDelta) {
+		this.graphics = graphics;
+		this.stack = graphics.pose();
+		this.kupeStack = new KupeStack(graphics.pose());
 		this.minecraft = minecraft;
 		this.context = context;
 		this.tickDelta = tickDelta;
@@ -47,6 +49,7 @@ public class PoseCanvas implements Canvas {
 		this.fastScissor = false;
 	}
 
+	final GuiGraphics graphics;
 	private final PoseStack stack;
 	private final MatrixStack kupeStack;
 	private final Minecraft minecraft;
@@ -115,6 +118,10 @@ public class PoseCanvas implements Canvas {
 			double guiScale = Minecraft.getInstance().getWindow().getGuiScale();
 			double windowHeight = Minecraft.getInstance().getWindow().getGuiScaledHeight();
 
+			// 1.20.1+
+			this.graphics.flush();
+			RenderSystem.disableDepthTest();
+
 			RenderSystem.enableScissor(
 					(int) (region.getX() * guiScale),
 					(int) ((windowHeight - (region.getY()+region.getHeight())) * guiScale), // lower left corner in opengl coordinate system
@@ -152,7 +159,7 @@ public class PoseCanvas implements Canvas {
 		}
 	}
 
-	// TODO maybe make this API in next minor update
+	// TODO maybe make this API in an update
 	/**
 	 * Render after all components are rendered.
 	 * @param renderable the renderable to render.
@@ -168,6 +175,17 @@ public class PoseCanvas implements Canvas {
 				renderable,
 				(int)this.scissorStack.scrollX + x,
 				(int)this.scissorStack.scrollY + y);
+	}
+
+	@Override
+	public void drawTooltip(Text text, int splitWidth, int x, int y) {
+		// Tooltip should be always floating!
+		renderFloating((x_, y_) -> {
+			this.graphics.renderTooltip(
+					Minecraft.getInstance().font,
+					Minecraft.getInstance().font.split(text.toMinecraftComponent(), splitWidth),
+					x_, y_);
+		}, x, y);
 	}
 
 	@Override
@@ -227,12 +245,12 @@ public class PoseCanvas implements Canvas {
 
 	@Override
 	public void drawCenteredText(Text text, int x, int y, int colour) {
-		GuiComponent.drawCenteredString(this.stack, this.minecraft.font, text.toMinecraftComponent(), x, y, colour);
+		this.graphics.drawCenteredString(this.minecraft.font, text.toMinecraftComponent(), x, y, colour);
 	}
 
 	@Override
 	public void drawText(Text text, int x, int y, int colour) {
-		GuiComponent.drawString(this.stack, this.minecraft.font, text.toMinecraftComponent(), x, y, colour);
+		this.graphics.drawString(this.minecraft.font, text.toMinecraftComponent(), x, y, colour);
 	}
 
 	@Override
@@ -303,7 +321,7 @@ public class PoseCanvas implements Canvas {
 
 	@Override
 	public void renderMinecraftComponent(net.minecraft.client.gui.components.Renderable component, int mouseX, int mouseY) {
-		component.render(this.stack, mouseX, mouseY, this.tickDelta);
+		component.render(this.graphics, mouseX, mouseY, this.tickDelta);
 	}
 
 	// Allows us to easily change current region without wasting time/memory

@@ -137,6 +137,16 @@ public interface Canvas {
 	void drawTexture(int x0, int y0, int width, int height, float z, ResourceKey texture);
 
 	/**
+	 * Draw a tooltip on the screen.
+	 * @param text the text to render.
+	 * @param splitWidth the width after which to split text onto new lines automatically.
+	 * @param x the x position from which to spawn the tooltip.
+	 * @param y the y position from which to spawn the tooltip.
+	 * @apiNote only since minecraft 1.20.1. TODO: backport to previous versions.
+	 */
+	void drawTooltip(Text text, int splitWidth, int x, int y);
+
+	/**
 	 * Start drawing quadrilaterals. The {@link PolyBuilder#build()} method must be called to finish building.
 	 * Automatically invokes {@link PolyBuilder.Mode#applyShader()}.
 	 * @param mode the format to draw vertices in. Each vertex will require these parameters.
