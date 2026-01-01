@@ -31,6 +31,7 @@ import net.minecraft.client.gui.components.EditBox;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.POINTER_EVENTS;
@@ -88,7 +89,7 @@ public class TextBox extends MinecraftBuiltinComponent implements Input {
 		/* NB this.minecraft.keyboardHandler.setSendRepeatsToGui(true); */
 
 		// for some reason resize is running when we click on the box?
-		if (this.box == null || (this.box.getHeight() != region.getHeight())) {
+		if (this.box == null || (this.box.getHeight() != region.getHeight()) || (this.box.getWidth() != region.getWidth())) {
 			box = new net.minecraft.client.gui.components.EditBox(
 					Minecraft.getInstance().font,
 					region.getX(),
@@ -105,9 +106,15 @@ public class TextBox extends MinecraftBuiltinComponent implements Input {
 
 		box.setEditable(this.editable);
 		box.setMaxLength(this.maxLength);
-		box.setResponder(null);
-		box.setValue(this.value.peek());
-		box.setResponder(this.value::set);
+		box.setResponder(str -> {});
+		if (!box.getValue().equals(this.value.peek())) {
+			box.setValue(this.value.peek());
+		}
+		box.setResponder(s -> {
+			if (!Objects.equals(s, this.value.peek())) {
+				this.value.set(s);
+			}
+		});
 		return box;
 	}
 
