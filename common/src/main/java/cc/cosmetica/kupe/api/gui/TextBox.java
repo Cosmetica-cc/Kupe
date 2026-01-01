@@ -89,7 +89,7 @@ public class TextBox extends MinecraftBuiltinComponent implements Input {
 		/* NB this.minecraft.keyboardHandler.setSendRepeatsToGui(true); */
 
 		// for some reason resize is running when we click on the box?
-		if (this.box == null || (this.box.getHeight() != region.getHeight())) {
+		if (this.box == null || (this.box.getHeight() != region.getHeight()) || (this.box.getWidth() != region.getWidth())) {
 			box = new net.minecraft.client.gui.components.EditBox(
 					Minecraft.getInstance().font,
 					region.getX(),
