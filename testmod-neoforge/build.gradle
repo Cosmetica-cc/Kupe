@@ -4,19 +4,15 @@ plugins {
 
 architectury {
     platformSetupLoomIde()
-    forge()
+    neoForge()
 }
 
 loom {
     accessWidenerPath = project(":common").loom.accessWidenerPath
 
-    forge {
-        mixinConfig "testmod-common.mixins.json"
-    }
-
     mods {
         forge {
-            sourceSet project(":forge").sourceSets.main
+            sourceSet project(":neoforge").sourceSets.main
         }
     }
 }
@@ -28,13 +24,13 @@ configurations {
     }
     compileClasspath.extendsFrom common
     runtimeClasspath.extendsFrom common
-    developmentForge.extendsFrom common
+    developmentNeoForge.extendsFrom common
 }
 
 dependencies {
-    forge "net.minecraftforge:forge:${rootProject.forge_version}"
+    neoForge "net.neoforged:neoforge:${rootProject.neoforge_version}"
 
-    implementation(project(path: ":forge", configuration: "namedElements")) { transitive false }
+    implementation(project(path: ":neoforge", configuration: "namedElements")) { transitive false }
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     common(project(path: ":testmod-common", configuration: "namedElements")) { transitive false }
 }

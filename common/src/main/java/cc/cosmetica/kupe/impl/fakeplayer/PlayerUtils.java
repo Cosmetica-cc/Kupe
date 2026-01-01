@@ -23,10 +23,11 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.properties.Property;
-import com.mojang.util.UUIDTypeAdapter;
+import com.mojang.authlib.yggdrasil.ProfileResult;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
@@ -56,7 +57,7 @@ public class PlayerUtils {
         }
 
         // Fallback 1: own username
-        if (uuid.equals(UUIDTypeAdapter.fromString(Minecraft.getInstance().getUser().getUuid()))) {
+        if (uuid.equals(Minecraft.getInstance().getUser().getProfileId())) {
             return Text.literal(Minecraft.getInstance().getUser().getName());
         }
 
@@ -73,6 +74,11 @@ public class PlayerUtils {
         }
         public final ResourceLocation texture;
         public final boolean slim;
+
+        public Skin(PlayerSkin skin) {
+            this.texture = skin.texture();
+            this.slim = "slim".equals(skin.model().id());
+        }
     }
 
     /**
@@ -88,13 +94,7 @@ public class PlayerUtils {
         if (profile != null && profile.isPresent()) {
             // get texture
             Minecraft minecraft = Minecraft.getInstance();
-            Map<MinecraftProfileTexture.Type, MinecraftProfileTexture> properties = minecraft.getSkinManager().getInsecureSkinInformation(profile.get());
-            if (properties.containsKey(MinecraftProfileTexture.Type.SKIN)) {
-                MinecraftProfileTexture profileTexture = properties.get(MinecraftProfileTexture.Type.SKIN);
-                boolean slim = "slim".equals(profileTexture.getMetadata("model"));
-                ResourceLocation texture = minecraft.getSkinManager().registerTexture(properties.get(MinecraftProfileTexture.Type.SKIN), MinecraftProfileTexture.Type.SKIN);
-                return new Skin(texture, slim);
-            }
+            return new Skin(minecraft.getSkinManager().getInsecureSkin(profile.get()));
         }
 
         // Fallback 1: player info from server
@@ -102,7 +102,7 @@ public class PlayerUtils {
             PlayerInfo loadedProfile = Minecraft.getInstance().getConnection().getPlayerInfo(uuid);
 
             if (loadedProfile != null) {
-                return new Skin(loadedProfile.getSkinLocation(), "slim".equals(loadedProfile.getModelName()));
+                return new Skin(loadedProfile.getSkin());
             }
         }
 
@@ -133,9 +133,16 @@ public class PlayerUtils {
         if (profile != null && profile.isPresent()) {
             // get texture
             Minecraft minecraft = Minecraft.getInstance();
-            Map<MinecraftProfileTexture.Type, MinecraftProfileTexture> properties = minecraft.getSkinManager().getInsecureSkinInformation(profile.get());
-            if (properties.containsKey(type)) {
-                return minecraft.getSkinManager().registerTexture(properties.get(type), type);
+            PlayerSkin skin = minecraft.getSkinManager().getInsecureSkin(profile.get());
+            switch (type) {
+            case SKIN:
+                return skin.texture();
+            case CAPE:
+                return skin.capeTexture();
+            case ELYTRA:
+                return skin.elytraTexture();
+            default:
+                return null;
             }
         }
 
@@ -149,14 +156,21 @@ public class PlayerUtils {
 
             // look up new profile async
             CompletableFuture.runAsync(() -> {
-                GameProfile profile = new GameProfile(uuid, null);
-                profile = sessionService.fillProfileProperties(profile, true);
-                Property property = Iterables.getFirst(profile.getProperties().get("textures"), null);
-                if (property != null) {
-                    Objects.requireNonNull(profile.getName(), "Filled Game Profile is missing username?");
-                    map.put(uuid, Optional.of(profile));
-                } // else prefer fallback 1. Don't spam the session server.
-            }, Util.backgroundExecutor());
+                ProfileResult result = sessionService.fetchProfile(uuid, true);
+                if (result != null) {
+                    GameProfile profile = result.profile();
+
+                    Property property = Iterables.getFirst(profile.getProperties().get("textures"), null);
+                    if (property != null) {
+                        Objects.requireNonNull(profile.getName(), "Filled Game Profile is missing username?");
+                        map.put(uuid, Optional.of(profile));
+                    } // else prefer fallback 1. Don't spam the session server.
+                }
+            }, Util.backgroundExecutor())
+                    .exceptionally(ex -> {
+                        ex.printStackTrace();
+                        return null;
+                    });
         }
     }
 }

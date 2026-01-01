@@ -5,8 +5,9 @@
  * You should have received a copy of the CC0 Public Domain Dedication along with this software. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
  */
 
-package cc.cosmetica.kupe.testmod;
+package cc.cosmetica.kupe.testmod.forge;
 
+import cc.cosmetica.kupe.testmod.KupeTestInit;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;

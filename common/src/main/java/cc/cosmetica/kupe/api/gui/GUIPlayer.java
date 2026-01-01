@@ -79,8 +79,8 @@ public class GUIPlayer extends Component {
 		this.uuid = uuid;
 
 		this.renderer.skin = new PlayerUtils.Skin(
-				DefaultPlayerSkin.getDefaultSkin(uuid),
-				"slim".equals(DefaultPlayerSkin.getSkinModelName(uuid))
+				DefaultPlayerSkin.get(uuid).texture(),
+				"slim".equals(DefaultPlayerSkin.get(uuid).model().name())
 		);
 		// model parts shown
 		if (Minecraft.getInstance().level != null) {
@@ -90,7 +90,7 @@ public class GUIPlayer extends Component {
 						.filter(player::isModelPartShown)
 						.collect(Collectors.toSet());
 			}
-		} else if (uuid.equals(UUIDTypeAdapter.fromString(Minecraft.getInstance().getUser().getUuid()))) {
+		} else if (uuid.equals(Minecraft.getInstance().getUser().getProfileId())) {
 			// own settings
 			Options options = Minecraft.getInstance().options;
 			HashSet<PlayerModelPart> newShownParts = new HashSet<>();

@@ -1,0 +1,31 @@
+modLoader = "javafml"
+loaderVersion = "[1,)"
+#issueTrackerURL = ""
+license = "Apache 2.0"
+
+[[mods]]
+modId = "kupe"
+version = "${version}"
+displayName = "Kupe GUI"
+authors = "Valoeghese"
+description = '''
+Reactive cross-platform and cross-version GUI library. For all your navigation needs.
+'''
+#logoFile = ""
+
+[[dependencies.kupe]]
+modId = "neoforge"
+type = "required"
+versionRange = "[20.4,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.kupe]]
+modId = "minecraft"
+type = "required"
+versionRange = "[1.20.4,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[mixins]]
+config = "kupe-common.mixins.json"
