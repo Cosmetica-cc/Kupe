@@ -46,8 +46,9 @@ public class ElytraAttachment implements GUIPlayer.Attachment<ElytraProperties> 
 			MatrixStack stack = canvas.getStack();
 
 			stack.push();
-			stack.scale(2,2,2);
-			stack.translate(0.0, -24/32.0, 0.125/2);
+			// Not necessary on 1.21.4
+//			stack.scale(2,2,2);
+//			stack.translate(0.0, -24/32.0, 0.125/2);
 
 			RenderType renderType = configuration.translucent ? RenderType.entityTranslucent(configuration.texture)
 					: RenderType.armorCutoutNoCull(configuration.texture);

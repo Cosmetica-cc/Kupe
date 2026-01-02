@@ -64,6 +64,7 @@ public class CapeAttachment implements GUIPlayer.Attachment<GUIPlayer.CapeProper
 			stack.rotate(Vec3.XP, 6.0F + r / 2.0F + q, true);
 			stack.rotate(Vec3.ZP, s / 2.0F, true);
 			stack.rotate(Vec3.YP, 180.0F - s / 2.0F, true);
+			stack.scale(-1, 1, -1);
 			VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityTranslucent(configuration.getTexture().get()));
 			((PlayerCapeModelAccessor)((ExtendedPlayerModel) playerModel).getCape()).getCape().render(stack.getMinecraftStack(), vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY);
 			stack.pop();

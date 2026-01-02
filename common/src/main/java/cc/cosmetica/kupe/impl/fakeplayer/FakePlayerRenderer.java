@@ -114,22 +114,27 @@ public final class FakePlayerRenderer {
 
 		Objects.requireNonNull(this.skin, "No skin provided to Fake Player renderer!");
 
+		// InventoryScreen#renderEntityInInventoryFollowsMouse
 		float h = (float)Math.atan(lookX / 40.0F);
 		float l = (float)Math.atan(lookY / 40.0F);
 
+		Quaternionf zRotation = new Quaternionf(new AxisAngle4f((float)Math.toRadians(180.0F), ZP));
+		Quaternionf xRotation = new Quaternionf(new AxisAngle4f((float)Math.toRadians(l * 20.0F), XP));
+		zRotation.mul(xRotation);
+
+//		Vector3f vector3f = new Vector3f(0.0F, livingEntity.getBbHeight() / 2.0F + f * w, 0.0F);
+
+		// InventoryScreen#renderEntityInInventory
 		stack.push();
 		stack.translate(left, top, 1050.0D);
 		stack.scale(2.0F, 2.0F, -1.0F);
 
-		// view
-		PoseStack viewStack = new PoseStack();
-		viewStack.translate(0.0D, 0.0D, 1000.0D);
-		viewStack.scale(extraScale, extraScale, extraScale);
-		Quaternionf zRotation = new Quaternionf(new AxisAngle4f((float)Math.toRadians(180.0F), ZP));
-		Quaternionf xRotation = new Quaternionf(new AxisAngle4f((float)Math.toRadians(l * 20.0F), XP));
-		zRotation.mul(xRotation);
-		viewStack.mulPose(zRotation);
+		stack.translate(0.0D, 0.0D, 1000.0D);
+		stack.scale(extraScale, extraScale, extraScale);
+		stack.getMinecraftStack().mulPose(zRotation);
 
+		// -------------------------------------------------//
+		// InventoryScreen#renderEntityInInventoryFollowsMouse
 		float rotationBody = 180.0F + h * 20.0F;
 		float rotationMain = 180.0F + h * 40.0F;
 
@@ -138,15 +143,17 @@ public final class FakePlayerRenderer {
 		player.pose.yRotHead += rotationMain;// yRotHead = yRot = getYRot(0);
 		float xRotOld = player.pose.xRot;
 		player.pose.xRot += -l * 20.0F;
+		// -------------------------------------------------//
+
 		Lighting.setupForEntityInInventory();
 
 		xRotation.conjugate();
-		this.cameraOrientation = xRotation;
+		this.cameraOrientation = xRotation; // if (quaternionf2 != null) entityRenderDispatcher.overrideCameraOrientation
 		MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
 
 //		Minecraft.getInstance().getEntityRenderDispatcher().setRenderShadow(false);
 		// Above 1.16.5 we don't need to do an extra step here because I do at the start of the method
-		this.render(player, context, viewStack, bufferSource, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, 15728880);
+		this.render(player, context, stack.getMinecraftStack(), bufferSource, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, 15728880);
 		bufferSource.endBatch();
 //		Minecraft.getInstance().getEntityRenderDispatcher().setRenderShadow(true);
 
@@ -377,16 +384,16 @@ public final class FakePlayerRenderer {
 		ModelPart currentModel;
 
 //		if (model.riding) {
-			currentModel = model.rightArm;
-			currentModel.xRot += -0.62831855F;
-			currentModel = model.leftArm;
-			currentModel.xRot += -0.62831855F;
-			model.rightLeg.xRot = -1.4137167F;
-			model.rightLeg.yRot = 0.31415927F;
-			model.rightLeg.zRot = 0.07853982F;
-			model.leftLeg.xRot = -1.4137167F;
-			model.leftLeg.yRot = -0.31415927F;
-			model.leftLeg.zRot = -0.07853982F;
+//			currentModel = model.rightArm;
+//			currentModel.xRot += -0.62831855F;
+//			currentModel = model.leftArm;
+//			currentModel.xRot += -0.62831855F;
+//			model.rightLeg.xRot = -1.4137167F;
+//			model.rightLeg.yRot = 0.31415927F;
+//			model.rightLeg.zRot = 0.07853982F;
+//			model.leftLeg.xRot = -1.4137167F;
+//			model.leftLeg.yRot = -0.31415927F;
+//			model.leftLeg.zRot = -0.07853982F;
 //		}
 
 		model.rightArm.yRot = 0.0F;
@@ -460,13 +467,19 @@ public final class FakePlayerRenderer {
 //			model.rightLeg.xRot = Mth.lerp(model.swimAmount, model.rightLeg.xRot, 0.3F * Mth.cos(f * 0.33333334F));
 //		}
 
-		model.hat.copyFrom(model.head);
+//		model.hat.copyFrom(model.head);
+		model.hat.resetPose();
+		model.leftPants.resetPose();
+		model.leftSleeve.resetPose();
+		model.rightPants.resetPose();
+		model.rightSleeve.resetPose();
+		model.jacket.resetPose();
 
-		model.leftPants.copyFrom(model.leftLeg);
-		model.rightPants.copyFrom(model.rightLeg);
-		model.leftSleeve.copyFrom(model.leftArm);
-		model.rightSleeve.copyFrom(model.rightArm);
-		model.jacket.copyFrom(model.body);
+//		model.leftPants.copyFrom(model.leftLeg);
+//		model.rightPants.copyFrom(model.rightLeg);
+//		model.leftSleeve.copyFrom(model.leftArm);
+//		model.rightSleeve.copyFrom(model.rightArm);
+//		model.jacket.copyFrom(model.body);
 
 		ModelPart cloak = ((PlayerCapeModelAccessor) ((ExtendedPlayerModel) model).getCape()).getCape();
 
