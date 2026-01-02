@@ -249,28 +249,35 @@ public class PoseCanvas implements Canvas, ModernCanvas {
 		FormattedCharSequence sequence = text.toMinecraftComponent().getVisualOrderText();
 		x -= this.minecraft.font.width(sequence) / 2;
 
-		this.drawCharSequence(
+		this.drawCharSequenceInternal(
 				this.minecraft.font,
 				text.toMinecraftComponent().getVisualOrderText(),
 				x,
 				y,
-				colour
+				colour,
+				true
 		);
 	}
 
 	@Override
 	public void drawText(Text text, int x, int y, int colour) {
-		this.drawCharSequence(
+		this.drawCharSequenceInternal(
 				this.minecraft.font,
 				text.toMinecraftComponent().getVisualOrderText(),
 				x,
 				y,
-				colour
+				colour,
+				true
 		);
 	}
 
 	@Override
 	public void drawCharSequence(Font font, FormattedCharSequence sequence, int x, int y, int colour) {
+		// for consistency with older GUI versions. I think shadow on everything is visually nicer on new minecraft in many case, though.
+		this.drawCharSequenceInternal(font, sequence, x, y, colour, false);
+	}
+
+	private void drawCharSequenceInternal(Font font, FormattedCharSequence sequence, int x, int y, int colour, boolean shadow) {
 		GuiGraphicsAccessor graphics = (GuiGraphicsAccessor) this.graphics;
 		GuiRenderState guiRenderState = graphics.getGuiRenderState();
 		colour = addAlpha(colour, this.alpha);
@@ -283,7 +290,7 @@ public class PoseCanvas implements Canvas, ModernCanvas {
 				y,
 				colour,
 				0,
-				true,
+				shadow,
 				this.scissorStack.getScissorRegion().orElse(null)
 		));
 	}
