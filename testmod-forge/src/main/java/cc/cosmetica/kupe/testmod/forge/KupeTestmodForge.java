@@ -8,17 +8,15 @@
 package cc.cosmetica.kupe.testmod.forge;
 
 import cc.cosmetica.kupe.testmod.KupeTestInit;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 
 @Mod("kupe_test")
 public class KupeTestmodForge {
 	public KupeTestmodForge() {
-		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onClientSetup);
-	}
-
-	private void onClientSetup(FMLClientSetupEvent event) {
-		KupeTestInit.init();
+		if (FMLEnvironment.dist == Dist.CLIENT) {
+			KupeTestInit.init();
+		}
 	}
 }
