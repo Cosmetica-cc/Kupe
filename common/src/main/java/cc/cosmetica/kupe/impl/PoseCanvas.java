@@ -29,6 +29,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.render.TextureSetup;
+import net.minecraft.client.gui.render.state.BlitRenderState;
 import net.minecraft.client.gui.render.state.ColoredRectangleRenderState;
 import net.minecraft.client.gui.render.state.GuiRenderState;
 import net.minecraft.client.gui.render.state.GuiTextRenderState;
@@ -347,7 +348,7 @@ public class PoseCanvas implements Canvas, ModernCanvas {
 		int colour = packColour(r, g, b, this.alpha);
 
 		graphics.getGuiRenderState().submitGuiElement(new ColoredRectangleRenderState(
-				RenderPipelines.GUI_TEXTURED,
+				RenderPipelines.GUI,
 				TextureSetup.noTexture(),
 				this.stack.get(new Matrix3x2f()),
 				x0, y0,
@@ -366,13 +367,16 @@ public class PoseCanvas implements Canvas, ModernCanvas {
 		this.setTexture(texture);
 		assert this.texture != null;
 
-		graphics.getGuiRenderState().submitGuiElement(new ColoredRectangleRenderState(
+		graphics.getGuiRenderState().submitGuiElement(new BlitRenderState(
 				RenderPipelines.GUI_TEXTURED,
 				TextureSetup.singleTexture(this.texture),
 				this.stack.get(new Matrix3x2f()),
 				x0, y0,
 				x0 + width, y0 + height,
-				colour,
+				0,
+				1,
+				0,
+				1,
 				colour,
 				this.scissorStack.getScissorRegion().orElse(null),
 				new ScreenRectangle(x0, y0, width, height)
@@ -395,44 +399,39 @@ public class PoseCanvas implements Canvas, ModernCanvas {
 	@Override
 	public void renderFakePlayer(GUIPlayer player, FakePlayerRenderer renderer, Region region, int left, int top, float extraScale, float lookX, float lookY) {
 		// InventoryScreen#renderEntityInInventoryFollowsMouse
-		float h = (float)Math.atan(lookX / 40.0F);
 		float l = (float)Math.atan(lookY / 40.0F);
 
 		Quaternionf zRotation = new Quaternionf(new AxisAngle4f((float)Math.toRadians(180.0F), ZP));
 		Quaternionf xRotation = new Quaternionf(new AxisAngle4f((float)Math.toRadians(l * 20.0F), XP));
 		zRotation.mul(xRotation);
 
-		// -------------------------------------------------//
-		// InventoryScreen#renderEntityInInventoryFollowsMouse
-		float rotationBody = 180.0F + h * 20.0F;
-		float rotationMain = 180.0F + h * 40.0F;
-
-		// rotate player to face lookX, lookY
-		player.pose.yRotBody += rotationBody;
-		player.pose.yRotHead += rotationMain;// yRotHead = yRot = getYRot(0);
-		float xRotOld = player.pose.xRot;
-		player.pose.xRot += -l * 20.0F;
-		// -------------------------------------------------//
-
 		xRotation.conjugate();
 
 		// render
 		FakePlayerGuiRenderer.State state = new FakePlayerGuiRenderer.State(
-				renderer, player, extraScale, xRotation, zRotation, this.context, left, top,
-				region.getX(), region.getY(), region.getEndX(), region.getEndY(), 1.0f, this.scissorStack.getScissorRegion().orElse(null),
+				renderer, player, extraScale, xRotation, zRotation, this.context, left, top, lookX, lookY,
+				region, 1.0f, this.scissorStack.getScissorRegion().orElse(null),
 				new ScreenRectangle(region.getX(), region.getY(), region.getWidth(), region.getHeight()));
 		GuiGraphicsAccessor graphics = (GuiGraphicsAccessor) this.graphics;
 		graphics.getGuiRenderState().submitPicturesInPictureState(state);
-
-		// restore
-		player.pose.yRotBody -= rotationBody;
-		player.pose.yRotHead -= rotationMain;
-		player.pose.xRot = xRotOld;
 	}
 
 	@Override
 	public void renderMinecraftComponent(net.minecraft.client.gui.components.Renderable component, int mouseX, int mouseY) {
+//		ScissorStack stack = this.scissorStack;
+		Optional<Region> rect = this.getScissor();
+		if (rect.isPresent()) {
+			Region region = rect.get();
+//			this.graphics.enableScissor(region.left(), region.top(), region.right(), region.bottom());
+			this.graphics.enableScissor(region.getX(), region.getY(), region.getEndX(), region.getEndY());
+		}
+//		if (stack.prevNode != null) {
+//			mouseY += (int)stack.scrollY;
+//		}
 		component.render(this.graphics, mouseX, mouseY, this.tickDelta);
+		if (rect.isPresent()) {
+			this.graphics.disableScissor();
+		}
 	}
 
 	// Allows us to easily change current region without wasting time/memory
@@ -457,20 +456,12 @@ public class PoseCanvas implements Canvas, ModernCanvas {
 			if (this.region == null) {
 				return Optional.empty();
 			}
-//			double guiScale = Minecraft.getInstance().getWindow().getGuiScale();
-			double windowHeight = Minecraft.getInstance().getWindow().getGuiScaledHeight();
-
-//			return new ScreenRectangle(
-//					(int) (region.getX() * guiScale),
-//					(int) ((windowHeight - (region.getY()+region.getHeight())) * guiScale), // lower left corner in opengl coordinate system
-//					(int) (region.getWidth() * guiScale),
-//					(int) (region.getHeight() * guiScale)
-//			);
+			Region region = this.region;
 
 			return Optional.of(
 					new ScreenRectangle(
 						region.getX(),
-						(int) (windowHeight - (region.getY()+region.getHeight())),
+						region.getY(),
 						region.getWidth(),
 						region.getHeight())
 			);

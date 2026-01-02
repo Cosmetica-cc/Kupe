@@ -18,6 +18,7 @@ package cc.cosmetica.kupe.impl.fakeplayer;
 
 import cc.cosmetica.kupe.api.Context;
 import cc.cosmetica.kupe.api.gui.GUIPlayer;
+import cc.cosmetica.kupe.api.maths.Region;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
@@ -46,12 +47,29 @@ public class FakePlayerGuiRenderer extends PictureInPictureRenderer<FakePlayerGu
 
         // InventoryScreen#renderEntityInInventory
         stack.pushPose();
-        stack.translate(arg.x0, arg.y0, 1050.0D);
-        stack.scale(2.0F, 2.0F, -1.0F);
+        // not sure if this exactly lines up with previous versions but it fits within the box as I rotate it around.
+        stack.translate(0, (float) (arg.y1 - arg.y0) /2 + 10, 0);
+        stack.scale(2.0F, 2.0F, 2.0F);
 
-        stack.translate(0.0D, 0.0D, 1000.0D);
+//        stack.translate(0.0D, 0.0D, 1000.0D);
         stack.scale(arg.extraScale, arg.extraScale, arg.extraScale);
         stack.mulPose(arg.zRotation);
+
+        final float h = (float)Math.atan(arg.lookX / 40.0F);
+        final float l = (float)Math.atan(arg.lookY / 40.0F);
+        final GUIPlayer player = arg.player;
+
+        // -------------------------------------------------//
+        // InventoryScreen#renderEntityInInventoryFollowsMouse
+        float rotationBody = 180.0F + h * 20.0F;
+        float rotationMain = 180.0F + h * 40.0F;
+
+        // rotate player to face lookX, lookY
+        player.pose.yRotBody += rotationBody;
+        player.pose.yRotHead += rotationMain;// yRotHead = yRot = getYRot(0);
+        float xRotOld = player.pose.xRot;
+        player.pose.xRot += -l * 20.0F;
+        // -------------------------------------------------//
 
         arg.renderer.renderFakePlayer(
                 arg.player,
@@ -66,6 +84,13 @@ public class FakePlayerGuiRenderer extends PictureInPictureRenderer<FakePlayerGu
                 1.0F,
                 15728880
         );
+
+        // restore
+        player.pose.yRotBody -= rotationBody;
+        player.pose.yRotHead -= rotationMain;
+        player.pose.xRot = xRotOld;
+
+        stack.popPose();
     }
 
     @Override
@@ -79,16 +104,19 @@ public class FakePlayerGuiRenderer extends PictureInPictureRenderer<FakePlayerGu
     }
 
     public static class State implements PictureInPictureRenderState {
-        public State(FakePlayerRenderer renderer, GUIPlayer player, float extraScale, Quaternionf cameraOrientation, Quaternionf zRotation, Context context, int left, int top,
-                     int x0, int x1, int y0, int y1, float scale, @Nullable ScreenRectangle scissorArea, @Nullable ScreenRectangle bounds) {
+        public State(FakePlayerRenderer renderer, GUIPlayer player, float extraScale, Quaternionf cameraOrientation, Quaternionf zRotation,
+                     Context context, int left, int top, float lookX, float lookY,
+                     Region region, float scale, @Nullable ScreenRectangle scissorArea, @Nullable ScreenRectangle bounds) {
             // PictureInPicture
-            this.x0 = x0;
-            this.x1 = x1;
-            this.y0 = y0;
-            this.y1 = y1;
+            this.x0 = region.getX();
+            this.x1 = region.getEndX();
+            this.y0 = region.getY();
+            this.y1 = region.getEndY();
             this.scale = scale;
             this.scissorArea = scissorArea;
             this.bounds = bounds;
+            this.lookX = lookX;
+            this.lookY = lookY;
             // FakePlayerRenderer
             this.left = left;
             this.top = top;
@@ -101,9 +129,9 @@ public class FakePlayerGuiRenderer extends PictureInPictureRenderer<FakePlayerGu
         }
 
         private final int left, top, x0, x1, y0, y1;
-        private final float scale, extraScale;
-        private @Nullable ScreenRectangle scissorArea;
-        private @Nullable ScreenRectangle bounds;
+        private final float scale, extraScale, lookX, lookY;
+        private final @Nullable ScreenRectangle scissorArea;
+        private final @Nullable ScreenRectangle bounds;
         private final FakePlayerRenderer renderer;
         private final GUIPlayer player;
         private final Context context;
@@ -111,17 +139,17 @@ public class FakePlayerGuiRenderer extends PictureInPictureRenderer<FakePlayerGu
 
         @Override
         public int x0() {
-            return this.x0;
+            return this.x0 - 5;
         }
 
         @Override
         public int x1() {
-            return this.x1;
+            return this.x1 + 5;
         }
 
         @Override
         public int y0() {
-            return this.y0;
+            return this.y0 - 30; // fit nametag in scissor
         }
 
         @Override

@@ -87,11 +87,7 @@ public class Button extends MinecraftBuiltinComponent implements Input {
 	// Minecraft button uses render(mouseX, mouseY) for highlight
 	@Override
 	public void paint(Canvas canvas, Region region, int mouseX, int mouseY) {
-		if (this.isOccluding(region, canvas.getScissor().orElse(region), mouseX, mouseY, false)) {
-			super.paint(canvas, region, mouseX, mouseY);
-		} else {
-			super.paint(canvas, region, -1000, mouseY);
-		}
+		super.paint(canvas, region, mouseX, mouseY);
 	}
 
 	@Override

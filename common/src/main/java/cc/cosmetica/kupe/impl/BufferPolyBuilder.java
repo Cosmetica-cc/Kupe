@@ -36,13 +36,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BufferPolyBuilder implements PolyBuilder {
-	private BufferPolyBuilder(GuiGraphicsAccessor graphics, VertexFormat.Mode shape, TextureSetup textureSetup, float alpha, @Nullable Matrix3x2f matrix4f, @Nullable ScreenRectangle scissor) {
+	private BufferPolyBuilder(GuiGraphicsAccessor graphics, VertexFormat.Mode shape, TextureSetup textureSetup, float alpha, @Nullable Matrix3x2f matrix4f, @Nullable ScreenRectangle scissor, int uvFlags) {
 		this.graphics = graphics;
 		this.triangles = shape == VertexFormat.Mode.TRIANGLES;
 		this.alpha = alpha;
 		this.matrix = matrix4f;
 		this.textureSetup = textureSetup;
 		this.scissor = scissor;
+		this.uvFlags = uvFlags;
 	}
 
 	private final GuiGraphicsAccessor graphics;
@@ -51,10 +52,13 @@ public class BufferPolyBuilder implements PolyBuilder {
 	private final Matrix3x2f matrix;
 	private final TextureSetup textureSetup;
 	private final ScreenRectangle scissor;
+	private final int uvFlags;
 
 	private final List<Vertex> vertices = new ArrayList<>();
 	private Vertex current;
 	private boolean appliedAlpha;
+
+	private float x0, y0, x1, y1;
 
 	@Override
 	public PolyBuilder vertex(double x, double y, double z) {
@@ -63,6 +67,23 @@ public class BufferPolyBuilder implements PolyBuilder {
 		}
 
 		this.current = new Vertex(this.matrix, (float)x, (float)y, (float)z);
+		if (this.vertices.isEmpty()) {
+			this.x0 = this.x1 = this.current.x;
+			this.y0 = this.y1 = this.current.y;
+		} else {
+			if (this.current.x < x0) {
+				this.x0 = this.current.x;
+			} else if (this.current.x > x1) {
+				this.x1 = this.current.x;
+			}
+
+			if (this.current.y < y0) {
+				this.y0 = this.current.y;
+			} else if (this.current.y > y1) {
+				this.y1 = this.current.y;
+			}
+		}
+
 		this.appliedAlpha = false;
 		return this;
 	}
@@ -109,11 +130,12 @@ public class BufferPolyBuilder implements PolyBuilder {
 		}
 
 		GuiRenderState state = this.graphics.getGuiRenderState();
-		state.submitGuiElement(new BufferPolyVertexList(this));
+		state.submitGuiElement(new BufferPolyVertexList(this, (this.uvFlags & 1) == 1, (this.uvFlags & 2) == 2));
 	}
 
 	public static BufferPolyBuilder create(GuiGraphicsAccessor graphics, VertexFormat.Mode shape, Mode mode, @Nullable GpuTextureView texture, float alpha, @Nullable Matrix3x2f matrix4f, @Nullable ScreenRectangle scissor) {
 		TextureSetup setup = TextureSetup.noTexture();
+		int textureUV = 0;
 
 		switch (mode) {
 		case POSITION:
@@ -125,18 +147,21 @@ public class BufferPolyBuilder implements PolyBuilder {
 				throw new IllegalArgumentException("Building polygons with texture but no texture set");
 			}
 			setup = TextureSetup.singleTexture(texture);
+			textureUV = 1;
 			break;
 		case POSITION_COLOUR_LIGHTMAP:
 			setup = TextureSetup.singleTextureWithLightmap(null);
+			textureUV = 2;
 			break;
 		case POSITION_COLOUR_TEXTURE_LIGHTMAP:
 			if (texture == null) {
 				throw new IllegalArgumentException("Building polygons with texture but no texture set");
 			}
 			setup = TextureSetup.singleTextureWithLightmap(texture);
+			textureUV = 3;
 			break;
         }
-		return new BufferPolyBuilder(graphics, shape, setup, alpha, matrix4f, scissor);
+		return new BufferPolyBuilder(graphics, shape, setup, alpha, matrix4f, scissor, textureUV);
 	}
 
 	private static class Vertex {
@@ -145,9 +170,9 @@ public class BufferPolyBuilder implements PolyBuilder {
 				this.x = x;
 				this.y = y;
 			} else {
-				Vector2f corner = matrix.transformPosition(x, y, new Vector2f());
-				this.x = corner.x;
-				this.y = corner.y;
+				Vector2f transformed = matrix.transformPosition(x, y, new Vector2f());
+				this.x = transformed.x;
+				this.y = transformed.y;
 			}
 			this.z = z;
 		}
@@ -158,33 +183,61 @@ public class BufferPolyBuilder implements PolyBuilder {
 		int colour = 0xFFFFFFFF;
 		float u;
 		float v;
-		float u2;
-		float v2;
+		int u2;
+		int v2;
 	}
 
 	private static class BufferPolyVertexList implements GuiElementRenderState {
-		BufferPolyVertexList(BufferPolyBuilder builder) {
+		BufferPolyVertexList(BufferPolyBuilder builder, boolean texture, boolean lightmap) {
 			this.vertices = builder.vertices;
 			this.textureSetup = builder.textureSetup;
 			this.scissor = builder.scissor;
+			this.texture = texture;
+			this.lightmap = lightmap;
+			this.bounds = new ScreenRectangle((int) builder.x0, (int) builder.y0, (int) (builder.x1 - builder.x0), (int) (builder.y0 - builder.y1));
 		}
 
 		private final @NotNull List<Vertex> vertices;
 		private final @NotNull TextureSetup textureSetup;
 		private final @Nullable ScreenRectangle scissor;
+		private final ScreenRectangle bounds;
+		private final boolean texture, lightmap;
 
 		@Override
 		public void buildVertices(VertexConsumer consumer, float z) {
-			for (Vertex vertex : this.vertices) {
-				consumer.addVertex(vertex.x, vertex.y, z)
-						.setColor(vertex.colour)
-						.setUv(vertex.u, vertex.v);
+			if (texture) {
+				if (lightmap) {
+					for (Vertex vertex : this.vertices) {
+						consumer.addVertex(vertex.x, vertex.y, z)
+								.setColor(vertex.colour)
+								.setUv(vertex.u, vertex.v)
+								.setUv2(vertex.u2, vertex.v2);
+					}
+				} else {
+					for (Vertex vertex : this.vertices) {
+						consumer.addVertex(vertex.x, vertex.y, z)
+								.setColor(vertex.colour)
+								.setUv(vertex.u, vertex.v);
+					}
+				}
+			} else if (lightmap) {
+				for (Vertex vertex : this.vertices) {
+					consumer.addVertex(vertex.x, vertex.y, z)
+							.setColor(vertex.colour)
+							.setUv2(vertex.u2, vertex.v2);
+				}
+			} else {
+				for (Vertex vertex : this.vertices) {
+					consumer.addVertex(vertex.x, vertex.y, z)
+							.setColor(vertex.colour);
+				}
 			}
 		}
 
 		@Override
 		public RenderPipeline pipeline() {
-			return RenderPipelines.GUI_TEXTURED;
+			// FIXME handle lightmap
+			return this.texture ? RenderPipelines.GUI_TEXTURED : RenderPipelines.GUI;
 		}
 
 		@Override
@@ -199,7 +252,7 @@ public class BufferPolyBuilder implements PolyBuilder {
 
 		@Override
 		public @Nullable ScreenRectangle bounds() {
-			return null;
+			return this.bounds;
 		}
 	}
 }
