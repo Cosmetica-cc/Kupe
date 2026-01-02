@@ -7,9 +7,9 @@
     "AbstractWidgetMixin",
     "Vec3Mixin",
     "fakeplayer.ElytraModelAccessor",
-    "fakeplayer.HumanoidModelAccessor",
+    "fakeplayer.EntityRendererProviderAccessor",
     "fakeplayer.MinecraftMixin",
-    "fakeplayer.PlayerModelAccessor"
+    "fakeplayer.PlayerCapeModelAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -41,7 +41,7 @@ public class ElytraAttachment implements GUIPlayer.Attachment<ElytraProperties> 
 	@Override
 	public void render(GUIPlayer component, PlayerModel model, GUIPlayer.Posture posture, Canvas canvas, ElytraProperties configuration, Quaternionf cameraOrientation, MultiBufferSource bufferSource, int packedLight) {
 		if (model instanceof ExtendedPlayerModel) {
-			ElytraModel<?> elytraModel = ((ExtendedPlayerModel<?>) model).getElytra();
+			ElytraModel elytraModel = ((ExtendedPlayerModel) model).getElytra();
 
 			MatrixStack stack = canvas.getStack();
 

@@ -22,11 +22,10 @@ import cc.cosmetica.kupe.api.Context;
 import cc.cosmetica.kupe.api.MatrixStack;
 import cc.cosmetica.kupe.api.gui.GUIPlayer;
 import cc.cosmetica.kupe.impl.ExtendedPlayerModel;
-import cc.cosmetica.kupe.impl.KupeMatrix4fStack;
 import cc.cosmetica.kupe.impl.KupeStack;
 import cc.cosmetica.kupe.impl.PoseCanvas;
-import cc.cosmetica.kupe.mixin.fakeplayer.HumanoidModelAccessor;
-import cc.cosmetica.kupe.mixin.fakeplayer.PlayerModelAccessor;
+import cc.cosmetica.kupe.mixin.fakeplayer.EntityRendererProviderAccessor;
+import cc.cosmetica.kupe.mixin.fakeplayer.PlayerCapeModelAccessor;
 import com.google.common.collect.Sets;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -38,16 +37,13 @@ import net.minecraft.ReportedException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.model.AnimationUtils;
-import net.minecraft.client.model.ElytraModel;
-import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.*;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
@@ -69,7 +65,7 @@ import java.util.*;
 public final class FakePlayerRenderer {
 	// Lazy Model Loading
 	// Important on newer mc versions
-	private PlayerModel<AbstractClientPlayer> model;
+	private PlayerModel model;
 	private boolean slimModel;
 
 	private boolean lazyLoadModel() {
@@ -77,16 +73,18 @@ public final class FakePlayerRenderer {
 			Minecraft minecraft = Minecraft.getInstance();
 			var context = new EntityRendererProvider.Context(
 					minecraft.getEntityRenderDispatcher(),
-					minecraft.getItemRenderer(),
+					minecraft.getItemModelResolver(),
+					minecraft.getMapRenderer(),
 					minecraft.getBlockRenderer(),
-					minecraft.gameRenderer.itemInHandRenderer,
 					minecraft.getResourceManager(),
 					minecraft.getEntityModels(),
+					((EntityRendererProviderAccessor) minecraft.getEntityRenderDispatcher()).getEquipmentAssets(),
 					minecraft.font);
-			ElytraModel<AbstractClientPlayer> elytraModel = new ElytraModel<>(context.bakeLayer(ModelLayers.ELYTRA));
+			ElytraModel elytraModel = new ElytraModel(context.bakeLayer(ModelLayers.ELYTRA));
+			PlayerCapeModel<PlayerRenderState> capeModel = new PlayerCapeModel<>(context.bakeLayer(ModelLayers.PLAYER_CAPE));
 
 			this.slimModel = this.skin.slim;
-			this.model = new ExtendedPlayerModel<>(context.bakeLayer(this.slimModel ? ModelLayers.PLAYER_SLIM : ModelLayers.PLAYER), elytraModel, this.slimModel);
+			this.model = new ExtendedPlayerModel(context.bakeLayer(this.slimModel ? ModelLayers.PLAYER_SLIM : ModelLayers.PLAYER), elytraModel, capeModel, this.slimModel);
 		}
 
 		return true;
@@ -108,7 +106,7 @@ public final class FakePlayerRenderer {
 	private static final Vector3f XP = new Vector3f(1, 0, 0);
 	private static final Vector3f ZP = new Vector3f(0, 0, 1);
 
-	public void render(GUIPlayer player, Context context, int left, int top, float extraScale, float lookX, float lookY) {
+	public void render(GUIPlayer player, MatrixStack stack, Context context, int left, int top, float extraScale, float lookX, float lookY) {
 		// lazy load model (important on newer mc versions)
 		if (!this.lazyLoadModel()) {
 			return;
@@ -118,12 +116,10 @@ public final class FakePlayerRenderer {
 
 		float h = (float)Math.atan(lookX / 40.0F);
 		float l = (float)Math.atan(lookY / 40.0F);
-		MatrixStack stack = new KupeMatrix4fStack(RenderSystem.getModelViewStack());
 
 		stack.push();
 		stack.translate(left, top, 1050.0D);
 		stack.scale(2.0F, 2.0F, -1.0F);
-		RenderSystem.applyModelViewMatrix();
 
 		// view
 		PoseStack viewStack = new PoseStack();
@@ -148,11 +144,11 @@ public final class FakePlayerRenderer {
 		this.cameraOrientation = xRotation;
 		MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
 
-		RenderSystem.runAsFancy(() -> {
-			// Above 1.16.5 we don't need to do an extra step here because I do at the start of the method
-			this.render(player, context, viewStack, bufferSource, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, 15728880);
-		});
+//		Minecraft.getInstance().getEntityRenderDispatcher().setRenderShadow(false);
+		// Above 1.16.5 we don't need to do an extra step here because I do at the start of the method
+		this.render(player, context, viewStack, bufferSource, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, 15728880);
 		bufferSource.endBatch();
+//		Minecraft.getInstance().getEntityRenderDispatcher().setRenderShadow(true);
 
 		// restore
 		player.pose.yRotBody -= rotationBody;
@@ -160,7 +156,6 @@ public final class FakePlayerRenderer {
 		player.pose.xRot = xRotOld;
 
 		stack.pop();
-		RenderSystem.applyModelViewMatrix();
 		Lighting.setupFor3DItems();
 	}
 
@@ -207,22 +202,25 @@ public final class FakePlayerRenderer {
 		playerModel.rightPants.visible = this.shownParts.contains(PlayerModelPart.RIGHT_PANTS_LEG);
 		playerModel.leftSleeve.visible = this.shownParts.contains(PlayerModelPart.LEFT_SLEEVE);
 		playerModel.rightSleeve.visible = this.shownParts.contains(PlayerModelPart.RIGHT_SLEEVE);
-		playerModel.crouching = posture.sneaking;
+	}
 
-		playerModel.rightArmPose = posture.leftArmRaised ? HumanoidModel.ArmPose.ITEM : HumanoidModel.ArmPose.EMPTY;
-		playerModel.leftArmPose = posture.rightArmRaised ? HumanoidModel.ArmPose.ITEM : HumanoidModel.ArmPose.EMPTY;
+	private ArmPostures createArmPostures(GUIPlayer.Posture pose) {
+		HumanoidModel.ArmPose leftArmPose = pose.leftArmRaised  ? HumanoidModel.ArmPose.ITEM : HumanoidModel.ArmPose.EMPTY;
+		HumanoidModel.ArmPose rightArmPose = pose.rightArmRaised ? HumanoidModel.ArmPose.ITEM : HumanoidModel.ArmPose.EMPTY;
+		return new ArmPostures(leftArmPose, rightArmPose);
 	}
 
 	// LivingEntityRenderer#render
 	private void drawLivingEntity(GUIPlayer player, Context context, float rotation, float delta, PoseStack stack, MultiBufferSource bufferSource, int light) {
 		stack.pushPose();
-		PlayerModel<AbstractClientPlayer> model = this.model;
+		PlayerModel model = this.model;
 
 		GUIPlayer.Posture posture = player.pose;
 
-		model.attackTime = 0;
-		model.riding = false;
-		model.young = false;
+//		model.attackTime = 0;
+//		model.riding = false;
+//		model.young = false;
+		ArmPostures armPostures = this.createArmPostures(player.pose);
 
 		float yRotBody = posture.yRotBody; //player.getYRotBody(delta);
 		float yRotHead = posture.yRotHead; //player.getYRotHead(delta);
@@ -251,7 +249,8 @@ public final class FakePlayerRenderer {
 		}
 
 		//model.prepareMobModel(player, o, n, delta); only does swim stuff, not necessary
-		this.modelSetupAnim(player.pose.sneaking, player.pose.isLeftHanded, model, animationPosition, animationSpeed, bob, yRotDiff, xRot);
+		// TODO: isLeftHanded is no longer needed as arm positions are provided independently.
+		this.modelSetupAnim(posture, armPostures, player.pose.sneaking, player.pose.isLeftHanded, model, animationPosition, animationSpeed, bob, yRotDiff, xRot);
 
 		RenderType renderType = this.getRenderType(this.renderMode);
 
@@ -345,14 +344,14 @@ public final class FakePlayerRenderer {
 		}
 	}
 
-	private void modelSetupAnim(boolean sneaking, boolean leftHanded, PlayerModel<AbstractClientPlayer> model, float f, float g, float bob, float yRotDiff, float xRot) {
+	private void modelSetupAnim(GUIPlayer.Posture pose, ArmPostures armPostures, boolean sneaking, boolean leftHanded, PlayerModel model, float f, float g, float bob, float yRotDiff, float xRot) {
 		model.head.yRot = yRotDiff * 0.017453292F;
 
-		if (model.swimAmount > 0.0F) {
-			model.head.xRot = ((HumanoidModelAccessor) model).invokeRotlerpRad(model.swimAmount, model.head.xRot, xRot * 0.017453292F);
-		} else {
-			model.head.xRot = xRot * 0.017453292F;
-		}
+//		if (model.swimAmount > 0.0F) {
+//			model.head.xRot = ((HumanoidModelAccessor) model).invokeRotlerpRad(model.swimAmount, model.head.xRot, xRot * 0.017453292F);
+//		} else {
+		model.head.xRot = xRot * 0.017453292F;
+//		}
 
 		model.body.yRot = 0.0F;
 		model.rightArm.z = 0.0F;
@@ -377,7 +376,7 @@ public final class FakePlayerRenderer {
 		model.leftLeg.zRot = 0.0F;
 		ModelPart currentModel;
 
-		if (model.riding) {
+//		if (model.riding) {
 			currentModel = model.rightArm;
 			currentModel.xRot += -0.62831855F;
 			currentModel = model.leftArm;
@@ -388,24 +387,17 @@ public final class FakePlayerRenderer {
 			model.leftLeg.xRot = -1.4137167F;
 			model.leftLeg.yRot = -0.31415927F;
 			model.leftLeg.zRot = -0.07853982F;
-		}
+//		}
 
 		model.rightArm.yRot = 0.0F;
 		model.leftArm.yRot = 0.0F;
 		boolean rightHanded = !leftHanded;
 		boolean bl4;
 
-		bl4 = rightHanded ? model.leftArmPose.isTwoHanded() : model.rightArmPose.isTwoHanded();
+		poseLeftArm(model, armPostures.leftArmPose);
+		poseRightArm(model, armPostures.rightArmPose);
 
-		if (rightHanded != bl4) {
-			poseLeftArm(model);
-			poseRightArm(model);
-		} else {
-			poseRightArm(model);
-			poseLeftArm(model);
-		}
-
-		if (model.crouching) {
+		if (pose.sneaking) {
 			model.body.xRot = 0.5F;
 			currentModel = model.rightArm;
 			currentModel.xRot += 0.4F;
@@ -433,40 +425,40 @@ public final class FakePlayerRenderer {
 
 		AnimationUtils.bobArms(model.rightArm, model.leftArm, 1.0F);
 
-		if (model.swimAmount > 0.0F) {
-			float l = f % 26.0F;
-			float m = !leftHanded && model.attackTime > 0.0F ? 0.0F : model.swimAmount;
-			float n = leftHanded && model.attackTime > 0.0F ? 0.0F : model.swimAmount;
-			float o;
-
-			if (l < 14.0F) {
-				model.leftArm.xRot = ((HumanoidModelAccessor) model).invokeRotlerpRad(n, model.leftArm.xRot, 0.0F);
-				model.rightArm.xRot = Mth.lerp(m, model.rightArm.xRot, 0.0F);
-				model.leftArm.yRot = ((HumanoidModelAccessor) model).invokeRotlerpRad(n, model.leftArm.yRot, 3.1415927F);
-				model.rightArm.yRot = Mth.lerp(m, model.rightArm.yRot, 3.1415927F);
-				model.leftArm.zRot = ((HumanoidModelAccessor) model).invokeRotlerpRad(n, model.leftArm.zRot, 3.1415927F + 1.8707964F * ((HumanoidModelAccessor) model).invokeQuadraticArmUpdate(l) / ((HumanoidModelAccessor) model).invokeQuadraticArmUpdate(14.0F));
-				model.rightArm.zRot = Mth.lerp(m, model.rightArm.zRot, 3.1415927F - 1.8707964F * ((HumanoidModelAccessor) model).invokeQuadraticArmUpdate(l) / ((HumanoidModelAccessor) model).invokeQuadraticArmUpdate(14.0F));
-			} else if (l >= 14.0F && l < 22.0F) {
-				o = (l - 14.0F) / 8.0F;
-				model.leftArm.xRot = ((HumanoidModelAccessor) model).invokeRotlerpRad(n, model.leftArm.xRot, 1.5707964F * o);
-				model.rightArm.xRot = Mth.lerp(m, model.rightArm.xRot, 1.5707964F * o);
-				model.leftArm.yRot = ((HumanoidModelAccessor) model).invokeRotlerpRad(n, model.leftArm.yRot, 3.1415927F);
-				model.rightArm.yRot = Mth.lerp(m, model.rightArm.yRot, 3.1415927F);
-				model.leftArm.zRot = ((HumanoidModelAccessor) model).invokeRotlerpRad(n, model.leftArm.zRot, 5.012389F - 1.8707964F * o);
-				model.rightArm.zRot = Mth.lerp(m, model.rightArm.zRot, 1.2707963F + 1.8707964F * o);
-			} else if (l >= 22.0F && l < 26.0F) {
-				o = (l - 22.0F) / 4.0F;
-				model.leftArm.xRot = ((HumanoidModelAccessor) model).invokeRotlerpRad(n, model.leftArm.xRot, 1.5707964F - 1.5707964F * o);
-				model.rightArm.xRot = Mth.lerp(m, model.rightArm.xRot, 1.5707964F - 1.5707964F * o);
-				model.leftArm.yRot = ((HumanoidModelAccessor) model).invokeRotlerpRad(n, model.leftArm.yRot, 3.1415927F);
-				model.rightArm.yRot = Mth.lerp(m, model.rightArm.yRot, 3.1415927F);
-				model.leftArm.zRot = ((HumanoidModelAccessor) model).invokeRotlerpRad(n, model.leftArm.zRot, 3.1415927F);
-				model.rightArm.zRot = Mth.lerp(m, model.rightArm.zRot, 3.1415927F);
-			}
-
-			model.leftLeg.xRot = Mth.lerp(model.swimAmount, model.leftLeg.xRot, 0.3F * Mth.cos(f * 0.33333334F + 3.1415927F));
-			model.rightLeg.xRot = Mth.lerp(model.swimAmount, model.rightLeg.xRot, 0.3F * Mth.cos(f * 0.33333334F));
-		}
+//		if (pose.swimAmount > 0.0F) {
+//			float l = f % 26.0F;
+//			float m = !leftHanded && model.attackTime > 0.0F ? 0.0F : model.swimAmount;
+//			float n = leftHanded && model.attackTime > 0.0F ? 0.0F : model.swimAmount;
+//			float o;
+//
+//			if (l < 14.0F) {
+//				model.leftArm.xRot = ((HumanoidModelAccessor) model).invokeRotlerpRad(n, model.leftArm.xRot, 0.0F);
+//				model.rightArm.xRot = Mth.lerp(m, model.rightArm.xRot, 0.0F);
+//				model.leftArm.yRot = ((HumanoidModelAccessor) model).invokeRotlerpRad(n, model.leftArm.yRot, 3.1415927F);
+//				model.rightArm.yRot = Mth.lerp(m, model.rightArm.yRot, 3.1415927F);
+//				model.leftArm.zRot = ((HumanoidModelAccessor) model).invokeRotlerpRad(n, model.leftArm.zRot, 3.1415927F + 1.8707964F * ((HumanoidModelAccessor) model).invokeQuadraticArmUpdate(l) / ((HumanoidModelAccessor) model).invokeQuadraticArmUpdate(14.0F));
+//				model.rightArm.zRot = Mth.lerp(m, model.rightArm.zRot, 3.1415927F - 1.8707964F * ((HumanoidModelAccessor) model).invokeQuadraticArmUpdate(l) / ((HumanoidModelAccessor) model).invokeQuadraticArmUpdate(14.0F));
+//			} else if (l >= 14.0F && l < 22.0F) {
+//				o = (l - 14.0F) / 8.0F;
+//				model.leftArm.xRot = ((HumanoidModelAccessor) model).invokeRotlerpRad(n, model.leftArm.xRot, 1.5707964F * o);
+//				model.rightArm.xRot = Mth.lerp(m, model.rightArm.xRot, 1.5707964F * o);
+//				model.leftArm.yRot = ((HumanoidModelAccessor) model).invokeRotlerpRad(n, model.leftArm.yRot, 3.1415927F);
+//				model.rightArm.yRot = Mth.lerp(m, model.rightArm.yRot, 3.1415927F);
+//				model.leftArm.zRot = ((HumanoidModelAccessor) model).invokeRotlerpRad(n, model.leftArm.zRot, 5.012389F - 1.8707964F * o);
+//				model.rightArm.zRot = Mth.lerp(m, model.rightArm.zRot, 1.2707963F + 1.8707964F * o);
+//			} else if (l >= 22.0F && l < 26.0F) {
+//				o = (l - 22.0F) / 4.0F;
+//				model.leftArm.xRot = ((HumanoidModelAccessor) model).invokeRotlerpRad(n, model.leftArm.xRot, 1.5707964F - 1.5707964F * o);
+//				model.rightArm.xRot = Mth.lerp(m, model.rightArm.xRot, 1.5707964F - 1.5707964F * o);
+//				model.leftArm.yRot = ((HumanoidModelAccessor) model).invokeRotlerpRad(n, model.leftArm.yRot, 3.1415927F);
+//				model.rightArm.yRot = Mth.lerp(m, model.rightArm.yRot, 3.1415927F);
+//				model.leftArm.zRot = ((HumanoidModelAccessor) model).invokeRotlerpRad(n, model.leftArm.zRot, 3.1415927F);
+//				model.rightArm.zRot = Mth.lerp(m, model.rightArm.zRot, 3.1415927F);
+//			}
+//
+//			model.leftLeg.xRot = Mth.lerp(model.swimAmount, model.leftLeg.xRot, 0.3F * Mth.cos(f * 0.33333334F + 3.1415927F));
+//			model.rightLeg.xRot = Mth.lerp(model.swimAmount, model.rightLeg.xRot, 0.3F * Mth.cos(f * 0.33333334F));
+//		}
 
 		model.hat.copyFrom(model.head);
 
@@ -476,7 +468,7 @@ public final class FakePlayerRenderer {
 		model.rightSleeve.copyFrom(model.rightArm);
 		model.jacket.copyFrom(model.body);
 
-		ModelPart cloak = ((PlayerModelAccessor) model).getCloak();
+		ModelPart cloak = ((PlayerCapeModelAccessor) ((ExtendedPlayerModel) model).getCape()).getCape();
 
 		if (sneaking) {
 			cloak.z = 1.4F;
@@ -487,8 +479,8 @@ public final class FakePlayerRenderer {
 		}
 	}
 
-	private static void poseLeftArm(PlayerModel model) {
-		switch(model.leftArmPose) {
+	private static void poseLeftArm(PlayerModel model, HumanoidModel.ArmPose pose) {
+		switch(pose) {
 		case EMPTY:
 			model.leftArm.yRot = 0.0F;
 			break;
@@ -503,8 +495,8 @@ public final class FakePlayerRenderer {
 		}
 	}
 
-	private static void poseRightArm(PlayerModel model) {
-		switch (model.rightArmPose) {
+	private static void poseRightArm(PlayerModel model, HumanoidModel.ArmPose pose) {
+		switch (pose) {
 		case EMPTY:
 			model.rightArm.yRot = 0.0F;
 			break;
@@ -533,5 +525,8 @@ public final class FakePlayerRenderer {
 
 	private static int getOverlayCoords(float u) {
 		return OverlayTexture.pack(OverlayTexture.u(u), OverlayTexture.v(false));
+	}
+
+	private record ArmPostures(HumanoidModel.ArmPose leftArmPose, HumanoidModel.ArmPose rightArmPose) {
 	}
 }

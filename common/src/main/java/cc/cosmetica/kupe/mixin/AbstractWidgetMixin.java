@@ -30,13 +30,13 @@ import org.spongepowered.asm.mixin.injection.Redirect;
  */
 @Mixin(AbstractButton.class)
 public class AbstractWidgetMixin {
-    @Redirect(
-            method = "renderWidget",
-            at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;enableDepthTest()V")
-    )
-    private void onEnableDepthTest() {
-        if (!(Minecraft.getInstance().screen instanceof KupeScreen)) {
-            RenderSystem.enableDepthTest();
-        }
-    }
+//    @Redirect(
+//            method = "renderWidget",
+//            at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;enableDepthTest()V")
+//    )
+//    private void onEnableDepthTest() {
+//        if (!(Minecraft.getInstance().screen instanceof KupeScreen)) {
+//            RenderSystem.enableDepthTest();
+//        }
+//    }
 }

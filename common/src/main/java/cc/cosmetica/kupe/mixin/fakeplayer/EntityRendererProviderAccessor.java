@@ -16,16 +16,13 @@
 
 package cc.cosmetica.kupe.mixin.fakeplayer;
 
-import net.minecraft.client.model.PlayerModel;
-import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.resources.model.EquipmentAssetManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(PlayerModel.class)
-public interface PlayerModelAccessor {
-	@Accessor
-	ModelPart getCloak();
-
-	@Accessor
-	ModelPart getEar();
+@Mixin(EntityRenderDispatcher.class)
+public interface EntityRendererProviderAccessor {
+    @Accessor
+    EquipmentAssetManager getEquipmentAssets();
 }

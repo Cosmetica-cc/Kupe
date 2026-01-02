@@ -9,7 +9,6 @@ package cc.cosmetica.kupe.testmod.mixin;
 
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.testmod.gui.AllKupeTestsScreen;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.TitleScreen;
 import org.lwjgl.glfw.GLFW;
@@ -27,14 +26,14 @@ public class TitleScreenMixin {
 		{
 			System.out.println("Setting debug kupe screen");
 			kupe_testmod$firstTime = false;
-			Minecraft.getInstance().tell(() -> Screens.setScreen(AllKupeTestsScreen.ID));
+			Minecraft.getInstance().schedule(() -> Screens.setScreen(AllKupeTestsScreen.ID));
 		}
 	}
 
 	@Inject(at = @At("RETURN"), method = "render")
 	private void onRender(CallbackInfo ci) {
 		if (GLFW.glfwGetKey(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_RIGHT_CONTROL) == GLFW.GLFW_PRESS) {
-			Minecraft.getInstance().tell(() -> Screens.setScreen(AllKupeTestsScreen.ID));
+			Minecraft.getInstance().schedule(() -> Screens.setScreen(AllKupeTestsScreen.ID));
 		}
 	}
 

@@ -16,15 +16,13 @@
 
 package cc.cosmetica.kupe.mixin.fakeplayer;
 
-import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.PlayerCapeModel;
+import net.minecraft.client.model.geom.ModelPart;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.gen.Invoker;
+import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(HumanoidModel.class)
-public interface HumanoidModelAccessor {
-	@Invoker
-	float invokeRotlerpRad(float f, float g, float h);
-
-	@Invoker
-	float invokeQuadraticArmUpdate(float f);
+@Mixin(PlayerCapeModel.class)
+public interface PlayerCapeModelAccessor {
+    @Accessor
+    ModelPart getCape();
 }

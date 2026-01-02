@@ -23,6 +23,8 @@ import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.renderer.CompiledShaderProgram;
+import net.minecraft.client.renderer.CoreShaders;
 import net.minecraft.client.renderer.GameRenderer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -267,7 +269,7 @@ public class PoseCanvas implements Canvas {
 
 	@Override
 	public void drawRect(int x0, int y0, int width, int height, float z, float r, float g, float b) {
-		RenderSystem.setShader(GameRenderer::getPositionColorShader);
+		RenderSystem.setShader(CoreShaders.POSITION_COLOR);
 		Matrix4f matrix4f = this.stack.last().pose();
 		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
 
@@ -288,7 +290,7 @@ public class PoseCanvas implements Canvas {
 
 	@Override
 	public void drawTexture(int x0, int y0, int width, int height, float z, ResourceKey texture) {
-		RenderSystem.setShader(GameRenderer::getPositionTexShader);
+		RenderSystem.setShader(CoreShaders.POSITION_TEX);
 		this.setTexture(texture);
 		Matrix4f matrix4f = this.stack.last().pose();
 

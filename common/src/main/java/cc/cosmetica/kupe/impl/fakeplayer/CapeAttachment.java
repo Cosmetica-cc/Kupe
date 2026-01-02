@@ -20,7 +20,8 @@ import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.MatrixStack;
 import cc.cosmetica.kupe.api.gui.GUIPlayer;
 import cc.cosmetica.kupe.api.maths.Vec3;
-import cc.cosmetica.kupe.mixin.fakeplayer.PlayerModelAccessor;
+import cc.cosmetica.kupe.impl.ExtendedPlayerModel;
+import cc.cosmetica.kupe.mixin.fakeplayer.PlayerCapeModelAccessor;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.PlayerModel;
@@ -64,7 +65,7 @@ public class CapeAttachment implements GUIPlayer.Attachment<GUIPlayer.CapeProper
 			stack.rotate(Vec3.ZP, s / 2.0F, true);
 			stack.rotate(Vec3.YP, 180.0F - s / 2.0F, true);
 			VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityTranslucent(configuration.getTexture().get()));
-			((PlayerModelAccessor) playerModel).getCloak().render(stack.getMinecraftStack(), vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY);
+			((PlayerCapeModelAccessor)((ExtendedPlayerModel) playerModel).getCape()).getCape().render(stack.getMinecraftStack(), vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY);
 			stack.pop();
 		}
 	}

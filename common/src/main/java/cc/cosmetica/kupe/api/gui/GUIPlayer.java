@@ -274,7 +274,7 @@ public class GUIPlayer extends Component {
 		if (!this.loadedName && this.uuid != null) {
 			this.renderer.nametags.get(0).text = PlayerUtils.getUsername(uuid);
 		}
-		this.renderer.render(this, canvas.getDrawingContext(), centreX, footY, region.getWidth() / 2.5f, lookX, lookY);
+		this.renderer.render(this, canvas.getStack(), canvas.getDrawingContext(), centreX, footY, region.getWidth() / 2.5f, lookX, lookY);
 	}
 
 	public static Attachment<CapeProperties> CAPE = registerAttachment(new CapeAttachment());
