@@ -236,7 +236,11 @@ public class BufferPolyBuilder implements PolyBuilder {
 
 		@Override
 		public RenderPipeline pipeline() {
-			// FIXME handle lightmap
+			// FIXME handle colour-lightmap.
+			// TODO check if texture-lightmap is correct
+			if (this.lightmap && this.texture) {
+				return RenderPipelines.TEXT_SEE_THROUGH;
+			}
 			return this.texture ? RenderPipelines.GUI_TEXTURED : RenderPipelines.GUI;
 		}
 

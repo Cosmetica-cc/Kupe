@@ -27,12 +27,11 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.font.glyphs.BakedGlyph;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
+import net.minecraft.client.gui.render.GuiRenderer;
 import net.minecraft.client.gui.render.TextureSetup;
-import net.minecraft.client.gui.render.state.BlitRenderState;
-import net.minecraft.client.gui.render.state.ColoredRectangleRenderState;
-import net.minecraft.client.gui.render.state.GuiRenderState;
-import net.minecraft.client.gui.render.state.GuiTextRenderState;
+import net.minecraft.client.gui.render.state.*;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.gui.screens.inventory.tooltip.MenuTooltipPositioner;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -43,6 +42,7 @@ import org.joml.*;
 
 import java.lang.Math;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Implementation of Canvas.
@@ -246,59 +246,44 @@ public class PoseCanvas implements Canvas, ModernCanvas {
 
 	@Override
 	public void drawCenteredText(Text text, int x, int y, int colour) {
-		GuiGraphicsAccessor graphics = (GuiGraphicsAccessor) this.graphics;
-		GuiRenderState state = graphics.getGuiRenderState();
-
 		FormattedCharSequence sequence = text.toMinecraftComponent().getVisualOrderText();
-		x = x - this.minecraft.font.width(sequence);
+		x -= this.minecraft.font.width(sequence) / 2;
 
-		state.submitText(new GuiTextRenderState(
+		this.drawCharSequence(
 				this.minecraft.font,
-				sequence,
-				new Matrix3x2f(this.stack),
+				text.toMinecraftComponent().getVisualOrderText(),
 				x,
 				y,
-				colour,
-				0,
-				true,
-				this.scissorStack.getScissorRegion().orElse(null)
-		));
+				colour
+		);
 	}
 
 	@Override
 	public void drawText(Text text, int x, int y, int colour) {
-		GuiGraphicsAccessor graphics = (GuiGraphicsAccessor) this.graphics;
-		GuiRenderState state = graphics.getGuiRenderState();
-
-		FormattedCharSequence sequence = text.toMinecraftComponent().getVisualOrderText();
-
-		state.submitText(new GuiTextRenderState(
+		this.drawCharSequence(
 				this.minecraft.font,
-				sequence,
-				new Matrix3x2f(this.stack),
+				text.toMinecraftComponent().getVisualOrderText(),
 				x,
 				y,
-				colour,
-				0,
-				true,
-				this.scissorStack.getScissorRegion().orElse(null)
-		));
+				colour
+		);
 	}
 
 	@Override
 	public void drawCharSequence(Font font, FormattedCharSequence sequence, int x, int y, int colour) {
 		GuiGraphicsAccessor graphics = (GuiGraphicsAccessor) this.graphics;
-		GuiRenderState state = graphics.getGuiRenderState();
+		GuiRenderState guiRenderState = graphics.getGuiRenderState();
+		colour = addAlpha(colour, this.alpha);
 
-		state.submitText(new GuiTextRenderState(
-				this.minecraft.font,
+		guiRenderState.submitText(new GuiTextRenderState(
+				font,
 				sequence,
 				new Matrix3x2f(this.stack),
 				x,
 				y,
 				colour,
 				0,
-				false,
+				true,
 				this.scissorStack.getScissorRegion().orElse(null)
 		));
 	}
@@ -315,18 +300,6 @@ public class PoseCanvas implements Canvas, ModernCanvas {
 		this.drawRect(x0, y0, region.getWidth(), region.getHeight(), 0.0f, r, g, b);
 	}
 
-	static int packColour(float r, float g, float b) {
-		r = Math.max(0f, Math.min(1f, r));
-		g = Math.max(0f, Math.min(1f, g));
-		b = Math.max(0f, Math.min(1f, b));
-
-		int ri = Math.round(r * 255f);
-		int gi = Math.round(g * 255f);
-		int bi = Math.round(b * 255f);
-
-		return (ri << 16) | (gi << 8) | bi;
-	}
-
 	static int packColour(float r, float g, float b, float a) {
 		r = Math.max(0f, Math.min(1f, r));
 		g = Math.max(0f, Math.min(1f, g));
@@ -341,6 +314,11 @@ public class PoseCanvas implements Canvas, ModernCanvas {
 		return (ai << 24) | (ri << 16) | (gi << 8) | bi;
 	}
 
+	static int addAlpha(int rgb, float alpha) {
+		alpha = Math.max(0f, Math.min(1f, alpha));
+		int a = Math.round(alpha * 255f) & 0xFF;
+		return (a << 24) | (rgb & 0x00FFFFFF);
+	}
 
 	@Override
 	public void drawRect(int x0, int y0, int width, int height, float z, float r, float g, float b) {
