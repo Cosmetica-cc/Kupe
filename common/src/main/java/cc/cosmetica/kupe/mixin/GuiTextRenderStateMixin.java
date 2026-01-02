@@ -28,8 +28,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class GuiTextRenderStateMixin {
     @Inject(at = @At("RETURN"), method = "bounds", cancellable = true)
     private void onGetBounds(CallbackInfoReturnable<ScreenRectangle> cir) {
-        double windowWidth = Minecraft.getInstance().getWindow().getGuiScaledWidth();
-        double windowHeight = Minecraft.getInstance().getWindow().getGuiScaledHeight();
-        cir.setReturnValue(new ScreenRectangle(0, 0, (int) windowWidth * 100, (int) windowHeight * 100));
+//        double windowWidth = Minecraft.getInstance().getWindow().getGuiScaledWidth();
+//        double windowHeight = Minecraft.getInstance().getWindow().getGuiScaledHeight();
+//        cir.setReturnValue(new ScreenRectangle(0, 0, (int) windowWidth * 100, (int) windowHeight * 100));
     }
 }
