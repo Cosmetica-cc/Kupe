@@ -21,8 +21,10 @@ import cc.cosmetica.kupe.api.MatrixStack;
 import cc.cosmetica.kupe.api.gui.GUIPlayer;
 import cc.cosmetica.kupe.api.maths.Vec3;
 import cc.cosmetica.kupe.impl.ExtendedPlayerModel;
+import cc.cosmetica.kupe.impl.KupePoseStack;
 import cc.cosmetica.kupe.mixin.fakeplayer.PlayerCapeModelAccessor;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -36,9 +38,9 @@ import java.util.UUID;
 
 public class CapeAttachment implements GUIPlayer.Attachment<GUIPlayer.CapeProperties> {
 	@Override
-	public void render(GUIPlayer player, PlayerModel playerModel, GUIPlayer.Posture posture, Canvas canvas, GUIPlayer.CapeProperties configuration, Quaternionf cameraOrientation, MultiBufferSource bufferSource, int packedLight) {
+	public void render(GUIPlayer player, PlayerModel playerModel, GUIPlayer.Posture posture, PoseStack stackIn, GUIPlayer.CapeProperties configuration, Quaternionf cameraOrientation, MultiBufferSource bufferSource, int packedLight) {
 		if (configuration.getTexture().isPresent()) {
-			MatrixStack stack = canvas.getStack();
+			MatrixStack stack = new KupePoseStack(stackIn);
 			stack.push();
 			stack.translate(0.0D, 0.0D, 0.125D);
 			double d = 0;
@@ -66,7 +68,7 @@ public class CapeAttachment implements GUIPlayer.Attachment<GUIPlayer.CapeProper
 			stack.rotate(Vec3.YP, 180.0F - s / 2.0F, true);
 			stack.scale(-1, 1, -1);
 			VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityTranslucent(configuration.getTexture().get()));
-			((PlayerCapeModelAccessor)((ExtendedPlayerModel) playerModel).getCape()).getCape().render(stack.getMinecraftStack(), vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY);
+			((PlayerCapeModelAccessor)((ExtendedPlayerModel) playerModel).getCape()).getCape().render(stackIn, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY);
 			stack.pop();
 		}
 	}

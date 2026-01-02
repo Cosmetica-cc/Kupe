@@ -17,23 +17,30 @@
 package cc.cosmetica.kupe.impl;
 
 import cc.cosmetica.kupe.api.*;
+import cc.cosmetica.kupe.api.gui.GUIPlayer;
 import cc.cosmetica.kupe.api.maths.Region;
+import cc.cosmetica.kupe.impl.fakeplayer.FakePlayerGuiRenderer;
+import cc.cosmetica.kupe.impl.fakeplayer.FakePlayerRenderer;
 import cc.cosmetica.kupe.mixin.GuiGraphicsAccessor;
 import com.mojang.blaze3d.textures.GpuTextureView;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.render.TextureSetup;
 import net.minecraft.client.gui.render.state.ColoredRectangleRenderState;
+import net.minecraft.client.gui.render.state.GuiRenderState;
+import net.minecraft.client.gui.render.state.GuiTextRenderState;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.gui.screens.inventory.tooltip.MenuTooltipPositioner;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.util.FormattedCharSequence;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix3x2f;
-import org.joml.Matrix3x2fStack;
+import org.joml.*;
 
+import java.lang.Math;
 import java.util.Optional;
 
 /**
@@ -41,7 +48,7 @@ import java.util.Optional;
  * It seems somewhat wasteful to create this every frame. Perhaps if the posestack doesn't change we can cache and just
  * update tickDelta.
  */
-public class PoseCanvas implements Canvas {
+public class PoseCanvas implements Canvas, ModernCanvas {
 	public PoseCanvas(GuiGraphics graphics, Minecraft minecraft, Context context, float tickDelta) {
 		this.graphics = graphics;
 		this.stack = graphics.pose();
@@ -238,12 +245,61 @@ public class PoseCanvas implements Canvas {
 
 	@Override
 	public void drawCenteredText(Text text, int x, int y, int colour) {
-		this.graphics.drawCenteredString(this.minecraft.font, text.toMinecraftComponent(), x, y, colour);
+		GuiGraphicsAccessor graphics = (GuiGraphicsAccessor) this.graphics;
+		GuiRenderState state = graphics.getGuiRenderState();
+
+		FormattedCharSequence sequence = text.toMinecraftComponent().getVisualOrderText();
+		x = x - this.minecraft.font.width(sequence);
+
+		state.submitText(new GuiTextRenderState(
+				this.minecraft.font,
+				sequence,
+				new Matrix3x2f(this.stack),
+				x,
+				y,
+				colour,
+				0,
+				true,
+				this.scissorStack.getScissorRegion().orElse(null)
+		));
 	}
 
 	@Override
 	public void drawText(Text text, int x, int y, int colour) {
-		this.graphics.drawString(this.minecraft.font, text.toMinecraftComponent(), x, y, colour);
+		GuiGraphicsAccessor graphics = (GuiGraphicsAccessor) this.graphics;
+		GuiRenderState state = graphics.getGuiRenderState();
+
+		FormattedCharSequence sequence = text.toMinecraftComponent().getVisualOrderText();
+
+		state.submitText(new GuiTextRenderState(
+				this.minecraft.font,
+				sequence,
+				new Matrix3x2f(this.stack),
+				x,
+				y,
+				colour,
+				0,
+				true,
+				this.scissorStack.getScissorRegion().orElse(null)
+		));
+	}
+
+	@Override
+	public void drawCharSequence(Font font, FormattedCharSequence sequence, int x, int y, int colour) {
+		GuiGraphicsAccessor graphics = (GuiGraphicsAccessor) this.graphics;
+		GuiRenderState state = graphics.getGuiRenderState();
+
+		state.submitText(new GuiTextRenderState(
+				this.minecraft.font,
+				sequence,
+				new Matrix3x2f(this.stack),
+				x,
+				y,
+				colour,
+				0,
+				false,
+				this.scissorStack.getScissorRegion().orElse(null)
+		));
 	}
 
 	@Override
@@ -325,12 +381,53 @@ public class PoseCanvas implements Canvas {
 
 	@Override
 	public PolyBuilder drawQuads(PolyBuilder.Mode mode) {
-		return BufferPolyBuilder.create((GuiGraphicsAccessor) this.graphics, VertexFormat.Mode.QUADS, mode, this.alpha, this.stack.get(new Matrix3x2f()));
+		return BufferPolyBuilder.create((GuiGraphicsAccessor) this.graphics, VertexFormat.Mode.QUADS, mode, this.texture, this.alpha, this.stack.get(new Matrix3x2f()), this.scissorStack.getScissorRegion().orElse(null));
 	}
 
 	@Override
 	public PolyBuilder drawTriangles(PolyBuilder.Mode mode) {
-		return BufferPolyBuilder.create((GuiGraphicsAccessor) this.graphics, VertexFormat.Mode.TRIANGLES, mode, this.alpha, this.stack.get(new Matrix3x2f()));
+		return BufferPolyBuilder.create((GuiGraphicsAccessor) this.graphics, VertexFormat.Mode.TRIANGLES, mode, this.texture, this.alpha, this.stack.get(new Matrix3x2f()), this.scissorStack.getScissorRegion().orElse(null));
+	}
+
+	private static final Vector3f XP = new Vector3f(1, 0, 0);
+	private static final Vector3f ZP = new Vector3f(0, 0, 1);
+
+	@Override
+	public void renderFakePlayer(GUIPlayer player, FakePlayerRenderer renderer, Region region, int left, int top, float extraScale, float lookX, float lookY) {
+		// InventoryScreen#renderEntityInInventoryFollowsMouse
+		float h = (float)Math.atan(lookX / 40.0F);
+		float l = (float)Math.atan(lookY / 40.0F);
+
+		Quaternionf zRotation = new Quaternionf(new AxisAngle4f((float)Math.toRadians(180.0F), ZP));
+		Quaternionf xRotation = new Quaternionf(new AxisAngle4f((float)Math.toRadians(l * 20.0F), XP));
+		zRotation.mul(xRotation);
+
+		// -------------------------------------------------//
+		// InventoryScreen#renderEntityInInventoryFollowsMouse
+		float rotationBody = 180.0F + h * 20.0F;
+		float rotationMain = 180.0F + h * 40.0F;
+
+		// rotate player to face lookX, lookY
+		player.pose.yRotBody += rotationBody;
+		player.pose.yRotHead += rotationMain;// yRotHead = yRot = getYRot(0);
+		float xRotOld = player.pose.xRot;
+		player.pose.xRot += -l * 20.0F;
+		// -------------------------------------------------//
+
+		xRotation.conjugate();
+
+		// render
+		FakePlayerGuiRenderer.State state = new FakePlayerGuiRenderer.State(
+				renderer, player, extraScale, xRotation, zRotation, this.context, left, top,
+				region.getX(), region.getY(), region.getEndX(), region.getEndY(), 1.0f, this.scissorStack.getScissorRegion().orElse(null),
+				new ScreenRectangle(region.getX(), region.getY(), region.getWidth(), region.getHeight()));
+		GuiGraphicsAccessor graphics = (GuiGraphicsAccessor) this.graphics;
+		graphics.getGuiRenderState().submitPicturesInPictureState(state);
+
+		// restore
+		player.pose.yRotBody -= rotationBody;
+		player.pose.yRotHead -= rotationMain;
+		player.pose.xRot = xRotOld;
 	}
 
 	@Override

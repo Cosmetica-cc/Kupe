@@ -18,9 +18,12 @@ package cc.cosmetica.kupe.impl.text;
 
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.Renderable;
+import cc.cosmetica.kupe.impl.ModernCanvas;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.util.FormattedCharSequence;
+import org.joml.Matrix3x2f;
+import org.joml.Matrix4f;
 
 /**
  * Renderer for FormattedCharSequence.
@@ -36,15 +39,11 @@ public class FormattedCharSeqRenderer implements Renderable {
 
 	@Override
 	public void render(Canvas canvas, int x, int y, int colour) {
-		this.font.drawInBatch(
-				this.sequence,
-				(float)x, (float)y,
-				colour,
-				false,
-				canvas.getStack().getMinecraftStack().last().pose(),
-				Minecraft.getInstance().renderBuffers().bufferSource(),
-				Font.DisplayMode.NORMAL,
-				0, 0xF000F0);
+		if (canvas instanceof ModernCanvas) {
+			((ModernCanvas)canvas).drawCharSequence(this.font, this.sequence, x, y, colour);
+		} else {
+			throw new UnsupportedOperationException("This canvas type does not currently support direct FormattedCharSequence render for Minecraft >=1.21.8");
+		}
 	}
 
 	@Override

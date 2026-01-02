@@ -6,6 +6,7 @@
   "client": [
     "AbstractWidgetMixin",
     "GuiGraphicsAccessor",
+    "GuiRendererMixin",
     "Vec3Mixin",
     "fakeplayer.ElytraModelAccessor",
     "fakeplayer.EntityRendererProviderAccessor",

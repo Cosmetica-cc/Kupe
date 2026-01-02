@@ -16,13 +16,8 @@
 
 package cc.cosmetica.kupe.mixin;
 
-import cc.cosmetica.kupe.impl.KupeScreen;
-import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractButton;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
 
 /**
  * Stop AbstractWidgets using depth test to draw text and buttons in Kupe screens.
