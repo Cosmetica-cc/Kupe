@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.kupe.mixin;
+package cc.cosmetica.kupe.impl;
 
-import net.minecraft.client.gui.render.state.GuiRenderState;
-import net.minecraft.client.gui.GuiGraphics;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.gen.Accessor;
+import cc.cosmetica.kupe.api.gui.GUIPlayer;
+import cc.cosmetica.kupe.api.maths.Region;
+import cc.cosmetica.kupe.impl.fakeplayer.FakePlayerRenderer;
+import net.minecraft.client.gui.Font;
+import net.minecraft.util.FormattedCharSequence;
 
-@Mixin(GuiGraphics.class)
-public interface GuiGraphicsAccessor {
-    @Accessor
-    GuiRenderState getGuiRenderState();
+public interface ModernCanvas {
+    void renderFakePlayer(GUIPlayer guiPlayer, FakePlayerRenderer renderer, Region region, int left, int top, float extraScale, float lookX, float lookY);
+    void drawCharSequence(Font font, FormattedCharSequence sequence, int x, int y, int colour);
 }

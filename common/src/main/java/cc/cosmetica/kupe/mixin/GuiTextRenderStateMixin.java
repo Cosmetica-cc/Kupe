@@ -16,27 +16,20 @@
 
 package cc.cosmetica.kupe.mixin;
 
-import cc.cosmetica.kupe.impl.KupeScreen;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.AbstractButton;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
+import net.minecraft.client.gui.render.state.GuiTextRenderState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/**
- * Stop AbstractWidgets using depth test to draw text and buttons in Kupe screens.
- * Kupe implements Z-ordering via draw order.
- */
-@Mixin(AbstractButton.class)
-public class AbstractWidgetMixin {
-//    @Redirect(
-//            method = "renderWidget",
-//            at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;enableDepthTest()V")
-//    )
-//    private void onEnableDepthTest() {
-//        if (!(Minecraft.getInstance().screen instanceof KupeScreen)) {
-//            RenderSystem.enableDepthTest();
-//        }
-//    }
+@Mixin(GuiTextRenderState.class)
+public class GuiTextRenderStateMixin {
+    @Inject(at = @At("RETURN"), method = "bounds", cancellable = true)
+    private void onGetBounds(CallbackInfoReturnable<ScreenRectangle> cir) {
+//        double windowWidth = Minecraft.getInstance().getWindow().getGuiScaledWidth();
+//        double windowHeight = Minecraft.getInstance().getWindow().getGuiScaledHeight();
+//        cir.setReturnValue(new ScreenRectangle(0, 0, (int) windowWidth * 100, (int) windowHeight * 100));
+    }
 }

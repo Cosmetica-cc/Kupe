@@ -17,18 +17,14 @@
 
 package cc.cosmetica.kupe.impl.fakeplayer;
 
-import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.Context;
 import cc.cosmetica.kupe.api.MatrixStack;
 import cc.cosmetica.kupe.api.gui.GUIPlayer;
 import cc.cosmetica.kupe.impl.ExtendedPlayerModel;
-import cc.cosmetica.kupe.impl.KupeStack;
-import cc.cosmetica.kupe.impl.PoseCanvas;
+import cc.cosmetica.kupe.impl.KupePoseStack;
 import cc.cosmetica.kupe.mixin.fakeplayer.EntityRendererProviderAccessor;
 import cc.cosmetica.kupe.mixin.fakeplayer.PlayerCapeModelAccessor;
 import com.google.common.collect.Sets;
-import com.mojang.blaze3d.platform.Lighting;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.CrashReport;
@@ -36,7 +32,6 @@ import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.model.*;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
@@ -50,10 +45,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.phys.Vec3;
-import org.joml.AxisAngle4f;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
-import org.joml.Vector3f;
 
 import java.util.*;
 
@@ -103,10 +96,8 @@ public final class FakePlayerRenderer {
 	private Quaternionf cameraOrientation = new Quaternionf(0.0F, 0.0F, 0.0F, 1.0F);
 	public Set<PlayerModelPart> shownParts = Sets.newHashSet(PlayerModelPart.values());
 
-	private static final Vector3f XP = new Vector3f(1, 0, 0);
-	private static final Vector3f ZP = new Vector3f(0, 0, 1);
-
-	public void render(GUIPlayer player, MatrixStack stack, Context context, int left, int top, float extraScale, float lookX, float lookY) {
+	// EntityRenderDispatcher#render
+	public void renderFakePlayer(GUIPlayer player, Quaternionf cameraOrientation, Context context, PoseStack stack, MultiBufferSource bufferSource, double xOffset, double yOffset, double zOffset, float rotation, float delta, int light) {
 		// lazy load model (important on newer mc versions)
 		if (!this.lazyLoadModel()) {
 			return;
@@ -114,60 +105,8 @@ public final class FakePlayerRenderer {
 
 		Objects.requireNonNull(this.skin, "No skin provided to Fake Player renderer!");
 
-		// InventoryScreen#renderEntityInInventoryFollowsMouse
-		float h = (float)Math.atan(lookX / 40.0F);
-		float l = (float)Math.atan(lookY / 40.0F);
+		this.cameraOrientation = cameraOrientation;
 
-		Quaternionf zRotation = new Quaternionf(new AxisAngle4f((float)Math.toRadians(180.0F), ZP));
-		Quaternionf xRotation = new Quaternionf(new AxisAngle4f((float)Math.toRadians(l * 20.0F), XP));
-		zRotation.mul(xRotation);
-
-//		Vector3f vector3f = new Vector3f(0.0F, livingEntity.getBbHeight() / 2.0F + f * w, 0.0F);
-
-		// InventoryScreen#renderEntityInInventory
-		stack.push();
-		stack.translate(left, top, 1050.0D);
-		stack.scale(2.0F, 2.0F, -1.0F);
-
-		stack.translate(0.0D, 0.0D, 1000.0D);
-		stack.scale(extraScale, extraScale, extraScale);
-		stack.getMinecraftStack().mulPose(zRotation);
-
-		// -------------------------------------------------//
-		// InventoryScreen#renderEntityInInventoryFollowsMouse
-		float rotationBody = 180.0F + h * 20.0F;
-		float rotationMain = 180.0F + h * 40.0F;
-
-		// rotate player to face lookX, lookY
-		player.pose.yRotBody += rotationBody;
-		player.pose.yRotHead += rotationMain;// yRotHead = yRot = getYRot(0);
-		float xRotOld = player.pose.xRot;
-		player.pose.xRot += -l * 20.0F;
-		// -------------------------------------------------//
-
-		Lighting.setupForEntityInInventory();
-
-		xRotation.conjugate();
-		this.cameraOrientation = xRotation; // if (quaternionf2 != null) entityRenderDispatcher.overrideCameraOrientation
-		MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
-
-//		Minecraft.getInstance().getEntityRenderDispatcher().setRenderShadow(false);
-		// Above 1.16.5 we don't need to do an extra step here because I do at the start of the method
-		this.render(player, context, stack.getMinecraftStack(), bufferSource, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, 15728880);
-		bufferSource.endBatch();
-//		Minecraft.getInstance().getEntityRenderDispatcher().setRenderShadow(true);
-
-		// restore
-		player.pose.yRotBody -= rotationBody;
-		player.pose.yRotHead -= rotationMain;
-		player.pose.xRot = xRotOld;
-
-		stack.pop();
-		Lighting.setupFor3DItems();
-	}
-
-	// EntityRenderDispatcher#render
-	private void render(GUIPlayer player, Context context, PoseStack stack, MultiBufferSource bufferSource, double xOffset, double yOffset, double zOffset, float rotation, float delta, int light) {
 		try {
 			Vec3 vec3 = getRenderOffset(player.pose);
 			double x = xOffset + vec3.x();
@@ -272,15 +211,13 @@ public final class FakePlayerRenderer {
 		// TODO refactor so it doesn't leave sandbox? Or refactor so it's fully out of context cause why force people
 		// if they're just going to leave the sandbox every time anyway
 
-		GuiGraphics graphics = new GuiGraphics(Minecraft.getInstance(), stack, Minecraft.getInstance().renderBuffers().bufferSource());
-		Canvas canvas = new PoseCanvas(graphics, Minecraft.getInstance(), context, delta);
 		Iterator<GUIPlayer.Attachment<?>> iterator = player.getRenderingAttachments();
 
 		while (iterator.hasNext()) {
 			GUIPlayer.Attachment<?> layer = iterator.next();
 			Object configuration = player.getConfiguration(layer);
 			if (configuration != null) {
-				((GUIPlayer.Attachment)layer).render(player, this.model, posture, canvas, configuration, cameraOrientation, bufferSource, light);
+				((GUIPlayer.Attachment)layer).render(player, this.model, posture, stack, configuration, cameraOrientation, bufferSource, light);
 			}
 		}
 
@@ -292,21 +229,21 @@ public final class FakePlayerRenderer {
 			for (int i = this.nametags.size() - 1; i >= 0; i--) {
 				GUIPlayer.Nametag nametag = this.nametags.get(i);
 				stack.pushPose();
-				this.renderNametag(nametag, canvas, bufferSource, light);
+				this.renderNametag(nametag, stack, bufferSource, light);
 				stack.popPose();
 				stack.translate(0, 0.25875f, 0);
 			}
 			stack.popPose();
 		}
 
-		graphics.flush();
-		RenderSystem.disableDepthTest(); // nice try
+//		graphics.flush();
+//		RenderSystem.disableDepthTest(); // nice try
 	}
 
-	private void renderNametag(GUIPlayer.Nametag nametag, Canvas canvas, MultiBufferSource bufferSource, int packedLight) {
+	private void renderNametag(GUIPlayer.Nametag nametag, PoseStack stack, MultiBufferSource bufferSource, int packedLight) {
 		final Component name = nametag.text.toMinecraftComponent();
 		final float scale = nametag.scale;
-		PoseStack stack = canvas.getStack().getMinecraftStack();
+//		PoseStack stack = canvas.getStack().getMinecraftStack();
 
 		float yPosition = EntityType.PLAYER.getDimensions().height() + 0.5F;
 
@@ -525,7 +462,7 @@ public final class FakePlayerRenderer {
 	}
 
 	private void setupRotations(GUIPlayer.Posture posture, PoseStack stackIn, float f, float g, float h) {
-		MatrixStack stack = new KupeStack(stackIn);
+		MatrixStack stack = new KupePoseStack(stackIn);
 
 		stack.rotate(cc.cosmetica.kupe.api.maths.Vec3.YP, 180.0F - g, true);
 

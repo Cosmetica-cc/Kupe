@@ -80,7 +80,7 @@ public final class StateManagerImpl {
 	}
 
 	public static void scheduleResize() {
-		RenderSystem.recordRenderCall(() -> {
+		Minecraft.getInstance().schedule(() -> {
 			Screen screen = Minecraft.getInstance().screen;
 
 			if (screen instanceof KupeScreen) {
@@ -107,7 +107,7 @@ public final class StateManagerImpl {
 
 		// rebuild
 		if (!rebuildComponents.isEmpty()) {
-			RenderSystem.recordRenderCall(() -> {
+			Minecraft.getInstance().schedule(() -> {
 				Screen screen = Minecraft.getInstance().screen;
 
 				if (screen instanceof KupeScreen) {

@@ -93,9 +93,10 @@ public final class KupeScreen extends Screen {
 
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float tickDelta) {
-		if (this.defaultBackground) { // TODO better way to do this that also handles scrolling backgrounds
-			this.renderBackground(graphics, mouseX, mouseY, tickDelta);
-		}
+		// TODO re-implement this
+//		if (this.defaultBackground) { // TODO better way to do this that also handles scrolling backgrounds
+//			this.renderBackground(graphics, mouseX, mouseY, tickDelta);
+//		}
 
 		PoseCanvas canvas = new PoseCanvas(graphics, this.minecraft, this.context, tickDelta);
 		this.tree.render(canvas, mouseX, mouseY);

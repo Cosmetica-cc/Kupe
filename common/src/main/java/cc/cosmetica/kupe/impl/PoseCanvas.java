@@ -17,31 +17,39 @@
 package cc.cosmetica.kupe.impl;
 
 import cc.cosmetica.kupe.api.*;
+import cc.cosmetica.kupe.api.gui.GUIPlayer;
 import cc.cosmetica.kupe.api.maths.Region;
+import cc.cosmetica.kupe.impl.fakeplayer.FakePlayerGuiRenderer;
+import cc.cosmetica.kupe.impl.fakeplayer.FakePlayerRenderer;
 import cc.cosmetica.kupe.mixin.GuiGraphicsAccessor;
 import com.mojang.blaze3d.textures.GpuTextureView;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.font.glyphs.BakedGlyph;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
+import net.minecraft.client.gui.render.GuiRenderer;
 import net.minecraft.client.gui.render.TextureSetup;
-import net.minecraft.client.gui.render.state.ColoredRectangleRenderState;
+import net.minecraft.client.gui.render.state.*;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.gui.screens.inventory.tooltip.MenuTooltipPositioner;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.util.FormattedCharSequence;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix3x2f;
-import org.joml.Matrix3x2fStack;
+import org.joml.*;
 
+import java.lang.Math;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Implementation of Canvas.
  * It seems somewhat wasteful to create this every frame. Perhaps if the posestack doesn't change we can cache and just
  * update tickDelta.
  */
-public class PoseCanvas implements Canvas {
+public class PoseCanvas implements Canvas, ModernCanvas {
 	public PoseCanvas(GuiGraphics graphics, Minecraft minecraft, Context context, float tickDelta) {
 		this.graphics = graphics;
 		this.stack = graphics.pose();
@@ -238,12 +246,53 @@ public class PoseCanvas implements Canvas {
 
 	@Override
 	public void drawCenteredText(Text text, int x, int y, int colour) {
-		this.graphics.drawCenteredString(this.minecraft.font, text.toMinecraftComponent(), x, y, colour);
+		FormattedCharSequence sequence = text.toMinecraftComponent().getVisualOrderText();
+		x -= this.minecraft.font.width(sequence) / 2;
+
+		this.drawCharSequenceInternal(
+				this.minecraft.font,
+				text.toMinecraftComponent().getVisualOrderText(),
+				x,
+				y,
+				colour,
+				true
+		);
 	}
 
 	@Override
 	public void drawText(Text text, int x, int y, int colour) {
-		this.graphics.drawString(this.minecraft.font, text.toMinecraftComponent(), x, y, colour);
+		this.drawCharSequenceInternal(
+				this.minecraft.font,
+				text.toMinecraftComponent().getVisualOrderText(),
+				x,
+				y,
+				colour,
+				true
+		);
+	}
+
+	@Override
+	public void drawCharSequence(Font font, FormattedCharSequence sequence, int x, int y, int colour) {
+		// for consistency with older GUI versions. I think shadow on everything is visually nicer on new minecraft in many case, though.
+		this.drawCharSequenceInternal(font, sequence, x, y, colour, false);
+	}
+
+	private void drawCharSequenceInternal(Font font, FormattedCharSequence sequence, int x, int y, int colour, boolean shadow) {
+		GuiGraphicsAccessor graphics = (GuiGraphicsAccessor) this.graphics;
+		GuiRenderState guiRenderState = graphics.getGuiRenderState();
+		colour = addAlpha(colour, this.alpha);
+
+		guiRenderState.submitText(new GuiTextRenderState(
+				font,
+				sequence,
+				new Matrix3x2f(this.stack),
+				x,
+				y,
+				colour,
+				0,
+				shadow,
+				this.scissorStack.getScissorRegion().orElse(null)
+		));
 	}
 
 	@Override
@@ -256,18 +305,6 @@ public class PoseCanvas implements Canvas {
 		float b = (colour & 0xFF) / 255.0f;
 
 		this.drawRect(x0, y0, region.getWidth(), region.getHeight(), 0.0f, r, g, b);
-	}
-
-	static int packColour(float r, float g, float b) {
-		r = Math.max(0f, Math.min(1f, r));
-		g = Math.max(0f, Math.min(1f, g));
-		b = Math.max(0f, Math.min(1f, b));
-
-		int ri = Math.round(r * 255f);
-		int gi = Math.round(g * 255f);
-		int bi = Math.round(b * 255f);
-
-		return (ri << 16) | (gi << 8) | bi;
 	}
 
 	static int packColour(float r, float g, float b, float a) {
@@ -284,6 +321,11 @@ public class PoseCanvas implements Canvas {
 		return (ai << 24) | (ri << 16) | (gi << 8) | bi;
 	}
 
+	static int addAlpha(int rgb, float alpha) {
+		alpha = Math.max(0f, Math.min(1f, alpha));
+		int a = Math.round(alpha * 255f) & 0xFF;
+		return (a << 24) | (rgb & 0x00FFFFFF);
+	}
 
 	@Override
 	public void drawRect(int x0, int y0, int width, int height, float z, float r, float g, float b) {
@@ -291,7 +333,7 @@ public class PoseCanvas implements Canvas {
 		int colour = packColour(r, g, b, this.alpha);
 
 		graphics.getGuiRenderState().submitGuiElement(new ColoredRectangleRenderState(
-				RenderPipelines.GUI_TEXTURED,
+				RenderPipelines.GUI,
 				TextureSetup.noTexture(),
 				this.stack.get(new Matrix3x2f()),
 				x0, y0,
@@ -310,13 +352,16 @@ public class PoseCanvas implements Canvas {
 		this.setTexture(texture);
 		assert this.texture != null;
 
-		graphics.getGuiRenderState().submitGuiElement(new ColoredRectangleRenderState(
+		graphics.getGuiRenderState().submitGuiElement(new BlitRenderState(
 				RenderPipelines.GUI_TEXTURED,
 				TextureSetup.singleTexture(this.texture),
 				this.stack.get(new Matrix3x2f()),
 				x0, y0,
 				x0 + width, y0 + height,
-				colour,
+				0,
+				1,
+				0,
+				1,
 				colour,
 				this.scissorStack.getScissorRegion().orElse(null),
 				new ScreenRectangle(x0, y0, width, height)
@@ -325,17 +370,53 @@ public class PoseCanvas implements Canvas {
 
 	@Override
 	public PolyBuilder drawQuads(PolyBuilder.Mode mode) {
-		return BufferPolyBuilder.create((GuiGraphicsAccessor) this.graphics, VertexFormat.Mode.QUADS, mode, this.alpha, this.stack.get(new Matrix3x2f()));
+		return BufferPolyBuilder.create((GuiGraphicsAccessor) this.graphics, VertexFormat.Mode.QUADS, mode, this.texture, this.alpha, this.stack.get(new Matrix3x2f()), this.scissorStack.getScissorRegion().orElse(null));
 	}
 
 	@Override
 	public PolyBuilder drawTriangles(PolyBuilder.Mode mode) {
-		return BufferPolyBuilder.create((GuiGraphicsAccessor) this.graphics, VertexFormat.Mode.TRIANGLES, mode, this.alpha, this.stack.get(new Matrix3x2f()));
+		return BufferPolyBuilder.create((GuiGraphicsAccessor) this.graphics, VertexFormat.Mode.TRIANGLES, mode, this.texture, this.alpha, this.stack.get(new Matrix3x2f()), this.scissorStack.getScissorRegion().orElse(null));
+	}
+
+	private static final Vector3f XP = new Vector3f(1, 0, 0);
+	private static final Vector3f ZP = new Vector3f(0, 0, 1);
+
+	@Override
+	public void renderFakePlayer(GUIPlayer player, FakePlayerRenderer renderer, Region region, int left, int top, float extraScale, float lookX, float lookY) {
+		// InventoryScreen#renderEntityInInventoryFollowsMouse
+		float l = (float)Math.atan(lookY / 40.0F);
+
+		Quaternionf zRotation = new Quaternionf(new AxisAngle4f((float)Math.toRadians(180.0F), ZP));
+		Quaternionf xRotation = new Quaternionf(new AxisAngle4f((float)Math.toRadians(l * 20.0F), XP));
+		zRotation.mul(xRotation);
+
+		xRotation.conjugate();
+
+		// render
+		FakePlayerGuiRenderer.State state = new FakePlayerGuiRenderer.State(
+				renderer, player, extraScale, xRotation, zRotation, this.context, left, top, lookX, lookY,
+				region, 1.0f, this.scissorStack.getScissorRegion().orElse(null),
+				new ScreenRectangle(region.getX(), region.getY(), region.getWidth(), region.getHeight()));
+		GuiGraphicsAccessor graphics = (GuiGraphicsAccessor) this.graphics;
+		graphics.getGuiRenderState().submitPicturesInPictureState(state);
 	}
 
 	@Override
 	public void renderMinecraftComponent(net.minecraft.client.gui.components.Renderable component, int mouseX, int mouseY) {
+//		ScissorStack stack = this.scissorStack;
+		Optional<Region> rect = this.getScissor();
+		if (rect.isPresent()) {
+			Region region = rect.get();
+//			this.graphics.enableScissor(region.left(), region.top(), region.right(), region.bottom());
+			this.graphics.enableScissor(region.getX(), region.getY(), region.getEndX(), region.getEndY());
+		}
+//		if (stack.prevNode != null) {
+//			mouseY += (int)stack.scrollY;
+//		}
 		component.render(this.graphics, mouseX, mouseY, this.tickDelta);
+		if (rect.isPresent()) {
+			this.graphics.disableScissor();
+		}
 	}
 
 	// Allows us to easily change current region without wasting time/memory
@@ -360,20 +441,12 @@ public class PoseCanvas implements Canvas {
 			if (this.region == null) {
 				return Optional.empty();
 			}
-//			double guiScale = Minecraft.getInstance().getWindow().getGuiScale();
-			double windowHeight = Minecraft.getInstance().getWindow().getGuiScaledHeight();
-
-//			return new ScreenRectangle(
-//					(int) (region.getX() * guiScale),
-//					(int) ((windowHeight - (region.getY()+region.getHeight())) * guiScale), // lower left corner in opengl coordinate system
-//					(int) (region.getWidth() * guiScale),
-//					(int) (region.getHeight() * guiScale)
-//			);
+			Region region = this.region;
 
 			return Optional.of(
 					new ScreenRectangle(
 						region.getX(),
-						(int) (windowHeight - (region.getY()+region.getHeight())),
+						region.getY(),
 						region.getWidth(),
 						region.getHeight())
 			);

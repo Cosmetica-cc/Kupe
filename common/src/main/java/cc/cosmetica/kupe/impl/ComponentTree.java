@@ -236,7 +236,7 @@ class ComponentTree {
 	public void render(PoseCanvas canvas, int mouseX, int mouseY) {
 		//this.root.walk(node -> node.render(canvas, mouseX, mouseY));
 		// DFS
-		RenderSystem.disableDepthTest(); // don't use depth test for GUI?
+//		RenderSystem.disableDepthTest(); // don't use depth test for GUI?
 
 		Deque<Node> nodes = new ArrayDeque<>();
 		nodes.add(this.root);
@@ -839,8 +839,8 @@ class ComponentTree {
 				// render still thinks it's at the original position
 				// so if it's moved up, move mouse positions accordingly
 				this.element.render(canvas, this.renderRegion, this.padding, mouseX - (int)this.scrollX(), mouseY - (int)this.scrollY());
-				canvas.graphics.flush();
-				RenderSystem.disableDepthTest();
+//				canvas.graphics.flush();
+//				RenderSystem.disableDepthTest();
 
 				this.innerScrollY = canvas.getScrollY();
 				this.innerScrollX = canvas.getScrollX();

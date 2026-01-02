@@ -19,9 +19,6 @@ package cc.cosmetica.kupe.api.gui;
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.Context;
 import cc.cosmetica.kupe.api.Text;
-import cc.cosmetica.kupe.api.gui.style.CommonProperties;
-import cc.cosmetica.kupe.api.gui.style.RootStylesheet;
-import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
@@ -29,7 +26,6 @@ import cc.cosmetica.kupe.impl.MinecraftBuiltinComponent;
 import net.minecraft.client.gui.components.AbstractWidget;
 
 import java.util.List;
-import java.util.OptionalInt;
 
 /**
  * A button in the menu, with text and an action.
@@ -87,11 +83,14 @@ public class Button extends MinecraftBuiltinComponent implements Input {
 	// Minecraft button uses render(mouseX, mouseY) for highlight
 	@Override
 	public void paint(Canvas canvas, Region region, int mouseX, int mouseY) {
+		// temporarily use focus to give same visual effect as hover
+		// This also affects button tooltips. However, Kupe provides its own tooltip system.
+		boolean originalFocused = this.minecraftWidget.isFocused();
 		if (this.isOccluding(region, canvas.getScissor().orElse(region), mouseX, mouseY, false)) {
-			super.paint(canvas, region, mouseX, mouseY);
-		} else {
-			super.paint(canvas, region, -1000, mouseY);
+			this.minecraftWidget.setFocused(true);
 		}
+		super.paint(canvas, region, mouseX, mouseY);
+		this.minecraftWidget.setFocused(originalFocused);
 	}
 
 	@Override

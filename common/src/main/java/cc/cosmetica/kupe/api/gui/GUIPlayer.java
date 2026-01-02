@@ -23,9 +23,11 @@ import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
+import cc.cosmetica.kupe.impl.ModernCanvas;
 import cc.cosmetica.kupe.impl.LeavesSandbox;
 import cc.cosmetica.kupe.impl.fakeplayer.*;
 import com.google.common.base.Preconditions;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
 import net.minecraft.client.model.PlayerModel;
@@ -274,7 +276,11 @@ public class GUIPlayer extends Component {
 		if (!this.loadedName && this.uuid != null) {
 			this.renderer.nametags.get(0).text = PlayerUtils.getUsername(uuid);
 		}
-		this.renderer.render(this, canvas.getStack(), canvas.getDrawingContext(), centreX, footY, region.getWidth() / 2.5f, lookX, lookY);
+		if (canvas instanceof ModernCanvas) {
+			((ModernCanvas)canvas).renderFakePlayer(this, this.renderer, region, centreX, footY, region.getWidth() / 2.5f, lookX, lookY);
+		} else {
+			throw new IllegalStateException("GuiPlayer currently does not support canvas " + canvas + " on Minecraft >=1.21.8");
+		}
 	}
 
 	public static Attachment<CapeProperties> CAPE = registerAttachment(new CapeAttachment());
@@ -320,12 +326,12 @@ public class GUIPlayer extends Component {
 		 * @param component the component being rendered.
 		 * @param playerModel the player model on which to render.
 		 * @param posture the posture of the player being rendered.
-		 * @param canvas the canvas environment for rendering.
+		 * @param stack the pose stack.
 		 * @param configuration the configuration.
 		 * @param packedLight packed light for rendering.
 		 */
 		@LeavesSandbox
-		void render(GUIPlayer component, PlayerModel playerModel, GUIPlayer.Posture posture, Canvas canvas, T configuration, Quaternionf cameraOrientation, MultiBufferSource bufferSource, int packedLight);
+		void render(GUIPlayer component, PlayerModel playerModel, GUIPlayer.Posture posture, PoseStack stack, T configuration, Quaternionf cameraOrientation, MultiBufferSource bufferSource, int packedLight);
 
 		/**
 		 * Get the dynamic user configuration. This is called every tick for an enabled component of a UUID FakePlayer.

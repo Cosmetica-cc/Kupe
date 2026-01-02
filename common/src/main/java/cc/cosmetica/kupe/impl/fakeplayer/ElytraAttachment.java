@@ -23,6 +23,7 @@ import cc.cosmetica.kupe.api.gui.GUIPlayer.ElytraProperties;
 import cc.cosmetica.kupe.impl.ExtendedPlayerModel;
 import cc.cosmetica.kupe.mixin.fakeplayer.ElytraModelAccessor;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.ElytraModel;
 import net.minecraft.client.model.PlayerModel;
@@ -39,13 +40,11 @@ import java.util.UUID;
 
 public class ElytraAttachment implements GUIPlayer.Attachment<ElytraProperties> {
 	@Override
-	public void render(GUIPlayer component, PlayerModel model, GUIPlayer.Posture posture, Canvas canvas, ElytraProperties configuration, Quaternionf cameraOrientation, MultiBufferSource bufferSource, int packedLight) {
+	public void render(GUIPlayer component, PlayerModel model, GUIPlayer.Posture posture, PoseStack stack, ElytraProperties configuration, Quaternionf cameraOrientation, MultiBufferSource bufferSource, int packedLight) {
 		if (model instanceof ExtendedPlayerModel) {
 			ElytraModel elytraModel = ((ExtendedPlayerModel) model).getElytra();
 
-			MatrixStack stack = canvas.getStack();
-
-			stack.push();
+			stack.pushPose();
 			// Not necessary on 1.21.4
 //			stack.scale(2,2,2);
 //			stack.translate(0.0, -24/32.0, 0.125/2);
@@ -55,8 +54,8 @@ public class ElytraAttachment implements GUIPlayer.Attachment<ElytraProperties> 
 
 			this.setupAnim(posture, (ElytraModelAccessor) elytraModel, 0, 0, 0, posture.yRotHead, posture.xRot);
 			VertexConsumer vertexConsumer = ItemRenderer.getArmorFoilBuffer(bufferSource, renderType, configuration.glint);
-			elytraModel.renderToBuffer(stack.getMinecraftStack(), vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY);
-			stack.pop();
+			elytraModel.renderToBuffer(stack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY);
+			stack.popPose();
 		}
  	}
 
