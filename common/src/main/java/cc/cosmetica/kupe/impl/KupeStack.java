@@ -20,56 +20,54 @@ import cc.cosmetica.kupe.api.MatrixStack;
 import cc.cosmetica.kupe.api.maths.Matrix4;
 import cc.cosmetica.kupe.api.maths.Vec3;
 import cc.cosmetica.kupe.impl.maths.Mat4f;
-import com.mojang.blaze3d.vertex.PoseStack;
 import org.joml.AxisAngle4f;
+import org.joml.Matrix3x2fStack;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 /**
- * MatrixStack wrapping blaze3d posestack.
+ * MatrixStack wrapping Matrix3x2fStack.
  */
 public class KupeStack implements MatrixStack {
-	public KupeStack(PoseStack stack) {
+	public KupeStack(Matrix3x2fStack stack) {
 		this.stack = stack;
 	}
 
-	private PoseStack stack;
+	private Matrix3x2fStack stack;
 
 	@Override
 	public void push() {
-		this.stack.pushPose();
+		this.stack.pushMatrix();
 	}
 
 	@Override
 	public void pop() {
-		this.stack.popPose();
+		this.stack.popMatrix();
 	}
 
 	@Override
 	public Matrix4 peek() {
-		return new Mat4f(this.stack.last().pose());
+		throw new UnsupportedOperationException("Underlying representation is not Matrix4");
 	}
 
 	@Override
 	public void translate(double x, double y, double z) {
-		this.stack.translate(x, y, z);
+		this.stack.translate((float) x, (float) y);
 	}
 
 	@Override
 	public void rotate(Vec3 axis, float amount, boolean degrees) {
-		this.stack.mulPose(new Quaternionf(new AxisAngle4f(
-				degrees ? (float)Math.toRadians(amount) : amount,
-				new Vector3f((float)axis.getX(), (float)axis.getY(), (float)axis.getZ())
-		)));
+		float amount2 = axis.getZ() < 0 ? -amount : amount;
+		this.stack.rotate(degrees ? (float) Math.toRadians(amount2) : amount2);
 	}
 
 	@Override
 	public void scale(float x, float y, float z) {
-		this.stack.scale(x, y, z);
+		this.stack.scale(x, y);
 	}
 
 	@Override
-	public PoseStack getMinecraftStack() {
+	public Matrix3x2fStack getMinecraftStack() {
 		return this.stack;
 	}
 }

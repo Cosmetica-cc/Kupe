@@ -17,100 +17,189 @@
 package cc.cosmetica.kupe.impl;
 
 import cc.cosmetica.kupe.api.PolyBuilder;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.Tesselator;
+import cc.cosmetica.kupe.mixin.GuiGraphicsAccessor;
+import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.blaze3d.textures.GpuTextureView;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
+import net.minecraft.client.gui.render.TextureSetup;
+import net.minecraft.client.gui.render.state.GuiElementRenderState;
+import net.minecraft.client.gui.render.state.GuiRenderState;
+import net.minecraft.client.renderer.RenderPipelines;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix4f;
-import org.joml.Vector4f;
+import org.joml.Matrix3x2f;
+import org.joml.Vector2f;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class BufferPolyBuilder implements PolyBuilder {
-	private BufferPolyBuilder(Tesselator tesselator, VertexFormat.Mode shape, Mode mode, @Nullable Matrix4f matrix4f) {
-		this.builder = tesselator.begin(shape, mode.getFormat());
-		this.matrix4f = matrix4f;
+	private BufferPolyBuilder(GuiGraphicsAccessor graphics, VertexFormat.Mode shape, TextureSetup textureSetup, float alpha, @Nullable Matrix3x2f matrix4f, @Nullable ScreenRectangle scissor) {
+		this.graphics = graphics;
+		this.triangles = shape == VertexFormat.Mode.TRIANGLES;
+		this.alpha = alpha;
+		this.matrix = matrix4f;
+		this.textureSetup = textureSetup;
+		this.scissor = scissor;
 	}
 
-	private final BufferBuilder builder;
-	private final Matrix4f matrix4f;
-	private boolean clean = true;
+	private final GuiGraphicsAccessor graphics;
+	private final boolean triangles;
+	private final float alpha;
+	private final Matrix3x2f matrix;
+	private final TextureSetup textureSetup;
+	private final ScreenRectangle scissor;
+
+	private final List<Vertex> vertices = new ArrayList<>();
+	private Vertex current;
+	private boolean appliedAlpha;
 
 	@Override
 	public PolyBuilder vertex(double x, double y, double z) {
-		if (!this.clean) {
+		if (this.current != null) {
 			throw new IllegalStateException("Cannot create new vertex without ending previous vertex!");
 		}
-		this.clean = false;
 
-		if (this.matrix4f == null) {
-			this.builder.addVertex((float)x, (float)y, (float)z);
-		} else {
-			this.builder.addVertex(this.matrix4f, (float)x, (float)y, (float)z);
-		}
+		this.current = new Vertex(this.matrix, (float)x, (float)y, (float)z);
+		this.appliedAlpha = false;
 		return this;
 	}
 
 	@Override
 	public PolyBuilder colour(float r, float g, float b, float a) {
-		this.builder.setColor(r, g, b, a);
+		this.current.colour = PoseCanvas.packColour(r, g, b, a * this.alpha);
+		this.appliedAlpha = true;
 		return this;
 	}
 
 	@Override
 	public PolyBuilder uv(float u, float v) {
-		this.builder.setUv(u, v);
+		this.current.u = u;
+		this.current.v = v;
 		return this;
 	}
 
 	@Override
 	public PolyBuilder lightmap(int u, int v) {
-		this.builder.setUv2(u, v);
+		this.current.u2 = u;
+		this.current.v2 = v;
 		return this;
 	}
 
 	@Override
 	public PolyBuilder endVertex() {
-		this.clean = true;
+		if (!this.appliedAlpha) {
+			this.current.colour = PoseCanvas.packColour(1, 1, 1, this.alpha);
+		}
+		this.vertices.add(this.current);
+		// duplicate final vertex for triangles
+		if (this.triangles && ((this.vertices.size() + 1) & 3) == 0) {
+			this.vertices.add(this.current);
+		}
+		this.current = null;
 		return this;
 	}
 
 	@Override
 	public void build() {
-		BufferUploader.drawWithShader(this.builder.buildOrThrow());
-	}
-
-	public static BufferPolyBuilder create(Tesselator tesselator, VertexFormat.Mode shape, Mode mode, @Nullable Matrix4f matrix4f) {
-		if (mode == Mode.POSITION_COLOUR_TEXTURE) {
-			return new PositionColourTexAdapter(tesselator, shape, matrix4f);
-		} else {
-			return new BufferPolyBuilder(tesselator, shape, mode, matrix4f);
-		}
-	}
-
-	private static class PositionColourTexAdapter extends BufferPolyBuilder {
-		private PositionColourTexAdapter(Tesselator tesselator, VertexFormat.Mode shape, @Nullable Matrix4f matrix4f) {
-			super(tesselator, shape, Mode.POSITION_COLOUR_TEXTURE, matrix4f);
+		if (this.current != null) {
+			throw new IllegalStateException("Cannot build polygons: vertex has not been ended.");
 		}
 
-		@Nullable
-		private Vector4f colour;
+		GuiRenderState state = this.graphics.getGuiRenderState();
+		state.submitGuiElement(new BufferPolyVertexList(this));
+	}
 
-		@Override
-		public PolyBuilder uv(float u, float v) {
-			if (this.colour == null) {
-				throw new IllegalStateException("Must declare Colour before UV for POSITION_COLOUR_TEXTURE");
+	public static BufferPolyBuilder create(GuiGraphicsAccessor graphics, VertexFormat.Mode shape, Mode mode, @Nullable GpuTextureView texture, float alpha, @Nullable Matrix3x2f matrix4f, @Nullable ScreenRectangle scissor) {
+		TextureSetup setup = TextureSetup.noTexture();
+
+		switch (mode) {
+		case POSITION:
+		case POSITION_COLOUR:
+			break;
+		case POSITION_TEXTURE:
+		case POSITION_COLOUR_TEXTURE:
+			if (texture == null) {
+				throw new IllegalArgumentException("Building polygons with texture but no texture set");
 			}
+			setup = TextureSetup.singleTexture(texture);
+			break;
+		case POSITION_COLOUR_LIGHTMAP:
+			setup = TextureSetup.singleTextureWithLightmap(null);
+			break;
+		case POSITION_COLOUR_TEXTURE_LIGHTMAP:
+			if (texture == null) {
+				throw new IllegalArgumentException("Building polygons with texture but no texture set");
+			}
+			setup = TextureSetup.singleTextureWithLightmap(texture);
+			break;
+        }
+		return new BufferPolyBuilder(graphics, shape, setup, alpha, matrix4f, scissor);
+	}
 
-			// reinterpret order to match minecraft order (Position-Tex-Colour)
-			super.uv(u, v);
-			super.colour(this.colour.x, this.colour.y, this.colour.z, this.colour.w);
-			return this;
+	private static class Vertex {
+		Vertex(@Nullable Matrix3x2f matrix, float x, float y, float z) {
+			if (matrix == null) {
+				this.x = x;
+				this.y = y;
+			} else {
+				Vector2f corner = matrix.transformPosition(x, y, new Vector2f());
+				this.x = corner.x;
+				this.y = corner.y;
+			}
+			this.z = z;
+		}
+
+		final float x;
+		final float y;
+		final float z;
+		int colour = 0xFFFFFFFF;
+		float u;
+		float v;
+		float u2;
+		float v2;
+	}
+
+	private static class BufferPolyVertexList implements GuiElementRenderState {
+		BufferPolyVertexList(BufferPolyBuilder builder) {
+			this.vertices = builder.vertices;
+			this.textureSetup = builder.textureSetup;
+			this.scissor = builder.scissor;
+		}
+
+		private final @NotNull List<Vertex> vertices;
+		private final @NotNull TextureSetup textureSetup;
+		private final @Nullable ScreenRectangle scissor;
+
+		@Override
+		public void buildVertices(VertexConsumer consumer, float z) {
+			for (Vertex vertex : this.vertices) {
+				consumer.addVertex(vertex.x, vertex.y, z)
+						.setColor(vertex.colour)
+						.setUv(vertex.u, vertex.v);
+			}
 		}
 
 		@Override
-		public PolyBuilder colour(float r, float g, float b, float a) {
-			this.colour = new Vector4f(r, g, b, a);
-			return this;
+		public RenderPipeline pipeline() {
+			return RenderPipelines.GUI_TEXTURED;
+		}
+
+		@Override
+		public TextureSetup textureSetup() {
+			return this.textureSetup;
+		}
+
+		@Override
+		public @Nullable ScreenRectangle scissorArea() {
+			return this.scissor;
+		}
+
+		@Override
+		public @Nullable ScreenRectangle bounds() {
+			return null;
 		}
 	}
 }

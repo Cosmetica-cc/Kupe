@@ -18,17 +18,21 @@ package cc.cosmetica.kupe.impl;
 
 import cc.cosmetica.kupe.api.*;
 import cc.cosmetica.kupe.api.maths.Region;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.*;
+import cc.cosmetica.kupe.mixin.GuiGraphicsAccessor;
+import com.mojang.blaze3d.textures.GpuTextureView;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.renderer.CompiledShaderProgram;
-import net.minecraft.client.renderer.CoreShaders;
-import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
+import net.minecraft.client.gui.render.TextureSetup;
+import net.minecraft.client.gui.render.state.ColoredRectangleRenderState;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.client.gui.screens.inventory.tooltip.MenuTooltipPositioner;
+import net.minecraft.client.renderer.RenderPipelines;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix4f;
+import org.joml.Matrix3x2f;
+import org.joml.Matrix3x2fStack;
 
 import java.util.Optional;
 
@@ -52,7 +56,7 @@ public class PoseCanvas implements Canvas {
 	}
 
 	final GuiGraphics graphics;
-	private final PoseStack stack;
+	private final Matrix3x2fStack stack;
 	private final MatrixStack kupeStack;
 	private final Minecraft minecraft;
 	private final Context context;
@@ -62,6 +66,7 @@ public class PoseCanvas implements Canvas {
 	private @NotNull ScissorStack scissorStack;
 	private boolean fastScissor;
 	private boolean floatingStackActive = false;
+	private @Nullable GpuTextureView texture;
 	private FloatingStack floatingStack;
 
 	@Override
@@ -76,21 +81,17 @@ public class PoseCanvas implements Canvas {
 
 	@Override
 	public void disableTransparency() {
-		RenderSystem.disableBlend();
-		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
 		this.alpha = 1.0f;
 	}
 
 	@Override
 	public void setTransparency(float transparency) {
-		RenderSystem.enableBlend();
-		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, transparency);
 		this.alpha = transparency;
 	}
 
 	@Override
 	public void setTexture(ResourceKey texture) {
-		RenderSystem.setShaderTexture(0, texture.toResourceLocation());
+		this.texture = this.minecraft.getTextureManager().getTexture(texture.toResourceLocation()).getTextureView();
 	}
 
 	@Override
@@ -98,7 +99,6 @@ public class PoseCanvas implements Canvas {
 		// update region minecraft rendering engine is using and in the stack
 		if (region == null) {
 			this.scissorStack.region = null;
-			RenderSystem.disableScissor();
 		} else {
 			// check whether to scroll scissor region
 			ScissorStack scissorScroller = this.scissorStack.prevNode;
@@ -116,20 +116,6 @@ public class PoseCanvas implements Canvas {
 
 			// set current region
 			this.scissorStack.region = region;
-
-			double guiScale = Minecraft.getInstance().getWindow().getGuiScale();
-			double windowHeight = Minecraft.getInstance().getWindow().getGuiScaledHeight();
-
-			// 1.20.1+
-			this.graphics.flush();
-			RenderSystem.disableDepthTest();
-
-			RenderSystem.enableScissor(
-					(int) (region.getX() * guiScale),
-					(int) ((windowHeight - (region.getY()+region.getHeight())) * guiScale), // lower left corner in opengl coordinate system
-					(int) (region.getWidth() * guiScale),
-					(int) (region.getHeight() * guiScale)
-			);
 		}
 	}
 
@@ -185,8 +171,13 @@ public class PoseCanvas implements Canvas {
 		renderFloating((x_, y_) -> {
 			this.graphics.renderTooltip(
 					Minecraft.getInstance().font,
-					Minecraft.getInstance().font.split(text.toMinecraftComponent(), splitWidth),
-					x_, y_);
+					Minecraft.getInstance().font.split(text.toMinecraftComponent(), splitWidth)
+							.stream().map(ClientTooltipComponent::create)
+							.toList(),
+					x_, y_,
+					// TODO is this correct position
+					new MenuTooltipPositioner(new ScreenRectangle(x, y, 1, 1)),
+					null);
 		}, x, y);
 	}
 
@@ -198,8 +189,8 @@ public class PoseCanvas implements Canvas {
 	@Override
 	public void scroll(float amountX, float amountY) {
 		if (!this.scissorStack.hasActiveTranslation) {
-			this.stack.pushPose(); // SCROLL_PUSH
-			this.stack.translate(amountX, amountY, 0);
+			this.stack.pushMatrix(); // SCROLL_PUSH
+			this.stack.translate(amountX, amountY);
 			this.scissorStack.scroll(amountX, amountY);
 		}
 	}
@@ -223,7 +214,7 @@ public class PoseCanvas implements Canvas {
 	// pop the scissor translation. we don't scroll the component itself. Only its contents!
 	public void popTranslation() {
 		if (this.scissorStack.hasActiveTranslation) {
-			this.stack.popPose(); // SCROLL_POP
+			this.stack.popMatrix(); // SCROLL_POP
 		}
 
 		this.scissorStack.hasActiveTranslation = false;
@@ -267,56 +258,79 @@ public class PoseCanvas implements Canvas {
 		this.drawRect(x0, y0, region.getWidth(), region.getHeight(), 0.0f, r, g, b);
 	}
 
+	static int packColour(float r, float g, float b) {
+		r = Math.max(0f, Math.min(1f, r));
+		g = Math.max(0f, Math.min(1f, g));
+		b = Math.max(0f, Math.min(1f, b));
+
+		int ri = Math.round(r * 255f);
+		int gi = Math.round(g * 255f);
+		int bi = Math.round(b * 255f);
+
+		return (ri << 16) | (gi << 8) | bi;
+	}
+
+	static int packColour(float r, float g, float b, float a) {
+		r = Math.max(0f, Math.min(1f, r));
+		g = Math.max(0f, Math.min(1f, g));
+		b = Math.max(0f, Math.min(1f, b));
+		a = Math.max(0f, Math.min(1f, a));
+
+		int ri = Math.round(r * 255f);
+		int gi = Math.round(g * 255f);
+		int bi = Math.round(b * 255f);
+		int ai = Math.round(a * 255f);
+
+		return (ai << 24) | (ri << 16) | (gi << 8) | bi;
+	}
+
+
 	@Override
 	public void drawRect(int x0, int y0, int width, int height, float z, float r, float g, float b) {
-		RenderSystem.setShader(CoreShaders.POSITION_COLOR);
-		Matrix4f matrix4f = this.stack.last().pose();
-		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+		GuiGraphicsAccessor graphics = (GuiGraphicsAccessor) this.graphics;
+		int colour = packColour(r, g, b, this.alpha);
 
-		// x1, y1 exclusive because for some reason minecraft works this way
-		int x1 = x0 + width;
-		int y1 = y0 + height;
-
-		final float a = this.alpha;
-		BufferBuilder bufferBuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-		bufferBuilder.addVertex(matrix4f, x0, y1, z).setColor(r, g, b, a);
-		bufferBuilder.addVertex(matrix4f, x1, y1, z).setColor(r, g, b, a);
-		bufferBuilder.addVertex(matrix4f, x1, y0, z).setColor(r, g, b, a);
-		bufferBuilder.addVertex(matrix4f, x0, y0, z).setColor(r, g, b, a);
-
-		BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
-		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, this.alpha); // reset alpha
+		graphics.getGuiRenderState().submitGuiElement(new ColoredRectangleRenderState(
+				RenderPipelines.GUI_TEXTURED,
+				TextureSetup.noTexture(),
+				this.stack.get(new Matrix3x2f()),
+				x0, y0,
+				x0 + width, y0 + height,
+				colour,
+				colour,
+				this.scissorStack.getScissorRegion().orElse(null),
+				new ScreenRectangle(x0, y0, width, height)
+		));
 	}
 
 	@Override
 	public void drawTexture(int x0, int y0, int width, int height, float z, ResourceKey texture) {
-		RenderSystem.setShader(CoreShaders.POSITION_TEX);
+		GuiGraphicsAccessor graphics = (GuiGraphicsAccessor) this.graphics;
+		int colour = packColour(1, 1, 1, this.alpha);
 		this.setTexture(texture);
-		Matrix4f matrix4f = this.stack.last().pose();
+		assert this.texture != null;
 
-		// x1, y1 exclusive because for some reason minecraft works this way
-		int x1 = x0 + width;
-		int y1 = y0 + height;
-
-		BufferBuilder bufferBuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-		bufferBuilder.addVertex(matrix4f, (float)x0, (float)y1, z).setUv(0, 1);
-		bufferBuilder.addVertex(matrix4f, (float)x1, (float)y1, z).setUv(1, 1);
-		bufferBuilder.addVertex(matrix4f, (float)x1, (float)y0, z).setUv(1, 0);
-		bufferBuilder.addVertex(matrix4f, (float)x0, (float)y0, z).setUv(0, 0);
-
-		BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
+		graphics.getGuiRenderState().submitGuiElement(new ColoredRectangleRenderState(
+				RenderPipelines.GUI_TEXTURED,
+				TextureSetup.singleTexture(this.texture),
+				this.stack.get(new Matrix3x2f()),
+				x0, y0,
+				x0 + width, y0 + height,
+				colour,
+				colour,
+				this.scissorStack.getScissorRegion().orElse(null),
+				new ScreenRectangle(x0, y0, width, height)
+		));
 	}
 
 	@Override
 	public PolyBuilder drawQuads(PolyBuilder.Mode mode) {
-		mode.applyShader();
-		return BufferPolyBuilder.create(Tesselator.getInstance(), VertexFormat.Mode.QUADS, mode, this.stack.last().pose());
+		return BufferPolyBuilder.create((GuiGraphicsAccessor) this.graphics, VertexFormat.Mode.QUADS, mode, this.alpha, this.stack.get(new Matrix3x2f()));
 	}
 
 	@Override
 	public PolyBuilder drawTriangles(PolyBuilder.Mode mode) {
-		mode.applyShader();
-		return BufferPolyBuilder.create(Tesselator.getInstance(), VertexFormat.Mode.TRIANGLES, mode, this.stack.last().pose());
+		return BufferPolyBuilder.create((GuiGraphicsAccessor) this.graphics, VertexFormat.Mode.TRIANGLES, mode, this.alpha, this.stack.get(new Matrix3x2f()));
 	}
 
 	@Override
@@ -340,6 +354,29 @@ public class PoseCanvas implements Canvas {
 			this.scrollX += scrollX;
 			this.scrollY += scrollY;
 			this.hasActiveTranslation = true;
+		}
+
+		Optional<ScreenRectangle> getScissorRegion() {
+			if (this.region == null) {
+				return Optional.empty();
+			}
+//			double guiScale = Minecraft.getInstance().getWindow().getGuiScale();
+			double windowHeight = Minecraft.getInstance().getWindow().getGuiScaledHeight();
+
+//			return new ScreenRectangle(
+//					(int) (region.getX() * guiScale),
+//					(int) ((windowHeight - (region.getY()+region.getHeight())) * guiScale), // lower left corner in opengl coordinate system
+//					(int) (region.getWidth() * guiScale),
+//					(int) (region.getHeight() * guiScale)
+//			);
+
+			return Optional.of(
+					new ScreenRectangle(
+						region.getX(),
+						(int) (windowHeight - (region.getY()+region.getHeight())),
+						region.getWidth(),
+						region.getHeight())
+			);
 		}
 
 		private @Nullable Region region;

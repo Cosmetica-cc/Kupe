@@ -20,7 +20,6 @@ import cc.cosmetica.kupe.api.MatrixStack;
 import cc.cosmetica.kupe.api.maths.Matrix4;
 import cc.cosmetica.kupe.api.maths.Vec3;
 import cc.cosmetica.kupe.impl.maths.Mat4f;
-import com.mojang.blaze3d.vertex.PoseStack;
 import org.joml.*;
 
 import java.lang.Math;
@@ -71,7 +70,7 @@ public class KupeMatrix4fStack implements MatrixStack {
     }
 
     @Override
-    public PoseStack getMinecraftStack() {
-        throw new UnsupportedOperationException("Not a PoseStack!");
+    public Matrix3x2fStack getMinecraftStack() {
+        throw new UnsupportedOperationException("Not a Matrix3x2fStack!");
     }
 }

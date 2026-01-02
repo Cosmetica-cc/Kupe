@@ -17,11 +17,8 @@
 package cc.cosmetica.kupe.api;
 
 import cc.cosmetica.kupe.impl.LeavesSandbox;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import net.minecraft.client.renderer.CoreShaders;
-import net.minecraft.client.renderer.ShaderProgram;
 
 /**
  * Draw polygons. Typically used for {@linkplain Canvas#drawQuads(Mode) quadrilaterals}.
@@ -66,23 +63,21 @@ public interface PolyBuilder {
 	 * The modes this QuadBuilder can run in.
 	 */
 	enum Mode {
-		POSITION(DefaultVertexFormat.POSITION, CoreShaders.POSITION, false, 1),
-		POSITION_COLOUR(DefaultVertexFormat.POSITION_COLOR, CoreShaders.POSITION_COLOR, false, 2),
-		POSITION_TEXTURE(DefaultVertexFormat.POSITION_TEX, CoreShaders.POSITION_TEX, true, 2),
+		POSITION(DefaultVertexFormat.POSITION, false, 1),
+		POSITION_COLOUR(DefaultVertexFormat.POSITION_COLOR, false, 2),
+		POSITION_TEXTURE(DefaultVertexFormat.POSITION_TEX, true, 2),
 		// Note: for compatibility, declaration order for this mode remains Position, Colour, Texture even in minecraft versions where this format does not exist.
-		POSITION_COLOUR_TEXTURE(DefaultVertexFormat.POSITION_TEX_COLOR, CoreShaders.POSITION_TEX_COLOR, true, 3),
-		POSITION_COLOUR_LIGHTMAP(DefaultVertexFormat.POSITION_COLOR_LIGHTMAP, CoreShaders.POSITION_COLOR_LIGHTMAP, false, 3),
-		POSITION_COLOUR_TEXTURE_LIGHTMAP(DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP, CoreShaders.POSITION_COLOR_TEX_LIGHTMAP, true, 4);
+		POSITION_COLOUR_TEXTURE(DefaultVertexFormat.POSITION_TEX_COLOR, true, 3),
+		POSITION_COLOUR_LIGHTMAP(DefaultVertexFormat.POSITION_COLOR_LIGHTMAP, false, 3),
+		POSITION_COLOUR_TEXTURE_LIGHTMAP(DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP, true, 4);
 
-		Mode(VertexFormat format, ShaderProgram shader, boolean texture, int size) {
+		Mode(VertexFormat format, boolean texture, int size) {
 			this.format = format;
-			this.shader = shader;
 			this.texture = texture;
 			this.size = size;
 		}
 
 		private final VertexFormat format;
-		private final ShaderProgram shader;
 		@SuppressWarnings("unused")
 		private final boolean texture;
 		private final int size;
@@ -108,7 +103,12 @@ public interface PolyBuilder {
 		 * Apply the shader this Mode is associated with.
 		 */
 		public void applyShader() {
-			RenderSystem.setShader(this.shader);
+			if (!warned) {
+				warned = true;
+				System.out.println("Warning: applyShader has no affect in 1.21.8+");
+			}
 		}
+
+		private static boolean warned = false;
 	}
 }
