@@ -16,7 +16,6 @@ import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
-import net.minecraft.resources.ResourceLocation;
 
 import java.util.UUID;
 
@@ -42,7 +41,7 @@ public class FakePlayerTestScreen extends Screen {
 		try {
 			return new Component[]{
 					p = (GUIPlayer) new GUIPlayer(UUID.fromString("8ea1da2f-0efa-4044-9e6f-4a3bf4e8a9a5"), !frozen)
-							.configureOverride(GUIPlayer.CAPE, new GUIPlayer.CapeProperties(new ResourceLocation("kupe_test", "textures/test_cape.png")))
+							.configureOverride(GUIPlayer.CAPE, new GUIPlayer.CapeProperties(new ResourceKey("kupe_test", "textures/test_cape.png")))
 							.hideAttachments()
 							.showAttachments(elytra ? GUIPlayer.ELYTRA : GUIPlayer.CAPE)
 							.showNametag(true)

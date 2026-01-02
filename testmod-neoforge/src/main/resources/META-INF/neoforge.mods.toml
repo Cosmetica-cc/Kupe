@@ -1,6 +1,6 @@
 modLoader = "javafml"
 loaderVersion = "[1,)"
-#issueTrackerURL = ""
+issueTrackerURL = "https://github.com/Cosmetica-cc/Kupe"
 license = "Insert License Here"
 
 [[mods]]

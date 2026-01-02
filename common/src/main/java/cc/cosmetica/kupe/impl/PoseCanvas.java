@@ -268,7 +268,6 @@ public class PoseCanvas implements Canvas {
 	@Override
 	public void drawRect(int x0, int y0, int width, int height, float z, float r, float g, float b) {
 		RenderSystem.setShader(GameRenderer::getPositionColorShader);
-		BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
 		Matrix4f matrix4f = this.stack.last().pose();
 		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
 
@@ -277,13 +276,13 @@ public class PoseCanvas implements Canvas {
 		int y1 = y0 + height;
 
 		final float a = this.alpha;
-		bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-		bufferBuilder.vertex(matrix4f, x0, y1, z).color(r, g, b, a).endVertex();
-		bufferBuilder.vertex(matrix4f, x1, y1, z).color(r, g, b, a).endVertex();
-		bufferBuilder.vertex(matrix4f, x1, y0, z).color(r, g, b, a).endVertex();
-		bufferBuilder.vertex(matrix4f, x0, y0, z).color(r, g, b, a).endVertex();
+		BufferBuilder bufferBuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+		bufferBuilder.addVertex(matrix4f, x0, y1, z).setColor(r, g, b, a);
+		bufferBuilder.addVertex(matrix4f, x1, y1, z).setColor(r, g, b, a);
+		bufferBuilder.addVertex(matrix4f, x1, y0, z).setColor(r, g, b, a);
+		bufferBuilder.addVertex(matrix4f, x0, y0, z).setColor(r, g, b, a);
 
-		BufferUploader.drawWithShader(bufferBuilder.end());
+		BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
 		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, this.alpha); // reset alpha
 	}
 
@@ -291,32 +290,31 @@ public class PoseCanvas implements Canvas {
 	public void drawTexture(int x0, int y0, int width, int height, float z, ResourceKey texture) {
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		this.setTexture(texture);
-		BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
 		Matrix4f matrix4f = this.stack.last().pose();
 
 		// x1, y1 exclusive because for some reason minecraft works this way
 		int x1 = x0 + width;
 		int y1 = y0 + height;
 
-		bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-		bufferBuilder.vertex(matrix4f, (float)x0, (float)y1, z).uv(0, 1).endVertex();
-		bufferBuilder.vertex(matrix4f, (float)x1, (float)y1, z).uv(1, 1).endVertex();
-		bufferBuilder.vertex(matrix4f, (float)x1, (float)y0, z).uv(1, 0).endVertex();
-		bufferBuilder.vertex(matrix4f, (float)x0, (float)y0, z).uv(0, 0).endVertex();
+		BufferBuilder bufferBuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+		bufferBuilder.addVertex(matrix4f, (float)x0, (float)y1, z).setUv(0, 1);
+		bufferBuilder.addVertex(matrix4f, (float)x1, (float)y1, z).setUv(1, 1);
+		bufferBuilder.addVertex(matrix4f, (float)x1, (float)y0, z).setUv(1, 0);
+		bufferBuilder.addVertex(matrix4f, (float)x0, (float)y0, z).setUv(0, 0);
 
-		BufferUploader.drawWithShader(bufferBuilder.end());
+		BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
 	}
 
 	@Override
 	public PolyBuilder drawQuads(PolyBuilder.Mode mode) {
 		mode.applyShader();
-		return new BufferPolyBuilder(Tesselator.getInstance().getBuilder(), VertexFormat.Mode.QUADS, mode, this.stack.last().pose());
+		return BufferPolyBuilder.create(Tesselator.getInstance(), VertexFormat.Mode.QUADS, mode, this.stack.last().pose());
 	}
 
 	@Override
 	public PolyBuilder drawTriangles(PolyBuilder.Mode mode) {
 		mode.applyShader();
-		return new BufferPolyBuilder(Tesselator.getInstance().getBuilder(), VertexFormat.Mode.TRIANGLES, mode, this.stack.last().pose());
+		return BufferPolyBuilder.create(Tesselator.getInstance(), VertexFormat.Mode.TRIANGLES, mode, this.stack.last().pose());
 	}
 
 	@Override

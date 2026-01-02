@@ -28,8 +28,11 @@ import java.util.Objects;
 public final class ResourceKey {
     public ResourceKey(String namespace, String path) {
         // apply same restrictions as ResourceLocation
-        if (!ResourceLocation.isValidResourceLocation(namespace + ":" + path)) {
-            throw new IllegalArgumentException("Invalid Resource Key");
+        if (!ResourceLocation.isValidNamespace(namespace)) {
+            throw new IllegalArgumentException("Invalid Resource Key namespace");
+        }
+        if (!ResourceLocation.isValidPath(namespace)) {
+            throw new IllegalArgumentException("Invalid Resource Key path");
         }
 
         this.namespace = namespace;
@@ -67,7 +70,7 @@ public final class ResourceKey {
     @LeavesSandbox
     public ResourceLocation toResourceLocation() {
         if (this.location != null) return this.location;
-        return this.location = new ResourceLocation(this.namespace, this.path);
+        return this.location = ResourceLocation.fromNamespaceAndPath(this.namespace, this.path);
     }
 
     @Override

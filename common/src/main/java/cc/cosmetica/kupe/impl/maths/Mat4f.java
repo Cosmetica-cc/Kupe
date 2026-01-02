@@ -28,7 +28,7 @@ public class Mat4f implements Matrix4 {
         this.matrix = new Matrix4f();
     }
 
-    private Mat4f(Matrix4f m) {
+    public Mat4f(Matrix4f m) {
         this.matrix = m;
     }
 

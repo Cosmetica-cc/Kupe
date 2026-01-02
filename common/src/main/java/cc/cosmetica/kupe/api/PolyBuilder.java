@@ -71,7 +71,8 @@ public interface PolyBuilder {
 		POSITION(DefaultVertexFormat.POSITION, GameRenderer::getPositionShader, false, 1),
 		POSITION_COLOUR(DefaultVertexFormat.POSITION_COLOR, GameRenderer::getPositionColorShader, false, 2),
 		POSITION_TEXTURE(DefaultVertexFormat.POSITION_TEX, GameRenderer::getPositionTexShader, true, 2),
-		POSITION_COLOUR_TEXTURE(DefaultVertexFormat.POSITION_COLOR_TEX, GameRenderer::getPositionColorTexShader, true, 3),
+		// Note: for compatibility, declaration order for this mode remains Position, Colour, Texture even in minecraft versions where this format does not exist.
+		POSITION_COLOUR_TEXTURE(DefaultVertexFormat.POSITION_TEX_COLOR, GameRenderer::getPositionTexColorShader, true, 3),
 		POSITION_COLOUR_LIGHTMAP(DefaultVertexFormat.POSITION_COLOR_LIGHTMAP, GameRenderer::getPositionColorLightmapShader, false, 3),
 		POSITION_COLOUR_TEXTURE_LIGHTMAP(DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP, GameRenderer::getPositionColorTexLightmapShader, true, 4);
 

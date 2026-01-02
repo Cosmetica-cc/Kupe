@@ -53,8 +53,8 @@ public class ElytraAttachment implements GUIPlayer.Attachment<ElytraProperties> 
 					: RenderType.armorCutoutNoCull(configuration.texture);
 
 			this.setupAnim(posture, (ElytraModelAccessor) elytraModel, 0, 0, 0, posture.yRotHead, posture.xRot);
-			VertexConsumer vertexConsumer = ItemRenderer.getArmorFoilBuffer(bufferSource, renderType, false, configuration.glint);
-			elytraModel.renderToBuffer(stack.getMinecraftStack(), vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 1.0f, 1.0f, 1.0f, 1.0f);
+			VertexConsumer vertexConsumer = ItemRenderer.getArmorFoilBuffer(bufferSource, renderType, configuration.glint);
+			elytraModel.renderToBuffer(stack.getMinecraftStack(), vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY);
 			stack.pop();
 		}
  	}

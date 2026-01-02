@@ -26,7 +26,6 @@ import cc.cosmetica.kupe.api.maths.Region;
 import cc.cosmetica.kupe.impl.LeavesSandbox;
 import cc.cosmetica.kupe.impl.fakeplayer.*;
 import com.google.common.base.Preconditions;
-import com.mojang.util.UUIDTypeAdapter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
 import net.minecraft.client.model.PlayerModel;
@@ -380,7 +379,7 @@ public class GUIPlayer extends Component {
 		public final ResourceLocation texture;
 		public final boolean glint, translucent;
 
-		public static final ElytraProperties DEFAULT = new ElytraProperties(new ResourceLocation("textures/entity/elytra.png"), false, false);
+		public static final ElytraProperties DEFAULT = new ElytraProperties(ResourceLocation.withDefaultNamespace("textures/entity/elytra.png"), false, false);
 	}
 
 	/**

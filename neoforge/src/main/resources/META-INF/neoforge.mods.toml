@@ -1,6 +1,6 @@
 modLoader = "javafml"
 loaderVersion = "[1,)"
-#issueTrackerURL = ""
+issueTrackerURL = "https://github.com/Cosmetica-cc/Kupe"
 license = "Apache 2.0"
 
 [[mods]]
@@ -23,7 +23,7 @@ side = "BOTH"
 [[dependencies.kupe]]
 modId = "minecraft"
 type = "required"
-versionRange = "[1.20.4,)"
+versionRange = "[1.21,)"
 ordering = "NONE"
 side = "BOTH"
 

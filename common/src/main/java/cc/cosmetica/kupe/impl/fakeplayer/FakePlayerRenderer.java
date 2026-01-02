@@ -22,6 +22,7 @@ import cc.cosmetica.kupe.api.Context;
 import cc.cosmetica.kupe.api.MatrixStack;
 import cc.cosmetica.kupe.api.gui.GUIPlayer;
 import cc.cosmetica.kupe.impl.ExtendedPlayerModel;
+import cc.cosmetica.kupe.impl.KupeMatrix4fStack;
 import cc.cosmetica.kupe.impl.KupeStack;
 import cc.cosmetica.kupe.impl.PoseCanvas;
 import cc.cosmetica.kupe.mixin.fakeplayer.HumanoidModelAccessor;
@@ -117,7 +118,7 @@ public final class FakePlayerRenderer {
 
 		float h = (float)Math.atan(lookX / 40.0F);
 		float l = (float)Math.atan(lookY / 40.0F);
-		MatrixStack stack = new KupeStack(RenderSystem.getModelViewStack());
+		MatrixStack stack = new KupeMatrix4fStack(RenderSystem.getModelViewStack());
 
 		stack.push();
 		stack.translate(left, top, 1050.0D);
@@ -257,7 +258,7 @@ public final class FakePlayerRenderer {
 		if (renderType != null) {
 			VertexConsumer vertexConsumer = bufferSource.getBuffer(renderType);
 			int packedOverlayCoords = getOverlayCoords(0.0f);
-			model.renderToBuffer(stack, vertexConsumer, light, packedOverlayCoords, 1.0F, 1.0F, 1.0F, 1.0F);
+			model.renderToBuffer(stack, vertexConsumer, light, packedOverlayCoords);
 		}
 
 		// render layers
@@ -301,7 +302,7 @@ public final class FakePlayerRenderer {
 		final float scale = nametag.scale;
 		PoseStack stack = canvas.getStack().getMinecraftStack();
 
-		float yPosition = EntityType.PLAYER.getDimensions().height + 0.5F;
+		float yPosition = EntityType.PLAYER.getDimensions().height() + 0.5F;
 
 		stack.translate(0.0D, yPosition, 0.0D);
 		stack.mulPose(cameraOrientation);
@@ -525,7 +526,7 @@ public final class FakePlayerRenderer {
 
 		// Upside Down
 		if (posture.upsideDown) {
-			stack.translate(0.0D, EntityType.PLAYER.getDimensions().height + 0.1, 0.0D);
+			stack.translate(0.0D, EntityType.PLAYER.getDimensions().height() + 0.1, 0.0D);
 			stack.rotate(cc.cosmetica.kupe.api.maths.Vec3.ZP, 180.0F, true);
 		}
 	}

@@ -10,17 +10,21 @@ package cc.cosmetica.kupe.testmod.mixin;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.testmod.gui.AllKupeTestsScreen;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.OptionsScreen;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(OptionsScreen.class)
-public class OptionsScreenMixin {
-	@Inject(at = @At("RETURN"), method = "render")
-	private void onRender(CallbackInfo ci) {
+@Mixin(net.minecraft.client.gui.screens.options.OptionsScreen.class)
+public abstract class OptionsScreenMixin extends Screen {
+	protected OptionsScreenMixin(Component component) {
+		super(component);
+	}
+
+	@Override
+	public void render(GuiGraphics graphics, int mouseX, int mouseY, float deltaTicks) {
+		super.render(graphics, mouseX, mouseY, deltaTicks);
 		if (GLFW.glfwGetKey(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_RIGHT_CONTROL) == GLFW.GLFW_PRESS) {
 			Minecraft.getInstance().tell(() -> Screens.setScreen(AllKupeTestsScreen.ID));
 		}

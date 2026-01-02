@@ -19,6 +19,7 @@ package cc.cosmetica.kupe.impl;
 import cc.cosmetica.kupe.api.MatrixStack;
 import cc.cosmetica.kupe.api.maths.Matrix4;
 import cc.cosmetica.kupe.api.maths.Vec3;
+import cc.cosmetica.kupe.impl.maths.Mat4f;
 import com.mojang.blaze3d.vertex.PoseStack;
 import org.joml.AxisAngle4f;
 import org.joml.Quaternionf;
@@ -46,7 +47,7 @@ public class KupeStack implements MatrixStack {
 
 	@Override
 	public Matrix4 peek() {
-		return (Matrix4) (Object) this.stack.last().pose();
+		return new Mat4f(this.stack.last().pose());
 	}
 
 	@Override
