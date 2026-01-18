@@ -16,8 +16,8 @@
 
 package cc.cosmetica.kupe.mixin.fakeplayer;
 
-import net.minecraft.client.model.ElytraModel;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.object.equipment.ElytraModel;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 

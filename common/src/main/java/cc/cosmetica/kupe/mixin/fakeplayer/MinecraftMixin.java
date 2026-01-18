@@ -34,7 +34,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  */
 @Mixin(Minecraft.class)
 public class MinecraftMixin {
-    @Shadow @Final private MinecraftSessionService minecraftSessionService;
+    @Shadow @Final private UserApiService minecraftSessionService;
 
     @Inject(at = @At("HEAD"), method="createUserApiService")
     private void onInit(YggdrasilAuthenticationService authService, GameConfig gameConfig, CallbackInfoReturnable<UserApiService> cir) {

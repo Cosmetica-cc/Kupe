@@ -8,7 +8,7 @@ import net.neoforged.fml.loading.FMLEnvironment;
 @Mod("kupe_test")
 public class KupeTestmodNeoforge {
     public KupeTestmodNeoforge() {
-        if (FMLEnvironment.dist == Dist.CLIENT) {
+        if (FMLEnvironment.getDist() == Dist.CLIENT) {
             KupeTestInit.init();
         }
     }

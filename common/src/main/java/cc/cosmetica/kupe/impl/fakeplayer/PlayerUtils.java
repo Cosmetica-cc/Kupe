@@ -27,8 +27,10 @@ import com.mojang.authlib.yggdrasil.ProfileResult;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
-import net.minecraft.client.resources.PlayerSkin;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.PlayerModelType;
+import net.minecraft.world.entity.player.PlayerSkin;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -67,17 +69,17 @@ public class PlayerUtils {
     }
 
     public static class Skin {
-        public Skin(ResourceLocation texture, boolean slim) {
+        public Skin(Identifier texture, boolean slim) {
             Objects.requireNonNull(texture, "No texture for skin");
             this.texture = texture;
             this.slim = slim;
         }
-        public final ResourceLocation texture;
+        public final Identifier texture;
         public final boolean slim;
 
         public Skin(PlayerSkin skin) {
-            this.texture = skin.texture();
-            this.slim = "slim".equals(skin.model().id());
+            this.texture = skin.body().texturePath();
+            this.slim = skin.model() == PlayerModelType.SLIM;
         }
     }
 
