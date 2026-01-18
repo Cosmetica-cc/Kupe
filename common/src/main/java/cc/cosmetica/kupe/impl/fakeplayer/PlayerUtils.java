@@ -18,23 +18,22 @@ package cc.cosmetica.kupe.impl.fakeplayer;
 
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.GUIPlayer;
-import com.google.common.collect.Iterables;
+import cc.cosmetica.kupe.util.SessionServerUtils;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
-import com.mojang.authlib.minecraft.MinecraftSessionService;
-import com.mojang.authlib.properties.Property;
-import com.mojang.authlib.yggdrasil.ProfileResult;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.core.ClientAsset;
 import net.minecraft.resources.Identifier;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Util;
 import net.minecraft.world.entity.player.PlayerModelType;
 import net.minecraft.world.entity.player.PlayerSkin;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -42,12 +41,10 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class PlayerUtils {
     private static Map<UUID, Optional<GameProfile>> cache = new ConcurrentHashMap<>();
-    private static MinecraftSessionService sessionService;
 
     private static final Collection<GUIPlayer.CapeProvider> CAPE_PROVIDERS = new ArrayList<>();
 
-    public static void createNewCache(MinecraftSessionService minecraftSessionService) {
-        sessionService = minecraftSessionService;
+    public static void createNewCache() {
         cache = new ConcurrentHashMap<>();
     }
 
@@ -55,7 +52,7 @@ public class PlayerUtils {
         // Get name for cached profile
         Optional<GameProfile> profile = cache.get(uuid);
         if (profile != null && profile.isPresent()) {
-            return Text.literal(profile.get().getName());
+            return Text.literal(profile.get().name());
         }
 
         // Fallback 1: own username
@@ -95,8 +92,8 @@ public class PlayerUtils {
 
         if (profile != null && profile.isPresent()) {
             // get texture
-            Minecraft minecraft = Minecraft.getInstance();
-            return new Skin(minecraft.getSkinManager().getInsecureSkin(profile.get()));
+            Optional<PlayerSkin> playerSkin = getPlayerSkin(uuid);
+            return playerSkin.isPresent() ? new Skin(playerSkin.get()) : existing;
         }
 
         // Fallback 1: player info from server
@@ -128,46 +125,59 @@ public class PlayerUtils {
      * @param type the texture type.
      * @return the texture, or null if one could not be loaded.
      */
-    public static @Nullable ResourceLocation getTexture(UUID uuid, MinecraftProfileTexture.Type type) {
+    public static @Nullable Identifier getTexture(UUID uuid, MinecraftProfileTexture.Type type) {
+       Optional<PlayerSkin> skinNow = getPlayerSkin(uuid);
+
+        if (skinNow.isEmpty()) {
+            return null;
+        }
+
+        switch (type) {
+        case SKIN:
+            return skinNow.get().body().texturePath();
+        case CAPE:
+            return skinNow.map(PlayerSkin::cape).map(ClientAsset.Texture::texturePath).orElse(null);
+        case ELYTRA:
+            return skinNow.map(PlayerSkin::elytra).map(ClientAsset.Texture::texturePath).orElse(null);
+        default:
+            return null;
+        }
+    }
+
+    private static Optional<PlayerSkin> getPlayerSkin(UUID uuid) {
         // Get skin for cached profile
         Optional<GameProfile> profile = cache.get(uuid);
 
         if (profile != null && profile.isPresent()) {
             // get texture
             Minecraft minecraft = Minecraft.getInstance();
-            PlayerSkin skin = minecraft.getSkinManager().getInsecureSkin(profile.get());
-            switch (type) {
-            case SKIN:
-                return skin.texture();
-            case CAPE:
-                return skin.capeTexture();
-            case ELYTRA:
-                return skin.elytraTexture();
-            default:
-                return null;
-            }
+            CompletableFuture<Optional<PlayerSkin>> skinFuture = minecraft.getSkinManager().get(profile.get());
+            return skinFuture.getNow(Optional.empty());
         }
 
-        return null;
+        return Optional.empty();
     }
 
     private static void startProfileLookup(UUID uuid) {
+        if (cache.size() > 50) {
+            createNewCache();
+        }
         Map<UUID, Optional<GameProfile>> map = cache;
         if (!map.containsKey(uuid)) {
             map.put(uuid, Optional.empty()); // looking up!c
 
             // look up new profile async
             CompletableFuture.runAsync(() -> {
-                ProfileResult result = sessionService.fetchProfile(uuid, true);
-                if (result != null) {
-                    GameProfile profile = result.profile();
-
-                    Property property = Iterables.getFirst(profile.getProperties().get("textures"), null);
-                    if (property != null) {
-                        Objects.requireNonNull(profile.getName(), "Filled Game Profile is missing username?");
-                        map.put(uuid, Optional.of(profile));
-                    } // else prefer fallback 1. Don't spam the session server.
+                SessionServerUtils.Response result;
+                try {
+                    result = SessionServerUtils.makeRequest(uuid);
+                } catch (IOException | SessionServerUtils.ApiException e) {
+                    throw new CompletionException(e);
                 }
+
+                if (result.textures().isPresent()) {
+                    map.put(uuid, Optional.of(result.createProfile()));
+                } // else prefer fallback 1. Don't spam the session server.
             }, Util.backgroundExecutor())
                     .exceptionally(ex -> {
                         ex.printStackTrace();

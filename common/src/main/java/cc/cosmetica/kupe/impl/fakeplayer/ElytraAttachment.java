@@ -16,8 +16,6 @@
 
 package cc.cosmetica.kupe.impl.fakeplayer;
 
-import cc.cosmetica.kupe.api.Canvas;
-import cc.cosmetica.kupe.api.MatrixStack;
 import cc.cosmetica.kupe.api.gui.GUIPlayer;
 import cc.cosmetica.kupe.api.gui.GUIPlayer.ElytraProperties;
 import cc.cosmetica.kupe.impl.ExtendedPlayerModel;
@@ -25,14 +23,15 @@ import cc.cosmetica.kupe.mixin.fakeplayer.ElytraModelAccessor;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.model.ElytraModel;
-import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.object.equipment.ElytraModel;
+import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 
@@ -49,11 +48,11 @@ public class ElytraAttachment implements GUIPlayer.Attachment<ElytraProperties> 
 //			stack.scale(2,2,2);
 //			stack.translate(0.0, -24/32.0, 0.125/2);
 
-			RenderType renderType = configuration.translucent ? RenderType.entityTranslucent(configuration.texture)
-					: RenderType.armorCutoutNoCull(configuration.texture);
+			RenderType renderType = configuration.translucent ? RenderTypes.entityTranslucent(configuration.texture)
+					: RenderTypes.armorCutoutNoCull(configuration.texture);
 
 			this.setupAnim(posture, (ElytraModelAccessor) elytraModel, 0, 0, 0, posture.yRotHead, posture.xRot);
-			VertexConsumer vertexConsumer = ItemRenderer.getArmorFoilBuffer(bufferSource, renderType, configuration.glint);
+			VertexConsumer vertexConsumer = ItemRenderer.getFoilBuffer(bufferSource, renderType, true, configuration.glint);
 			elytraModel.renderToBuffer(stack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY);
 			stack.popPose();
 		}
@@ -103,7 +102,7 @@ public class ElytraAttachment implements GUIPlayer.Attachment<ElytraProperties> 
 		}
 
 		// Default
-		ResourceLocation customElytra = PlayerUtils.getTexture(uuid, MinecraftProfileTexture.Type.CAPE);
+		Identifier customElytra = PlayerUtils.getTexture(uuid, MinecraftProfileTexture.Type.CAPE);
 		if (customElytra != null) {
 			return new ElytraProperties(customElytra, false, false);
 		}

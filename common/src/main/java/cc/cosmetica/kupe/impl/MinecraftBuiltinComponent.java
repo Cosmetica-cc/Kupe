@@ -22,6 +22,11 @@ import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.maths.Region;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.MouseButtonInfo;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 
@@ -80,22 +85,27 @@ public abstract class MinecraftBuiltinComponent extends Component {
 					}
 				});
 			}
-			this.minecraftWidget.mouseClicked(x, y, button);
+
+			MouseButtonEvent event = new MouseButtonEvent(x, y, new MouseButtonInfo(button, KupeScreen.clickModifiers));
+			this.minecraftWidget.mouseClicked(event, KupeScreen.doubleClick);
 		}
 	}
 
 	@Override
 	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-		return this.minecraftWidget.keyPressed(keyCode, scanCode, modifiers);
+		KeyEvent e = new KeyEvent(keyCode, scanCode, modifiers);
+		return this.minecraftWidget.keyPressed(e);
 	}
 
 	@Override
 	public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
-		return this.minecraftWidget.keyReleased(keyCode, scanCode, modifiers);
+		KeyEvent e = new KeyEvent(keyCode, scanCode, modifiers);
+		return this.minecraftWidget.keyReleased(e);
 	}
 
 	@Override
 	public boolean charTyped(char symbol, int modifiers) {
-		return this.minecraftWidget.charTyped(symbol, modifiers);
+		CharacterEvent e = new CharacterEvent(symbol, modifiers);
+		return this.minecraftWidget.charTyped(e);
 	}
 }

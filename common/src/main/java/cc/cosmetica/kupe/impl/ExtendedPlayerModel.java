@@ -16,30 +16,29 @@
 
 package cc.cosmetica.kupe.impl;
 
-import net.minecraft.client.model.ElytraModel;
-import net.minecraft.client.model.PlayerCapeModel;
-import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.renderer.entity.state.PlayerRenderState;
+import net.minecraft.client.model.object.equipment.ElytraModel;
+import net.minecraft.client.model.player.PlayerCapeModel;
+import net.minecraft.client.model.player.PlayerModel;
 
 /**
  * Player model with elytra.
  */
 public class ExtendedPlayerModel extends PlayerModel {
-    public ExtendedPlayerModel(ModelPart modelPart, ElytraModel elytraModel, PlayerCapeModel<PlayerRenderState> capeModel, boolean bl) {
+    public ExtendedPlayerModel(ModelPart modelPart, ElytraModel elytraModel, PlayerCapeModel capeModel, boolean bl) {
         super(modelPart, bl);
         this.elytra = elytraModel;
         this.cape = capeModel;
     }
 
     private final ElytraModel elytra;
-    private final PlayerCapeModel<PlayerRenderState> cape;
+    private final PlayerCapeModel cape;
 
     public ElytraModel getElytra() {
         return this.elytra;
     }
 
-    public PlayerCapeModel<PlayerRenderState> getCape() {
+    public PlayerCapeModel getCape() {
         return this.cape;
     }
 }

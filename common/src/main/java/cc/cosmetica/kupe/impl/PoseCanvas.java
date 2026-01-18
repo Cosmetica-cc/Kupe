@@ -22,6 +22,8 @@ import cc.cosmetica.kupe.api.maths.Region;
 import cc.cosmetica.kupe.impl.fakeplayer.FakePlayerGuiRenderer;
 import cc.cosmetica.kupe.impl.fakeplayer.FakePlayerRenderer;
 import cc.cosmetica.kupe.mixin.GuiGraphicsAccessor;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.textures.FilterMode;
 import com.mojang.blaze3d.textures.GpuTextureView;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.Minecraft;
@@ -291,6 +293,7 @@ public class PoseCanvas implements Canvas, ModernCanvas {
 				colour,
 				0,
 				shadow,
+				false,
 				this.scissorStack.getScissorRegion().orElse(null)
 		));
 	}
@@ -354,7 +357,8 @@ public class PoseCanvas implements Canvas, ModernCanvas {
 
 		graphics.getGuiRenderState().submitGuiElement(new BlitRenderState(
 				RenderPipelines.GUI_TEXTURED,
-				TextureSetup.singleTexture(this.texture),
+				// TODO add filter mode configuration on Canvas in all Kupe minecraft versions
+				TextureSetup.singleTexture(this.texture, RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST)),
 				this.stack.get(new Matrix3x2f()),
 				x0, y0,
 				x0 + width, y0 + height,

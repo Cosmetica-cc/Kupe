@@ -19,6 +19,8 @@ package cc.cosmetica.kupe.impl;
 import cc.cosmetica.kupe.api.PolyBuilder;
 import cc.cosmetica.kupe.mixin.GuiGraphicsAccessor;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.textures.FilterMode;
 import com.mojang.blaze3d.textures.GpuTextureView;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -146,18 +148,18 @@ public class BufferPolyBuilder implements PolyBuilder {
 			if (texture == null) {
 				throw new IllegalArgumentException("Building polygons with texture but no texture set");
 			}
-			setup = TextureSetup.singleTexture(texture);
+			setup = TextureSetup.singleTexture(texture, RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST));
 			textureUV = 1;
 			break;
 		case POSITION_COLOUR_LIGHTMAP:
-			setup = TextureSetup.singleTextureWithLightmap(null);
+			setup = TextureSetup.singleTextureWithLightmap(null, RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST));
 			textureUV = 2;
 			break;
 		case POSITION_COLOUR_TEXTURE_LIGHTMAP:
 			if (texture == null) {
 				throw new IllegalArgumentException("Building polygons with texture but no texture set");
 			}
-			setup = TextureSetup.singleTextureWithLightmap(texture);
+			setup = TextureSetup.singleTextureWithLightmap(texture, RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST));
 			textureUV = 3;
 			break;
         }
@@ -204,31 +206,31 @@ public class BufferPolyBuilder implements PolyBuilder {
 		private final boolean texture, lightmap;
 
 		@Override
-		public void buildVertices(VertexConsumer consumer, float z) {
+		public void buildVertices(VertexConsumer consumer) {
 			if (texture) {
 				if (lightmap) {
 					for (Vertex vertex : this.vertices) {
-						consumer.addVertex(vertex.x, vertex.y, z)
+						consumer.addVertex(vertex.x, vertex.y, 0)
 								.setColor(vertex.colour)
 								.setUv(vertex.u, vertex.v)
 								.setUv2(vertex.u2, vertex.v2);
 					}
 				} else {
 					for (Vertex vertex : this.vertices) {
-						consumer.addVertex(vertex.x, vertex.y, z)
+						consumer.addVertex(vertex.x, vertex.y, 0)
 								.setColor(vertex.colour)
 								.setUv(vertex.u, vertex.v);
 					}
 				}
 			} else if (lightmap) {
 				for (Vertex vertex : this.vertices) {
-					consumer.addVertex(vertex.x, vertex.y, z)
+					consumer.addVertex(vertex.x, vertex.y, 0)
 							.setColor(vertex.colour)
 							.setUv2(vertex.u2, vertex.v2);
 				}
 			} else {
 				for (Vertex vertex : this.vertices) {
-					consumer.addVertex(vertex.x, vertex.y, z)
+					consumer.addVertex(vertex.x, vertex.y, 0)
 							.setColor(vertex.colour);
 				}
 			}

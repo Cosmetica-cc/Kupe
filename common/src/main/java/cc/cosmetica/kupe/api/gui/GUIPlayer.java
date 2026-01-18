@@ -23,17 +23,17 @@ import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
-import cc.cosmetica.kupe.impl.ModernCanvas;
 import cc.cosmetica.kupe.impl.LeavesSandbox;
+import cc.cosmetica.kupe.impl.ModernCanvas;
 import cc.cosmetica.kupe.impl.fakeplayer.*;
 import com.google.common.base.Preconditions;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
-import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.resources.DefaultPlayerSkin;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import org.jetbrains.annotations.NotNull;
@@ -80,7 +80,7 @@ public class GUIPlayer extends Component {
 		this.uuid = uuid;
 
 		this.renderer.skin = new PlayerUtils.Skin(
-				DefaultPlayerSkin.get(uuid).texture(),
+				DefaultPlayerSkin.get(uuid).body().texturePath(),
 				"slim".equals(DefaultPlayerSkin.get(uuid).model().name())
 		);
 		// model parts shown
@@ -376,16 +376,16 @@ public class GUIPlayer extends Component {
 	 * Contains Elytra properties.
 	 */
 	public final static class ElytraProperties {
-		public ElytraProperties(ResourceLocation texture, boolean glint, boolean translucent) {
+		public ElytraProperties(Identifier texture, boolean glint, boolean translucent) {
 			this.texture = texture;
 			this.glint = glint;
 			this.translucent = translucent;
 		}
 
-		public final ResourceLocation texture;
+		public final Identifier texture;
 		public final boolean glint, translucent;
 
-		public static final ElytraProperties DEFAULT = new ElytraProperties(ResourceLocation.withDefaultNamespace("textures/entity/elytra.png"), false, false);
+		public static final ElytraProperties DEFAULT = new ElytraProperties(Identifier.withDefaultNamespace("textures/entity/elytra.png"), false, false);
 	}
 
 	/**
@@ -397,13 +397,13 @@ public class GUIPlayer extends Component {
 		}
 
 		@LeavesSandbox
-		public CapeProperties(@Nullable ResourceLocation texture) {
+		public CapeProperties(@Nullable Identifier texture) {
 			this.texture = texture;
 		}
 
-		private final @Nullable ResourceLocation texture;
+		private final @Nullable Identifier texture;
 
-		public Optional<ResourceLocation> getTexture() {
+		public Optional<Identifier> getTexture() {
 			return Optional.ofNullable(texture);
 		}
 	}

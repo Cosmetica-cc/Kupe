@@ -35,10 +35,13 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.model.*;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.object.equipment.ElytraModel;
+import net.minecraft.client.model.player.PlayerCapeModel;
+import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.state.PlayerRenderState;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
@@ -72,9 +75,11 @@ public final class FakePlayerRenderer {
 					minecraft.getResourceManager(),
 					minecraft.getEntityModels(),
 					((EntityRendererProviderAccessor) minecraft.getEntityRenderDispatcher()).getEquipmentAssets(),
-					minecraft.font);
+					minecraft.getAtlasManager(),
+					minecraft.font,
+					minecraft.playerSkinRenderCache());
 			ElytraModel elytraModel = new ElytraModel(context.bakeLayer(ModelLayers.ELYTRA));
-			PlayerCapeModel<PlayerRenderState> capeModel = new PlayerCapeModel<>(context.bakeLayer(ModelLayers.PLAYER_CAPE));
+			PlayerCapeModel capeModel = new PlayerCapeModel(context.bakeLayer(ModelLayers.PLAYER_CAPE));
 
 			this.slimModel = this.skin.slim;
 			this.model = new ExtendedPlayerModel(context.bakeLayer(this.slimModel ? ModelLayers.PLAYER_SLIM : ModelLayers.PLAYER), elytraModel, capeModel, this.slimModel);
@@ -277,11 +282,11 @@ public final class FakePlayerRenderer {
 	private RenderType getRenderType(PlayerRenderMode mode) {
 		switch (mode) {
 		case INVISIBLE:
-			return RenderType.itemEntityTranslucentCull(this.skin.texture);
+			return RenderTypes.itemEntityTranslucentCull(this.skin.texture);
 		case NORMAL:
 			return this.model.renderType(this.skin.texture);
 		case GLOWING:
-			return RenderType.outline(this.skin.texture);
+			return RenderTypes.outline(this.skin.texture);
 		case NO_RENDER:
 		default:
 			return null;

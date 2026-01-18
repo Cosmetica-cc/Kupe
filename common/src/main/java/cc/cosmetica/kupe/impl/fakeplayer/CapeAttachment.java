@@ -26,9 +26,9 @@ import cc.cosmetica.kupe.mixin.fakeplayer.PlayerCapeModelAccessor;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
@@ -67,7 +67,7 @@ public class CapeAttachment implements GUIPlayer.Attachment<GUIPlayer.CapeProper
 			stack.rotate(Vec3.ZP, s / 2.0F, true);
 			stack.rotate(Vec3.YP, 180.0F - s / 2.0F, true);
 			stack.scale(-1, 1, -1);
-			VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityTranslucent(configuration.getTexture().get()));
+			VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderTypes.entityTranslucent(configuration.getTexture().get()));
 			((PlayerCapeModelAccessor)((ExtendedPlayerModel) playerModel).getCape()).getCape().render(stackIn, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY);
 			stack.pop();
 		}

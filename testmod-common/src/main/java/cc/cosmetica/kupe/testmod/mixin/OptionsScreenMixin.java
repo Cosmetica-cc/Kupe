@@ -25,7 +25,7 @@ public abstract class OptionsScreenMixin extends Screen {
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float deltaTicks) {
 		super.render(graphics, mouseX, mouseY, deltaTicks);
-		if (GLFW.glfwGetKey(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_RIGHT_CONTROL) == GLFW.GLFW_PRESS) {
+		if (GLFW.glfwGetKey(Minecraft.getInstance().getWindow().handle(), GLFW.GLFW_KEY_RIGHT_CONTROL) == GLFW.GLFW_PRESS) {
 			Minecraft.getInstance().schedule(() -> Screens.setScreen(AllKupeTestsScreen.ID));
 		}
 	}

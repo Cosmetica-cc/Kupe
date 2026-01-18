@@ -17,7 +17,7 @@
 package cc.cosmetica.kupe.api;
 
 import cc.cosmetica.kupe.impl.LeavesSandbox;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Objects;
 
@@ -28,10 +28,10 @@ import java.util.Objects;
 public final class ResourceKey {
     public ResourceKey(String namespace, String path) {
         // apply same restrictions as ResourceLocation
-        if (!ResourceLocation.isValidNamespace(namespace)) {
+        if (!Identifier.isValidNamespace(namespace)) {
             throw new IllegalArgumentException("Invalid Resource Key namespace");
         }
-        if (!ResourceLocation.isValidPath(namespace)) {
+        if (!Identifier.isValidPath(namespace)) {
             throw new IllegalArgumentException("Invalid Resource Key path");
         }
 
@@ -40,14 +40,14 @@ public final class ResourceKey {
     }
 
     @LeavesSandbox
-    public ResourceKey(ResourceLocation location) {
+    public ResourceKey(Identifier location) {
         this.namespace = location.getNamespace();
         this.path = location.getPath();
     }
 
     private final String namespace;
     private final String path;
-    private ResourceLocation location;
+    private Identifier location;
 
     public String getPath() {
         return this.path;
@@ -68,9 +68,9 @@ public final class ResourceKey {
     }
 
     @LeavesSandbox
-    public ResourceLocation toResourceLocation() {
+    public Identifier toResourceLocation() {
         if (this.location != null) return this.location;
-        return this.location = ResourceLocation.fromNamespaceAndPath(this.namespace, this.path);
+        return this.location = Identifier.fromNamespaceAndPath(this.namespace, this.path);
     }
 
     @Override

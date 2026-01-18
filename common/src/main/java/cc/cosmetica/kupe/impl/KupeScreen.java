@@ -30,6 +30,9 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.util.FormattedCharSequence;
@@ -61,8 +64,8 @@ public final class KupeScreen extends Screen {
 	private final Map<Class<Component>, Map<Object, Component>> cache = new HashMap<>();
 
 	@Override
-	public void init(Minecraft minecraft, int w, int h) {
-		super.init(minecraft, w, h); // required
+	public void init(int w, int h) {
+		super.init(w, h); // required
 
 		// can only do the initial tree build once
 		// subsequent changes to the tree *must* be rebuilds!
@@ -77,8 +80,8 @@ public final class KupeScreen extends Screen {
 	}
 
 	@Override
-	public void resize(Minecraft minecraft, int w, int h) {
-		super.init(minecraft, w, h); // required
+	public void resize(int w, int h) {
+		super.init(w, h); // required
 		this.resize();
 	}
 
@@ -107,7 +110,11 @@ public final class KupeScreen extends Screen {
 	}
 
 	@Override
-	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+	public boolean keyPressed(KeyEvent e) {
+		return this.keyPressed(e.key(), e.scancode(), e.modifiers());
+	}
+
+	private boolean keyPressed(int keyCode, int scanCode, int modifiers) {
 		if (debug) {
 			if (this.tree.keyDebug(keyCode)) {
 				return true;
@@ -124,13 +131,13 @@ public final class KupeScreen extends Screen {
 	}
 
 	@Override
-	public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
-		return this.tree.keyReleased(keyCode, scanCode, modifiers);
+	public boolean keyReleased(KeyEvent e) {
+		return this.tree.keyReleased(e.key(), e.scancode(), e.modifiers());
 	}
 
 	@Override
-	public boolean charTyped(char codePoint, int modifiers) {
-		return this.tree.charTyped(codePoint, modifiers);
+	public boolean charTyped(CharacterEvent e) {
+		return this.tree.charTyped((char)e.codepoint(), e.modifiers());
 	}
 
 	/**
@@ -138,13 +145,20 @@ public final class KupeScreen extends Screen {
 	 * @return whether to consume click and not pass to game.
 	 */
 	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		return this.tree.mouseClicked(mouseX, mouseY, button);
+	public boolean mouseClicked(MouseButtonEvent e, boolean bl) {
+		doubleClick = bl;
+		clickModifiers = e.modifiers();
+		return this.tree.mouseClicked(e.x(), e.y(), e.button());
 	}
 
+	// TODO Use event classes in Kupe to prevent the need for hackery like this
+	// hack to pass data
+	public static boolean doubleClick;
+	public static int clickModifiers;
+
 	@Override
-	public boolean mouseReleased(double mouseX, double mouseY, int button) {
-		return this.tree.mouseReleased(mouseX, mouseY, button);
+	public boolean mouseReleased(MouseButtonEvent e) {
+		return this.tree.mouseReleased(e.x(), e.y(), e.button());
 	}
 
 	@Override
@@ -159,7 +173,6 @@ public final class KupeScreen extends Screen {
 
 	@Override
 	public void onClose() {
-		assert this.minecraft != null : "Minecraft should not be null";
 		// set parent screen
 		this.minecraft.setScreen(this.parent);
 		this.tree.dispose();
@@ -200,7 +213,7 @@ public final class KupeScreen extends Screen {
 		@Override
 		public int getTextHeight(Text text, int maxWidth) {
 			assert KupeScreen.this.minecraft != null;
-			return KupeScreen.this.minecraft.font.wordWrapHeight(text.getDisplayString(), maxWidth);
+			return KupeScreen.this.minecraft.font.wordWrapHeight(text.toMinecraftComponent(), maxWidth);
 		}
 
 		@Override
