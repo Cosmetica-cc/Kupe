@@ -322,6 +322,7 @@ public class PoseCanvas implements Canvas {
 	@Override
 	public void renderMinecraftComponent(net.minecraft.client.gui.components.Renderable component, int mouseX, int mouseY) {
 		component.render(this.graphics, mouseX, mouseY, this.tickDelta);
+		this.graphics.flush();
 	}
 
 	// Allows us to easily change current region without wasting time/memory
