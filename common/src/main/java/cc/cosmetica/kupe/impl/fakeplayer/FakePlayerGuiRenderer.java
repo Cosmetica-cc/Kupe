@@ -139,17 +139,17 @@ public class FakePlayerGuiRenderer extends PictureInPictureRenderer<FakePlayerGu
 
         @Override
         public int x0() {
-            return this.x0 - 5;
+            return this.x0 - 25;
         }
 
         @Override
         public int x1() {
-            return this.x1 + 5;
+            return this.x1 + 25;
         }
 
         @Override
         public int y0() {
-            return this.y0 - 30; // fit nametag in scissor
+            return this.y0 - 40; // fit nametag(s) in scissor
         }
 
         @Override
