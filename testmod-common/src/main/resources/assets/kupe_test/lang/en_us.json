@@ -5,6 +5,7 @@
   "screens.kupe_test.fakeplayer": "Fake Player Test",
   "screens.kupe_test.grid": "Grid Test",
   "screens.kupe_test.horizontal_text_scroll": "Horizontal Text Scroll Test",
+  "screens.kupe_test.image_list": "Image List",
   "screens.kupe_test.nested_scroll_test": "Nested Scroll Test",
   "screens.kupe_test.root": "Select a Test",
   "screens.kupe_test.screen": "Kupe Test Screen",

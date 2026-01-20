@@ -194,7 +194,7 @@ public class BufferPolyBuilder implements PolyBuilder {
 			this.scissor = builder.scissor;
 			this.texture = texture;
 			this.lightmap = lightmap;
-			this.bounds = new ScreenRectangle((int) builder.x0, (int) builder.y0, (int) (builder.x1 - builder.x0), (int) (builder.y0 - builder.y1));
+			this.bounds = new ScreenRectangle((int) builder.x0, (int) builder.y0, (int) (builder.x1 - builder.x0), (int) (builder.y1 - builder.y0));
 		}
 
 		private final @NotNull List<Vertex> vertices;
