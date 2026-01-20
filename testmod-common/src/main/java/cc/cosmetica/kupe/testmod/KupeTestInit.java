@@ -24,6 +24,7 @@ public final class KupeTestInit {
 		Screens.registerScreen(FontInheritanceTest.ID, new FontInheritanceTest());
 		Screens.registerScreen(GridTestScreen.ID, new GridTestScreen());
 		Screens.registerScreen(HorizontalTextScrollTest.ID, new HorizontalTextScrollTest());
+		Screens.registerScreen(ImageListTestScreen.ID, new ImageListTestScreen());
 		Screens.registerScreen(NestedScrollTestScreen.ID, new NestedScrollTestScreen());
 		Screens.registerScreen(OversizeAndMaxHeightTestCase.ID, OversizeAndMaxHeightTestCase::new);
 		Screens.registerScreen(ScrollTestScreen.ID, new ScrollTestScreen());
