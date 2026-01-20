@@ -396,7 +396,7 @@ public class PoseCanvas implements Canvas, ModernCanvas {
 		FakePlayerGuiRenderer.State state = new FakePlayerGuiRenderer.State(
 				renderer, player, extraScale, xRotation, zRotation, this.context, left, top, lookX, lookY,
 				region, 1.0f, this.scissorStack.getScissorRegion().orElse(null),
-				new ScreenRectangle(region.getX() - 15, region.getY() - 10, region.getWidth() + 30, region.getHeight() + 10));
+				new ScreenRectangle(region.getX(), region.getY(), region.getWidth(), region.getHeight()));
 		GuiGraphicsAccessor graphics = (GuiGraphicsAccessor) this.graphics;
 		graphics.getGuiRenderState().submitPicturesInPictureState(state);
 	}
