@@ -1,10 +1,9 @@
 {
   "required": true,
-  "package": "cc.cosmetica.kupe.impl.fabric.mixin",
+  "package": "cc.cosmetica.kupe.impl.neoforge.mixin",
   "compatibilityLevel": "JAVA_21",
   "minVersion": "0.8",
   "client": [
-    "GuiRendererMixin"
   ],
   "mixins": [
   ],

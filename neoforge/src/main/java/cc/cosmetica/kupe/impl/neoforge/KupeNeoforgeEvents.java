@@ -17,10 +17,16 @@
 package cc.cosmetica.kupe.impl.neoforge;
 
 import cc.cosmetica.kupe.Kupe;
-import net.neoforged.fml.common.Mod;
+import cc.cosmetica.kupe.impl.fakeplayer.FakePlayerGuiRenderer;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.RegisterPictureInPictureRenderersEvent;
 
-@Mod(Kupe.MOD_ID)
-public class KupeNeoforge {
-    public KupeNeoforge() {
+@EventBusSubscriber(value = Dist.CLIENT, modid= Kupe.MOD_ID)
+public class KupeNeoforgeEvents {
+    @SubscribeEvent
+    public static void registerPip(RegisterPictureInPictureRenderersEvent event) {
+        event.register(FakePlayerGuiRenderer.State.class, FakePlayerGuiRenderer::new);
     }
 }

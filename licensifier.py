@@ -31,9 +31,11 @@ srcDirs = {
   "common/src": APACHE,
   "fabric/src": APACHE,
   "forge/src": APACHE,
+  "neoforge/src": APACHE,
   "testmod-common/src": CC_ZERO,
   "testmod-fabric/src": CC_ZERO,
-  "testmod-forge/src": CC_ZERO
+  "testmod-forge/src": CC_ZERO,
+  "testmod-neoforge/src": CC_ZERO
 }
 
 def IterPaste(fold, licenseText):
