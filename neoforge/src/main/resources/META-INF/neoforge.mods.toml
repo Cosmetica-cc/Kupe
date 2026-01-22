@@ -29,3 +29,6 @@ side = "BOTH"
 
 [[mixins]]
 config = "kupe-common.mixins.json"
+
+[[mixins]]
+config = "kupe.mixins.json"

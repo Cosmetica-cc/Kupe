@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.kupe.mixin;
+package cc.cosmetica.kupe.impl.forge.mixin;
 
 import cc.cosmetica.kupe.impl.fakeplayer.FakePlayerGuiRenderer;
 import net.minecraft.client.gui.render.GuiRenderer;
