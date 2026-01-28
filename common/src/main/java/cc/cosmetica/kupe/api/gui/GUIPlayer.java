@@ -385,7 +385,7 @@ public class GUIPlayer extends Component {
 		public final ResourceLocation texture;
 		public final boolean glint, translucent;
 
-		public static final ElytraProperties DEFAULT = new ElytraProperties(ResourceLocation.withDefaultNamespace("textures/entity/elytra.png"), false, false);
+		public static final ElytraProperties DEFAULT = new ElytraProperties(ResourceLocation.withDefaultNamespace("textures/entity/equipment/wings/elytra.png"), false, false);
 	}
 
 	/**
