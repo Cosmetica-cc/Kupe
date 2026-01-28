@@ -18,6 +18,7 @@ package cc.cosmetica.kupe.impl.fakeplayer;
 
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.MatrixStack;
+import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.gui.GUIPlayer;
 import cc.cosmetica.kupe.api.gui.GUIPlayer.ElytraProperties;
 import cc.cosmetica.kupe.mixin.fakeplayer.ElytraModelAccessor;
@@ -102,7 +103,7 @@ public class ElytraAttachment implements GUIPlayer.Attachment<ElytraProperties> 
 		// Default
 		ResourceLocation customElytra = PlayerUtils.getTexture(uuid, MinecraftProfileTexture.Type.CAPE);
 		if (customElytra != null) {
-			return new ElytraProperties(customElytra, false, false);
+			return new ElytraProperties(new ResourceKey(customElytra), false, false);
 		}
 		return ElytraProperties.DEFAULT;
 	}

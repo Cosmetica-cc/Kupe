@@ -171,7 +171,7 @@ public class GUIPlayer extends Component {
 	/**
 	 * Change the username or other nametag.
 	 * @param index the index of the nametag. The username is at index 0.
-	 * @param text the text of the nametag.
+	 * @param text the text of the nametag. Nametags with empty text will be hidden.
 	 * @param scale the scale multiplier.
 	 * @return this GUI player.
 	 */
@@ -364,8 +364,14 @@ public class GUIPlayer extends Component {
 	 * Contains Elytra properties.
 	 */
 	public final static class ElytraProperties {
+		@Deprecated
 		public ElytraProperties(ResourceLocation texture, boolean glint, boolean translucent) {
-			this.texture = texture;
+			this(new ResourceKey(texture), glint, translucent);
+		}
+
+		public ElytraProperties(ResourceKey texture, boolean glint, boolean translucent) {
+			Objects.requireNonNull(texture, "Elytra texture cannot be null!");
+			this.texture = texture.toResourceLocation();
 			this.glint = glint;
 			this.translucent = translucent;
 		}
@@ -373,7 +379,7 @@ public class GUIPlayer extends Component {
 		public final ResourceLocation texture;
 		public final boolean glint, translucent;
 
-		public static final ElytraProperties DEFAULT = new ElytraProperties(new ResourceLocation("textures/entity/elytra.png"), false, false);
+		public static final ElytraProperties DEFAULT = new ElytraProperties(new ResourceKey("minecraft", "textures/entity/elytra.png"), false, false);
 	}
 
 	/**
