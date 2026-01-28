@@ -9,16 +9,6 @@ architectury {
 
 loom {
     accessWidenerPath = project(":common").loom.accessWidenerPath
-
-    // Doesn't seem to be necessary for NeoForge
-//    neoForge {
-//        convertAccessWideners = true
-//        extraAccessWideners.add loom.accessWidenerPath.get().asFile.name
-
-        // Neoforge puts mixins in mods.toml
-//        mixinConfig "kupe-common.mixins.json"
-//        mixinConfig "kupe.mixins.json"
-//    }
 }
 
 configurations {
@@ -61,6 +51,7 @@ shadowJar {
 remapJar {
     inputFile.set shadowJar.archiveFile
     dependsOn shadowJar
+    atAccessWideners.add "kupe.accesswidener"
 }
 
 // these two don't appear in 1.17 template?
