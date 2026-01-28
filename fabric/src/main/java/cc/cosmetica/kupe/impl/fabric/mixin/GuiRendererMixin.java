@@ -22,6 +22,8 @@ import net.minecraft.client.gui.render.pip.PictureInPictureRenderer;
 import net.minecraft.client.gui.render.state.GuiRenderState;
 import net.minecraft.client.gui.render.state.pip.PictureInPictureRenderState;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.feature.FeatureRenderDispatcher;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -48,7 +50,9 @@ public class GuiRendererMixin {
     private void onInit(
             GuiRenderState guiRenderState,
             MultiBufferSource.BufferSource bufferSource,
-            List<PictureInPictureRenderer<?>> list, CallbackInfo ci) {
+            SubmitNodeCollector submitNodeCollector,
+            FeatureRenderDispatcher featureRenderDispatcher,
+            List list, CallbackInfo ci) {
         this.pictureInPictureRenderers = new HashMap<>(this.pictureInPictureRenderers);
         this.pictureInPictureRenderers.put(FakePlayerGuiRenderer.State.class, new FakePlayerGuiRenderer(bufferSource));
     }
