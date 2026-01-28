@@ -51,7 +51,7 @@ shadowJar {
 remapJar {
     inputFile.set shadowJar.archiveFile
     dependsOn shadowJar
-    atAccessWideners.add "kupe.accessWidener"
+    atAccessWideners.add "kupe.accesswidener"
 }
 
 // these two don't appear in 1.17 template?
