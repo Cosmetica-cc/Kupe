@@ -228,10 +228,13 @@ public final class FakePlayerRenderer {
 			stack.pushPose();
 			for (int i = this.nametags.size() - 1; i >= 0; i--) {
 				GUIPlayer.Nametag nametag = this.nametags.get(i);
-				stack.pushPose();
-				this.renderNametag(nametag, stack, bufferSource, light);
-				stack.popPose();
-				stack.translate(0, 0.25875f, 0);
+
+				if (!nametag.text.getDisplayString().isEmpty()) {
+					stack.pushPose();
+					this.renderNametag(nametag, stack, bufferSource, light);
+					stack.popPose();
+					stack.translate(0, 0.25875f, 0);
+				}
 			}
 			stack.popPose();
 		}
