@@ -17,30 +17,18 @@
 package cc.cosmetica.kupe.impl.text;
 
 import cc.cosmetica.kupe.api.Text;
-import net.minecraft.network.chat.Component;
+
+import java.util.regex.Pattern;
 
 /**
- * Wrapper around a minecraft component.
+ * A text that will display with Minecraft colour code rules.
  */
-public class VanillaText extends MinecraftText implements Text {
-    public VanillaText(Component component) {
-        this.component = component;
-    }
+public abstract class MinecraftText implements Text {
+    private static final Pattern COLOUR_CODE_PATTERN = Pattern.compile("§[0-9A-Fa-fklmnorKLMNOR]");
 
-    private final Component component;
-
-    @Override
-    public String getString() {
-        return this.component.toString();
-    }
-
-    @Override
-    public String getDisplayString() {
-        return this.component.getString();
-    }
-
-    @Override
-    public Component toMinecraftComponent() {
-        return this.component;
+    public boolean isEmpty() {
+        String displayString = this.getDisplayString();
+        displayString = COLOUR_CODE_PATTERN.matcher(displayString).replaceAll("");
+        return displayString.trim().isEmpty();
     }
 }
