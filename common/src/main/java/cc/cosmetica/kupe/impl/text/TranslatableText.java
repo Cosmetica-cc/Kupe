@@ -25,7 +25,7 @@ import java.util.Arrays;
 /**
  * Component for plain text.
  */
-public class TranslatableText implements Text {
+public class TranslatableText extends MinecraftText implements Text {
 	public TranslatableText(String text, Object... format) {
 		this.key = text;
 		this.format = format;
