@@ -53,7 +53,8 @@ public abstract class AbstractScrollContainer extends Component {
     public boolean mouseScrolled(double x, double y, double delta) {
         // scroll% = amount Scrolled / maxScroll
         // add to exising scroll%
-        float newScroll = this.scrollPercent - (float) ((delta * PX_PER_SCROLL) / this.maxScroll);
+        int scrollSpeed = this.getStyle().get(SCROLL_SPEED);
+        float newScroll = this.scrollPercent - (float) ((delta * scrollSpeed) / this.maxScroll);
         // clamp
         if (newScroll > 1) newScroll = 1;
         else if (newScroll < 0) newScroll = 0;
@@ -215,9 +216,12 @@ public abstract class AbstractScrollContainer extends Component {
      * Set where the scrollbar should be placed.
      */
     public static final Style.Property<ScrollbarPosition> SCROLLBAR_POSITION = new Style.Property<>("scrollbarPosition", ScrollbarPosition.INSIDE, false);
+    /**
+     * Scroll speed, in gui-scaled pixels per scroll unit.
+     */
+    public static final Style.Property<Integer> SCROLL_SPEED = new Style.Property<>("scrollSpeed", 14, false);
 
     private static final int DEFAULT_SCROLLBAR_THICKNESS = 6;
-    private static final int PX_PER_SCROLL = 10;
 
     public enum Visibility {
         /**
