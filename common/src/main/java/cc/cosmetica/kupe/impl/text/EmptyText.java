@@ -36,4 +36,9 @@ public enum EmptyText implements Text {
 	public Component toMinecraftComponent() {
 		return Component.empty();
 	}
+
+	@Override
+	public boolean isEmpty() {
+		return true;
+	}
 }
