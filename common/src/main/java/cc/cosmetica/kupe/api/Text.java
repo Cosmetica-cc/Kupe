@@ -38,6 +38,12 @@ public interface Text {
 	 */
 	String getDisplayString();
 
+	/**
+	 * Return whether this text will display empty.
+	 * @return whether this text will display empty.
+	 */
+	boolean isEmpty();
+
 	static Text empty() {
 		return EmptyText.INSTANCE;
 	}
