@@ -22,7 +22,7 @@ import net.minecraft.network.chat.Component;
 /**
  * Component for plain text.
  */
-public class LiteralText implements Text {
+public class LiteralText extends MinecraftText implements Text {
 	public LiteralText(String text) {
 		this.text = text;
 	}
