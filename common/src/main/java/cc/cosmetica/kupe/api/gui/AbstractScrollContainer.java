@@ -51,17 +51,21 @@ public abstract class AbstractScrollContainer extends Component {
 
     @Override
     public boolean mouseScrolled(double x, double y, double delta) {
-        // scroll% = amount Scrolled / maxScroll
-        // add to exising scroll%
-        int scrollSpeed = this.getStyle().get(SCROLL_SPEED);
-        float newScroll = this.scrollPercent - (float) ((delta * scrollSpeed) / this.maxScroll);
-        // clamp
-        if (newScroll > 1) newScroll = 1;
-        else if (newScroll < 0) newScroll = 0;
+        if (this.overflow) {
+            // scroll% = amount Scrolled / maxScroll
+            // add to exising scroll%
+            int scrollSpeed = this.getStyle().get(SCROLL_SPEED);
+            float newScroll = this.scrollPercent - (float) ((delta * scrollSpeed) / this.maxScroll);
+            // clamp
+            if (newScroll > 1) newScroll = 1;
+            else if (newScroll < 0) newScroll = 0;
 
-        boolean scrollChanged = this.scrollPercent != newScroll;
-        this.scrollPercent = newScroll;
-        return scrollChanged;
+            boolean scrollChanged = this.scrollPercent != newScroll;
+            this.scrollPercent = newScroll;
+            return scrollChanged;
+        } else {
+            return false;
+        }
     }
 
     @Override
