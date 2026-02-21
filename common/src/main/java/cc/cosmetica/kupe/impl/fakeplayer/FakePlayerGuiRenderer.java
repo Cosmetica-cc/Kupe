@@ -48,7 +48,7 @@ public class FakePlayerGuiRenderer extends PictureInPictureRenderer<FakePlayerGu
         // InventoryScreen#renderEntityInInventory
         stack.pushPose();
         // not sure if this exactly lines up with previous versions but it fits within the box as I rotate it around.
-        stack.translate(0, (float) (arg.y1 - arg.y0) /2 + 10, 0);
+        stack.translate(0, (arg.y1() - arg.y0())/2.0 -5, 0);
         stack.scale(2.0F, 2.0F, 2.0F);
 
 //        stack.translate(0.0D, 0.0D, 1000.0D);
@@ -149,7 +149,7 @@ public class FakePlayerGuiRenderer extends PictureInPictureRenderer<FakePlayerGu
 
         @Override
         public int y0() {
-            return this.y0 - 40; // fit nametag(s) in scissor
+            return this.y0 - (int)((this.y1 - this.y0) * 0.8); // fit nametag(s) in scissor
         }
 
         @Override
