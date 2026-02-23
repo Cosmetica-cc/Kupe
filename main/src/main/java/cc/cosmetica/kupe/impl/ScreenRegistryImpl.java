@@ -20,7 +20,7 @@ import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.Component;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.GuiScreen;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,18 +40,20 @@ public class ScreenRegistryImpl {
 		REGISTRY.put(location, new ScreenEntry(component));
 	}
 
-	public static Screen getMinecraftScreen(ResourceKey location, Screen parent) {
+	public static GuiScreen getMinecraftScreen(ResourceKey location, GuiScreen parent) {
 		if (!REGISTRY.containsKey(location)) {
 			throw new IllegalArgumentException("No screen registered at the given location");
 		}
 
 		ScreenEntry entry = REGISTRY.get(location);
 
-		return new KupeScreen(parent, location.translationKey("screens").toMinecraftComponent(), entry.component.get(), entry.defaultBackground);
+		return new KupeScreen(parent, entry.component.get(), entry.defaultBackground);
 	}
 
-	public static Screen getMinecraftScreen(Component component, Text title, Screen parent, boolean defaultBackground) {
-		return new KupeScreen(parent, title.toMinecraftComponent(), component, defaultBackground);
+	public static GuiScreen getMinecraftScreen(Component component, Text title, GuiScreen parent, boolean defaultBackground) {
+		// title used on 1.16+ (for narrator?)
+
+		return new KupeScreen(parent, component, defaultBackground);
 	}
 
 	public static void setDefaultBackground(ResourceKey id, boolean useDefault) {
@@ -64,7 +66,13 @@ public class ScreenRegistryImpl {
 	}
 
 	public static void closeCurrentScreen() {
-		Minecraft.getInstance().screen.onClose();
+		// set parent screen
+		if (Minecraft.getMinecraft().currentScreen instanceof KupeScreen) {
+			((KupeScreen) Minecraft.getMinecraft().currentScreen).close();
+		} else {
+			// TODO set parent screen?
+			Minecraft.getMinecraft().displayGuiScreen(null);
+		}
 	}
 
 	private static class ScreenEntry {

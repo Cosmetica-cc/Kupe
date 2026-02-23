@@ -28,6 +28,7 @@ import cc.cosmetica.kupe.util.MultiCache;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.server.packs.resources.Resource;
@@ -41,9 +42,9 @@ import java.util.*;
 /**
  * The screen that controls the Kupe gui rendering. This handles the rendering and event calls to the root component.
  */
-public final class KupeScreen extends Screen {
-	public KupeScreen(@Nullable Screen parent, net.minecraft.network.chat.Component title, Component rootComponent, boolean defaultBackground) {
-		super(title);
+public final class KupeScreen extends GuiScreen {
+	public KupeScreen(@Nullable GuiScreen parent, Component rootComponent, boolean defaultBackground) {
+		super();
 
 		this.parent = parent;
 		this.tree = new ComponentTree(rootComponent);
@@ -51,7 +52,7 @@ public final class KupeScreen extends Screen {
 		this.defaultBackground = defaultBackground;
 	}
 
-	private final Screen parent;
+	private final GuiScreen parent;
 	private final ComponentTree tree;
 	private final Context context;
 	private final boolean defaultBackground;
@@ -156,11 +157,14 @@ public final class KupeScreen extends Screen {
 	}
 
 	@Override
-	public void onClose() {
-		assert this.minecraft != null : "Minecraft should not be null";
-		// set parent screen
-		this.minecraft.setScreen(this.parent);
+	public void onGuiClosed() {
+		// set parent screen moved to closeCurrentScreen() -> close()
+
 		this.tree.dispose();
+	}
+
+	void close() {
+		Minecraft.getMinecraft().displayGuiScreen(this.parent);
 	}
 
 	@Override

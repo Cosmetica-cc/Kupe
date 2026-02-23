@@ -56,8 +56,8 @@ public final class Screens {
 	 * @throws IllegalArgumentException if the provided location has no registered screen.
 	 */
 	public static void setScreen(ResourceKey id) {
-		net.minecraft.client.gui.screens.Screen screen = ScreenRegistryImpl.getMinecraftScreen(id, Minecraft.getInstance().screen);
-		Minecraft.getInstance().setScreen(screen);
+		net.minecraft.client.gui.GuiScreen screen = ScreenRegistryImpl.getMinecraftScreen(id, Minecraft.getMinecraft().currentScreen);
+		Minecraft.getMinecraft().displayGuiScreen(screen);
 	}
 
 	/**
@@ -66,8 +66,8 @@ public final class Screens {
 	 * @param title the resource key from which to create the title text.
 	 */
 	public static void setScreen(Component component, ResourceKey title) {
-		net.minecraft.client.gui.screens.Screen screen = ScreenRegistryImpl.getMinecraftScreen(component, title.translationKey("screens"), Minecraft.getInstance().screen, true);
-		Minecraft.getInstance().setScreen(screen);
+		net.minecraft.client.gui.GuiScreen screen = ScreenRegistryImpl.getMinecraftScreen(component, title.translationKey("screens"), Minecraft.getMinecraft().currentScreen, true);
+		Minecraft.getMinecraft().displayGuiScreen(screen);
 	}
 
 	/**
@@ -76,8 +76,8 @@ public final class Screens {
 	 * @param title the screen title text.
 	 */
 	public static void setScreen(Component component, Text title) {
-		net.minecraft.client.gui.screens.Screen screen = ScreenRegistryImpl.getMinecraftScreen(component, title, Minecraft.getInstance().screen, true);
-		Minecraft.getInstance().setScreen(screen);
+		net.minecraft.client.gui.GuiScreen screen = ScreenRegistryImpl.getMinecraftScreen(component, title, Minecraft.getMinecraft().currentScreen, true);
+		Minecraft.getMinecraft().displayGuiScreen(screen);
 	}
 
 	/**
@@ -87,12 +87,12 @@ public final class Screens {
 	 * @throws IllegalArgumentException if the provided location has no registered screen.
 	 */
 	@LeavesSandbox
-	public static net.minecraft.client.gui.screens.Screen getMinecraftScreen(ResourceKey location, net.minecraft.client.gui.screens.Screen parent) {
+	public static net.minecraft.client.gui.GuiScreen getMinecraftScreen(ResourceKey location, net.minecraft.client.gui.GuiScreen parent) {
 		return ScreenRegistryImpl.getMinecraftScreen(location, parent);
 	}
 
 	@LeavesSandbox
-	public static net.minecraft.client.gui.screens.Screen getMinecraftScreen(Component root, Text title, net.minecraft.client.gui.screens.Screen parent) {
+	public static net.minecraft.client.gui.GuiScreen getMinecraftScreen(Component root, Text title, net.minecraft.client.gui.GuiScreen parent) {
 		return ScreenRegistryImpl.getMinecraftScreen(root, title, parent, true);
 	}
 

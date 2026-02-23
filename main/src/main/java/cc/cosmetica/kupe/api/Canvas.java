@@ -158,5 +158,5 @@ public interface Canvas {
 	 * @param mouseY the y position of the mouse on the screen.
 	 */
 	@LeavesSandbox
-	void renderMinecraftComponent(net.minecraft.client.gui.components.Widget component, int mouseX, int mouseY);
+	void renderMinecraftComponent(net.minecraft.client.gui.Gui component, int mouseX, int mouseY);
 }

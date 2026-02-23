@@ -18,27 +18,22 @@ package cc.cosmetica.kupe.impl;
 
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.Context;
-import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.Component;
 import cc.cosmetica.kupe.api.gui.Element;
 import cc.cosmetica.kupe.api.gui.ResizableElement;
 import cc.cosmetica.kupe.api.gui.SizedElement;
-import cc.cosmetica.kupe.api.gui.style.CommonProperties;
-import cc.cosmetica.kupe.api.gui.style.Style;
-import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Region;
 import com.google.common.collect.ImmutableList;
-import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.Gui;
 
 import java.util.List;
-import java.util.OptionalInt;
 
 /**
  * Used for API components that wrap minecraft components. This is not recommended to be instantiated directly.
  */
 public abstract class MinecraftBuiltinComponent extends Component {
 	// internal //
-	protected AbstractWidget minecraftWidget;
+	protected Gui minecraftWidget;
 	protected boolean disabled = false;
 
 	// build //
@@ -50,11 +45,14 @@ public abstract class MinecraftBuiltinComponent extends Component {
 	@Override
 	public void resize(Region region, SizedElement sizedElement, List<? extends ResizableElement> children, Context context) {
 		this.minecraftWidget = this.createMinecraftWidget(region, context);
-		this.minecraftWidget.active = !this.disabled;
+		this.setWidgetActive(this.minecraftWidget, !this.disabled);
 	}
 
 	@LeavesSandbox
-	abstract public AbstractWidget createMinecraftWidget(Region region, Context context);
+	abstract public Gui createMinecraftWidget(Region region, Context context);
+
+	@LeavesSandbox
+	abstract protected void setWidgetActive(Gui gui, boolean active);
 
 	/**
 	 * Set whether the component should be disabled.
@@ -64,7 +62,7 @@ public abstract class MinecraftBuiltinComponent extends Component {
 	protected MinecraftBuiltinComponent setDisabled(boolean disabled) {
 		this.disabled = disabled;
 		if (this.minecraftWidget != null) {
-			this.minecraftWidget.active = !disabled;
+			this.setWidgetActive(this.minecraftWidget, !disabled);
 		}
 		return this;
 	}

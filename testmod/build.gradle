@@ -31,6 +31,8 @@ minecraft {
 dependencies {
     minecraft "net.minecraftforge:forge:${rootProject.forge_version}"
 
+    implementation "org.jetbrains:annotations:24.0.1"
+
     implementation project(path: ":main")
 }
 

@@ -40,6 +40,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.model.AnimationUtils;
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -62,12 +63,12 @@ import java.util.*;
 public final class FakePlayerRenderer {
 	// Lazy Model Loading
 	// Important on newer mc versions
-	private PlayerModel<AbstractClientPlayer> model;
+	private ModelPlayer model;
 	private boolean slimModel;
 
 	private boolean lazyLoadModel() {
 		if (this.model == null || (this.slimModel != this.skin.slim)) {
-			this.model = new PlayerModel<>(0.0f, this.slimModel = this.skin.slim);
+			this.model = new ModelPlayer(0.0f, this.slimModel = this.skin.slim);
 		}
 
 		return true;
