@@ -1,18 +1,10 @@
 pluginManagement {
     repositories {
-        maven { url "https://maven.fabricmc.net/" }
-        maven { url "https://maven.architectury.dev/" }
-        maven { url "https://maven.minecraftforge.net/" }
+        maven { url = 'https://files.minecraftforge.net/maven/' }
         gradlePluginPortal()
     }
 }
 
-include("common")
-include("fabric")
-include("forge")
-
-include("testmod-common")
-include("testmod-fabric")
-include("testmod-forge")
+include 'main', 'testmod'
 
 rootProject.name = "kupe"

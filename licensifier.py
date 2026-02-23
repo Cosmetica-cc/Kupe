@@ -28,12 +28,8 @@ CC_ZERO = """/*
 """
 
 srcDirs = {
-  "common/src": APACHE,
-  "fabric/src": APACHE,
-  "forge/src": APACHE,
-  "testmod-common/src": CC_ZERO,
-  "testmod-fabric/src": CC_ZERO,
-  "testmod-forge/src": CC_ZERO
+  "main/src": APACHE,
+  "testmod/src": CC_ZERO,
 }
 
 def IterPaste(fold, licenseText):
