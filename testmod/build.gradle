@@ -1,10 +1,61 @@
-architectury {
-    common()
+apply plugin: 'net.minecraftforge.gradle'
+
+archivesBaseName = "$rootProject.archives_base_name-$project.name"
+
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
+
+minecraft {
+    mappings channel: 'snapshot', version: '20171003-1.12'
+
+    runs {
+        client {
+            workingDirectory project.file('run')
+
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+        }
+
+        server {
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+        }
+    }
 }
 
 dependencies {
-    // We depend on fabric loader here to use the fabric @Environment annotations
-    // Do NOT use other classes from fabric loader
-    modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
-    implementation project(path: ":common", configuration: "namedElements")
+    minecraft "net.minecraftforge:forge:${rootProject.forge_version}"
+
+    implementation project(path: ":main")
+}
+
+afterEvaluate {
+    jar {
+        manifest {
+            attributes([
+                    "Specification-Title": "Kupe",
+                    "Specification-Vendor": "Cosmetica",
+                    "Specification-Version": "${rootProject.mod_version}",
+                    "Implementation-Title": "kupe-forge",
+                    "Implementation-Version": "${rootProject.version}",
+                    "Implementation-Vendor" :"Cosmetica",
+                    "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+            ])
+        }
+    }
+
+// FML does not support loading exploded directories as mods.
+// Eclipse works fine because it merges classes and resources when debugging
+// IntelliJ used to work because FG2 forced the files to be jared during debugging.
+// Since FG3+ doesn't do that, we need to merge the sourcesets from gradle's side.
+    sourceSets.each {
+        def dir = layout.buildDirectory.file("sourcesSets/$it.name").get().asFile
+        it.output.resourcesDir = dir
+        it.java.outputDir = dir
+    }
 }
