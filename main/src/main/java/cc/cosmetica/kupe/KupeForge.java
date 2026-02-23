@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.kupe.mixin.fakeplayer;
+package cc.cosmetica.kupe;
 
-import net.minecraft.client.model.PlayerModel;
-import net.minecraft.client.model.geom.ModelPart;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.gen.Accessor;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
-@Mixin(PlayerModel.class)
-public interface PlayerModelAccessor {
-	@Accessor
-	ModelPart getCloak();
-
-	@Accessor
-	ModelPart getEar();
+@Mod(modid = Kupe.MOD_ID, name = "Kupe GUI", version = "0.26.7")
+public class KupeForge {
+    @Mod.EventHandler
+    public void preInit(FMLPreInitializationEvent event)
+    {
+        System.out.println("Kupe Initialised");
+    }
 }
