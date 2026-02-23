@@ -1,0 +1,16 @@
+[
+  {
+    "modid": "kupe",
+    "name": "Kupe GUI",
+    "description": "Reactive cross-platform and cross-version GUI library. For all your navigation needs.",
+    "version": "${version}",
+    "mcversion": "1.12.2",
+    "url": "",
+    "updateUrl": "",
+    "authorList": ["Valoeghese", "Cosmetica Contributors"],
+    "credits": "Made by the Cosmetica team",
+    "logoFile": "icon.png",
+    "screenshots": [],
+    "dependencies": []
+  }
+]
