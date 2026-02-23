@@ -19,7 +19,6 @@ package cc.cosmetica.kupe.api;
 import cc.cosmetica.kupe.api.maths.Matrix4;
 import cc.cosmetica.kupe.api.maths.Vec3;
 import cc.cosmetica.kupe.impl.LeavesSandbox;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 /**
  * A matrix stack, for manipulating the rendering matrix.
@@ -66,11 +65,4 @@ public interface MatrixStack {
 	 * @param z the amount to scale in z direction.
 	 */
 	void scale(float x, float y, float z);
-
-	/**
-	 * Get the minecraft {@link PoseStack} representation of this {@link MatrixStack}.
-	 * @return the minecraft pose stack.
-	 */
-	@LeavesSandbox
-	PoseStack getMinecraftStack();
 }
