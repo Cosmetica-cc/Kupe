@@ -24,10 +24,9 @@ import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.properties.Property;
 import com.mojang.util.UUIDTypeAdapter;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.PlayerInfo;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.network.NetworkPlayerInfo;
+import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -56,8 +55,8 @@ public class PlayerUtils {
         }
 
         // Fallback 1: own username
-        if (uuid.equals(UUIDTypeAdapter.fromString(Minecraft.getInstance().getUser().getUuid()))) {
-            return Text.literal(Minecraft.getInstance().getUser().getName());
+        if (uuid.equals(UUIDTypeAdapter.fromString(Minecraft.getMinecraft().getUser().getUuid()))) {
+            return Text.literal(Minecraft.getMinecraft().getUser().getName());
         }
 
         // Fallback 2: look up for cache
@@ -87,7 +86,7 @@ public class PlayerUtils {
 
         if (profile != null && profile.isPresent()) {
             // get texture
-            Minecraft minecraft = Minecraft.getInstance();
+            Minecraft minecraft = Minecraft.getMinecraft();
             Map<MinecraftProfileTexture.Type, MinecraftProfileTexture> properties = minecraft.getSkinManager().getInsecureSkinInformation(profile.get());
             if (properties.containsKey(MinecraftProfileTexture.Type.SKIN)) {
                 MinecraftProfileTexture profileTexture = properties.get(MinecraftProfileTexture.Type.SKIN);
@@ -98,11 +97,11 @@ public class PlayerUtils {
         }
 
         // Fallback 1: player info from server
-        if (Minecraft.getInstance().getConnection() != null) {
-            PlayerInfo loadedProfile = Minecraft.getInstance().getConnection().getPlayerInfo(uuid);
+        if (Minecraft.getMinecraft().getConnection() != null) {
+            NetworkPlayerInfo loadedProfile = Minecraft.getMinecraft().getConnection().getPlayerInfo(uuid);
 
             if (loadedProfile != null) {
-                return new Skin(loadedProfile.getSkinLocation(), "slim".equals(loadedProfile.getModelName()));
+                return new Skin(loadedProfile.getLocationSkin(), "slim".equals(loadedProfile.getSkinType()));
             }
         }
 
@@ -132,7 +131,7 @@ public class PlayerUtils {
 
         if (profile != null && profile.isPresent()) {
             // get texture
-            Minecraft minecraft = Minecraft.getInstance();
+            Minecraft minecraft = Minecraft.getMinecraft();
             Map<MinecraftProfileTexture.Type, MinecraftProfileTexture> properties = minecraft.getSkinManager().getInsecureSkinInformation(profile.get());
             if (properties.containsKey(type)) {
                 return minecraft.getSkinManager().registerTexture(properties.get(type), type);

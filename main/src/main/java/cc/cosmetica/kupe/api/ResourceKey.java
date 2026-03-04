@@ -17,7 +17,8 @@
 package cc.cosmetica.kupe.api;
 
 import cc.cosmetica.kupe.impl.LeavesSandbox;
-import net.minecraft.resources.ResourceLocation;
+import cc.cosmetica.kupe.impl.ResourceKeyValidator;
+import net.minecraft.util.ResourceLocation;
 
 import java.util.Objects;
 
@@ -26,10 +27,18 @@ import java.util.Objects;
  * @implNote created to have a consistent identifier class in all minecraft versions and other environments.
  */
 public final class ResourceKey {
+    /**
+     * Creates a new ResourceKey.
+     * @param namespace the namespace string. Must be non-zero length and only consist of lowercase letters, 0-9, "_", ".", and "-".
+     * @param path the path string. May be separated by slashes, and each section follows the same rule as namespaces.
+     */
     public ResourceKey(String namespace, String path) {
         // apply same restrictions as ResourceLocation
-        if (!ResourceLocation.isValidResourceLocation(namespace + ":" + path)) {
-            throw new IllegalArgumentException("Invalid Resource Key");
+        if (!ResourceKeyValidator.isValidNamespace(namespace)) {
+            throw new IllegalArgumentException("Invalid Resource Key namespace");
+        }
+        if (!ResourceKeyValidator.isValidPath(namespace)) {
+            throw new IllegalArgumentException("Invalid Resource Key path");
         }
 
         this.namespace = namespace;
@@ -38,8 +47,8 @@ public final class ResourceKey {
 
     @LeavesSandbox
     public ResourceKey(ResourceLocation location) {
-        this.namespace = location.getNamespace();
-        this.path = location.getPath();
+        this.namespace = location.getResourceDomain();
+        this.path = location.getResourcePath();
     }
 
     private final String namespace;
