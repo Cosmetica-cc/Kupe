@@ -2,6 +2,12 @@ plugins {
     id 'com.gradleup.shadow'
 }
 
+// TODO dummy
+tasks.register('remapJar', net.fabricmc.loom.task.RemapJarTask) {
+    enabled = false
+    return
+}
+
 architectury {
     platformSetupLoomIde()
     neoForge()
@@ -28,7 +34,7 @@ configurations {
 dependencies {
     neoForge "net.neoforged:neoforge:${rootProject.neoforge_version}"
 
-    common(project(path: ":common", configuration: "namedElements")) { transitive false }
+    common(project(path: ":common")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionNeoForge")) { transitive = false }
 }
 

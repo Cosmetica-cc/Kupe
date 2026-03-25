@@ -2,6 +2,12 @@ plugins {
     id 'com.gradleup.shadow'
 }
 
+// TODO dummy
+tasks.register('remapJar', net.fabricmc.loom.task.RemapJarTask) {
+    enabled = false
+    return
+}
+
 architectury {
     platformSetupLoomIde()
     fabric()
@@ -19,10 +25,10 @@ configurations {
 }
 
 dependencies {
-    modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
+    implementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
 
-    implementation project(path: ":fabric", configuration: "namedElements")
-    common(project(path: ":common", configuration: "namedElements")) { transitive false }
-    common(project(path: ":testmod-common", configuration: "namedElements")) { transitive false }
+    implementation project(path: ":fabric")
+    common(project(path: ":common")) { transitive false }
+    common(project(path: ":testmod-common")) { transitive false }
 }

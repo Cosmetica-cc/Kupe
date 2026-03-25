@@ -1,6 +1,6 @@
 plugins {
-    id "architectury-plugin" version "3.4-SNAPSHOT"
-    id "dev.architectury.loom" version "1.13-SNAPSHOT" apply false
+    id "architectury-plugin" version "3.4.9999"
+    id "dev.architectury.loom" version "1.14.9999" apply false
     id 'com.gradleup.shadow' version '8.3.6' apply false
 }
 
@@ -11,6 +11,12 @@ architectury {
 allprojects {
     group = rootProject.maven_group
     version = "${rootProject.mod_version}-${rootProject.minecraft_version}"
+}
+
+// TODO dummy
+tasks.register('remapJar', net.fabricmc.loom.task.RemapJarTask) {
+    enabled = false
+    return
 }
 
 subprojects {
@@ -38,7 +44,7 @@ subprojects {
 
     dependencies {
         minecraft "net.minecraft:minecraft:$rootProject.minecraft_version"
-        mappings loom.officialMojangMappings()
+//        mappings loom.officialMojangMappings()
     }
 
     java {

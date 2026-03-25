@@ -1,5 +1,12 @@
 plugins {
     id 'com.gradleup.shadow'
+    id 'dev.architectury.loom'
+}
+
+// TODO dummy
+tasks.register('remapJar', net.fabricmc.loom.task.RemapJarTask) {
+    enabled = false
+    return
 }
 
 architectury {
@@ -30,9 +37,9 @@ configurations {
 dependencies {
     neoForge "net.neoforged:neoforge:${rootProject.neoforge_version}"
 
-    implementation(project(path: ":neoforge", configuration: "namedElements")) { transitive false }
-    common(project(path: ":common", configuration: "namedElements")) { transitive false }
-    common(project(path: ":testmod-common", configuration: "namedElements")) { transitive false }
+    implementation(project(path: ":neoforge")) { transitive false }
+    common(project(path: ":common")) { transitive false }
+    common(project(path: ":testmod-common")) { transitive false }
 }
 
 processResources {
