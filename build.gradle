@@ -13,12 +13,6 @@ allprojects {
     version = "${rootProject.mod_version}-${rootProject.minecraft_version}"
 }
 
-// TODO dummy
-tasks.register('remapJar', net.fabricmc.loom.task.RemapJarTask) {
-    enabled = false
-    return
-}
-
 subprojects {
     apply plugin: 'dev.architectury.loom'
     apply plugin: 'architectury-plugin'

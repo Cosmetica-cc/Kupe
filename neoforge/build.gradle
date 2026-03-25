@@ -1,5 +1,6 @@
 plugins {
     id 'com.gradleup.shadow'
+    id 'dev.architectury.loom'
 }
 
 // TODO dummy
