@@ -25,10 +25,8 @@ import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.impl.text.FormattedCharSeqRenderer;
 import cc.cosmetica.kupe.util.ImageUtilities;
 import cc.cosmetica.kupe.util.MultiCache;
-import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
@@ -95,15 +93,17 @@ public final class KupeScreen extends Screen {
 	}
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float tickDelta) {
-		// TODO re-implement this
-//		if (this.defaultBackground) { // TODO better way to do this that also handles scrolling backgrounds
-//			this.renderBackground(graphics, mouseX, mouseY, tickDelta);
-//		}
+	public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float tickDelta) {
+		if (this.defaultBackground) { // TODO better way to do this that also handles scrolling backgrounds
+			super.extractBackground(graphics, mouseX, mouseY, tickDelta);
+		}
+	}
 
+	@Override
+	public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float tickDelta) {
 		PoseCanvas canvas = new PoseCanvas(graphics, this.minecraft, this.context, tickDelta);
 		this.tree.render(canvas, mouseX, mouseY);
-		
+
 		if (debug) {
 			this.tree.renderDebug(canvas, this.height);
 		}
@@ -137,7 +137,8 @@ public final class KupeScreen extends Screen {
 
 	@Override
 	public boolean charTyped(CharacterEvent e) {
-		return this.tree.charTyped((char)e.codepoint(), e.modifiers());
+		// fixme character type modifiers or remove from API
+		return this.tree.charTyped((char)e.codepoint(), 0);
 	}
 
 	/**

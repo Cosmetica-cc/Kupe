@@ -105,7 +105,7 @@ public abstract class MinecraftBuiltinComponent extends Component {
 
 	@Override
 	public boolean charTyped(char symbol, int modifiers) {
-		CharacterEvent e = new CharacterEvent(symbol, modifiers);
+		CharacterEvent e = new CharacterEvent(symbol);
 		return this.minecraftWidget.charTyped(e);
 	}
 }

@@ -22,6 +22,7 @@ import cc.cosmetica.kupe.api.MatrixStack;
 import cc.cosmetica.kupe.api.gui.GUIPlayer;
 import cc.cosmetica.kupe.impl.ExtendedPlayerModel;
 import cc.cosmetica.kupe.impl.KupePoseStack;
+import cc.cosmetica.kupe.mixin.MinecraftAccessor;
 import cc.cosmetica.kupe.mixin.fakeplayer.EntityRendererProviderAccessor;
 import cc.cosmetica.kupe.mixin.fakeplayer.PlayerCapeModelAccessor;
 import com.google.common.collect.Sets;
@@ -32,7 +33,8 @@ import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.model.*;
+import net.minecraft.client.model.AnimationUtils;
+import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.object.equipment.ElytraModel;
@@ -69,9 +71,9 @@ public final class FakePlayerRenderer {
 			Minecraft minecraft = Minecraft.getInstance();
 			var context = new EntityRendererProvider.Context(
 					minecraft.getEntityRenderDispatcher(),
+					((MinecraftAccessor) minecraft).getBlockModelResolver(),
 					minecraft.getItemModelResolver(),
 					minecraft.getMapRenderer(),
-					minecraft.getBlockRenderer(),
 					minecraft.getResourceManager(),
 					minecraft.getEntityModels(),
 					((EntityRendererProviderAccessor) minecraft.getEntityRenderDispatcher()).getEquipmentAssets(),
@@ -146,7 +148,13 @@ public final class FakePlayerRenderer {
 	private void setModelProperties(GUIPlayer.Posture posture) {
 		PlayerModel playerModel = this.model;
 
-		playerModel.setAllVisible(true);
+		playerModel.body.visible = true;
+		playerModel.head.visible = true;
+		playerModel.leftArm.visible = true;
+		playerModel.rightArm.visible = true;
+		playerModel.leftLeg.visible = true;
+		playerModel.rightLeg.visible = true;
+
 		playerModel.hat.visible = this.shownParts.contains(PlayerModelPart.HAT);
 		playerModel.jacket.visible = this.shownParts.contains(PlayerModelPart.JACKET);
 		playerModel.leftPants.visible = this.shownParts.contains(PlayerModelPart.LEFT_PANTS_LEG);
@@ -285,7 +293,7 @@ public final class FakePlayerRenderer {
 	private RenderType getRenderType(PlayerRenderMode mode) {
 		switch (mode) {
 		case INVISIBLE:
-			return RenderTypes.itemEntityTranslucentCull(this.skin.texture);
+			return RenderTypes.entityTranslucentCullItemTarget(this.skin.texture);
 		case NORMAL:
 			return this.model.renderType(this.skin.texture);
 		case GLOWING:

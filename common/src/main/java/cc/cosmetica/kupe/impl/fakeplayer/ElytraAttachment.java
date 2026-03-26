@@ -28,7 +28,6 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.object.equipment.ElytraModel;
 import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -53,8 +52,14 @@ public class ElytraAttachment implements GUIPlayer.Attachment<ElytraProperties> 
 					: RenderTypes.armorCutoutNoCull(configuration.texture);
 
 			this.setupAnim(posture, (ElytraModelAccessor) elytraModel, 0, 0, 0, posture.yRotHead, posture.xRot);
-			VertexConsumer vertexConsumer = ItemRenderer.getFoilBuffer(bufferSource, renderType, true, configuration.glint);
+			VertexConsumer vertexConsumer = bufferSource.getBuffer(renderType);
 			elytraModel.renderToBuffer(stack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY);
+
+			if (configuration.glint) {
+				VertexConsumer vertexConsumerGlint = bufferSource.getBuffer(RenderTypes.armorEntityGlint());
+				elytraModel.renderToBuffer(stack, vertexConsumerGlint, packedLight, OverlayTexture.NO_OVERLAY);
+			}
+			
 			stack.popPose();
 		}
  	}

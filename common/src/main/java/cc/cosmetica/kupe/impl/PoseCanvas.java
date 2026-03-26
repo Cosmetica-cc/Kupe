@@ -28,15 +28,16 @@ import com.mojang.blaze3d.textures.GpuTextureView;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.font.glyphs.BakedGlyph;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
-import net.minecraft.client.gui.render.GuiRenderer;
 import net.minecraft.client.gui.render.TextureSetup;
-import net.minecraft.client.gui.render.state.*;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.gui.screens.inventory.tooltip.MenuTooltipPositioner;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.state.gui.BlitRenderState;
+import net.minecraft.client.renderer.state.gui.ColoredRectangleRenderState;
+import net.minecraft.client.renderer.state.gui.GuiRenderState;
+import net.minecraft.client.renderer.state.gui.GuiTextRenderState;
 import net.minecraft.util.FormattedCharSequence;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -44,7 +45,7 @@ import org.joml.*;
 
 import java.lang.Math;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
  * Implementation of Canvas.
@@ -52,7 +53,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * update tickDelta.
  */
 public class PoseCanvas implements Canvas, ModernCanvas {
-	public PoseCanvas(GuiGraphics graphics, Minecraft minecraft, Context context, float tickDelta) {
+	public PoseCanvas(GuiGraphicsExtractor graphics, Minecraft minecraft, Context context, float tickDelta) {
 		this.graphics = graphics;
 		this.stack = graphics.pose();
 		this.kupeStack = new KupeStack(graphics.pose());
@@ -65,7 +66,7 @@ public class PoseCanvas implements Canvas, ModernCanvas {
 		this.fastScissor = false;
 	}
 
-	final GuiGraphics graphics;
+	final GuiGraphicsExtractor graphics;
 	private final Matrix3x2fStack stack;
 	private final MatrixStack kupeStack;
 	private final Minecraft minecraft;
@@ -179,11 +180,11 @@ public class PoseCanvas implements Canvas, ModernCanvas {
 	public void drawTooltip(Text text, int splitWidth, int x, int y) {
 		// Tooltip should be always floating!
 		renderFloating((x_, y_) -> {
-			this.graphics.renderTooltip(
+			this.graphics.tooltip(
 					Minecraft.getInstance().font,
 					Minecraft.getInstance().font.split(text.toMinecraftComponent(), splitWidth)
 							.stream().map(ClientTooltipComponent::create)
-							.toList(),
+							.collect(Collectors.toList()),
 					x_, y_,
 					// TODO is this correct position
 					new MenuTooltipPositioner(new ScreenRectangle(x, y, 1, 1)),
@@ -284,7 +285,7 @@ public class PoseCanvas implements Canvas, ModernCanvas {
 		GuiRenderState guiRenderState = graphics.getGuiRenderState();
 		colour = addAlpha(colour, this.alpha);
 
-		guiRenderState.submitText(new GuiTextRenderState(
+		guiRenderState.addText(new GuiTextRenderState(
 				font,
 				sequence,
 				new Matrix3x2f(this.stack),
@@ -335,7 +336,7 @@ public class PoseCanvas implements Canvas, ModernCanvas {
 		GuiGraphicsAccessor graphics = (GuiGraphicsAccessor) this.graphics;
 		int colour = packColour(r, g, b, this.alpha);
 
-		graphics.getGuiRenderState().submitGuiElement(new ColoredRectangleRenderState(
+		graphics.getGuiRenderState().addGuiElement(new ColoredRectangleRenderState(
 				RenderPipelines.GUI,
 				TextureSetup.noTexture(),
 				this.stack.get(new Matrix3x2f()),
@@ -355,7 +356,7 @@ public class PoseCanvas implements Canvas, ModernCanvas {
 		this.setTexture(texture);
 		assert this.texture != null;
 
-		graphics.getGuiRenderState().submitGuiElement(new BlitRenderState(
+		graphics.getGuiRenderState().addGuiElement(new BlitRenderState(
 				RenderPipelines.GUI_TEXTURED,
 				// TODO add filter mode configuration on Canvas in all Kupe minecraft versions
 				TextureSetup.singleTexture(this.texture, RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST)),
@@ -402,7 +403,7 @@ public class PoseCanvas implements Canvas, ModernCanvas {
 				region, 1.0f, this.scissorStack.getScissorRegion().orElse(null),
 				new ScreenRectangle(region.getX(), region.getY(), region.getWidth(), region.getHeight()));
 		GuiGraphicsAccessor graphics = (GuiGraphicsAccessor) this.graphics;
-		graphics.getGuiRenderState().submitPicturesInPictureState(state);
+		graphics.getGuiRenderState().addPicturesInPictureState(state);
 	}
 
 	@Override
@@ -417,7 +418,7 @@ public class PoseCanvas implements Canvas, ModernCanvas {
 //		if (stack.prevNode != null) {
 //			mouseY += (int)stack.scrollY;
 //		}
-		component.render(this.graphics, mouseX, mouseY, this.tickDelta);
+		component.extractRenderState(this.graphics, mouseX, mouseY, this.tickDelta);
 		if (rect.isPresent()) {
 			this.graphics.disableScissor();
 		}

@@ -5,6 +5,7 @@
   "minVersion": "0.8",
   "client": [
     "GuiGraphicsAccessor",
+    "MinecraftAccessor",
     "Vec3Mixin",
     "fakeplayer.ElytraModelAccessor",
     "fakeplayer.EntityRendererProviderAccessor",
@@ -13,5 +14,7 @@
   ],
   "injectors": {
     "defaultRequire": 1
-  }
+  },
+  "mixins": [
+  ]
 }

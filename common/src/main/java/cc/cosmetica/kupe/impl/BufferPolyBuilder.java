@@ -26,8 +26,8 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.render.TextureSetup;
-import net.minecraft.client.gui.render.state.GuiElementRenderState;
-import net.minecraft.client.gui.render.state.GuiRenderState;
+import net.minecraft.client.renderer.state.gui.GuiElementRenderState;
+import net.minecraft.client.renderer.state.gui.GuiRenderState;
 import net.minecraft.client.renderer.RenderPipelines;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -132,7 +132,7 @@ public class BufferPolyBuilder implements PolyBuilder {
 		}
 
 		GuiRenderState state = this.graphics.getGuiRenderState();
-		state.submitGuiElement(new BufferPolyVertexList(this, (this.uvFlags & 1) == 1, (this.uvFlags & 2) == 2));
+		state.addGuiElement(new BufferPolyVertexList(this, (this.uvFlags & 1) == 1, (this.uvFlags & 2) == 2));
 	}
 
 	public static BufferPolyBuilder create(GuiGraphicsAccessor graphics, VertexFormat.Mode shape, Mode mode, @Nullable GpuTextureView texture, float alpha, @Nullable Matrix3x2f matrix4f, @Nullable ScreenRectangle scissor) {
