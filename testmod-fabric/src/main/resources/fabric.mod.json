@@ -21,7 +21,7 @@
     "testmod-common.mixins.json"
   ],
   "depends": {
-    "fabric": "*",
+    "fabric-api": "*",
     "kupe": "*",
     "minecraft": ">=1.16.5"
   }

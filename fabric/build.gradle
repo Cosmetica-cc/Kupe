@@ -33,7 +33,8 @@ dependencies {
     }
 
     common(project(path: ":common")) { transitive false }
-    shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
+    // , configuration: "transformProductionFabric"
+    shadowCommon(project(path: ":common")) { transitive false }
 }
 
 processResources {
@@ -49,6 +50,11 @@ shadowJar {
 
     configurations = [project.configurations.shadowCommon]
     archiveClassifier = "dev-shadow"
+}
+
+// TODO temp
+tasks.named('build') {
+    dependsOn tasks.named('shadowJar')
 }
 
 remapJar {
