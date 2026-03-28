@@ -30,7 +30,7 @@ public class TitleScreenMixin {
 		}
 	}
 
-	@Inject(at = @At("RETURN"), method = "render")
+	@Inject(at = @At("RETURN"), method = "extractRenderState")
 	private void onRender(CallbackInfo ci) {
 		if (GLFW.glfwGetKey(Minecraft.getInstance().getWindow().handle(), GLFW.GLFW_KEY_RIGHT_CONTROL) == GLFW.GLFW_PRESS) {
 			Minecraft.getInstance().schedule(() -> Screens.setScreen(AllKupeTestsScreen.ID));
