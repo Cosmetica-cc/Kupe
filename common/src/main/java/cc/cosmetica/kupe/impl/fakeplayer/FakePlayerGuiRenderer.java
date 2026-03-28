@@ -139,12 +139,12 @@ public class FakePlayerGuiRenderer extends PictureInPictureRenderer<FakePlayerGu
 
         @Override
         public int x0() {
-            return this.x0 - 25;
+            return this.x0 - 50;
         }
 
         @Override
         public int x1() {
-            return this.x1 + 25;
+            return this.x1 + 50;
         }
 
         @Override
