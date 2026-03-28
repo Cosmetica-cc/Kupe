@@ -2,16 +2,7 @@ plugins {
     id 'dev.architectury.loom'
 }
 
-// TODO dummy
-tasks.register('remapJar', net.fabricmc.loom.task.RemapJarTask) {
-    enabled = false
-    return
-}
-
 architectury {
-    println "Project: $project.path"
-    println "Jar task exists: ${tasks.findByName('jar') != null}"
-
     common(rootProject.enabled_platforms.split(","))
 }
 

@@ -3,12 +3,6 @@ plugins {
     id 'dev.architectury.loom'
 }
 
-// TODO dummy
-tasks.register('remapJar', net.fabricmc.loom.task.RemapJarTask) {
-    enabled = false
-    return
-}
-
 architectury {
     platformSetupLoomIde()
     neoForge()
@@ -47,19 +41,40 @@ processResources {
     }
 }
 
+jar {
+    archiveClassifier = "raw"
+}
+
 shadowJar {
+    dependsOn(jar)
+    mainSpec.sourcePaths.clear()       // Remove default source set inclusion
+    from(zipTree(jar.archiveFile))     // Unpack jar output (preserves Loom modifications)
+
     exclude "fabric.mod.json"
     exclude "architectury.common.json"
 
     configurations = [project.configurations.shadowCommon]
-    archiveClassifier = "dev-shadow"
+    archiveClassifier = null           // shadowJar becomes the main artifact
+    from rootProject.file("LICENSE.md")
 }
 
-remapJar {
-    inputFile.set shadowJar.archiveFile
-    dependsOn shadowJar
-    atAccessWideners.add "kupe.accesswidener"
+// use shadowjar for maven on 26.1
+configurations {
+    apiElements {
+        outgoing.artifacts.clear()
+        outgoing.artifact(shadowJar)
+    }
+    runtimeElements {
+        outgoing.artifacts.clear()
+        outgoing.artifact(shadowJar)
+    }
 }
+
+//remapJar {
+//    inputFile.set shadowJar.archiveFile
+//    dependsOn shadowJar
+//    atAccessWideners.add "kupe.accesswidener"
+//}
 
 // these two don't appear in 1.17 template?
 sourcesJar {

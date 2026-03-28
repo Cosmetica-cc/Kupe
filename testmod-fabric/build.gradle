@@ -28,8 +28,6 @@ configurations {
     compileClasspath.extendsFrom common
     runtimeClasspath.extendsFrom common
     developmentFabric.extendsFrom common
-    // TODO TEMP
-    shadowCommon
 }
 
 dependencies {
@@ -39,14 +37,4 @@ dependencies {
     implementation project(path: ":fabric")
     common(project(path: ":common")) { transitive false }
     common(project(path: ":testmod-common")) { transitive false }
-
-    shadowCommon(project(path: ":testmod-common"))
-}
-
-// TODO temp
-shadowJar {
-    exclude "architectury.common.json"
-
-    configurations = [project.configurations.shadowCommon]
-    archiveClassifier = "dev-shadow"
 }
