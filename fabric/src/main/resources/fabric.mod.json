@@ -29,5 +29,6 @@
     "modmenu": {
       "badges": [ "library" ]
     }
-  }
+  },
+  "accessWidener": "kupe-fabric.accesswidener"
 }
