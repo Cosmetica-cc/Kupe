@@ -32,3 +32,6 @@ config = "kupe-common.mixins.json"
 
 [[mixins]]
 config = "kupe.mixins.json"
+
+[[accessTransformers]]
+file="META-INF/accesstransformer.cfg"

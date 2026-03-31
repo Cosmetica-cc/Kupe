@@ -52,6 +52,7 @@ shadowJar {
 
     exclude "fabric.mod.json"
     exclude "architectury.common.json"
+    exclude "kupe.accesswidener"
 
     configurations = [project.configurations.shadowCommon]
     archiveClassifier = null           // shadowJar becomes the main artifact
