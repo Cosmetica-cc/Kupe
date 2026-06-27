@@ -10,7 +10,7 @@
   "contact": {
     "sources": "https://github.com/Cosmetica-cc/Kupe"
   },
-  "license": "Insert License Here",
+  "license": "Apache 2.0",
   "icon": "assets/kupe/icon.png",
   "environment": "client",
   "entrypoints": {
@@ -23,7 +23,7 @@
     "kupe-common.mixins.json"
   ],
   "depends": {
-    "minecraft": ">=1.21.6"
+    "minecraft": ">=26.2"
   },
   "custom": {
     "modmenu": {
