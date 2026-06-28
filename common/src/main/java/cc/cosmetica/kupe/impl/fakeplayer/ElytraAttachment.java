@@ -25,6 +25,7 @@ import net.minecraft.core.ClientAsset;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.PlayerSkin;
@@ -34,7 +35,9 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 
+import java.util.Collections;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 public class ElytraAttachment implements GUIPlayer.Attachment<ElytraProperties> {
@@ -47,7 +50,18 @@ public class ElytraAttachment implements GUIPlayer.Attachment<ElytraProperties> 
 					Component.empty(),
 					null,
 					HolderSet.empty(),
-					DataComponentMap.EMPTY
+					// DataComponentMap.EMPTY crashes
+					new DataComponentMap() {
+						@Override
+						public Set<DataComponentType<?>> keySet() {
+							return Collections.emptySet();
+						}
+
+						@Override
+						public <T> @org.jspecify.annotations.Nullable T get(DataComponentType<? extends T> type) {
+							return null;
+						}
+					}
 			)), 1);
 		}
 		renderState.skin = renderState.skin.with(new PlayerSkin.Patch(
