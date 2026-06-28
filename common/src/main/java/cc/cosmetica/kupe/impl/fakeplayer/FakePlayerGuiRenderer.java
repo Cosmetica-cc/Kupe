@@ -24,15 +24,22 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.render.pip.PictureInPictureRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.feature.FeatureRenderDispatcher;
+import net.minecraft.client.renderer.state.gui.GuiRenderState;
 import net.minecraft.client.renderer.state.gui.pip.PictureInPictureRenderState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 
-public class FakePlayerGuiRenderer extends PictureInPictureRenderer<FakePlayerGuiRenderer.State> {
-    public FakePlayerGuiRenderer(MultiBufferSource.BufferSource bufferSource) {
-        super(bufferSource);
+public class FakePlayerGuiRenderer extends PictureInPictureRenderer<FakePlayerGuiRenderer.@NotNull State> {
+    public FakePlayerGuiRenderer() {
+        super();
+    }
+
+    @Override
+    public void prepare(@NotNull State renderState, GuiRenderState guiRenderState, FeatureRenderDispatcher featureRenderDispatcher, int guiScale) {
+        super.prepare(renderState, guiRenderState, featureRenderDispatcher, guiScale);
     }
 
     @Override
@@ -42,8 +49,8 @@ public class FakePlayerGuiRenderer extends PictureInPictureRenderer<FakePlayerGu
 
     // GuiEntityRenderer#renderToTexture
     @Override
-    protected void renderToTexture(State arg, PoseStack stack) {
-        Minecraft.getInstance().gameRenderer.getLighting().setupFor(Lighting.Entry.ENTITY_IN_UI);
+    protected void renderToTexture(State arg, PoseStack stack, @NotNull SubmitNodeCollector collector) {
+        Minecraft.getInstance().gameRenderer.lighting().setupFor(Lighting.Entry.ENTITY_IN_UI);
 
         // InventoryScreen#renderEntityInInventory
         stack.pushPose();
@@ -74,15 +81,9 @@ public class FakePlayerGuiRenderer extends PictureInPictureRenderer<FakePlayerGu
         arg.renderer.renderFakePlayer(
                 arg.player,
                 arg.cameraOrientation,
-                arg.context,
+                collector,
                 stack,
-                this.bufferSource,
-                0.0D,
-                0.0D,
-                0.0D,
-                0.0F,
-                1.0F,
-                15728880
+                Minecraft.getInstance().getEntityRenderDispatcher()
         );
 
         // restore

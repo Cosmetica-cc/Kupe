@@ -48,12 +48,11 @@ public class GuiRendererMixin {
 
     @Inject(at = @At("RETURN"), method = "<init>")
     private void onInit(
-            GuiRenderState guiRenderState,
-            MultiBufferSource.BufferSource bufferSource,
-            SubmitNodeCollector submitNodeCollector,
-            FeatureRenderDispatcher featureRenderDispatcher,
-            List list, CallbackInfo ci) {
+            final GuiRenderState renderState,
+            final FeatureRenderDispatcher featureRenderDispatcher,
+            final List pictureInPictureRenderers,
+            CallbackInfo ci) {
         this.pictureInPictureRenderers = new HashMap<>(this.pictureInPictureRenderers);
-        this.pictureInPictureRenderers.put(FakePlayerGuiRenderer.State.class, new FakePlayerGuiRenderer(bufferSource));
+        this.pictureInPictureRenderers.put(FakePlayerGuiRenderer.State.class, new FakePlayerGuiRenderer());
     }
 }

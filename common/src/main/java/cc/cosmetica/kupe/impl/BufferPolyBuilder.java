@@ -38,9 +38,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BufferPolyBuilder implements PolyBuilder {
-	private BufferPolyBuilder(GuiGraphicsAccessor graphics, VertexFormat.Mode shape, TextureSetup textureSetup, float alpha, @Nullable Matrix3x2f matrix4f, @Nullable ScreenRectangle scissor, int uvFlags) {
+	// TODO backport
+	public enum Shape {
+		TRIANGLES,
+		QUADS
+	}
+
+	private BufferPolyBuilder(GuiGraphicsAccessor graphics, Shape shape, TextureSetup textureSetup, float alpha, @Nullable Matrix3x2f matrix4f, @Nullable ScreenRectangle scissor, int uvFlags) {
 		this.graphics = graphics;
-		this.triangles = shape == VertexFormat.Mode.TRIANGLES;
+		this.triangles = shape == Shape.TRIANGLES;
 		this.alpha = alpha;
 		this.matrix = matrix4f;
 		this.textureSetup = textureSetup;
@@ -135,7 +141,7 @@ public class BufferPolyBuilder implements PolyBuilder {
 		state.addGuiElement(new BufferPolyVertexList(this, (this.uvFlags & 1) == 1, (this.uvFlags & 2) == 2));
 	}
 
-	public static BufferPolyBuilder create(GuiGraphicsAccessor graphics, VertexFormat.Mode shape, Mode mode, @Nullable GpuTextureView texture, float alpha, @Nullable Matrix3x2f matrix4f, @Nullable ScreenRectangle scissor) {
+	public static BufferPolyBuilder create(GuiGraphicsAccessor graphics, Shape shape, Mode mode, @Nullable GpuTextureView texture, float alpha, @Nullable Matrix3x2f matrix4f, @Nullable ScreenRectangle scissor) {
 		TextureSetup setup = TextureSetup.noTexture();
 		int textureUV = 0;
 

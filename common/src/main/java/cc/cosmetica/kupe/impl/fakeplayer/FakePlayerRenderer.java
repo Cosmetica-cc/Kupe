@@ -17,40 +17,18 @@
 
 package cc.cosmetica.kupe.impl.fakeplayer;
 
-import cc.cosmetica.kupe.api.Context;
-import cc.cosmetica.kupe.api.MatrixStack;
 import cc.cosmetica.kupe.api.gui.GUIPlayer;
-import cc.cosmetica.kupe.impl.ExtendedPlayerModel;
-import cc.cosmetica.kupe.impl.KupePoseStack;
-import cc.cosmetica.kupe.mixin.MinecraftAccessor;
-import cc.cosmetica.kupe.mixin.fakeplayer.EntityRendererProviderAccessor;
-import cc.cosmetica.kupe.mixin.fakeplayer.PlayerCapeModelAccessor;
 import com.google.common.collect.Sets;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.CrashReport;
-import net.minecraft.CrashReportCategory;
-import net.minecraft.ReportedException;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.model.AnimationUtils;
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.geom.ModelLayers;
-import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.object.equipment.ElytraModel;
-import net.minecraft.client.model.player.PlayerCapeModel;
-import net.minecraft.client.model.player.PlayerModel;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.network.chat.Component;
-import net.minecraft.util.Mth;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Matrix4f;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 
 import java.util.*;
@@ -61,35 +39,6 @@ import java.util.*;
  * many grains of salt (this file should not be treated as under the same license as the project).
  */
 public final class FakePlayerRenderer {
-	// Lazy Model Loading
-	// Important on newer mc versions
-	private PlayerModel model;
-	private boolean slimModel;
-
-	private boolean lazyLoadModel() {
-		if (this.model == null || (this.slimModel != this.skin.slim)) {
-			Minecraft minecraft = Minecraft.getInstance();
-			var context = new EntityRendererProvider.Context(
-					minecraft.getEntityRenderDispatcher(),
-					((MinecraftAccessor) minecraft).getBlockModelResolver(),
-					minecraft.getItemModelResolver(),
-					minecraft.getMapRenderer(),
-					minecraft.getResourceManager(),
-					minecraft.getEntityModels(),
-					((EntityRendererProviderAccessor) minecraft.getEntityRenderDispatcher()).getEquipmentAssets(),
-					minecraft.getAtlasManager(),
-					minecraft.font,
-					minecraft.playerSkinRenderCache());
-			ElytraModel elytraModel = new ElytraModel(context.bakeLayer(ModelLayers.ELYTRA));
-			PlayerCapeModel capeModel = new PlayerCapeModel(context.bakeLayer(ModelLayers.PLAYER_CAPE));
-
-			this.slimModel = this.skin.slim;
-			this.model = new ExtendedPlayerModel(context.bakeLayer(this.slimModel ? ModelLayers.PLAYER_SLIM : ModelLayers.PLAYER), elytraModel, capeModel, this.slimModel);
-		}
-
-		return true;
-	}
-
 	// properties, exposed
 	public PlayerUtils.Skin skin;
 
@@ -103,64 +52,92 @@ public final class FakePlayerRenderer {
 	private Quaternionf cameraOrientation = new Quaternionf(0.0F, 0.0F, 0.0F, 1.0F);
 	public Set<PlayerModelPart> shownParts = Sets.newHashSet(PlayerModelPart.values());
 
-	// EntityRenderDispatcher#render
-	public void renderFakePlayer(GUIPlayer player, Quaternionf cameraOrientation, Context context, PoseStack stack, MultiBufferSource bufferSource, double xOffset, double yOffset, double zOffset, float rotation, float delta, int light) {
-		// lazy load model (important on newer mc versions)
-		if (!this.lazyLoadModel()) {
-			return;
-		}
-
+	// inventoryScreen::extractEntityInInventoryFollowsMouse
+	public void renderFakePlayer(final GUIPlayer player,
+								 Quaternionf cameraOrientation,
+								 final SubmitNodeCollector collector,
+								 final PoseStack stack,
+								 final EntityRenderDispatcher dispatcher) {
 		Objects.requireNonNull(this.skin, "No skin provided to Fake Player renderer!");
 
 		this.cameraOrientation = cameraOrientation;
 
-		try {
-			Vec3 vec3 = getRenderOffset(player.pose);
-			double x = xOffset + vec3.x();
-			double y = yOffset + vec3.y();
-			double z = zOffset + vec3.z();
-			stack.pushPose();
-			stack.translate(x, y, z);
+		AvatarRenderState renderState = this.extractRenderState(player);
 
-			// PlayerRenderer#render
-			this.setModelProperties(player.pose);
-			this.drawLivingEntity(player, context, rotation, delta, stack, bufferSource, light);
-			// </PlayerRenderer#render>
+//		float xAngle = rotation;
+//
+//		renderState.bodyRot = 180.0F + xAngle * 20.0F;
+//		renderState.yRot = xAngle * 20.0F;
+//		if (renderState.pose != Pose.FALL_FLYING) {
+//			renderState.xRot = -yAngle * 20.0F;
+//		} else {
+//			renderState.xRot = 0.0F;
+//		}
+//
+		renderState.boundingBoxWidth /= renderState.scale;
+		renderState.boundingBoxHeight /= renderState.scale;
+		renderState.scale = 1.0F;
 
-			stack.popPose();
-		} catch (Throwable var24) {
-			CrashReport crashReport = CrashReport.forThrowable(var24, "Rendering GUI player in menu");
-			crashReport.addCategory("GUI Player being rendered");
+//		Vector3f translation = new Vector3f(0.0F, renderState.boundingBoxHeight / 2.0F + yOffset, 0.0F);
+		CameraRenderState cameraRenderState = new CameraRenderState();
+		cameraRenderState.orientation = this.cameraOrientation; //overriddenCameraAngle.conjugate(new Quaternionf()).rotateY((float)Math.PI);
 
-			CrashReportCategory category = crashReport.addCategory("Renderer details");
-			category.setDetail("Location", xOffset + "," + yOffset + "," + zOffset);
-			category.setDetail("Rotation", rotation);
-			category.setDetail("Delta", delta);
-			throw new ReportedException(crashReport);
+		dispatcher.submit(renderState, cameraRenderState, (double)0.0F, (double)0.0F, (double)0.0F, stack, collector);
+	}
+
+	private @NotNull AvatarRenderState extractRenderState(GUIPlayer player) {
+		AvatarRenderState arsTechnica = new AvatarRenderState();
+
+		// skin
+		PlayerUtils.Skin skin = this.skin; // TODO
+//		arsTechnica.skin = new PlayerSkin();
+
+		// shown parts
+		this.setModelProperties(arsTechnica);
+
+		// public posture flags
+		final GUIPlayer.Posture pose = player.pose;
+
+		arsTechnica.bodyRot = pose.yRotBody;
+		arsTechnica.xRot = pose.xRot;
+		arsTechnica.isCrouching = pose.sneaking;
+		arsTechnica.yRot = pose.yRotHead;
+		arsTechnica.isUpsideDown = pose.upsideDown;
+
+		ArmPostures armPosture = this.createArmPostures(pose);
+		arsTechnica.leftArmPose = armPosture.leftArmPose;
+		arsTechnica.rightArmPose = armPosture.rightArmPose;
+//		pose.isLeftHanded; -- unused.
+
+		// remaining thingamajigs from the renderer
+		// TODO this.renderMode;
+		// TODO this.nametags;
+		// TODO this.showNametag;
+		// TODO this.username;
+		// TODO this.cameraOrientation;
+
+		// Attachments
+		Iterator<GUIPlayer.Attachment<?>> iterator = player.getRenderingAttachments();
+
+		while (iterator.hasNext()) {
+			GUIPlayer.Attachment<?> layer = iterator.next();
+			Object configuration = player.getConfiguration(layer);
+			if (configuration != null) {
+				layer.submitToRenderState(player, configuration, cameraOrientation, arsTechnica);
+			}
 		}
-	}
 
-	private Vec3 getRenderOffset(GUIPlayer.Posture posture) {
-		return posture.sneaking ? new Vec3(0.0D, -0.125D, 0.0D) : Vec3.ZERO;
-	}
+        return arsTechnica;
+    }
 
 	// PlayerRenderer#setModelProperties()
-	private void setModelProperties(GUIPlayer.Posture posture) {
-		PlayerModel playerModel = this.model;
-
-		playerModel.body.visible = true;
-		playerModel.head.visible = true;
-		playerModel.leftArm.visible = true;
-		playerModel.rightArm.visible = true;
-		playerModel.leftLeg.visible = true;
-		playerModel.rightLeg.visible = true;
-
-		playerModel.hat.visible = this.shownParts.contains(PlayerModelPart.HAT);
-		playerModel.jacket.visible = this.shownParts.contains(PlayerModelPart.JACKET);
-		playerModel.leftPants.visible = this.shownParts.contains(PlayerModelPart.LEFT_PANTS_LEG);
-		playerModel.rightPants.visible = this.shownParts.contains(PlayerModelPart.RIGHT_PANTS_LEG);
-		playerModel.leftSleeve.visible = this.shownParts.contains(PlayerModelPart.LEFT_SLEEVE);
-		playerModel.rightSleeve.visible = this.shownParts.contains(PlayerModelPart.RIGHT_SLEEVE);
+	private void setModelProperties(AvatarRenderState ars) {
+		ars.showHat = this.shownParts.contains(PlayerModelPart.HAT);
+		ars.showJacket = this.shownParts.contains(PlayerModelPart.JACKET);
+		ars.showLeftPants = this.shownParts.contains(PlayerModelPart.LEFT_PANTS_LEG);
+		ars.showRightPants = this.shownParts.contains(PlayerModelPart.RIGHT_PANTS_LEG);
+		ars.showLeftSleeve = this.shownParts.contains(PlayerModelPart.LEFT_SLEEVE);
+		ars.showRightSleeve = this.shownParts.contains(PlayerModelPart.RIGHT_SLEEVE);
 	}
 
 	private ArmPostures createArmPostures(GUIPlayer.Posture pose) {
@@ -168,120 +145,53 @@ public final class FakePlayerRenderer {
 		HumanoidModel.ArmPose rightArmPose = pose.rightArmRaised ? HumanoidModel.ArmPose.ITEM : HumanoidModel.ArmPose.EMPTY;
 		return new ArmPostures(leftArmPose, rightArmPose);
 	}
+	///
 
-	// LivingEntityRenderer#render
-	private void drawLivingEntity(GUIPlayer player, Context context, float rotation, float delta, PoseStack stack, MultiBufferSource bufferSource, int light) {
-		stack.pushPose();
-		PlayerModel model = this.model;
-
-		GUIPlayer.Posture posture = player.pose;
-
-//		model.attackTime = 0;
-//		model.riding = false;
-//		model.young = false;
-		ArmPostures armPostures = this.createArmPostures(player.pose);
-
-		float yRotBody = posture.yRotBody; //player.getYRotBody(delta);
-		float yRotHead = posture.yRotHead; //player.getYRotHead(delta);
-		float yRotDiff = yRotHead - yRotBody;
-		float bob = delta;
-
-		float xRot = posture.xRot; //player.getXRot(delta);
-
-		// Upside Down
-		if (player.pose.upsideDown) {
-			xRot *= -1.0F;
-			yRotDiff *= -1.0F;
-		}
-
-		this.setupRotations(posture, stack, bob, yRotBody, delta);
-
-		stack.scale(-1.0F, -1.0F, 1.0F);
-		stack.scale(0.9375F, 0.9375F, 0.9375F); // PlayerRenderer#scale
-		stack.translate(0.0D, -1.5010000467300415D, 0.0D);
-
-		float animationSpeed = 0.0f;//Mth.lerp(delta, player.animationSpeedOld, player.animationSpeed);
-		float animationPosition = 0.0f;//player.animationPosition - player.animationSpeed * (1.0F - delta);
-
-		if (animationSpeed > 1.0F) {
-			animationSpeed = 1.0F;
-		}
-
-		//model.prepareMobModel(player, o, n, delta); only does swim stuff, not necessary
-		// TODO: isLeftHanded is no longer needed as arm positions are provided independently.
-		this.modelSetupAnim(posture, armPostures, player.pose.sneaking, player.pose.isLeftHanded, model, animationPosition, animationSpeed, bob, yRotDiff, xRot);
-
-		RenderType renderType = this.getRenderType(this.renderMode);
-
-		if (renderType != null) {
-			VertexConsumer vertexConsumer = bufferSource.getBuffer(renderType);
-			int packedOverlayCoords = getOverlayCoords(0.0f);
-			model.renderToBuffer(stack, vertexConsumer, light, packedOverlayCoords);
-		}
-
-		// render layers
-
-		// TODO refactor so it doesn't leave sandbox? Or refactor so it's fully out of context cause why force people
-		// if they're just going to leave the sandbox every time anyway
-
-		Iterator<GUIPlayer.Attachment<?>> iterator = player.getRenderingAttachments();
-
-		while (iterator.hasNext()) {
-			GUIPlayer.Attachment<?> layer = iterator.next();
-			Object configuration = player.getConfiguration(layer);
-			if (configuration != null) {
-				((GUIPlayer.Attachment)layer).render(player, this.model, posture, stack, configuration, cameraOrientation, bufferSource, light);
-			}
-		}
-
-		stack.popPose();
+	private Vec3 getRenderOffset(GUIPlayer.Posture posture) {
+		return posture.sneaking ? new Vec3(0.0D, -0.125D, 0.0D) : Vec3.ZERO;
+	}
 
 		// nametag
-		if (this.showNametag) {
-			stack.pushPose();
-			for (int i = this.nametags.size() - 1; i >= 0; i--) {
-				GUIPlayer.Nametag nametag = this.nametags.get(i);
+//		if (this.showNametag) {
+//			stack.pushPose();
+//			for (int i = this.nametags.size() - 1; i >= 0; i--) {
+//				GUIPlayer.Nametag nametag = this.nametags.get(i);
+//
+//				if (!nametag.text.isEmpty()) {
+//					stack.pushPose();
+//					this.renderNametag(nametag, stack, bufferSource, light);
+//					stack.popPose();
+//					stack.translate(0, 0.25875f, 0);
+//				}
+//			}
+//			stack.popPose();
+//		}
 
-				if (!nametag.text.isEmpty()) {
-					stack.pushPose();
-					this.renderNametag(nametag, stack, bufferSource, light);
-					stack.popPose();
-					stack.translate(0, 0.25875f, 0);
-				}
-			}
-			stack.popPose();
-		}
+//	private void renderNametag(GUIPlayer.Nametag nametag, PoseStack stack, MultiBufferSource bufferSource, int packedLight) {
+//		final Component name = nametag.text.toMinecraftComponent();
+//		final float scale = nametag.scale;
 
-//		graphics.flush();
-//		RenderSystem.disableDepthTest(); // nice try
-	}
-
-	private void renderNametag(GUIPlayer.Nametag nametag, PoseStack stack, MultiBufferSource bufferSource, int packedLight) {
-		final Component name = nametag.text.toMinecraftComponent();
-		final float scale = nametag.scale;
-//		PoseStack stack = canvas.getStack().getMinecraftStack();
-
-		float yPosition = EntityType.PLAYER.getDimensions().height() + 0.5F;
-
-		stack.translate(0.0D, yPosition, 0.0D);
-		stack.mulPose(cameraOrientation);
-		stack.scale(-0.025F, -0.025F, 0.025F);
-		stack.scale(scale, scale, scale);
-
-		boolean fullyRender = true; // TODO !player.renderDiscreteNametag();
-		int offsetForDeadmau5 = "deadmau5".equals(name.getString()) ? -10 : 0;
-
-		Matrix4f pose = stack.last().pose();
-		float backgroundOpacity = Minecraft.getInstance().options.getBackgroundOpacity(0.25F);
-		int k = (int)(backgroundOpacity * 255.0F) << 24;
-		Font font = Minecraft.getInstance().font;
-		float h = (float)(-font.width(name) / 2);
-		font.drawInBatch(name, h, (float)offsetForDeadmau5, 0x20FFFFFF, false, pose, bufferSource, fullyRender ? Font.DisplayMode.SEE_THROUGH : Font.DisplayMode.NORMAL, k, packedLight);
-
-		if (fullyRender) {
-			font.drawInBatch(name, h, (float)offsetForDeadmau5, -1, false, pose, bufferSource, Font.DisplayMode.NORMAL, 0, packedLight);
-		}
-	}
+//		float yPosition = EntityType.PLAYER.getDimensions().height() + 0.5F;
+//
+//		stack.translate(0.0D, yPosition, 0.0D);
+//		stack.mulPose(cameraOrientation);
+//		stack.scale(-0.025F, -0.025F, 0.025F);
+//		stack.scale(scale, scale, scale);
+//
+//		boolean fullyRender = true; // TODO !player.renderDiscreteNametag();
+//		int offsetForDeadmau5 = "deadmau5".equals(name.getString()) ? -10 : 0;
+//
+//		Matrix4f pose = stack.last().pose();
+//		float backgroundOpacity = Minecraft.getInstance().options.getBackgroundOpacity(0.25F);
+//		int k = (int)(backgroundOpacity * 255.0F) << 24;
+//		Font font = Minecraft.getInstance().font;
+//		float h = (float)(-font.width(name) / 2);
+//		font.drawInBatch(name, h, (float)offsetForDeadmau5, 0x20FFFFFF, false, pose, bufferSource, fullyRender ? Font.DisplayMode.SEE_THROUGH : Font.DisplayMode.NORMAL, k, packedLight);
+//
+//		if (fullyRender) {
+//			font.drawInBatch(name, h, (float)offsetForDeadmau5, -1, false, pose, bufferSource, Font.DisplayMode.NORMAL, 0, packedLight);
+//		}
+//	}
 
 	public enum PlayerRenderMode {
 		INVISIBLE,
@@ -289,205 +199,20 @@ public final class FakePlayerRenderer {
 		GLOWING,
 		NO_RENDER
 	}
-
-	private RenderType getRenderType(PlayerRenderMode mode) {
-		switch (mode) {
-		case INVISIBLE:
-			return RenderTypes.entityTranslucentCullItemTarget(this.skin.texture);
-		case NORMAL:
-			return this.model.renderType(this.skin.texture);
-		case GLOWING:
-			return RenderTypes.outline(this.skin.texture);
-		case NO_RENDER:
-		default:
-			return null;
-		}
-	}
-
-	private void modelSetupAnim(GUIPlayer.Posture pose, ArmPostures armPostures, boolean sneaking, boolean leftHanded, PlayerModel model, float f, float g, float bob, float yRotDiff, float xRot) {
-		model.head.yRot = yRotDiff * 0.017453292F;
-
-//		if (model.swimAmount > 0.0F) {
-//			model.head.xRot = ((HumanoidModelAccessor) model).invokeRotlerpRad(model.swimAmount, model.head.xRot, xRot * 0.017453292F);
-//		} else {
-		model.head.xRot = xRot * 0.017453292F;
-//		}
-
-		model.body.yRot = 0.0F;
-		model.rightArm.z = 0.0F;
-		model.rightArm.x = -5.0F;
-		model.leftArm.z = 0.0F;
-		model.leftArm.x = 5.0F;
-		float k = 1.0F;
-
-		if (k < 1.0F) {
-			k = 1.0F;
-		}
-
-		model.rightArm.xRot = Mth.cos(f * 0.6662F + 3.1415927F) * 2.0F * g * 0.5F / k;
-		model.leftArm.xRot = Mth.cos(f * 0.6662F) * 2.0F * g * 0.5F / k;
-		model.rightArm.zRot = 0.0F;
-		model.leftArm.zRot = 0.0F;
-		model.rightLeg.xRot = Mth.cos(f * 0.6662F) * 1.4F * g / k;
-		model.leftLeg.xRot = Mth.cos(f * 0.6662F + 3.1415927F) * 1.4F * g / k;
-		model.rightLeg.yRot = 0.0F;
-		model.leftLeg.yRot = 0.0F;
-		model.rightLeg.zRot = 0.0F;
-		model.leftLeg.zRot = 0.0F;
-		ModelPart currentModel;
-
-//		if (model.riding) {
-//			currentModel = model.rightArm;
-//			currentModel.xRot += -0.62831855F;
-//			currentModel = model.leftArm;
-//			currentModel.xRot += -0.62831855F;
-//			model.rightLeg.xRot = -1.4137167F;
-//			model.rightLeg.yRot = 0.31415927F;
-//			model.rightLeg.zRot = 0.07853982F;
-//			model.leftLeg.xRot = -1.4137167F;
-//			model.leftLeg.yRot = -0.31415927F;
-//			model.leftLeg.zRot = -0.07853982F;
-//		}
-
-		model.rightArm.yRot = 0.0F;
-		model.leftArm.yRot = 0.0F;
-		boolean rightHanded = !leftHanded;
-		boolean bl4;
-
-		poseLeftArm(model, armPostures.leftArmPose);
-		poseRightArm(model, armPostures.rightArmPose);
-
-		if (pose.sneaking) {
-			model.body.xRot = 0.5F;
-			currentModel = model.rightArm;
-			currentModel.xRot += 0.4F;
-			currentModel = model.leftArm;
-			currentModel.xRot += 0.4F;
-			model.rightLeg.z = 4.0F;
-			model.leftLeg.z = 4.0F;
-			model.rightLeg.y = 12.2F;
-			model.leftLeg.y = 12.2F;
-			model.head.y = 4.2F;
-			model.body.y = 3.2F;
-			model.leftArm.y = 5.2F;
-			model.rightArm.y = 5.2F;
-		} else {
-			model.body.xRot = 0.0F;
-			model.rightLeg.z = 0.1F;
-			model.leftLeg.z = 0.1F;
-			model.rightLeg.y = 12.0F;
-			model.leftLeg.y = 12.0F;
-			model.head.y = 0.0F;
-			model.body.y = 0.0F;
-			model.leftArm.y = 2.0F;
-			model.rightArm.y = 2.0F;
-		}
-
-		AnimationUtils.bobArms(model.rightArm, model.leftArm, 1.0F);
-
-//		if (pose.swimAmount > 0.0F) {
-//			float l = f % 26.0F;
-//			float m = !leftHanded && model.attackTime > 0.0F ? 0.0F : model.swimAmount;
-//			float n = leftHanded && model.attackTime > 0.0F ? 0.0F : model.swimAmount;
-//			float o;
 //
-//			if (l < 14.0F) {
-//				model.leftArm.xRot = ((HumanoidModelAccessor) model).invokeRotlerpRad(n, model.leftArm.xRot, 0.0F);
-//				model.rightArm.xRot = Mth.lerp(m, model.rightArm.xRot, 0.0F);
-//				model.leftArm.yRot = ((HumanoidModelAccessor) model).invokeRotlerpRad(n, model.leftArm.yRot, 3.1415927F);
-//				model.rightArm.yRot = Mth.lerp(m, model.rightArm.yRot, 3.1415927F);
-//				model.leftArm.zRot = ((HumanoidModelAccessor) model).invokeRotlerpRad(n, model.leftArm.zRot, 3.1415927F + 1.8707964F * ((HumanoidModelAccessor) model).invokeQuadraticArmUpdate(l) / ((HumanoidModelAccessor) model).invokeQuadraticArmUpdate(14.0F));
-//				model.rightArm.zRot = Mth.lerp(m, model.rightArm.zRot, 3.1415927F - 1.8707964F * ((HumanoidModelAccessor) model).invokeQuadraticArmUpdate(l) / ((HumanoidModelAccessor) model).invokeQuadraticArmUpdate(14.0F));
-//			} else if (l >= 14.0F && l < 22.0F) {
-//				o = (l - 14.0F) / 8.0F;
-//				model.leftArm.xRot = ((HumanoidModelAccessor) model).invokeRotlerpRad(n, model.leftArm.xRot, 1.5707964F * o);
-//				model.rightArm.xRot = Mth.lerp(m, model.rightArm.xRot, 1.5707964F * o);
-//				model.leftArm.yRot = ((HumanoidModelAccessor) model).invokeRotlerpRad(n, model.leftArm.yRot, 3.1415927F);
-//				model.rightArm.yRot = Mth.lerp(m, model.rightArm.yRot, 3.1415927F);
-//				model.leftArm.zRot = ((HumanoidModelAccessor) model).invokeRotlerpRad(n, model.leftArm.zRot, 5.012389F - 1.8707964F * o);
-//				model.rightArm.zRot = Mth.lerp(m, model.rightArm.zRot, 1.2707963F + 1.8707964F * o);
-//			} else if (l >= 22.0F && l < 26.0F) {
-//				o = (l - 22.0F) / 4.0F;
-//				model.leftArm.xRot = ((HumanoidModelAccessor) model).invokeRotlerpRad(n, model.leftArm.xRot, 1.5707964F - 1.5707964F * o);
-//				model.rightArm.xRot = Mth.lerp(m, model.rightArm.xRot, 1.5707964F - 1.5707964F * o);
-//				model.leftArm.yRot = ((HumanoidModelAccessor) model).invokeRotlerpRad(n, model.leftArm.yRot, 3.1415927F);
-//				model.rightArm.yRot = Mth.lerp(m, model.rightArm.yRot, 3.1415927F);
-//				model.leftArm.zRot = ((HumanoidModelAccessor) model).invokeRotlerpRad(n, model.leftArm.zRot, 3.1415927F);
-//				model.rightArm.zRot = Mth.lerp(m, model.rightArm.zRot, 3.1415927F);
-//			}
-//
-//			model.leftLeg.xRot = Mth.lerp(model.swimAmount, model.leftLeg.xRot, 0.3F * Mth.cos(f * 0.33333334F + 3.1415927F));
-//			model.rightLeg.xRot = Mth.lerp(model.swimAmount, model.rightLeg.xRot, 0.3F * Mth.cos(f * 0.33333334F));
+//	private RenderType getRenderType(PlayerRenderMode mode) {
+//		switch (mode) {
+//		case INVISIBLE:
+//			return RenderTypes.entityTranslucentCullItemTarget(this.skin.texture);
+//		case NORMAL:
+//			return this.model.renderType(this.skin.texture);
+//		case GLOWING:
+//			return RenderTypes.outline(this.skin.texture);
+//		case NO_RENDER:
+//		default:
+//			return null;
 //		}
-
-//		model.hat.copyFrom(model.head);
-		model.hat.resetPose();
-		model.leftPants.resetPose();
-		model.leftSleeve.resetPose();
-		model.rightPants.resetPose();
-		model.rightSleeve.resetPose();
-		model.jacket.resetPose();
-
-//		model.leftPants.copyFrom(model.leftLeg);
-//		model.rightPants.copyFrom(model.rightLeg);
-//		model.leftSleeve.copyFrom(model.leftArm);
-//		model.rightSleeve.copyFrom(model.rightArm);
-//		model.jacket.copyFrom(model.body);
-
-		ModelPart cloak = ((PlayerCapeModelAccessor) ((ExtendedPlayerModel) model).getCape()).getCape();
-
-		if (sneaking) {
-			cloak.z = 1.4F;
-			cloak.y = 1.85F;
-		} else {
-			cloak.z = 0.0F;
-			cloak.y = 0.0F;
-		}
-	}
-
-	private static void poseLeftArm(PlayerModel model, HumanoidModel.ArmPose pose) {
-		switch(pose) {
-		case EMPTY:
-			model.leftArm.yRot = 0.0F;
-			break;
-		case BLOCK:
-			model.leftArm.xRot = model.leftArm.xRot * 0.5F - 0.9424779F;
-			model.leftArm.yRot = 0.5235988F;
-			break;
-		case ITEM:
-			model.leftArm.xRot = model.leftArm.xRot * 0.5F - 0.31415927F;
-			model.leftArm.yRot = 0.0F;
-			break;
-		}
-	}
-
-	private static void poseRightArm(PlayerModel model, HumanoidModel.ArmPose pose) {
-		switch (pose) {
-		case EMPTY:
-			model.rightArm.yRot = 0.0F;
-			break;
-		case BLOCK:
-			model.rightArm.xRot = model.rightArm.xRot * 0.5F - 0.9424779F;
-			model.rightArm.yRot = -0.5235988F;
-			break;
-		case ITEM:
-			model.rightArm.xRot = model.rightArm.xRot * 0.5F - 0.31415927F;
-			model.rightArm.yRot = 0.0F;
-			break;
-		}
-	}
-
-	private void setupRotations(GUIPlayer.Posture posture, PoseStack stackIn, float f, float g, float h) {
-		MatrixStack stack = new KupePoseStack(stackIn);
-
-		stack.rotate(cc.cosmetica.kupe.api.maths.Vec3.YP, 180.0F - g, true);
-
-		// Upside Down
-		if (posture.upsideDown) {
-			stack.translate(0.0D, EntityType.PLAYER.getDimensions().height() + 0.1, 0.0D);
-			stack.rotate(cc.cosmetica.kupe.api.maths.Vec3.ZP, 180.0F, true);
-		}
-	}
+//	}
 
 	private static int getOverlayCoords(float u) {
 		return OverlayTexture.pack(OverlayTexture.u(u), OverlayTexture.v(false));

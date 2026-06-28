@@ -27,11 +27,9 @@ import cc.cosmetica.kupe.impl.LeavesSandbox;
 import cc.cosmetica.kupe.impl.ModernCanvas;
 import cc.cosmetica.kupe.impl.fakeplayer.*;
 import com.google.common.base.Preconditions;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
-import net.minecraft.client.model.player.PlayerModel;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
@@ -319,19 +317,18 @@ public class GUIPlayer extends Component {
 	 * An attachment for the FakePlayer.
 	 * @param <T> the configuration object for this attachment.
 	 */
+	// NOTE: MC 26.2+ => Minecraft rendering attachment implementation moved fully to vanilla entity render state. Attachments now work by configuring vanilla-style renderers.
 	public interface Attachment<T> {
 		/**
-		 * Render this attachment on the fake player.
-		 * Leaves sandbox due to MultiBufferSource and Quaternion parameter.
+		 * Configure the render state this plug-in provides for the entity model submission.
+		 * Leaves sandbox due to Quaternion/RenderState parameter and inconsistencies between versions.
 		 * @param component the component being rendered.
-		 * @param playerModel the player model on which to render.
-		 * @param posture the posture of the player being rendered.
-		 * @param stack the pose stack.
 		 * @param configuration the configuration.
-		 * @param packedLight packed light for rendering.
+		 * @param cameraOrientation the camera orientation of the gui player renderer.
+		 * @param renderState the minecraft render state to configure.
 		 */
 		@LeavesSandbox
-		void render(GUIPlayer component, PlayerModel playerModel, GUIPlayer.Posture posture, PoseStack stack, T configuration, Quaternionf cameraOrientation, MultiBufferSource bufferSource, int packedLight);
+		void submitToRenderState(GUIPlayer component, T configuration, Quaternionf cameraOrientation, AvatarRenderState renderState);
 
 		/**
 		 * Get the dynamic user configuration. This is called every tick for an enabled component of a UUID FakePlayer.
