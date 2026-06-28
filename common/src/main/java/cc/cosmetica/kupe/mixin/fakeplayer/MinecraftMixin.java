@@ -32,7 +32,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(Minecraft.class)
 public class MinecraftMixin {
     @Inject(at = @At("HEAD"), method="createUserApiService")
-    private void onInit(YggdrasilAuthenticationService authService, GameConfig gameConfig, CallbackInfoReturnable<UserApiService> cir) {
+    private static void onInit(YggdrasilAuthenticationService authService, GameConfig gameConfig, CallbackInfoReturnable<UserApiService> cir) {
         PlayerUtils.createNewCache();
     }
 }

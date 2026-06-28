@@ -63,6 +63,9 @@ public final class FakePlayerRenderer {
 								 final EntityRenderDispatcher dispatcher) {
 		Objects.requireNonNull(this.skin, "No skin provided to Fake Player renderer!");
 
+		if (this.renderMode == PlayerRenderMode.NO_RENDER) {
+			return;
+		}
 		this.cameraOrientation = cameraOrientation;
 
 		AvatarRenderState renderState = this.extractRenderState(player);
@@ -120,9 +123,27 @@ public final class FakePlayerRenderer {
 
 		// remaining thingamajigs from the renderer
 		// TODO this.renderMode;
+		switch (this.renderMode) {
+		case NO_RENDER:
+			throw new IllegalStateException("Can't be extracting render states for NO_RENDER render mode");
+		case GLOWING:
+			arsTechnica.outlineColor = 0xFFFFFF;
+			break;
+		case INVISIBLE:
+			arsTechnica.isInvisible = true;
+			break;
+		case NORMAL:
+			break;
+        }
+
+		if (this.showNametag) {
+			if (!this.nametags.isEmpty()) {
+				arsTechnica.nameTagAttachment = Vec3.ZERO;
+				// TODO better old-kupe-style nametag handling
+				arsTechnica.nameTag = this.nametags.get(0).text.toMinecraftComponent();
+			}
+		}
 		// TODO this.nametags;
-		// TODO this.showNametag;
-		// TODO this.username;
 		// TODO this.cameraOrientation;
 
 		// Attachments
