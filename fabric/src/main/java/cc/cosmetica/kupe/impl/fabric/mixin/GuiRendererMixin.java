@@ -19,8 +19,6 @@ package cc.cosmetica.kupe.impl.fabric.mixin;
 import cc.cosmetica.kupe.impl.fakeplayer.FakePlayerGuiRenderer;
 import net.minecraft.client.gui.render.GuiRenderer;
 import net.minecraft.client.gui.render.pip.PictureInPictureRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.feature.FeatureRenderDispatcher;
 import net.minecraft.client.renderer.state.gui.GuiRenderState;
 import net.minecraft.client.renderer.state.gui.pip.PictureInPictureRenderState;

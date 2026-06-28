@@ -81,7 +81,7 @@ public final class StateManagerImpl {
 
 	public static void scheduleResize() {
 		Minecraft.getInstance().schedule(() -> {
-			Screen screen = Minecraft.getInstance().screen;
+			Screen screen = Minecraft.getInstance().gui.screen();
 
 			if (screen instanceof KupeScreen) {
 				((KupeScreen) screen).resize();
@@ -108,7 +108,7 @@ public final class StateManagerImpl {
 		// rebuild
 		if (!rebuildComponents.isEmpty()) {
 			Minecraft.getInstance().schedule(() -> {
-				Screen screen = Minecraft.getInstance().screen;
+				Screen screen = Minecraft.getInstance().gui.screen();
 
 				if (screen instanceof KupeScreen) {
 					((KupeScreen) screen).rebuildComponents(rebuildComponents);
@@ -146,7 +146,7 @@ public final class StateManagerImpl {
 			System.out.println("Current component " + component);
 			System.out.println("Current Extraction list " + EXTRACTIONS);
 			System.out.println("Current Acquire list " + ACQUIRED);
-			System.out.println("Current Screen " + Minecraft.getInstance().screen);
+			System.out.println("Current Screen " + Minecraft.getInstance().gui.screen());
 			throw e;
 		}
 	}

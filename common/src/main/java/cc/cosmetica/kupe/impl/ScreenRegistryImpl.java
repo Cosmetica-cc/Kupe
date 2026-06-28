@@ -64,7 +64,7 @@ public class ScreenRegistryImpl {
 	}
 
 	public static void closeCurrentScreen() {
-		Minecraft.getInstance().screen.onClose();
+		Minecraft.getInstance().gui.screen().onClose();
 	}
 
 	private static class ScreenEntry {

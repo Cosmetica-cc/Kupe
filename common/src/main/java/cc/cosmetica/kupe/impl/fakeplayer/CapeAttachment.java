@@ -29,6 +29,7 @@ import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.ClientAsset;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.PlayerSkin;
 import org.jetbrains.annotations.Nullable;
@@ -44,7 +45,7 @@ public class CapeAttachment implements GUIPlayer.Attachment<GUIPlayer.CapeProper
 			renderState.showCape = true;
 			renderState.skin = renderState.skin.with(new PlayerSkin.Patch(
 					Optional.empty(),
-					Optional.of(),
+					Optional.of(new ClientAsset.ResourceTexture(configuration.getTexture().get())),
 					Optional.empty(),
 					Optional.empty()
 			));

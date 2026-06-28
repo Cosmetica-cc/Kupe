@@ -56,8 +56,8 @@ public final class Screens {
 	 * @throws IllegalArgumentException if the provided location has no registered screen.
 	 */
 	public static void setScreen(ResourceKey id) {
-		net.minecraft.client.gui.screens.Screen screen = ScreenRegistryImpl.getMinecraftScreen(id, Minecraft.getInstance().screen);
-		Minecraft.getInstance().setScreen(screen);
+		net.minecraft.client.gui.screens.Screen screen = ScreenRegistryImpl.getMinecraftScreen(id, Minecraft.getInstance().gui.screen());
+		Minecraft.getInstance().gui.setScreen(screen);
 	}
 
 	/**
@@ -66,8 +66,8 @@ public final class Screens {
 	 * @param title the resource key from which to create the title text.
 	 */
 	public static void setScreen(Component component, ResourceKey title) {
-		net.minecraft.client.gui.screens.Screen screen = ScreenRegistryImpl.getMinecraftScreen(component, title.translationKey("screens"), Minecraft.getInstance().screen, true);
-		Minecraft.getInstance().setScreen(screen);
+		net.minecraft.client.gui.screens.Screen screen = ScreenRegistryImpl.getMinecraftScreen(component, title.translationKey("screens"), Minecraft.getInstance().gui.screen(), true);
+		Minecraft.getInstance().gui.setScreen(screen);
 	}
 
 	/**
@@ -76,8 +76,8 @@ public final class Screens {
 	 * @param title the screen title text.
 	 */
 	public static void setScreen(Component component, Text title) {
-		net.minecraft.client.gui.screens.Screen screen = ScreenRegistryImpl.getMinecraftScreen(component, title, Minecraft.getInstance().screen, true);
-		Minecraft.getInstance().setScreen(screen);
+		net.minecraft.client.gui.screens.Screen screen = ScreenRegistryImpl.getMinecraftScreen(component, title, Minecraft.getInstance().gui.screen(), true);
+		Minecraft.getInstance().gui.setScreen(screen);
 	}
 
 	/**

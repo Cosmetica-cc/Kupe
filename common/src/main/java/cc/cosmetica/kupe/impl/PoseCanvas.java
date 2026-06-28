@@ -375,12 +375,12 @@ public class PoseCanvas implements Canvas, ModernCanvas {
 
 	@Override
 	public PolyBuilder drawQuads(PolyBuilder.Mode mode) {
-		return BufferPolyBuilder.create((GuiGraphicsAccessor) this.graphics, VertexFormat.Mode.QUADS, mode, this.texture, this.alpha, this.stack.get(new Matrix3x2f()), this.scissorStack.getScissorRegion().orElse(null));
+		return BufferPolyBuilder.create((GuiGraphicsAccessor) this.graphics, BufferPolyBuilder.Shape.QUADS, mode, this.texture, this.alpha, this.stack.get(new Matrix3x2f()), this.scissorStack.getScissorRegion().orElse(null));
 	}
 
 	@Override
 	public PolyBuilder drawTriangles(PolyBuilder.Mode mode) {
-		return BufferPolyBuilder.create((GuiGraphicsAccessor) this.graphics, VertexFormat.Mode.TRIANGLES, mode, this.texture, this.alpha, this.stack.get(new Matrix3x2f()), this.scissorStack.getScissorRegion().orElse(null));
+		return BufferPolyBuilder.create((GuiGraphicsAccessor) this.graphics, BufferPolyBuilder.Shape.TRIANGLES, mode, this.texture, this.alpha, this.stack.get(new Matrix3x2f()), this.scissorStack.getScissorRegion().orElse(null));
 	}
 
 	private static final Vector3f XP = new Vector3f(1, 0, 0);

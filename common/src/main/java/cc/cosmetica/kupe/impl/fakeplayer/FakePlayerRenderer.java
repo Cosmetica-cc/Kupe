@@ -26,7 +26,10 @@ import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.ClientAsset;
 import net.minecraft.world.entity.player.PlayerModelPart;
+import net.minecraft.world.entity.player.PlayerModelType;
+import net.minecraft.world.entity.player.PlayerSkin;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
@@ -89,8 +92,14 @@ public final class FakePlayerRenderer {
 		AvatarRenderState arsTechnica = new AvatarRenderState();
 
 		// skin
-		PlayerUtils.Skin skin = this.skin; // TODO
-//		arsTechnica.skin = new PlayerSkin();
+		PlayerUtils.Skin skin = this.skin;
+		arsTechnica.skin = new PlayerSkin(
+				new ClientAsset.ResourceTexture(this.skin.texture),
+				null,
+				null,
+				this.skin.slim ? PlayerModelType.SLIM : PlayerModelType.WIDE,
+				true // using this skin is intended behaviour
+		);
 
 		// shown parts
 		this.setModelProperties(arsTechnica);
@@ -123,7 +132,7 @@ public final class FakePlayerRenderer {
 			GUIPlayer.Attachment<?> layer = iterator.next();
 			Object configuration = player.getConfiguration(layer);
 			if (configuration != null) {
-				layer.submitToRenderState(player, configuration, cameraOrientation, arsTechnica);
+				((GUIPlayer.Attachment)layer).submitToRenderState(player, configuration, cameraOrientation, arsTechnica);
 			}
 		}
 
