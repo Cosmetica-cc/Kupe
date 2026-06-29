@@ -92,7 +92,7 @@ public final class FakePlayerRenderer {
 	}
 
 	private @NotNull AvatarRenderState extractRenderState(GUIPlayer player) {
-		AvatarRenderState arsTechnica = new AvatarRenderState();
+		AvatarRenderState arsTechnica = new GuiPlayerAvatarRenderState();
 
 		// skin
 		arsTechnica.skin = new PlayerSkin(

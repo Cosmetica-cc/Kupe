@@ -20,8 +20,10 @@ import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.gui.GUIPlayer;
 import cc.cosmetica.kupe.api.gui.GUIPlayer.ElytraProperties;
 import cc.cosmetica.kupe.impl.DirectTexture;
+import cc.cosmetica.kupe.mixin.fakeplayer.ElytraModelAccessor;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.object.equipment.ElytraModel;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
@@ -86,6 +88,17 @@ public class ElytraAttachment implements GUIPlayer.Attachment<ElytraProperties> 
 								   ElytraModel model, int outlineColour,
 								   PoseStack stack, SubmitNodeCollector collector, int lightCoords,
 								   EquipmentAssetManager equipmentAssets) {
+		// based on ElytraModel#setupAnim
+		state.elytraRotX = 0.2617994f;
+		state.elytraRotZ = -0.2617994f;
+
+		if (state.isCrouching) {
+			state.elytraRotX = 0.6981317f;
+			state.elytraRotZ = -0.7853982f;
+			state.elytraRotY = 0.08726646f;
+		}
+
+		// based on InventoryScreen
 		Identifier playerElytraTexture = elytraProperties.texture;
 		stack.pushPose();
 		stack.translate(0.0F, 0.0F, 0.125F);
