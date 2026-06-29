@@ -19,57 +19,41 @@ package cc.cosmetica.kupe.impl.fakeplayer;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.gui.GUIPlayer;
 import cc.cosmetica.kupe.api.gui.GUIPlayer.ElytraProperties;
+import cc.cosmetica.kupe.impl.DirectTexture;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.model.object.equipment.ElytraModel;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
-import net.minecraft.core.ClientAsset;
-import net.minecraft.core.Holder;
-import net.minecraft.core.HolderSet;
-import net.minecraft.core.component.DataComponentMap;
-import net.minecraft.core.component.DataComponentType;
-import net.minecraft.network.chat.Component;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.resources.model.EquipmentAssetManager;
+import net.minecraft.client.resources.model.EquipmentClientInfo;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.PlayerSkin;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.equipment.EquipmentAssets;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 
-import java.util.Collections;
-import java.util.Optional;
-import java.util.Set;
+import java.util.List;
 import java.util.UUID;
 
 public class ElytraAttachment implements GUIPlayer.Attachment<ElytraProperties> {
 	@Override
 	public void submitToRenderState(GUIPlayer component, ElytraProperties configuration, Quaternionf cameraOrientation, AvatarRenderState renderState) {
-		// TODO reimplement Kupe transparent control?
-		renderState.chestEquipment = new ItemStack(Items.ELYTRA);
-		if (configuration.glint) {
-			renderState.chestEquipment.enchant(Holder.direct(new Enchantment(
-					Component.empty(),
-					null,
-					HolderSet.empty(),
-					// DataComponentMap.EMPTY crashes
-					new DataComponentMap() {
-						@Override
-						public Set<DataComponentType<?>> keySet() {
-							return Collections.emptySet();
-						}
-
-						@Override
-						public <T> @org.jspecify.annotations.Nullable T get(DataComponentType<? extends T> type) {
-							return null;
-						}
-					}
-			)), 1);
+		if (renderState instanceof GuiPlayerAvatarRenderState guitar) {
+			guitar.elytraProperties = configuration;
 		}
-		renderState.skin = renderState.skin.with(new PlayerSkin.Patch(
-				Optional.empty(),
-				Optional.empty(),
-				Optional.of(new ClientAsset.ResourceTexture(configuration.texture)),
-				Optional.empty()
-		));
+
+		renderState.skin = new PlayerSkin(
+				renderState.skin.body(),
+				renderState.skin.cape(),
+				new DirectTexture(configuration.texture),
+				renderState.skin.model(),
+				true
+		);
 	}
 
 	@Override
@@ -94,5 +78,64 @@ public class ElytraAttachment implements GUIPlayer.Attachment<ElytraProperties> 
 	@Override
 	public boolean defaultEnable() {
 		return false;
+	}
+
+	/// Render
+
+	public static void submitWings(@NotNull GUIPlayer.ElytraProperties elytraProperties, AvatarRenderState state,
+								   ElytraModel model, int outlineColour,
+								   PoseStack stack, SubmitNodeCollector collector, int lightCoords,
+								   EquipmentAssetManager equipmentAssets) {
+		Identifier playerElytraTexture = elytraProperties.texture;
+		stack.pushPose();
+		stack.translate(0.0F, 0.0F, 0.125F);
+
+		submitWingsLayer(
+				elytraProperties,
+				equipmentAssets,
+				state,
+				model,
+				stack,
+				collector,
+				lightCoords,
+				playerElytraTexture,
+				outlineColour,
+				0
+		);
+
+		stack.popPose();
+	}
+
+	// EquipmentLayerRenderer#renderLayers
+	private static void submitWingsLayer(@NotNull GUIPlayer.ElytraProperties elytraProperties,
+										 EquipmentAssetManager equipmentAssets,
+										 AvatarRenderState state,
+										 ElytraModel model,
+										 PoseStack stack, SubmitNodeCollector collector, int lightCoords,
+										 Identifier layerTexture, int outlineColour, final int order) {
+		List<EquipmentClientInfo.Layer> layers = equipmentAssets.get(EquipmentAssets.ELYTRA).getLayers(EquipmentClientInfo.LayerType.WINGS);
+
+		if (!layers.isEmpty()) {
+			boolean renderFoil = elytraProperties.glint;
+			int nextOrder = order;
+			RenderType renderType = elytraProperties.translucent ? RenderTypes.entityTranslucent(layerTexture) : RenderTypes.armorCutoutNoCull(layerTexture);
+
+			for (EquipmentClientInfo.Layer _ : layers) {
+				int colour = 0xFFFFFFFF; // no tint
+
+				if (colour != 0) {
+					collector.order(nextOrder++)
+							.submitModel(
+									model, state, stack, renderType, lightCoords, OverlayTexture.NO_OVERLAY, colour, null, outlineColour, null
+							);
+					if (renderFoil) {
+						collector.order(nextOrder++)
+								.submitModel(model, state, stack, RenderTypes.armorEntityGlint(), lightCoords, OverlayTexture.NO_OVERLAY, colour, null, outlineColour, null);
+					}
+
+					renderFoil = false;
+				}
+			}
+		}
 	}
 }

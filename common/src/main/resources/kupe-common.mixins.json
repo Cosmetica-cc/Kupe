@@ -9,8 +9,10 @@
     "Vec3Mixin",
     "fakeplayer.ElytraModelAccessor",
     "fakeplayer.EntityRendererProviderAccessor",
+    "fakeplayer.EquipmentLayerRendererAccessor",
     "fakeplayer.MinecraftMixin",
-    "fakeplayer.PlayerCapeModelAccessor"
+    "fakeplayer.PlayerCapeModelAccessor",
+    "fakeplayer.WingsLayerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

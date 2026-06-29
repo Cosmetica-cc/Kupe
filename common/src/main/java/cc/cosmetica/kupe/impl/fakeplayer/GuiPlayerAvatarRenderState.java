@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.kupe.mixin;
+package cc.cosmetica.kupe.impl.fakeplayer;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.BlockModelResolver;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.gen.Accessor;
+import cc.cosmetica.kupe.api.gui.GUIPlayer;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+import org.jetbrains.annotations.Nullable;
 
-@Mixin(Minecraft.class)
-public interface MinecraftAccessor {
-//    @Accessor
-//    BlockModelResolver getBlockModelResolver();
+public class GuiPlayerAvatarRenderState extends AvatarRenderState {
+    @Nullable
+    public GUIPlayer.ElytraProperties elytraProperties = null;
 }

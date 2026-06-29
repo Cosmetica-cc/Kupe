@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.kupe.mixin;
+package cc.cosmetica.kupe.impl;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.BlockModelResolver;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.gen.Accessor;
+import net.minecraft.core.ClientAsset;
+import net.minecraft.resources.Identifier;
+import org.jetbrains.annotations.NotNull;
 
-@Mixin(Minecraft.class)
-public interface MinecraftAccessor {
-//    @Accessor
-//    BlockModelResolver getBlockModelResolver();
+public record DirectTexture(@NotNull Identifier texturePath) implements ClientAsset.Texture {
+    @Override
+    public @NotNull Identifier id() {
+        return this.texturePath;
+    }
 }

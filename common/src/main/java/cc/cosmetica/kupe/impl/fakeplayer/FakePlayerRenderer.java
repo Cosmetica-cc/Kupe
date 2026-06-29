@@ -18,6 +18,7 @@
 package cc.cosmetica.kupe.impl.fakeplayer;
 
 import cc.cosmetica.kupe.api.gui.GUIPlayer;
+import cc.cosmetica.kupe.impl.DirectTexture;
 import com.google.common.collect.Sets;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.HumanoidModel;
@@ -26,7 +27,6 @@ import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.core.ClientAsset;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.entity.player.PlayerModelType;
 import net.minecraft.world.entity.player.PlayerSkin;
@@ -95,9 +95,8 @@ public final class FakePlayerRenderer {
 		AvatarRenderState arsTechnica = new AvatarRenderState();
 
 		// skin
-		PlayerUtils.Skin skin = this.skin;
 		arsTechnica.skin = new PlayerSkin(
-				new ClientAsset.ResourceTexture(this.skin.texture),
+				new DirectTexture(this.skin.texture),
 				null,
 				null,
 				this.skin.slim ? PlayerModelType.SLIM : PlayerModelType.WIDE,
@@ -113,7 +112,7 @@ public final class FakePlayerRenderer {
 		arsTechnica.bodyRot = pose.yRotBody;
 		arsTechnica.xRot = pose.xRot;
 		arsTechnica.isCrouching = pose.sneaking;
-		arsTechnica.yRot = pose.yRotHead;
+		arsTechnica.yRot = pose.yRotHead - pose.yRotBody;
 		arsTechnica.isUpsideDown = pose.upsideDown;
 
 		ArmPostures armPosture = this.createArmPostures(pose);
