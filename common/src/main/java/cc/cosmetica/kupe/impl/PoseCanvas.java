@@ -285,6 +285,11 @@ public class PoseCanvas implements Canvas, ModernCanvas {
 		GuiRenderState guiRenderState = graphics.getGuiRenderState();
 		colour = addAlpha(colour, this.alpha);
 
+		ScreenRectangle scissor = this.scissorStack.getScissorRegion().orElse(null);
+		if (scissor != null && (scissor.height() == 0 || scissor.width() == 0)) {
+			return;
+		}
+
 		guiRenderState.addText(new GuiTextRenderState(
 				font,
 				sequence,
@@ -295,7 +300,7 @@ public class PoseCanvas implements Canvas, ModernCanvas {
 				0,
 				shadow,
 				false,
-				this.scissorStack.getScissorRegion().orElse(null)
+				scissor
 		));
 	}
 
@@ -336,6 +341,11 @@ public class PoseCanvas implements Canvas, ModernCanvas {
 		GuiGraphicsAccessor graphics = (GuiGraphicsAccessor) this.graphics;
 		int colour = packColour(r, g, b, this.alpha);
 
+		ScreenRectangle scissor = this.scissorStack.getScissorRegion().orElse(null);
+		if (scissor != null && (scissor.height() == 0 || scissor.width() == 0)) {
+			return;
+		}
+
 		graphics.getGuiRenderState().addGuiElement(new ColoredRectangleRenderState(
 				RenderPipelines.GUI,
 				TextureSetup.noTexture(),
@@ -344,7 +354,7 @@ public class PoseCanvas implements Canvas, ModernCanvas {
 				x0 + width, y0 + height,
 				colour,
 				colour,
-				this.scissorStack.getScissorRegion().orElse(null),
+				scissor,
 				new ScreenRectangle(x0, y0, width, height)
 		));
 	}
@@ -355,6 +365,11 @@ public class PoseCanvas implements Canvas, ModernCanvas {
 		int colour = packColour(1, 1, 1, this.alpha);
 		this.setTexture(texture);
 		assert this.texture != null;
+
+		ScreenRectangle scissor = this.scissorStack.getScissorRegion().orElse(null);
+		if (scissor != null && (scissor.height() == 0 || scissor.width() == 0)) {
+			return;
+		}
 
 		graphics.getGuiRenderState().addGuiElement(new BlitRenderState(
 				RenderPipelines.GUI_TEXTURED,
@@ -368,19 +383,29 @@ public class PoseCanvas implements Canvas, ModernCanvas {
 				0,
 				1,
 				colour,
-				this.scissorStack.getScissorRegion().orElse(null),
+				scissor,
 				new ScreenRectangle(x0, y0, width, height)
 		));
 	}
 
 	@Override
 	public PolyBuilder drawQuads(PolyBuilder.Mode mode) {
-		return BufferPolyBuilder.create((GuiGraphicsAccessor) this.graphics, BufferPolyBuilder.Shape.QUADS, mode, this.texture, this.alpha, this.stack.get(new Matrix3x2f()), this.scissorStack.getScissorRegion().orElse(null));
+		ScreenRectangle scissor = this.scissorStack.getScissorRegion().orElse(null);
+		if (scissor != null && (scissor.height() == 0 || scissor.width() == 0)) {
+			return NoOpPolybuilder.INSTANCE;
+		}
+
+		return BufferPolyBuilder.create((GuiGraphicsAccessor) this.graphics, BufferPolyBuilder.Shape.QUADS, mode, this.texture, this.alpha, this.stack.get(new Matrix3x2f()), scissor);
 	}
 
 	@Override
 	public PolyBuilder drawTriangles(PolyBuilder.Mode mode) {
-		return BufferPolyBuilder.create((GuiGraphicsAccessor) this.graphics, BufferPolyBuilder.Shape.TRIANGLES, mode, this.texture, this.alpha, this.stack.get(new Matrix3x2f()), this.scissorStack.getScissorRegion().orElse(null));
+		ScreenRectangle scissor = this.scissorStack.getScissorRegion().orElse(null);
+		if (scissor != null && (scissor.height() == 0 || scissor.width() == 0)) {
+			return NoOpPolybuilder.INSTANCE;
+		}
+
+		return BufferPolyBuilder.create((GuiGraphicsAccessor) this.graphics, BufferPolyBuilder.Shape.TRIANGLES, mode, this.texture, this.alpha, this.stack.get(new Matrix3x2f()), scissor);
 	}
 
 	private static final Vector3f XP = new Vector3f(1, 0, 0);
@@ -388,6 +413,11 @@ public class PoseCanvas implements Canvas, ModernCanvas {
 
 	@Override
 	public void renderFakePlayer(GUIPlayer player, FakePlayerRenderer renderer, Region region, int left, int top, float extraScale, float lookX, float lookY) {
+		ScreenRectangle scissor = this.scissorStack.getScissorRegion().orElse(null);
+		if (scissor != null && (scissor.height() == 0 || scissor.width() == 0)) {
+			return;
+		}
+
 		// InventoryScreen#renderEntityInInventoryFollowsMouse
 		float l = (float)Math.atan(lookY / 40.0F);
 
@@ -400,7 +430,7 @@ public class PoseCanvas implements Canvas, ModernCanvas {
 		// render
 		FakePlayerGuiRenderer.State state = new FakePlayerGuiRenderer.State(
 				renderer, player, extraScale, xRotation, zRotation, this.context, left, top, lookX, lookY,
-				region, 1.0f, this.scissorStack.getScissorRegion().orElse(null),
+				region, 1.0f, scissor,
 				new ScreenRectangle(region.getX(), region.getY(), region.getWidth(), region.getHeight()));
 		GuiGraphicsAccessor graphics = (GuiGraphicsAccessor) this.graphics;
 		graphics.getGuiRenderState().addPicturesInPictureState(state);
