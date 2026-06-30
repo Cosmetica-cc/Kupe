@@ -16,6 +16,24 @@ a modder wishes to have greater flexibility than the library itself provides wit
 
 Test mod code is in a fourth, `testmod` package.
 
+### Latest Versions
+
+| Minecraft Version  | Kupe Version | Supported Platforms |
+| ------------- | ------------- | ------------- |
+| 1.16.5  | 0.26.7-1.16.5  | Fabric, Forge |
+| 1.17.1  | 0.26.7-1.17.1  | Fabric, Forge |
+| 1.18.2  | 0.26.7-1.18.2  | Fabric, Forge |
+| 1.19.2  | 0.26.7-1.19.2  | Fabric, Forge |
+| 1.19.4  | 0.26.7-1.19.4  | Fabric, Forge |
+| 1.20.1  | 0.26.7-1.20.1  | Fabric, Forge |
+| 1.20.4  | 0.26.7-1.20.4  | Fabric, Forge, Neoforge |
+| 1.21.1  | 0.26.7-1.21.1  | Fabric, Forge, Neoforge |
+| 1.21.4  | 0.26.7-1.21.4  | Fabric, Forge, Neoforge |
+| 1.21.8  | 0.26.8-1.21.8  | Fabric, Forge, Neoforge |
+| 1.21.11  | 0.26.8-1.21.11  | Fabric, Forge, Neoforge |
+| 26.1  | 0.26.8-26.1  | Fabric, Neoforge |
+| 26.2  | 0.26.9-26.2  | Fabric, Neoforge |
+
 ## Setting Up
 
 You can include Kupe in your project via gradle. First, add the cosmetica maven to your repositories:
