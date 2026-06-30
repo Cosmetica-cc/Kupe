@@ -46,6 +46,7 @@ public class FakePlayerTestScreen extends Screen {
 							.showAttachments(elytra ? GUIPlayer.ELYTRA : GUIPlayer.CAPE)
 							.showNametag(true)
 							.addNametag(Text.literal("Test Player 1.21.8 test test test test"), 0.75f)
+							.addNametag(Text.literal("Test Player 26.2 too"), 1.0f)
 							.withStyle(Style.create()
 									.set(CommonProperties.BORDER, Border.create(1, 0xFFFFFF))),
 					new Button(Text.literal(frozen ? "Unfreeze Player" : "Freeze Player"), () -> this.frozen.set(!frozen)),

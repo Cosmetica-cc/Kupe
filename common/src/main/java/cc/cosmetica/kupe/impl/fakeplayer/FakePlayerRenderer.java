@@ -25,13 +25,18 @@ import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.entity.player.PlayerModelType;
 import net.minecraft.world.entity.player.PlayerSkin;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 
 import java.util.*;
@@ -54,6 +59,40 @@ public final class FakePlayerRenderer {
 
 	private Quaternionf cameraOrientation = new Quaternionf(0.0F, 0.0F, 0.0F, 1.0F);
 	public Set<PlayerModelPart> shownParts = Sets.newHashSet(PlayerModelPart.values());
+
+	public static void renderNametags(@NotNull List<GUIPlayer.Nametag> nameTags, EntityRenderState state, PoseStack stack, SubmitNodeCollector collector, CameraRenderState camera, int offset) {
+		stack.scale(-1, 1, -1);
+
+		// don't do 0 (username), handled by vanilla
+		for (int i = 1; i < nameTags.size(); i++) {
+			FakePlayerRenderer.renderNametag(nameTags.get(i), state, stack, collector, camera, offset);
+		}
+	}
+
+	public static void renderNametag(GUIPlayer.Nametag nametag, EntityRenderState state, PoseStack stack,
+									 SubmitNodeCollector collector, CameraRenderState camera, int offset) {
+        assert state.nameTagAttachment != null;
+
+		stack.pushPose();
+
+        Vec3 scaledAttachment = new Vec3(state.nameTagAttachment.x, state.nameTagAttachment.y / nametag.scale, state.nameTagAttachment.z);
+		stack.scale(nametag.scale, nametag.scale, nametag.scale);
+
+		Component component = nametag.text.toMinecraftComponent();
+
+		collector.submitNameTag(
+				stack,
+				scaledAttachment,
+				offset,
+				component,
+				!state.isDiscrete,
+				state.lightCoords,
+				camera);
+
+		stack.popPose();
+		// Cosmetica lore is 0.15F? TODO add control to this translation to Kupe API in future.
+		stack.translate(0.0F, 0.25875F * nametag.scale, 0.0F);
+	}
 
 	// inventoryScreen::extractEntityInInventoryFollowsMouse
 	public void renderFakePlayer(final GUIPlayer player,
@@ -92,7 +131,7 @@ public final class FakePlayerRenderer {
 	}
 
 	private @NotNull AvatarRenderState extractRenderState(GUIPlayer player) {
-		AvatarRenderState arsTechnica = new GuiPlayerAvatarRenderState();
+		GuiPlayerAvatarRenderState arsTechnica = new GuiPlayerAvatarRenderState();
 
 		// skin
 		arsTechnica.skin = new PlayerSkin(
@@ -121,7 +160,6 @@ public final class FakePlayerRenderer {
 //		pose.isLeftHanded; -- unused.
 
 		// remaining thingamajigs from the renderer
-		// TODO this.renderMode;
 		switch (this.renderMode) {
 		case NO_RENDER:
 			throw new IllegalStateException("Can't be extracting render states for NO_RENDER render mode");
@@ -137,13 +175,12 @@ public final class FakePlayerRenderer {
 
 		if (this.showNametag) {
 			if (!this.nametags.isEmpty()) {
-				arsTechnica.nameTagAttachment = Vec3.ZERO;
+				arsTechnica.nameTagAttachment = new Vec3(0, 1.8F, 0);
 				// TODO better old-kupe-style nametag handling
 				arsTechnica.nameTag = this.nametags.get(0).text.toMinecraftComponent();
+				arsTechnica.nameTags = this.nametags;
 			}
 		}
-		// TODO this.nametags;
-		// TODO this.cameraOrientation;
 
 		// Attachments
 		Iterator<GUIPlayer.Attachment<?>> iterator = player.getRenderingAttachments();
@@ -179,48 +216,6 @@ public final class FakePlayerRenderer {
 	private Vec3 getRenderOffset(GUIPlayer.Posture posture) {
 		return posture.sneaking ? new Vec3(0.0D, -0.125D, 0.0D) : Vec3.ZERO;
 	}
-
-		// nametag
-//		if (this.showNametag) {
-//			stack.pushPose();
-//			for (int i = this.nametags.size() - 1; i >= 0; i--) {
-//				GUIPlayer.Nametag nametag = this.nametags.get(i);
-//
-//				if (!nametag.text.isEmpty()) {
-//					stack.pushPose();
-//					this.renderNametag(nametag, stack, bufferSource, light);
-//					stack.popPose();
-//					stack.translate(0, 0.25875f, 0);
-//				}
-//			}
-//			stack.popPose();
-//		}
-
-//	private void renderNametag(GUIPlayer.Nametag nametag, PoseStack stack, MultiBufferSource bufferSource, int packedLight) {
-//		final Component name = nametag.text.toMinecraftComponent();
-//		final float scale = nametag.scale;
-
-//		float yPosition = EntityType.PLAYER.getDimensions().height() + 0.5F;
-//
-//		stack.translate(0.0D, yPosition, 0.0D);
-//		stack.mulPose(cameraOrientation);
-//		stack.scale(-0.025F, -0.025F, 0.025F);
-//		stack.scale(scale, scale, scale);
-//
-//		boolean fullyRender = true; // TODO !player.renderDiscreteNametag();
-//		int offsetForDeadmau5 = "deadmau5".equals(name.getString()) ? -10 : 0;
-//
-//		Matrix4f pose = stack.last().pose();
-//		float backgroundOpacity = Minecraft.getInstance().options.getBackgroundOpacity(0.25F);
-//		int k = (int)(backgroundOpacity * 255.0F) << 24;
-//		Font font = Minecraft.getInstance().font;
-//		float h = (float)(-font.width(name) / 2);
-//		font.drawInBatch(name, h, (float)offsetForDeadmau5, 0x20FFFFFF, false, pose, bufferSource, fullyRender ? Font.DisplayMode.SEE_THROUGH : Font.DisplayMode.NORMAL, k, packedLight);
-//
-//		if (fullyRender) {
-//			font.drawInBatch(name, h, (float)offsetForDeadmau5, -1, false, pose, bufferSource, Font.DisplayMode.NORMAL, 0, packedLight);
-//		}
-//	}
 
 	public enum PlayerRenderMode {
 		INVISIBLE,

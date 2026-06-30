@@ -8,6 +8,7 @@
     "MinecraftAccessor",
     "Vec3Mixin",
     "fakeplayer.ElytraModelAccessor",
+    "fakeplayer.EntityRendererMixin",
     "fakeplayer.EntityRendererProviderAccessor",
     "fakeplayer.EquipmentLayerRendererAccessor",
     "fakeplayer.MinecraftMixin",

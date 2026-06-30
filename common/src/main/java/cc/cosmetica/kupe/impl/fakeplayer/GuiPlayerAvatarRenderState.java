@@ -20,7 +20,11 @@ import cc.cosmetica.kupe.api.gui.GUIPlayer;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+
 public class GuiPlayerAvatarRenderState extends AvatarRenderState {
     @Nullable
     public GUIPlayer.ElytraProperties elytraProperties = null;
+    @Nullable
+    public List<GUIPlayer.Nametag> nameTags = null;
 }
