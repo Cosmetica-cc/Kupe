@@ -30,6 +30,20 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(EntityRenderer.class)
 public class EntityRendererMixin {
+    @Inject(at = @At("HEAD"), method = "submitNameDisplay(Lnet/minecraft/client/renderer/entity/state/EntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/level/CameraRenderState;I)V")
+    private void beforeSubmitNameDisplay(
+            final EntityRenderState state,
+            final PoseStack poseStack,
+            final SubmitNodeCollector submitNodeCollector,
+            final CameraRenderState camera,
+            final int offset,
+            CallbackInfo info
+    ) {
+        if (state instanceof GuiPlayerAvatarRenderState) {
+            FakePlayerRenderer.correctScaleToRenderNametagsInGui(poseStack);
+        }
+    }
+
     @Inject(at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/client/renderer/SubmitNodeCollector;submitNameTag(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/world/phys/Vec3;ILnet/minecraft/network/chat/Component;ZILnet/minecraft/client/renderer/state/level/CameraRenderState;)V",

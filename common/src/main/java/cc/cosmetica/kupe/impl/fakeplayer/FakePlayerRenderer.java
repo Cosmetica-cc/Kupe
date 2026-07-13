@@ -60,9 +60,11 @@ public final class FakePlayerRenderer {
 	private Quaternionf cameraOrientation = new Quaternionf(0.0F, 0.0F, 0.0F, 1.0F);
 	public Set<PlayerModelPart> shownParts = Sets.newHashSet(PlayerModelPart.values());
 
-	public static void renderNametags(@NotNull List<GUIPlayer.Nametag> nameTags, EntityRenderState state, PoseStack stack, SubmitNodeCollector collector, CameraRenderState camera, int offset) {
+	public static void correctScaleToRenderNametagsInGui(PoseStack stack) {
 		stack.scale(-1, 1, -1);
+	}
 
+	public static void renderNametags(@NotNull List<GUIPlayer.Nametag> nameTags, EntityRenderState state, PoseStack stack, SubmitNodeCollector collector, CameraRenderState camera, int offset) {
 		// don't do 0 (username), handled by vanilla
 		for (int i = 1; i < nameTags.size(); i++) {
 			FakePlayerRenderer.renderNametag(nameTags.get(i), state, stack, collector, camera, offset);
