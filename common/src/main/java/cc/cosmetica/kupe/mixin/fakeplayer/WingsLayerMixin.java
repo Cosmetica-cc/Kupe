@@ -41,7 +41,7 @@ public class WingsLayerMixin {
     @Final
     private EquipmentLayerRenderer equipmentRenderer;
 
-    @Inject(at = @At("RETURN"), method = "submit")
+    @Inject(at = @At("HEAD"), method = "submit", cancellable = true)
     private void submit(
             final PoseStack poseStack, final SubmitNodeCollector submitNodeCollector, final int lightCoords,
             final HumanoidRenderState state,
@@ -60,6 +60,7 @@ public class WingsLayerMixin {
                         lightCoords,
                         ((EquipmentLayerRendererAccessor)this.equipmentRenderer).getEquipmentAssets()
                 );
+                info.cancel();
             }
         }
     }

@@ -20,10 +20,8 @@ import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.gui.GUIPlayer;
 import cc.cosmetica.kupe.api.gui.GUIPlayer.ElytraProperties;
 import cc.cosmetica.kupe.impl.DirectTexture;
-import cc.cosmetica.kupe.mixin.fakeplayer.ElytraModelAccessor;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.object.equipment.ElytraModel;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
@@ -47,6 +45,7 @@ public class ElytraAttachment implements GUIPlayer.Attachment<ElytraProperties> 
 	public void submitToRenderState(GUIPlayer component, ElytraProperties configuration, Quaternionf cameraOrientation, AvatarRenderState renderState) {
 		if (renderState instanceof GuiPlayerAvatarRenderState guitar) {
 			guitar.elytraProperties = configuration;
+//			renderState.chestEquipment = new ItemStack(Items.ELYTRA); -> crashes.
 		}
 
 		renderState.skin = new PlayerSkin(
