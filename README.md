@@ -40,7 +40,7 @@ You can include Kupe in your project via gradle. First, add the cosmetica maven 
 
 ```groovy
 repositories {
-    maven { url 'https://maven.cosmetica.cc/' }
+    maven { url 'https://maven.cloaks.gg/' }
 }
 ```
 
