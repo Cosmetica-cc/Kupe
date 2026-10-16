@@ -18,7 +18,7 @@ package cc.cosmetica.kupe.api;
 
 import cc.cosmetica.kupe.impl.LeavesSandbox;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.renderpearl.api.vertex.VertexFormat;
 
 /**
  * Draw polygons. Typically used for {@linkplain Canvas#drawQuads(Mode) quadrilaterals}.

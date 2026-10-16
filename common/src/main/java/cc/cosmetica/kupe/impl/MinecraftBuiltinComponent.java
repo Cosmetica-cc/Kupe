@@ -26,7 +26,6 @@ import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.input.MouseButtonInfo;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 
@@ -93,7 +92,7 @@ public abstract class MinecraftBuiltinComponent extends Component {
 
 	@Override
 	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-		KeyEvent e = new KeyEvent(keyCode, scanCode, modifiers);
+		KeyEvent e = new KeyEvent(scanCode, keyCode, modifiers);
 		return this.minecraftWidget.keyPressed(e);
 	}
 

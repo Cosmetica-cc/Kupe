@@ -23,9 +23,8 @@ import cc.cosmetica.kupe.impl.fakeplayer.FakePlayerGuiRenderer;
 import cc.cosmetica.kupe.impl.fakeplayer.FakePlayerRenderer;
 import cc.cosmetica.kupe.mixin.GuiGraphicsAccessor;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.textures.FilterMode;
-import com.mojang.blaze3d.textures.GpuTextureView;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.renderpearl.api.textures.FilterMode;
+import com.mojang.renderpearl.api.textures.GpuTextureView;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -188,7 +187,8 @@ public class PoseCanvas implements Canvas, ModernCanvas {
 					x_, y_,
 					// TODO is this correct position
 					new MenuTooltipPositioner(new ScreenRectangle(x, y, 1, 1)),
-					null);
+					null,
+					false);
 		}, x, y);
 	}
 

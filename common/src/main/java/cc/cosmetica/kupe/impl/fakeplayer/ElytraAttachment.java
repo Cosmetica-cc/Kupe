@@ -138,11 +138,11 @@ public class ElytraAttachment implements GUIPlayer.Attachment<ElytraProperties> 
 				if (colour != 0) {
 					collector.order(nextOrder++)
 							.submitModel(
-									model, state, stack, renderType, lightCoords, OverlayTexture.NO_OVERLAY, colour, null, outlineColour, null
+									model, state, stack, renderType, lightCoords, OverlayTexture.NO_OVERLAY, colour, null, outlineColour
 							);
 					if (renderFoil) {
 						collector.order(nextOrder++)
-								.submitModel(model, state, stack, RenderTypes.armorEntityGlint(), lightCoords, OverlayTexture.NO_OVERLAY, colour, null, outlineColour, null);
+								.submitModel(model, state, stack, RenderTypes.trimmedArmorGlint(), lightCoords, OverlayTexture.NO_OVERLAY, colour, null, outlineColour);
 					}
 
 					renderFoil = false;

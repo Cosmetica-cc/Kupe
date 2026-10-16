@@ -18,7 +18,7 @@ package cc.cosmetica.kupe.mixin.fakeplayer;
 
 import cc.cosmetica.kupe.impl.fakeplayer.PlayerUtils;
 import com.mojang.authlib.minecraft.UserApiService;
-import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
+import com.mojang.authlib.services.MinecraftServicesDiscoveryService;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.main.GameConfig;
 import org.spongepowered.asm.mixin.Mixin;
@@ -32,7 +32,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(Minecraft.class)
 public class MinecraftMixin {
     @Inject(at = @At("HEAD"), method="createUserApiService")
-    private static void onInit(YggdrasilAuthenticationService authService, GameConfig gameConfig, CallbackInfoReturnable<UserApiService> cir) {
+    private static void onInit(MinecraftServicesDiscoveryService discoveryService, GameConfig config, CallbackInfoReturnable<UserApiService> cir) {
         PlayerUtils.createNewCache();
     }
 }

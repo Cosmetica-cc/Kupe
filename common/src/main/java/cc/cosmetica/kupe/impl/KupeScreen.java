@@ -25,6 +25,7 @@ import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.impl.text.FormattedCharSeqRenderer;
 import cc.cosmetica.kupe.util.ImageUtilities;
 import cc.cosmetica.kupe.util.MultiCache;
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
@@ -35,7 +36,6 @@ import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.util.FormattedCharSequence;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
 
 import java.io.IOException;
 import java.util.*;
@@ -111,18 +111,18 @@ public final class KupeScreen extends Screen {
 
 	@Override
 	public boolean keyPressed(KeyEvent e) {
-		return this.keyPressed(e.key(), e.scancode(), e.modifiers());
+		return this.keyPressed(e.keycode(), e.key(), e.modifiers());
 	}
 
 	private boolean keyPressed(int keyCode, int scanCode, int modifiers) {
 		if (debug) {
-			if (this.tree.keyDebug(keyCode)) {
+			if (this.tree.keyDebug(scanCode)) {
 				return true;
 			}
 		}
 
 		if (allowDebug) {
-			if (keyCode == GLFW.GLFW_KEY_I && modifiers == (GLFW.GLFW_MOD_CONTROL|GLFW.GLFW_MOD_SHIFT)) {
+			if (scanCode == InputConstants.KEY_I && (modifiers & InputConstants.MOD_CONTROL) != 0 && (modifiers & InputConstants.MOD_SHIFT) != 0) {
 				debug = !debug;
 			}
 		}
@@ -132,7 +132,7 @@ public final class KupeScreen extends Screen {
 
 	@Override
 	public boolean keyReleased(KeyEvent e) {
-		return this.tree.keyReleased(e.key(), e.scancode(), e.modifiers());
+		return this.tree.keyReleased(e.keycode(), e.key(), e.modifiers());
 	}
 
 	@Override

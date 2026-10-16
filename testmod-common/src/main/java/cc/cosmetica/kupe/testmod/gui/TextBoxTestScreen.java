@@ -22,7 +22,7 @@ public class TextBoxTestScreen extends Screen {
     @Override
     protected Component[] buildScreen() {
         return new Component[] {
-                new TextBox(Text.literal("Enter something..."), this.text, true, 32),
+                new TextBox(Text.literal("Enter something..."), this.text, true, 32).onEnter(k -> System.out.println("on enter " + k)),
                 new SubmitButton<>(Text.GUI_PROCEED, str -> Screens.closeCurrentScreen(), this.text)
         };
     }

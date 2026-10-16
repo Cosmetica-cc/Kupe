@@ -21,10 +21,9 @@ import cc.cosmetica.kupe.api.maths.Matrix4;
 import cc.cosmetica.kupe.api.maths.Vec3;
 import cc.cosmetica.kupe.impl.maths.Mat4f;
 import com.mojang.blaze3d.vertex.PoseStack;
-import org.joml.AxisAngle4f;
-import org.joml.Matrix3x2fStack;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
+import org.joml.*;
+
+import java.lang.Math;
 
 /**
  * MatrixStack wrapping blaze3d posestack.
@@ -58,10 +57,12 @@ public class KupePoseStack implements MatrixStack {
 
     @Override
     public void rotate(Vec3 axis, float amount, boolean degrees) {
-        this.stack.mulPose(new Quaternionf(new AxisAngle4f(
+        Quaternionf quat = new Quaternionf(new AxisAngle4f(
                 degrees ? (float)Math.toRadians(amount) : amount,
                 new Vector3f((float)axis.getX(), (float)axis.getY(), (float)axis.getZ())
-        )));
+        ));
+        Matrix4f rotMat = new Matrix4f();
+        this.stack.mulPose(rotMat.rotate(quat));
     }
 
     @Override

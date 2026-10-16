@@ -25,10 +25,10 @@ import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
 import cc.cosmetica.kupe.impl.MinecraftBuiltinComponent;
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.EditBox;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 import java.util.Objects;
@@ -121,7 +121,7 @@ public class TextBox extends MinecraftBuiltinComponent implements Input {
 	@Override
 	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
 		if (this.minecraftWidget.isFocused()) {
-			if (keyCode == GLFW.GLFW_KEY_ENTER && this.onEnter != null) {
+			if (keyCode == InputConstants.KEYCODE_RETURN && this.onEnter != null) {
 				this.onEnter.accept(((EditBox)this.minecraftWidget).getValue());
 			} else {
 				return super.keyPressed(keyCode, scanCode, modifiers);

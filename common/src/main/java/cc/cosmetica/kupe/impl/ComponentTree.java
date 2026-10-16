@@ -28,9 +28,9 @@ import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
 import com.google.common.collect.ImmutableList;
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -492,9 +492,10 @@ class ComponentTree {
 		}
 	}
 
+	// 26.3: scancode
 	public boolean keyDebug(int keyCode) {
 		switch (keyCode) {
-		case GLFW.GLFW_KEY_1: // Back
+		case InputConstants.KEY_1: // Back
 			if (this.debugParent == this.root) {
 				this.debugParent = null;
 				this.updateDebugComponent();
@@ -506,7 +507,7 @@ class ComponentTree {
 				this.updateDebugComponent();
 			}
 			return true;
-		case GLFW.GLFW_KEY_2: // Step In
+		case InputConstants.KEY_2: // Step In
 			if (this.debugParent == null) {
 				this.debugParent = this.root;
 				this.debugIndex = 0;
@@ -517,7 +518,7 @@ class ComponentTree {
 				this.updateDebugComponent();
 			}
 			return true;
-		case GLFW.GLFW_KEY_3: // Previous
+		case InputConstants.KEY_3: // Previous
 			if (this.debugParent != null) {
 				if (--this.debugIndex < 0) {
 					this.debugIndex = this.debugParent.children.size() - 1;
@@ -526,7 +527,7 @@ class ComponentTree {
 				this.updateDebugComponent();
 			}
 			return true;
-		case GLFW.GLFW_KEY_4: // Next
+		case InputConstants.KEY_4: // Next
 			if (this.debugParent != null) {
 				if (++this.debugIndex >= this.debugParent.children.size()) {
 					this.debugIndex = 0;
@@ -535,7 +536,7 @@ class ComponentTree {
 				this.updateDebugComponent();
 			}
 			return true;
-		case GLFW.GLFW_KEY_5: // Print debug info
+		case InputConstants.KEY_5: // Print debug info
 			{
 				Node active;
 
@@ -553,7 +554,7 @@ class ComponentTree {
 				}
 			}
 			return false;
-		case GLFW.GLFW_KEY_6: // Switch Padding <-> Content Region
+		case InputConstants.KEY_6: // Switch Padding <-> Content Region
 			{
 				if (debugInstructions == DEBUG_INSTRUCTIONS_C) {
 					debugInstructions = DEBUG_INSTRUCTIONS_P;

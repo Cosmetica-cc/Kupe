@@ -30,6 +30,7 @@ import net.minecraft.client.renderer.state.gui.GuiRenderState;
 import net.minecraft.client.renderer.state.gui.pip.PictureInPictureRenderState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 
 public class FakePlayerGuiRenderer extends PictureInPictureRenderer<FakePlayerGuiRenderer.@NotNull State> {
@@ -60,7 +61,9 @@ public class FakePlayerGuiRenderer extends PictureInPictureRenderer<FakePlayerGu
 
 //        stack.translate(0.0D, 0.0D, 1000.0D);
         stack.scale(arg.extraScale, arg.extraScale, arg.extraScale);
-        stack.mulPose(arg.zRotation);
+        Matrix4f rotMatrix = new Matrix4f();
+        rotMatrix.rotate(arg.zRotation);
+        stack.mulPose(rotMatrix);
 
         final float h = (float)Math.atan(arg.lookX / 40.0F);
         final float l = (float)Math.atan(arg.lookY / 40.0F);
