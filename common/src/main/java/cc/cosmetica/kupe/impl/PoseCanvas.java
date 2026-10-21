@@ -27,9 +27,7 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.font.glyphs.BakedGlyph;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
-import net.minecraft.client.gui.render.GuiRenderer;
 import net.minecraft.client.gui.render.TextureSetup;
 import net.minecraft.client.gui.render.state.*;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
@@ -42,7 +40,6 @@ import org.joml.*;
 
 import java.lang.Math;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Implementation of Canvas.
@@ -332,16 +329,21 @@ public class PoseCanvas implements Canvas, ModernCanvas {
 		GuiGraphicsAccessor graphics = (GuiGraphicsAccessor) this.graphics;
 		int colour = packColour(r, g, b, this.alpha);
 
+		Matrix3x2f transform = this.stack.get(new Matrix3x2f());
+
+		ScreenRectangle bounds = new ScreenRectangle(x0, y0, width, height)
+				.transformMaxBounds(transform);
+
 		graphics.getGuiRenderState().submitGuiElement(new ColoredRectangleRenderState(
 				RenderPipelines.GUI,
 				TextureSetup.noTexture(),
-				this.stack.get(new Matrix3x2f()),
+				transform,
 				x0, y0,
 				x0 + width, y0 + height,
 				colour,
 				colour,
 				this.scissorStack.getScissorRegion().orElse(null),
-				new ScreenRectangle(x0, y0, width, height)
+				bounds
 		));
 	}
 
@@ -352,10 +354,15 @@ public class PoseCanvas implements Canvas, ModernCanvas {
 		this.setTexture(texture);
 		assert this.texture != null;
 
+		Matrix3x2f transform = this.stack.get(new Matrix3x2f());
+
+		ScreenRectangle bounds = new ScreenRectangle(x0, y0, width, height)
+				.transformMaxBounds(transform);
+
 		graphics.getGuiRenderState().submitGuiElement(new BlitRenderState(
 				RenderPipelines.GUI_TEXTURED,
 				TextureSetup.singleTexture(this.texture),
-				this.stack.get(new Matrix3x2f()),
+				transform,
 				x0, y0,
 				x0 + width, y0 + height,
 				0,
@@ -364,7 +371,7 @@ public class PoseCanvas implements Canvas, ModernCanvas {
 				1,
 				colour,
 				this.scissorStack.getScissorRegion().orElse(null),
-				new ScreenRectangle(x0, y0, width, height)
+				bounds
 		));
 	}
 
