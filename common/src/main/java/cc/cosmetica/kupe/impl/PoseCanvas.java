@@ -45,10 +45,7 @@ import org.joml.*;
 
 import java.lang.Math;
 import java.util.Optional;
-<<<<<<< HEAD
 import java.util.stream.Collectors;
-=======
->>>>>>> 1.21.11
 
 /**
  * Implementation of Canvas.
