@@ -45,7 +45,10 @@ import org.joml.*;
 
 import java.lang.Math;
 import java.util.Optional;
+<<<<<<< HEAD
 import java.util.stream.Collectors;
+=======
+>>>>>>> 1.21.11
 
 /**
  * Implementation of Canvas.
@@ -336,16 +339,21 @@ public class PoseCanvas implements Canvas, ModernCanvas {
 		GuiGraphicsAccessor graphics = (GuiGraphicsAccessor) this.graphics;
 		int colour = packColour(r, g, b, this.alpha);
 
+		Matrix3x2f transform = this.stack.get(new Matrix3x2f());
+
+		ScreenRectangle bounds = new ScreenRectangle(x0, y0, width, height)
+				.transformMaxBounds(transform);
+
 		graphics.getGuiRenderState().addGuiElement(new ColoredRectangleRenderState(
 				RenderPipelines.GUI,
 				TextureSetup.noTexture(),
-				this.stack.get(new Matrix3x2f()),
+				transform,
 				x0, y0,
 				x0 + width, y0 + height,
 				colour,
 				colour,
 				this.scissorStack.getScissorRegion().orElse(null),
-				new ScreenRectangle(x0, y0, width, height)
+				bounds
 		));
 	}
 
@@ -356,11 +364,16 @@ public class PoseCanvas implements Canvas, ModernCanvas {
 		this.setTexture(texture);
 		assert this.texture != null;
 
+		Matrix3x2f transform = this.stack.get(new Matrix3x2f());
+
+		ScreenRectangle bounds = new ScreenRectangle(x0, y0, width, height)
+				.transformMaxBounds(transform);
+
 		graphics.getGuiRenderState().addGuiElement(new BlitRenderState(
 				RenderPipelines.GUI_TEXTURED,
 				// TODO add filter mode configuration on Canvas in all Kupe minecraft versions
 				TextureSetup.singleTexture(this.texture, RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST)),
-				this.stack.get(new Matrix3x2f()),
+				transform,
 				x0, y0,
 				x0 + width, y0 + height,
 				0,
@@ -369,7 +382,7 @@ public class PoseCanvas implements Canvas, ModernCanvas {
 				1,
 				colour,
 				this.scissorStack.getScissorRegion().orElse(null),
-				new ScreenRectangle(x0, y0, width, height)
+				bounds
 		));
 	}
 
