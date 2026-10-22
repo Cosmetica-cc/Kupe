@@ -346,16 +346,21 @@ public class PoseCanvas implements Canvas, ModernCanvas {
 			return;
 		}
 
+		Matrix3x2f transform = this.stack.get(new Matrix3x2f());
+
+		ScreenRectangle bounds = new ScreenRectangle(x0, y0, width, height)
+				.transformMaxBounds(transform);
+
 		graphics.getGuiRenderState().addGuiElement(new ColoredRectangleRenderState(
 				RenderPipelines.GUI,
 				TextureSetup.noTexture(),
-				this.stack.get(new Matrix3x2f()),
+				transform,
 				x0, y0,
 				x0 + width, y0 + height,
 				colour,
 				colour,
 				scissor,
-				new ScreenRectangle(x0, y0, width, height)
+				bounds
 		));
 	}
 
@@ -371,11 +376,16 @@ public class PoseCanvas implements Canvas, ModernCanvas {
 			return;
 		}
 
+		Matrix3x2f transform = this.stack.get(new Matrix3x2f());
+
+		ScreenRectangle bounds = new ScreenRectangle(x0, y0, width, height)
+				.transformMaxBounds(transform);
+
 		graphics.getGuiRenderState().addGuiElement(new BlitRenderState(
 				RenderPipelines.GUI_TEXTURED,
 				// TODO add filter mode configuration on Canvas in all Kupe minecraft versions
 				TextureSetup.singleTexture(this.texture, RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST)),
-				this.stack.get(new Matrix3x2f()),
+				transform,
 				x0, y0,
 				x0 + width, y0 + height,
 				0,
@@ -384,7 +394,7 @@ public class PoseCanvas implements Canvas, ModernCanvas {
 				1,
 				colour,
 				scissor,
-				new ScreenRectangle(x0, y0, width, height)
+				bounds
 		));
 	}
 
