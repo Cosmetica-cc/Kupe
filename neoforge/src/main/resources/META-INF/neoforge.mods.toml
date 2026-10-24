@@ -23,7 +23,7 @@ side = "BOTH"
 [[dependencies.kupe]]
 modId = "minecraft"
 type = "required"
-versionRange = "[26.1,)"
+versionRange = "[26.3,)"
 ordering = "NONE"
 side = "BOTH"
 
