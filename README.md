@@ -33,7 +33,7 @@ Test mod code is in a fourth, `testmod` package.
 | 1.21.11  | 0.26.13-1.21.11  | Fabric, Forge, Neoforge |
 | 26.1  | 0.26.12-26.1  | Fabric, Neoforge |
 | 26.2  | 0.26.12-26.2  | Fabric, Neoforge |
-| 26.3  | 0.26.12-26.2  | Fabric, Neoforge |
+| 26.3  | 0.26.12-26.3  | Fabric, Neoforge |
 
 ## Setting Up
 
